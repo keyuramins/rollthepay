@@ -1,225 +1,222 @@
 # Roll The Pay
 
-A modern, data-driven salary information website built with Next.js that provides accurate compensation data for occupations across different countries and states.
+A comprehensive salary information platform that provides accurate compensation data for jobs across different countries and regions. Our mission is to increase transparency in the labor market by making salary information accessible to everyone.
 
-## 🚀 Features
+## Features
 
 - **Global Salary Data**: Access salary information from thousands of employers worldwide
-- **Geographic Coverage**: Browse salaries by country and state/region
-- **Comprehensive Data**: Annual salaries, hourly rates, bonuses, commissions, and experience-based compensation
-- **Static-First Architecture**: Built with Next.js 15 and Incremental Static Regeneration (ISR)
-- **Responsive Design**: Modern UI built with Tailwind CSS and Shadcn UI components
-- **SEO Optimized**: Server-side rendering with proper metadata and canonical URLs
+- **Country & State Coverage**: Explore compensation data by country, state, and region
+- **Job Category Organization**: Browse salary information organized by occupation and specialization
+- **Comprehensive Compensation Details**: View annual salaries, hourly rates, and experience-based compensation
+- **Modular Component Architecture**: Fully component-based codebase for maintainability and reusability
+- **Real-time Data**: Up-to-date salary information with regular updates
+- **User-friendly Interface**: Clean, intuitive design for easy navigation
 
-## 🏗️ Architecture
-
-### Technology Stack
-- **Framework**: Next.js 15 with App Router
-- **Language**: TypeScript
-- **Styling**: Tailwind CSS v4
-- **UI Components**: Shadcn UI with Radix UI primitives
-- **Data Processing**: CSV parsing with csv-parse
-- **Icons**: Lucide React
-
-### Core Principles
-- **Server Components First**: All pages are Server Components by default
-- **Static Generation**: ISR with 1-year revalidation for optimal performance
-- **Data-Driven**: Single source of truth from CSV files
-- **Type Safety**: Strong TypeScript types for all data structures
-
-## 📁 Project Structure
+## Project Structure
 
 ```
 rollthepay/
-├── app/                          # Next.js App Router
-│   ├── [country]/               # Dynamic country routes
-│   │   └── [...url]/            # Catch-all for country/state/slug
-│   ├── about/                   # About page
-│   ├── countries/               # Countries listing
-│   └── layout.tsx              # Root layout
-├── components/                  # React components
-│   ├── navigation/             # Header and navigation
-│   ├── occupation/             # Occupation-specific components
-│   └── ui/                     # Reusable UI components (Shadcn)
-├── data/                       # CSV data files
-│   ├── africa/                 # African countries data
-│   ├── asia/                   # Asian countries data
-│   ├── europe/                 # European countries data
-│   ├── middle_east/            # Middle Eastern countries data
-│   ├── north_america/          # North American countries data
-│   ├── oceania/                # Oceania countries data (Australia)
-│   └── south_america/          # South American countries data
-├── lib/                        # Utility libraries
-│   ├── data/                   # Data parsing and types
-│   └── format/                 # Currency and number formatting
-└── types/                      # TypeScript type definitions
+├── app/                          # Next.js App Router pages
+│   ├── page.tsx                  # Home page (modular components)
+│   ├── countries/page.tsx        # Countries listing (modular components)
+│   ├── about/page.tsx            # About page (modular components)
+│   ├── [country]/                # Country-specific routes
+│   │   ├── page.tsx              # Country page (modular components)
+│   │   └── [...url]/             # Dynamic routes for state/occupation
+│   │       └── page.tsx          # State & occupation pages (modular components)
+│   ├── layout.tsx                # Root layout
+│   ├── globals.css               # Global styles
+│   ├── sitemap.ts                # SEO sitemap
+│   └── robots.ts                 # SEO robots.txt
+├── components/                    # Reusable UI components
+│   ├── navigation/               # Navigation components
+│   │   ├── header.tsx            # Main header (composed of sub-components)
+│   │   ├── logo.tsx              # Logo and title component
+│   │   ├── nav-links.tsx         # Navigation links component
+│   │   └── search-dropdown.tsx   # Search and country dropdown component
+│   ├── home/                     # Home page components
+│   │   ├── hero-section.tsx      # Hero section component
+│   │   ├── stats-section.tsx     # Statistics display component
+│   │   ├── mission-section.tsx   # Mission statement component
+│   │   ├── features-section.tsx  # Features grid component
+│   │   └── cta-section.tsx       # Call-to-action component
+│   ├── countries/                # Countries page components
+│   │   ├── hero-section.tsx      # Countries hero component
+│   │   ├── country-card.tsx      # Individual country card component
+│   │   ├── continent-section.tsx # Continent grouping component
+│   │   └── global-stats.tsx      # Global statistics component
+│   ├── country/                  # Country page components
+│   │   ├── hero-section.tsx      # Country hero component
+│   │   ├── occupation-category-card.tsx # Occupation category card
+│   │   ├── occupation-categories-section.tsx # Occupation categories grid
+│   │   ├── state-card.tsx        # Individual state card component
+│   │   ├── states-section.tsx    # States/regions section component
+│   │   └── cta-section.tsx       # Country page CTA component
+│   ├── about/                    # About page components
+│   │   ├── hero-section.tsx      # About hero component
+│   │   ├── mission-section.tsx   # Mission section component
+│   │   ├── what-we-do-section.tsx # What we do section component
+│   │   ├── why-it-matters-section.tsx # Why salary transparency matters
+│   │   ├── data-quality-section.tsx # Data quality commitment component
+│   │   └── cta-section.tsx       # About page CTA component
+│   ├── occupation/               # Occupation page components
+│   │   ├── hero-section.tsx      # Occupation hero component
+│   │   ├── breadcrumbs.tsx       # Navigation breadcrumbs component
+│   │   ├── salary-card.tsx       # Individual salary display component
+│   │   ├── salary-range-card.tsx # Salary range information component
+│   │   ├── hourly-rate-card.tsx  # Hourly rate information component
+│   │   ├── experience-levels-section.tsx # Experience level compensation
+│   │   └── cta-section.tsx       # Occupation page CTA component
+│   ├── state/                    # State page components
+│   │   ├── state-hero-section.tsx # State hero component
+│   │   ├── job-category-card.tsx # Job category display component
+│   │   └── job-categories-section.tsx # Job categories grid component
+│   ├── ui/                       # Shared UI components
+│   │   ├── button.tsx            # Button component (Shadcn)
+│   │   ├── badge.tsx             # Badge component for counts/statistics
+│   │   └── footer.tsx            # Reusable footer component
+│   └── index.ts                  # Central component exports
+├── lib/                          # Utility libraries
+│   ├── data/                     # Data parsing and types
+│   │   ├── parse.ts              # CSV parsing utilities
+│   │   └── types.ts              # TypeScript type definitions
+│   ├── format/                   # Formatting utilities
+│   │   └── currency.ts           # Currency and number formatting
+│   └── utils.ts                  # General utility functions
+├── data/                         # CSV data files
+│   ├── africa/                   # African country data
+│   ├── asia/                     # Asian country data
+│   ├── europe/                   # European country data
+│   ├── middle_east/              # Middle Eastern country data
+│   ├── north_america/            # North American country data
+│   ├── oceania/                  # Oceania country data
+│   │   └── australia.csv         # Australia salary data
+│   └── south_america/            # South American country data
+├── public/                       # Static assets
+├── package.json                  # Dependencies and scripts
+├── next.config.ts                # Next.js configuration
+├── tsconfig.json                 # TypeScript configuration
+└── README.md                     # This file
 ```
 
-## 🗃️ Data Model
+## Component Architecture
 
-The application processes CSV files containing comprehensive salary information:
+### Navigation Components
+- **Header**: Main navigation header composed of Logo, NavLinks, and SearchDropdown
+- **Logo**: Site logo and title with home link
+- **NavLinks**: Main navigation menu (Home, Countries, About)
+- **SearchDropdown**: Global search and country selection dropdown
 
-### Core Fields
-- **Basic Info**: title, occupation, country, state, location
-- **Compensation**: annual salary, hourly rate, bonuses, commissions
-- **Experience Levels**: entry-level, early career, mid-career, experienced, late career
-- **Geographic**: country, state, city/location
-- **Skills & Related**: job skills, related occupations, links
+### Page-Specific Components
+Each page has been broken down into logical, reusable components:
 
-### Data Sources
-- CSV files organized by continent/region
-- Each file contains multiple occupation records
-- Data includes salary ranges, bonuses, and geographic breakdowns
-- Support for multiple currencies (AUD, INR, etc.)
+#### Home Page
+- **HeroSection**: Main hero with title and CTA buttons
+- **StatsSection**: Statistics display (total salaries, countries, transparency)
+- **MissionSection**: Mission statement and value proposition
+- **FeaturesSection**: Key features grid
+- **CTASection**: Call-to-action section
 
-## 🛣️ Routing Structure
+#### Countries Page
+- **CountriesHeroSection**: Hero section for countries listing
+- **CountryCard**: Individual country display with statistics
+- **ContinentSection**: Continent grouping with countries
+- **GlobalStats**: Global overview statistics
 
-The application uses dynamic routing to handle various URL patterns:
+#### Country Page
+- **CountryHeroSection**: Country-specific hero with stats
+- **OccupationCategoryCard**: Individual occupation category display
+- **OccupationCategoriesSection**: Grid of occupation categories
+- **StateCard**: Individual state/region display
+- **StatesSection**: States and regions grid
+- **CountryCTASection**: Country page call-to-action
 
-- `/[country]` - Country overview pages
-- `/[country]/[state]` - State/region specific pages  
-- `/[country]/[slug]` - Individual occupation pages
-- `/[country]/[state]/[slug]` - State-specific occupation pages
+#### About Page
+- **AboutHeroSection**: About page hero section
+- **AboutMissionSection**: Mission and values
+- **WhatWeDoSection**: Services and capabilities
+- **WhyItMattersSection**: Benefits of salary transparency
+- **DataQualitySection**: Data quality commitment
+- **AboutCTASection**: About page call-to-action
 
-### URL Examples
-- `/australia` - Australia overview
-- `/australia/new-south-wales` - NSW state page
-- `/australia/administration-assistant-salary` - Admin assistant salary in Australia
-- `/australia/new-south-wales/administrative-assistant-data-entry-skills-salary-campbelltown` - Specific location and skills
+#### Occupation Pages
+- **OccupationHeroSection**: Occupation-specific hero with salary info
+- **Breadcrumbs**: Navigation breadcrumbs
+- **SalaryCard**: Individual salary amount display
+- **SalaryRangeCard**: Annual salary range information
+- **HourlyRateCard**: Hourly rate information
+- **ExperienceLevelsSection**: Experience-based compensation
+- **OccupationCTASection**: Occupation page call-to-action
 
-## 🚀 Getting Started
+#### State Pages
+- **StateHeroSection**: State-specific hero section
+- **JobCategoryCard**: Individual job category display
+- **JobCategoriesSection**: Grid of job categories
 
-### Prerequisites
-- Node.js 18+ 
-- npm or yarn
+### UI Components
+- **Button**: Shadcn button component with variants
+- **Badge**: Flexible badge component for counts and labels
+- **Footer**: Reusable footer component
 
-### Installation
+## Key Principles
 
-1. Clone the repository:
-```bash
-git clone <repository-url>
-cd rollthepay
-```
+### Modularity
+- Each component has a single responsibility
+- Components are composable and reusable
+- Clear separation of concerns between UI and logic
 
-2. Install dependencies:
-```bash
-npm install
-```
+### Type Safety
+- Strong TypeScript interfaces for all component props
+- Proper type definitions for data structures
+- Null safety and error handling
 
-3. Run the development server:
-```bash
-npm run dev
-```
-
-4. Open [http://localhost:3000](http://localhost:3000) in your browser.
-
-### Build Commands
-
-```bash
-# Development
-npm run dev
-
-# Production build
-npm run build
-
-# Start production server
-npm start
-
-# Linting
-npm run lint
-```
-
-## 🔧 Configuration
-
-### Environment Variables
-No environment variables are currently required. The application runs entirely from static CSV data.
-
-### Next.js Configuration
-- ISR enabled with 1-year revalidation
-- Static generation for all routes
-- App Router with Server Components
-
-## 📊 Data Management
-
-### Adding New Data
-1. Place CSV files in the appropriate `data/[region]/` directory
-2. Ensure CSV follows the expected schema (see `lib/data/types.ts`)
-3. Rebuild the application to include new data
-
-### Data Format Requirements
-- CSV files must include required fields: title, slug_url, country
-- Use lowercase for slug_url (used in routing)
-- Handle missing data gracefully with null values
-- Support for multiple currencies and locales
-
-## 🎨 UI Components
-
-The application uses Shadcn UI components for consistency and accessibility:
-
-- **Button**: Primary and outline variants
-- **Navigation**: Header with responsive design
-- **Layout**: Responsive grid systems and spacing
-- **Typography**: Consistent heading hierarchy
-
-## 🔍 SEO & Performance
-
-### Optimization Features
-- **Static Generation**: All pages pre-built at build time
-- **ISR**: Incremental Static Regeneration for data updates
-- **Metadata**: Dynamic meta tags for each occupation
-- **Canonical URLs**: Proper URL structure for search engines
-- **Performance**: Optimized bundle sizes and loading
-
-### SEO Implementation
-- Dynamic page titles and descriptions
-- Open Graph and Twitter Card support
-- Proper heading hierarchy (H1, H2, H3)
+### Accessibility
 - Semantic HTML structure
+- Proper ARIA labels and roles
+- Keyboard navigation support
 
-## 🧪 Development Guidelines
+### Performance
+- Server Components by default (Next.js 15)
+- Incremental Static Regeneration (ISR) with 1-year revalidation
+- Optimized bundle splitting
 
-### Code Style
-- Use TypeScript for all new code
-- Follow existing component patterns
-- Implement Server Components by default
-- Use Tailwind CSS for styling
+## Data Sources
 
-### Component Structure
-- Place reusable components in `components/ui/`
-- Use kebab-case for filenames
-- Export PascalCase component names
-- Implement proper TypeScript interfaces
+Salary information is sourced from CSV files organized by continent and country. The platform currently includes data for:
 
-### Data Handling
-- Parse CSV data once per build cycle
-- Cache parsed results in module scope
-- Handle invalid data gracefully
-- Use proper number formatting for currencies
+- **Oceania**: Australia
+- **Asia**: India
+- **North America**: United States, Canada
+- **Europe**: United Kingdom, Germany, France
+- **South America**: Brazil
+- **Africa**: South Africa
+- **Middle East**: Various countries
 
-## 📈 Future Enhancements
+## Technology Stack
 
-- Additional country and region coverage
-- Enhanced filtering and search capabilities
-- Salary comparison tools
-- Industry-specific salary insights
-- Mobile app development
+- **Framework**: Next.js 15 with App Router
+- **Language**: TypeScript
+- **Styling**: Tailwind CSS
+- **UI Components**: Shadcn UI
+- **Data**: CSV files with custom parsing
+- **Deployment**: Vercel (recommended)
 
-## 🤝 Contributing
+## Getting Started
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes following the established patterns
-4. Ensure all tests pass
-5. Submit a pull request
+1. Clone the repository
+2. Install dependencies: `npm install`
+3. Run development server: `npm run dev`
+4. Build for production: `npm run build`
 
-## 📄 License
+## Contributing
 
-This project is private and proprietary.
+This project follows strict architectural principles:
+- All pages must be Server Components by default
+- Use ISR with 1-year revalidation
+- Maintain modular component architecture
+- Follow established naming conventions
+- Ensure type safety throughout
 
-## 📞 Support
+## License
 
-For questions or support, please refer to the project documentation or contact the development team.
-
----
-
-**Roll The Pay** - Making salary information accessible and transparent worldwide.
+© 2024 Roll The Pay. All rights reserved.

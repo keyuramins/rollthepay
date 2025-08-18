@@ -62,14 +62,141 @@ function toRecord(row: RawCsvRow): OccupationRecord | null {
     monthlySalary: coerceNumber(row.monthlySalary),
 
     occupation: safeString(row.occupation),
-  };
 
-  // Optional experience buckets
-  (record as any).entryLevel = coerceNumber((row as any).entryLevel);
-  (record as any).earlyCareer = coerceNumber((row as any).earlyCareer);
-  (record as any).midCareer = coerceNumber((row as any).midCareer);
-  (record as any).experienced = coerceNumber((row as any).experienced);
-  (record as any).lateCareer = coerceNumber((row as any).lateCareer);
+    // Gender distribution
+    genderMale: coerceNumber(row.genderMale),
+    genderFemale: coerceNumber(row.genderFemale),
+
+    // Experience buckets
+    entryLevel: coerceNumber(row.entryLevel),
+    earlyCareer: coerceNumber(row.earlyCareer),
+    midCareer: coerceNumber(row.midCareer),
+    experienced: coerceNumber(row.experienced),
+    lateCareer: coerceNumber(row.lateCareer),
+
+    // Skills data
+    skillsNameOne: safeString(row.skillsNameOne),
+    skillsNamePercOne: coerceNumber(row.skillsNamePercOne),
+    skillsNameTwo: safeString(row.skillsNameTwo),
+    skillsNamePercTwo: coerceNumber(row.skillsNamePercTwo),
+    skillsNameThree: safeString(row.skillsNameThree),
+    skillsNamePercThree: coerceNumber(row.skillsNamePercThree),
+    skillsNameFour: safeString(row.skillsNameFour),
+    skillsNamePercFour: coerceNumber(row.skillsNamePercFour),
+    skillsNameFive: safeString(row.skillsNameFive),
+    skillsNamePercFive: coerceNumber(row.skillsNamePercFive),
+    skillsNameSix: safeString(row.skillsNameSix),
+    skillsNamePercSix: coerceNumber(row.skillsNamePercSix),
+    skillsNameSeven: safeString(row.skillsNameSeven),
+    skillsNamePercSeven: coerceNumber(row.skillsNamePercSeven),
+    skillsNameEight: safeString(row.skillsNameEight),
+    skillsNamePercEight: coerceNumber(row.skillsNamePercEight),
+    skillsNameNine: safeString(row.skillsNameNine),
+    skillsNamePercNine: coerceNumber(row.skillsNamePercNine),
+    skillsNameTen: safeString(row.skillsNameTen),
+    skillsNamePercTen: coerceNumber(row.skillsNamePercTen),
+
+    // Years of experience salaries
+    oneYr: coerceNumber(row.oneYr),
+    oneFourYrs: coerceNumber(row.oneFourYrs),
+    fiveNineYrs: coerceNumber(row.fiveNineYrs),
+    tenNineteenYrs: coerceNumber(row.tenNineteenYrs),
+    twentyYrsPlus: coerceNumber(row.twentyYrsPlus),
+
+    // Total hourly values
+    totalHourlyLowValue: coerceNumber(row.totalHourlyLowValue),
+    totalHourlyHighValue: coerceNumber(row.totalHourlyHighValue),
+
+    // Related occupations
+    relLinkOcc1: safeString(row.relLinkOcc1),
+    relLinkOcc2: safeString(row.relLinkOcc2),
+    relLinkOcc3: safeString(row.relLinkOcc3),
+    relLinkOcc4: safeString(row.relLinkOcc4),
+    relLinkOcc5: safeString(row.relLinkOcc5),
+    relLinkOcc6: safeString(row.relLinkOcc6),
+    relLinkOcc7: safeString(row.relLinkOcc7),
+    relLinkOcc8: safeString(row.relLinkOcc8),
+    relLinkOcc9: safeString(row.relLinkOcc9),
+    relLinkOcc10: safeString(row.relLinkOcc10),
+    relLinkOcc11: safeString(row.relLinkOcc11),
+    relLinkOcc12: safeString(row.relLinkOcc12),
+
+    // Related salary ranges
+    relLinkLow1: coerceNumber(row.relLinkLow1),
+    relLinkLow2: coerceNumber(row.relLinkLow2),
+    relLinkLow3: coerceNumber(row.relLinkLow3),
+    relLinkLow4: coerceNumber(row.relLinkLow4),
+    relLinkLow5: coerceNumber(row.relLinkLow5),
+    relLinkLow6: coerceNumber(row.relLinkLow6),
+    relLinkLow7: coerceNumber(row.relLinkLow7),
+    relLinkLow8: coerceNumber(row.relLinkLow8),
+    relLinkLow9: coerceNumber(row.relLinkLow9),
+    relLinkLow10: coerceNumber(row.relLinkLow10),
+    relLinkLow11: coerceNumber(row.relLinkLow11),
+    relLinkLow12: coerceNumber(row.relLinkLow12),
+
+    relLinkHigh1: coerceNumber(row.relLinkHigh1),
+    relLinkHigh2: coerceNumber(row.relLinkHigh2),
+    relLinkHigh3: coerceNumber(row.relLinkHigh3),
+    relLinkHigh4: coerceNumber(row.relLinkHigh4),
+    relLinkHigh5: coerceNumber(row.relLinkHigh5),
+    relLinkHigh6: coerceNumber(row.relLinkHigh6),
+    relLinkHigh7: coerceNumber(row.relLinkHigh7),
+    relLinkHigh8: coerceNumber(row.relLinkHigh8),
+    relLinkHigh9: coerceNumber(row.relLinkHigh9),
+    relLinkHigh10: coerceNumber(row.relLinkHigh10),
+    relLinkHigh11: coerceNumber(row.relLinkHigh11),
+    relLinkHigh12: coerceNumber(row.relLinkHigh12),
+
+    // Related slugs
+    relLinkSlug1: safeString(row.relLinkSlug1),
+    relLinkSlug2: safeString(row.relLinkSlug2),
+    relLinkSlug3: safeString(row.relLinkSlug3),
+    relLinkSlug4: safeString(row.relLinkSlug4),
+    relLinkSlug5: safeString(row.relLinkSlug5),
+    relLinkSlug6: safeString(row.relLinkSlug6),
+    relLinkSlug7: safeString(row.relLinkSlug7),
+    relLinkSlug8: safeString(row.relLinkSlug8),
+    relLinkSlug9: safeString(row.relLinkSlug9),
+    relLinkSlug10: safeString(row.relLinkSlug10),
+    relLinkSlug11: safeString(row.relLinkSlug11),
+    relLinkSlug12: safeString(row.relLinkSlug12),
+
+    // Related states
+    relLinkState1: safeString(row.relLinkState1),
+    relLinkState2: safeString(row.relLinkState2),
+    relLinkState3: safeString(row.relLinkState3),
+    relLinkState4: safeString(row.relLinkState4),
+    relLinkState5: safeString(row.relLinkState5),
+    relLinkState6: safeString(row.relLinkState6),
+    relLinkState7: safeString(row.relLinkState7),
+    relLinkState8: safeString(row.relLinkState8),
+    relLinkState9: safeString(row.relLinkState9),
+    relLinkState10: safeString(row.relLinkState10),
+    relLinkState11: safeString(row.relLinkState11),
+    relLinkState12: safeString(row.relLinkState12),
+
+    // Related locations
+    relLinkLoc1: safeString(row.relLinkLoc1),
+    relLinkLoc2: safeString(row.relLinkLoc2),
+    relLinkLoc3: safeString(row.relLinkLoc3),
+    relLinkLoc4: safeString(row.relLinkLoc4),
+    relLinkLoc5: safeString(row.relLinkLoc5),
+    relLinkLoc6: safeString(row.relLinkLoc6),
+    relLinkLoc7: safeString(row.relLinkLoc7),
+    relLinkLoc8: safeString(row.relLinkLoc8),
+    relLinkLoc9: safeString(row.relLinkLoc9),
+    relLinkLoc10: safeString(row.relLinkLoc10),
+    relLinkLoc11: safeString(row.relLinkLoc11),
+    relLinkLoc12: safeString(row.relLinkLoc12),
+
+    // Salary percentiles
+    "10P": coerceNumber(row["10P"]),
+    "25P": coerceNumber(row["25P"]),
+    "50P": coerceNumber(row["50P"]),
+    "75P": coerceNumber(row["75P"]),
+    "90P": coerceNumber(row["90P"]),
+  };
 
   return record;
 }

@@ -4,9 +4,22 @@ import { notFound } from "next/navigation";
 import { getDataset, findRecordByPath } from "@/lib/data/parse";
 import { Header } from "@/components/navigation/header";
 import { formatCurrency, formatHourlyRate } from "@/lib/format/currency";
+import { StateHeroSection } from "@/components/state/state-hero-section";
+import { OccupationList } from "@/components/ui/occupation-list";
+import { OccupationHeroSection } from "@/components/occupation/hero-section";
+import { Breadcrumbs } from "@/components/occupation/breadcrumbs";
+import { SalaryRangeCard } from "@/components/occupation/salary-range-card";
+import { HourlyRateCard } from "@/components/occupation/hourly-rate-card";
+import { ExperienceLevelsSection } from "@/components/occupation/experience-levels-section";
+import { OccupationCTASection } from "@/components/occupation/cta-section";
+import { ComprehensiveStats } from "@/components/ui/comprehensive-stats";
+import { SalaryDistributionChart } from "@/components/ui/salary-distribution-chart";
+import { SkillsChart } from "@/components/ui/skills-chart";
+import { ExperienceTimelineChart } from "@/components/ui/experience-timeline-chart";
+import { SalaryBreakdownTable } from "@/components/ui/salary-breakdown-table";
 
 export const revalidate = 31536000; // 1 year
-export const dynamicParams = true; // Allow dynamic generation
+export const dynamicParams = false; // Guarantee static paths only
 
 interface UnifiedPageProps {
   params: Promise<{ country: string; url: string[] }>;
@@ -57,6 +70,61 @@ function getStateData(country: string) {
   return stateGroups;
 }
 
+// Generate static params for all possible routes
+export async function generateStaticParams() {
+  const { all } = getDataset();
+  const params: { country: string; url: string[] }[] = [];
+  
+  // Group records by country
+  const countryGroups = new Map<string, any[]>();
+  for (const record of all) {
+    const country = record.country.toLowerCase();
+    if (!countryGroups.has(country)) {
+      countryGroups.set(country, []);
+    }
+    countryGroups.get(country)!.push(record);
+  }
+  
+  // Generate params for each country
+  for (const [country, records] of countryGroups) {
+    // Add country-level occupation pages: /[country]/[slug]
+    for (const record of records) {
+      if (!record.state) {
+        params.push({
+          country,
+          url: [record.slug_url]
+        });
+      }
+    }
+    
+    // Add state-level occupation pages: /[country]/[state]/[slug]
+    for (const record of records) {
+      if (record.state) {
+        params.push({
+          country,
+          url: [normalizeStateName(record.state), record.slug_url]
+        });
+      }
+    }
+    
+    // Add state pages: /[country]/[state]
+    const stateGroups = getStateData(country);
+    for (const [stateKey] of stateGroups) {
+      params.push({
+        country,
+        url: [stateKey]
+      });
+    }
+  }
+  
+  return params;
+}
+
+// Helper function to remove "Average" from titles
+function cleanTitle(title: string): string {
+  return title.replace(/^Average\s+/i, '').replace(/\s+Salary\s+in\s+Australia$/i, '');
+}
+
 export async function generateMetadata({ params }: UnifiedPageProps): Promise<Metadata> {
   const { country, url } = await params;
   
@@ -94,12 +162,12 @@ export async function generateMetadata({ params }: UnifiedPageProps): Promise<Me
       }
       
       const countryName = record.country;
-      const title = record.title;
+      const title = cleanTitle(record.title);
       const occupation = record.occupation;
       const location = record.location;
       
       const metaTitle = `${title} in ${countryName} - Roll The Pay`;
-      const metaDescription = `Discover salary information for ${title} in ${location ? location + ', ' : ''}${countryName}. Get accurate compensation data, salary ranges, and career insights.`;
+      const metaDescription = `Discover comprehensive salary information for ${title} in ${location ? location + ', ' : ''}${countryName}. Get detailed compensation data, salary ranges, experience levels, skills analysis, and career insights.`;
       
       return {
         title: metaTitle,
@@ -126,10 +194,10 @@ export async function generateMetadata({ params }: UnifiedPageProps): Promise<Me
     
     const countryName = record.country;
     const stateName = record.state;
-    const title = record.title;
+    const title = cleanTitle(record.title);
     
     const metaTitle = `${title} in ${stateName}, ${countryName} - Roll The Pay`;
-    const metaDescription = `Discover salary information for ${title} in ${stateName}, ${countryName}. Get accurate compensation data, salary ranges, and career insights.`;
+    const metaDescription = `Discover comprehensive salary information for ${title} in ${stateName}, ${countryName}. Get detailed compensation data, salary ranges, experience levels, skills analysis, and career insights.`;
     
     return {
       title: metaTitle,
@@ -199,96 +267,34 @@ function StatePage({ country, state }: { country: string; state: string }) {
       <Header />
       
       <main>
-        {/* Hero Section */}
-        <section className="bg-white border-b">
-          <div className="max-w-7xl mx-auto px-4 py-16 sm:px-6 lg:px-8">
-            <div className="mb-6">
-              <nav className="flex" aria-label="Breadcrumb">
-                <ol className="flex items-center space-x-4">
-                  {breadcrumbs.map((breadcrumb, index) => (
-                    <li key={breadcrumb.name}>
-                      {index === breadcrumbs.length - 1 ? (
-                        <span className="text-gray-500">{breadcrumb.name}</span>
-                      ) : (
-                        <Link
-                          href={breadcrumb.href}
-                          className="text-blue-600 hover:text-blue-700 font-medium"
-                        >
-                          {breadcrumb.name}
-                        </Link>
-                      )}
-                      {index < breadcrumbs.length - 1 && (
-                        <span className="ml-4 text-gray-400">→</span>
-                      )}
-                    </li>
-                  ))}
-                </ol>
-              </nav>
-            </div>
-            
-            <div className="text-center">
-              <h1 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl">
-                {stateName} Salary Data
-              </h1>
-              <p className="mt-6 text-xl leading-8 text-gray-600 max-w-3xl mx-auto">
-                Explore salary information and job opportunities in {stateName}, {countryName}
-              </p>
-              
-              <div className="mt-8">
-                <div className="inline-flex items-center px-6 py-3 bg-blue-100 text-blue-800 rounded-full text-lg font-medium">
-                  <span className="mr-2">💼</span>
-                  {jobs.length} Job Categories Available
-                </div>
-              </div>
-            </div>
+        {/* Breadcrumbs */}
+        <div className="bg-white">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <Breadcrumbs breadcrumbs={breadcrumbs} />
           </div>
-        </section>
+        </div>
+        
+        <StateHeroSection 
+          stateName={stateName}
+          countryName={countryName}
+          jobCount={jobs.length}
+        />
 
-        {/* Job Categories */}
-        <section className="py-16">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">
-              Job Categories in {stateName}
-            </h2>
-            
-            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {jobs.map((job: any) => (
-                <Link
-                  key={job.slug}
-                  href={`/${country}/${state}/${job.slug}`}
-                  className="group"
-                >
-                  <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
-                    <h3 className="text-lg font-semibold text-gray-900 group-hover:text-blue-600 mb-2">
-                      {job.title}
-                    </h3>
-                    <p className="text-gray-600 text-sm mb-4">
-                      {job.occupation || 'Professional role'}
-                    </p>
-                    
-                    {job.avgAnnualSalary && (
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm text-gray-500">Average Salary</span>
-                        <span className="text-lg font-bold text-green-600">
-                          {formatCurrency(job.avgAnnualSalary, country, job)}
-                        </span>
-                      </div>
-                    )}
-                    
-                    {job.avgHourlySalary && (
-                      <div className="flex justify-between items-center mt-2">
-                        <span className="text-sm text-gray-500">Hourly Rate</span>
-                        <span className="text-sm font-medium text-blue-600">
-                          {formatHourlyRate(job.avgHourlySalary, country)}
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                </Link>
-              ))}
-            </div>
-          </div>
-        </section>
+        <OccupationList 
+          items={jobs.map(job => ({
+            id: job.slug,
+            displayName: job.title || "Unknown Job",
+            originalName: job.title || "Unknown Job",
+            slug_url: job.slug,
+            location: undefined,
+            state: undefined,
+            avgAnnualSalary: job.avgAnnualSalary,
+            countrySlug: country
+          }))}
+          title={`Salary Records in ${stateName}`}
+          description={`Explore salary information and job opportunities in ${stateName}, ${countryName}.`}
+          currentState={normalizeStateName(stateName)}
+        />
 
         {/* CTA Section */}
         <section className="bg-blue-600 py-16">
@@ -303,7 +309,7 @@ function StatePage({ country, state }: { country: string; state: string }) {
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link href={`/${country}`}>
                 <button className="bg-white text-blue-600 px-8 py-3 rounded-md font-medium hover:bg-gray-100 transition-colors">
-                  View All Jobs in {countryName}
+                  View All Salary Data in {countryName}
                 </button>
               </Link>
               <Link href="/countries">
@@ -329,7 +335,7 @@ function OccupationPage({ country, state, slug }: { country: string; state?: str
   
   const countryName = record.country;
   const stateName = record.state;
-  const title = record.title;
+  const title = cleanTitle(record.title);
   const occupation = record.occupation;
   const location = record.location;
   
@@ -357,184 +363,152 @@ function OccupationPage({ country, state, slug }: { country: string; state?: str
   const locationText = stateName ? 
     `${location ? location + ', ' : ''}${stateName}, ${countryName}` : 
     `${location ? location + ', ' : ''}${countryName}`;
+
+  // Salary breakdown table data
+  const salaryBreakdownData = [
+    { period: 'Weekly', amount: record.weeklySalary ? `$${record.weeklySalary.toLocaleString()}` : 'N/A', description: 'Gross weekly salary' },
+    { period: 'Fortnightly', amount: record.fortnightlySalary ? `$${record.fortnightlySalary.toLocaleString()}` : 'N/A', description: 'Gross fortnightly salary' },
+    { period: 'Monthly', amount: record.monthlySalary ? `$${record.monthlySalary.toLocaleString()}` : 'N/A', description: 'Gross monthly salary', highlight: true },
+    { period: 'Annual', amount: record.avgAnnualSalary ? `$${record.avgAnnualSalary.toLocaleString()}` : 'N/A', description: 'Gross annual salary', highlight: true },
+  ].filter(row => row.amount !== 'N/A');
+
+  // Chart data preparation
+  const salaryDistributionData = [
+    { name: 'Low', value: record.lowSalary || 0, color: '#EF4444' },
+    { name: 'Average', value: record.avgAnnualSalary || 0, color: '#10B981' },
+    { name: 'High', value: record.highSalary || 0, color: '#3B82F6' },
+  ];
+
+  const skillsData = [
+    { name: record.skillsNameOne, value: record.skillsNamePercOne || 0, color: '#0088FE' },
+    { name: record.skillsNameTwo, value: record.skillsNamePercTwo || 0, color: '#00C49F' },
+    { name: record.skillsNameThree, value: record.skillsNamePercThree || 0, color: '#FFBB28' },
+    { name: record.skillsNameFour, value: record.skillsNamePercFour || 0, color: '#FF8042' },
+    { name: record.skillsNameFive, value: record.skillsNamePercFive || 0, color: '#8884D8' },
+  ].filter(skill => skill.name && skill.name !== '#REF!' && skill.value > 0)
+    .map(skill => ({ name: skill.name!, value: skill.value, color: skill.color }));
+
+  const experienceTimelineData = experienceLevels.map(level => ({
+    name: level.label,
+    value: level.value || 0,
+    color: level.color
+  }));
   
   return (
     <div className="min-h-screen bg-gray-50">
       <Header />
       
       <main>
-        {/* Hero Section */}
-        <section className="bg-white border-b">
-          <div className="max-w-7xl mx-auto px-4 py-16 sm:px-6 lg:px-8">
-            <div className="mb-6">
-              <nav className="flex" aria-label="Breadcrumb">
-                <ol className="flex items-center space-x-4">
-                  {breadcrumbs.map((breadcrumb, index) => (
-                    <li key={breadcrumb.name}>
-                      {index === breadcrumbs.length - 1 ? (
-                        <span className="text-gray-500">{breadcrumb.name}</span>
-                      ) : (
-                        <Link
-                          href={breadcrumb.href}
-                          className="text-blue-600 hover:text-blue-700 font-medium"
-                        >
-                          {breadcrumb.name}
-                        </Link>
-                      )}
-                      {index < breadcrumbs.length - 1 && (
-                        <span className="ml-4 text-gray-400">→</span>
-                      )}
-                    </li>
-                  ))}
-                </ol>
-              </nav>
-            </div>
-            
-            <div className="text-center">
-              <h1 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl">
-                {title}
-              </h1>
-              <p className="mt-6 text-xl leading-8 text-gray-600 max-w-3xl mx-auto">
-                Salary information for {occupation || 'this position'} in {locationText}
-              </p>
-              
-              {record.avgAnnualSalary && (
-                <div className="mt-8">
-                  <div className="inline-flex items-center px-6 py-3 bg-green-100 text-green-800 rounded-full text-lg font-medium">
-                    <span className="mr-2">💰</span>
-                    Average Annual Salary: {formatCurrency(record.avgAnnualSalary, country, record)}
-                  </div>
-                </div>
+        {/* Breadcrumbs */}
+        <div className="bg-white">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <Breadcrumbs breadcrumbs={breadcrumbs} />
+          </div>
+        </div>
+        
+        <OccupationHeroSection 
+          title={title}
+          subtitle={`Comprehensive salary information for ${occupation || 'this position'} in ${locationText}`}
+          avgSalary={record.avgAnnualSalary ? formatCurrency(record.avgAnnualSalary, country, record) : undefined}
+        />
+
+        {/* Comprehensive Statistics */}
+        <section className="py-16 pt-4 bg-white">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <ComprehensiveStats record={record} country={country} />
+          </div>
+        </section>
+
+        {/* Traditional Salary Cards */}
+        <section className="py-8 bg-white">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
+              {/* Annual Salary Details */}
+              <SalaryRangeCard 
+                lowSalary={record.lowSalary ? formatCurrency(record.lowSalary, country, record) : undefined}
+                highSalary={record.highSalary ? formatCurrency(record.highSalary, country, record) : undefined}
+                avgSalary={record.avgAnnualSalary ? formatCurrency(record.avgAnnualSalary, country, record) : undefined}
+              />
+
+              {/* Hourly Rate Details */}
+              {hasHourlyData && (
+                <HourlyRateCard 
+                  avgHourlyRate={record.avgHourlySalary ? formatHourlyRate(record.avgHourlySalary, country) : undefined}
+                  lowHourlyRate={record.hourlyLowValue ? formatHourlyRate(record.hourlyLowValue, country) : undefined}
+                  highHourlyRate={record.hourlyHighValue ? formatHourlyRate(record.hourlyHighValue, country) : undefined}
+                />
               )}
             </div>
           </div>
         </section>
 
-        {/* Salary Information */}
-        <section className="py-16">
+        {/* Charts Section */}
+        <section className="py-16 bg-white">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
-              {/* Annual Salary Details */}
-              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                <h2 className="text-2xl font-bold text-gray-900 mb-6">Annual Salary Information</h2>
-                
-                {hasSalaryRange && (
-                  <div className="space-y-4">
-                    <div className="flex justify-between items-center p-4 bg-gray-50 rounded-lg">
-                      <span className="text-gray-600">Low Range</span>
-                      <span className="text-lg font-bold text-red-600">
-                        {formatCurrency(record.lowSalary, country, record)}
-                      </span>
-                    </div>
-                    <div className="flex justify-between items-center p-4 bg-gray-50 rounded-lg">
-                      <span className="text-gray-600">High Range</span>
-                      <span className="text-lg font-bold text-green-600">
-                        {formatCurrency(record.highSalary, country, record)}
-                      </span>
-                    </div>
-                  </div>
-                )}
-                
-                {record.avgAnnualSalary && (
-                  <div className="mt-6 p-4 bg-blue-50 rounded-lg">
-                    <div className="text-center">
-                      <div className="text-3xl font-bold text-blue-600">
-                        {formatCurrency(record.avgAnnualSalary, country, record)}
-                      </div>
-                      <div className="text-sm text-blue-600">Average Annual Salary</div>
-                    </div>
-                  </div>
-                )}
-              </div>
+            <div className="mb-12">
+              <h2 className="text-3xl font-bold text-gray-900 text-center mb-4">
+                Salary Analysis & Insights
+              </h2>
+              <p className="text-lg text-gray-600 text-center max-w-3xl mx-auto">
+                Visual breakdown of salary data, skills analysis, and experience progression
+              </p>
+            </div>
 
-              {/* Hourly Rate Details */}
-              {hasHourlyData && (
-                <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                  <h2 className="text-2xl font-bold text-gray-900 mb-6">Hourly Rate Information</h2>
-                  
-                  {record.avgHourlySalary && (
-                    <div className="p-4 bg-green-50 rounded-lg mb-4">
-                      <div className="text-center">
-                        <div className="text-3xl font-bold text-green-600">
-                          {formatHourlyRate(record.avgHourlySalary, country)}
-                        </div>
-                        <div className="text-sm text-green-600">Average Hourly Rate</div>
-                      </div>
-                    </div>
-                  )}
-                  
-                  {(record.hourlyLowValue || record.hourlyHighValue) && (
-                    <div className="space-y-3">
-                      {record.hourlyLowValue && (
-                        <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-                          <span className="text-gray-600">Low Hourly</span>
-                          <span className="font-medium text-red-600">
-                            {formatHourlyRate(record.hourlyLowValue, country)}
-                          </span>
-                        </div>
-                      )}
-                      {record.hourlyHighValue && (
-                        <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-                          <span className="text-gray-600">High Hourly</span>
-                          <span className="font-medium text-green-600">
-                            {formatHourlyRate(record.hourlyHighValue, country)}
-                          </span>
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </div>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
+              {/* Salary Distribution Chart */}
+              <SalaryDistributionChart 
+                data={salaryDistributionData}
+                title="Salary Distribution"
+                subtitle="Annual salary ranges for this position"
+              />
+
+              {/* Skills Chart */}
+              {skillsData.length > 0 && (
+                <SkillsChart 
+                  data={skillsData}
+                  title="Top Skills & Proficiency"
+                  subtitle="Most valued skills and their importance"
+                />
               )}
             </div>
+
+            {/* Experience Timeline Chart */}
+            {experienceTimelineData.length > 0 && (
+              <div className="mb-12">
+                <ExperienceTimelineChart 
+                  data={experienceTimelineData}
+                  title="Salary Progression by Experience Level"
+                  subtitle="How salaries increase with career progression"
+                />
+              </div>
+            )}
+
+            {/* Salary Breakdown Table */}
+            {salaryBreakdownData.length > 0 && (
+              <div className="mb-12">
+                <SalaryBreakdownTable 
+                  data={salaryBreakdownData}
+                  title="Salary Breakdown by Period"
+                  subtitle="Detailed breakdown of compensation across different time periods"
+                />
+              </div>
+            )}
           </div>
         </section>
 
         {/* Experience Levels */}
-        {experienceLevels.length > 0 && (
-          <section className="py-16 bg-white">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-              <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">
-                Salary by Experience Level
-              </h2>
-              
-              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                {experienceLevels.map((level) => (
-                  <div key={level.label} className="bg-gray-50 rounded-lg p-6 text-center">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2">{level.label}</h3>
-                    <div className="text-2xl font-bold text-blue-600">
-                      {formatCurrency(level.value || null, country, record)}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </section>
-        )}
+        {/* <ExperienceLevelsSection 
+          experienceLevels={experienceLevels.map(level => ({
+            label: level.label,
+            value: formatCurrency(level.value || null, country, record),
+            color: level.color
+          }))}
+        /> */}
 
-        {/* CTA Section */}
-        <section className="bg-blue-600 py-16">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <h2 className="text-3xl font-bold text-white mb-6">
-              Explore More Salary Data
-            </h2>
-            <p className="text-xl text-blue-100 mb-8 max-w-3xl mx-auto">
-              Compare salaries across different locations and discover career opportunities 
-              in {locationText}.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link href={`/${country}`}>
-                <button className="bg-white text-blue-600 px-8 py-3 rounded-md font-medium hover:bg-gray-100 transition-colors">
-                  View All Jobs in {countryName}
-                </button>
-              </Link>
-              <Link href="/countries">
-                <button className="border border-white text-white px-8 py-3 rounded-md font-medium hover:bg-white hover:text-blue-600 transition-colors">
-                  Browse All Countries
-                </button>
-              </Link>
-            </div>
-          </div>
-        </section>
+        <OccupationCTASection 
+          countryName={countryName}
+          locationText={locationText}
+        />
       </main>
     </div>
   );
