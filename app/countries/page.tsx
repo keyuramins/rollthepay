@@ -1,6 +1,6 @@
 import { Metadata } from "next";
 import { getDataset } from "@/lib/data/parse";
-import { Header } from "@/components/navigation/header";
+import { NewHeader } from "@/components/navigation/new-header";
 import { Breadcrumbs } from "@/components/occupation/breadcrumbs";
 import { CountriesHeroSection } from "@/components/countries/hero-section";
 import { ContinentSection } from "@/components/countries/continent-section";
@@ -10,7 +10,7 @@ export const revalidate = 31536000;
 export const dynamicParams = false;
 
 export const metadata: Metadata = {
-  title: "Countries - Roll The Pay",
+  title: "Countries - RollThePay",
   description: "Explore salary information by country. Find accurate salary data for jobs across different countries and regions.",
   alternates: {
     canonical: "/countries",
@@ -61,7 +61,7 @@ export default function CountriesPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header />
+      <NewHeader />
       
       <main>
         {/* Breadcrumbs */}

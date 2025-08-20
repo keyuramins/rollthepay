@@ -1,8 +1,7 @@
 // Navigation Components
-export { Header } from './navigation/header';
+export { NewHeader } from './navigation/new-header';
 export { Logo } from './navigation/logo';
 export { NavLinks } from './navigation/nav-links';
-export { SearchDropdown } from './navigation/search-dropdown';
 
 // Home Page Components
 export { HeroSection } from './home/hero-section';
@@ -23,6 +22,7 @@ export { OccupationCategoryCard } from './country/occupation-category-card';
 export { OccupationCategoriesSection } from './country/occupation-categories-section';
 export { StateCard } from './country/state-card';
 export { StatesSection } from './country/states-section';
+export { StatesGrid } from './country/states-grid';
 export { CountryCTASection } from './country/cta-section';
 
 // About Page Components
@@ -39,13 +39,16 @@ export { Breadcrumbs } from './occupation/breadcrumbs';
 export { SalaryCard } from './occupation/salary-card';
 export { SalaryRangeCard } from './occupation/salary-range-card';
 export { HourlyRateCard } from './occupation/hourly-rate-card';
+export { TotalPayCard } from './occupation/total-pay-card';
 export { ExperienceLevelsSection } from './occupation/experience-levels-section';
 export { OccupationCTASection } from './occupation/cta-section';
+export { OccupationPage } from './occupation/occupation-page';
 
 // State Page Components
 export { StateHeroSection } from './state/state-hero-section';
 export { JobCategoryCard } from './state/job-category-card';
 export { JobCategoriesSection } from './state/job-categories-section';
+export { StatePage } from './state/state-page';
 
 // UI Components
 export { Button } from './ui/button';

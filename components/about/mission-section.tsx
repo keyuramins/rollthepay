@@ -8,7 +8,7 @@ export function AboutMissionSection() {
               Our Mission
             </h2>
             <p className="text-lg text-gray-600 mb-6">
-              Roll The Pay was created with a simple yet powerful goal: to provide accurate salary information 
+              RollThePay was created with a simple yet powerful goal: to provide accurate salary information 
               that helps people make informed career decisions. We believe that transparency in compensation 
               leads to better career outcomes and a more equitable workplace.
             </p>

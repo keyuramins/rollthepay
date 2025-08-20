@@ -37,7 +37,7 @@ export function CountryHeroSection({
             Get the compensation insights you need to advance your career.
           </p>
           
-          <div className="mt-8 flex flex-wrap justify-center gap-4">
+          {/* <div className="mt-8 flex flex-wrap justify-center gap-4">
             <div className="inline-flex items-center px-4 py-2 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">
               <span className="mr-2">💼</span>
               {totalJobs} Salary Information
@@ -54,7 +54,7 @@ export function CountryHeroSection({
                 {statesCount} States/Regions
               </div>
             )}
-          </div>
+          </div> */}
         </div>
       </div>
     </section>

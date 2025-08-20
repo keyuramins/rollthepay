@@ -31,7 +31,7 @@ export function OccupationList({ items, title, description, className = "", curr
     const [searchQuery, setSearchQuery] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
 
-    const PAGE_SIZE = 10;
+    const PAGE_SIZE = 100;
 
     // Prepare items for filtering (strip leading "Average ")
     const preparedItems = useMemo(() => items.map(item => ({
@@ -91,7 +91,7 @@ export function OccupationList({ items, title, description, className = "", curr
                     </div>
                     <div className="grid grid-cols-1 gap-4">
                         {sortedItems.slice(0, PAGE_SIZE).map((item) => (
-                            <div key={item.id} className="bg-white rounded-lg border border-blue-200 p-6">
+                            <div key={item.id} className="bg-white rounded-lg border border-blue-200 py-2 px-6">
                                 <div className="flex items-center justify-between">
                                     <div className="flex-1">
                                         <h3 className="text-lg font-semibold text-gray-900 mb-2">{item.displayName}</h3>
@@ -125,28 +125,28 @@ export function OccupationList({ items, title, description, className = "", curr
         <section className={`py-16 ${className}`}>
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="mb-12">
-                    <h2 className="text-3xl font-bold text-gray-900 mb-4">{title}</h2>
-                    <p className="text-lg text-gray-600">{description}</p>
-                </div>
-
-
-                {/* Controls: Search + A–Z filter */}
-                <div className="flex w-full justify-end mb-6">
-                    <div className="w-full">
-                        {/* <label htmlFor="search" className="block text-sm font-medium text-gray-700 mb-1">Search</label> */}
-                        <input
-                            id="search"
-                            type="text"
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                            placeholder="Search jobs or states..."
-                            className="block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-white"
-                        />
+                    <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6">
+                        <div className="flex-1">
+                            <h2 className="text-3xl font-bold text-gray-900 mb-4">{title}</h2>
+                            <p className="text-lg text-gray-600">{description}</p>
+                        </div>
+                        
+                        {/* Search bar - positioned beside title on larger screens */}
+                        <div className="w-full lg:w-80 flex-shrink-0">
+                            <input
+                                id="search"
+                                type="text"
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                placeholder="Search jobs or states..."
+                                className="block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-white"
+                            />
+                        </div>
                     </div>
                 </div>
 
-
-                <div className="flex-1">
+                {/* A–Z filter - always below */}
+                <div className="mb-6">
                     <AZFilter items={sortedItems} onFilteredItemsChange={setAzFilteredItems} />
                 </div>
 
@@ -172,7 +172,7 @@ export function OccupationList({ items, title, description, className = "", curr
                         }
 
                         return (
-                            <Link key={item.id} href={href} className="block bg-white rounded-lg border border-blue-200 p-6 hover:shadow-md transition-shadow hover:border-blue-300">
+                            <Link key={item.id} href={href} className="block bg-white rounded-lg border border-blue-200 py-2 px-6 hover:shadow-md transition-shadow hover:border-blue-300">
                                 <div className="flex items-center justify-between">
                                     <div className="flex-1">
                                         <h3 className="text-lg font-semibold text-gray-900 mb-2">{item.displayName}</h3>
@@ -199,13 +199,11 @@ export function OccupationList({ items, title, description, className = "", curr
                     })}
                 </div>
 
-                {/* Footer: results info + pagination */}
-                <div className="mt-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                {/* Footer: pagination only */}
+                <div className="mt-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-end">
                     <div className="text-sm text-gray-600">
-                        {totalItems === 0 ? (
+                        {totalItems === 0 && (
                             <span>No results found.</span>
-                        ) : (
-                            <span>Showing {startIndex + 1}-{endIndex} of {totalItems}</span>
                         )}
                     </div>
                     {totalItems > 0 && (

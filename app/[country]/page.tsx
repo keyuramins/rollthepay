@@ -1,10 +1,11 @@
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getDataset } from "@/lib/data/parse";
-import { Header } from "@/components/navigation/header";
+import { NewHeader } from "@/components/navigation/new-header";
 import { Breadcrumbs } from "@/components/occupation/breadcrumbs";
 import { CountryHeroSection } from "@/components/country/hero-section";
 import { OccupationList } from "@/components/ui/occupation-list";
+import { StatesGrid } from "@/components/country/states-grid";
 import { CountryCTASection } from "@/components/country/cta-section";
 
 export const revalidate = 31536000;
@@ -22,7 +23,7 @@ export async function generateMetadata({ params }: CountryPageProps): Promise<Me
   
   if (!countryData || countryData.length === 0) {
     return {
-      title: "Country Not Found - Roll The Pay",
+      title: "Country Not Found - RollThePay",
     };
   }
 
@@ -31,13 +32,13 @@ export async function generateMetadata({ params }: CountryPageProps): Promise<Me
   const avgSalary = countryData.reduce((sum, rec) => sum + (rec.avgAnnualSalary || 0), 0) / countryData.length;
 
   return {
-    title: `${countryName} Salary Information - Roll The Pay`,
+    title: `${countryName} Salary Information - RollThePay`,
     description: `Explore ${totalJobs}+ salary records for jobs in ${countryName}. Find accurate salary data, compensation trends, and career insights.`,
     alternates: {
       canonical: `/${country}`,
     },
     openGraph: {
-      title: `${countryName} Salary Information - Roll The Pay`,
+      title: `${countryName} Salary Information - RollThePay`,
       description: `Discover salary data for ${totalJobs}+ jobs in ${countryName}. Get accurate compensation information to advance your career.`,
       type: "website",
       url: `/${country}`,
@@ -81,26 +82,9 @@ export default async function CountryPage({ params }: CountryPageProps) {
     countrySlug: countryLower
   }));
 
-  // Prepare states data for the list
-  const stateItems = states.map(state => {
-    const stateRecords = countryData.filter(rec => rec.state === state);
-    const stateAvgSalary = stateRecords.reduce((sum, rec) => sum + (rec.avgAnnualSalary || 0), 0) / stateRecords.length;
-    
-    return {
-      id: state!,
-      displayName: state!,
-      originalName: state!,
-      slug_url: state!.toLowerCase().replace(/\s+/g, '-'), // Convert state name to URL-friendly format
-      location: undefined,
-      state: undefined,
-      avgAnnualSalary: stateAvgSalary,
-      countrySlug: countryLower
-    };
-  });
-
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header />
+      <NewHeader />
       
       <main>
         {/* Breadcrumbs */}
@@ -132,12 +116,12 @@ export default async function CountryPage({ params }: CountryPageProps) {
         />
 
         {states.length > 0 && (
-          <OccupationList
-            items={stateItems}
+          <StatesGrid
+            states={states}
+            countrySlug={countryLower}
             title="Explore by State/Region"
             description={`Find salary data specific to different regions within ${countryName}.`}
             className="bg-white"
-            states={states}
           />
         )}
 

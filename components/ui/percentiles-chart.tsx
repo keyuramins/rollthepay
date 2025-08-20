@@ -56,6 +56,14 @@ export function PercentilesChart({ data, title, subtitle }: PercentilesChartProp
           </AreaChart>
         </ResponsiveContainer>
       </div>
+
+      {/* Legend at center bottom */}
+      <div className="flex justify-center mt-4">
+        <div className="flex items-center space-x-2">
+          <div className="w-4 h-0.5 bg-blue-500"></div>
+          <span className="text-sm text-gray-600">Salary Percentiles</span>
+        </div>
+      </div>
     </div>
   );
 }

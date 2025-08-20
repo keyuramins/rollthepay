@@ -1,5 +1,5 @@
 import { Metadata } from "next";
-import { Header } from "@/components/navigation/header";
+import { NewHeader } from "@/components/navigation/new-header";
 import { Breadcrumbs } from "@/components/occupation/breadcrumbs";
 import { AboutHeroSection } from "@/components/about/hero-section";
 import { AboutMissionSection } from "@/components/about/mission-section";
@@ -12,8 +12,8 @@ export const revalidate = 31536000;
 export const dynamicParams = false;
 
 export const metadata: Metadata = {
-  title: "About - Roll The Pay",
-  description: "Learn about Roll The Pay's mission to provide accurate salary information and increase transparency in the labor market.",
+  title: "About - RollThePay",
+  description: "Learn about RollThePay's mission to provide accurate salary information and increase transparency in the labor market.",
   alternates: {
     canonical: "/about",
   },
@@ -22,7 +22,7 @@ export const metadata: Metadata = {
 export default function AboutPage() {
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header />
+      <NewHeader />
       
       <main>
         {/* Breadcrumbs */}

@@ -259,3 +259,44 @@ export function findRecordByPath(params: { country: string; state?: string; slug
   return null;
 }
 
+// Helper function to group records by state
+export function getStateData(country: string) {
+  const { all } = getDataset();
+  const countryRecords = all.filter(record => 
+    record.country.toLowerCase() === country.toLowerCase()
+  );
+  
+  const stateGroups = new Map<string, { 
+    name: string; 
+    jobs: Array<{
+      slug: string;
+      title: string | null;
+      occupation: string | null;
+      avgAnnualSalary: number | null;
+      avgHourlySalary: number | null;
+    }>;
+  }>();
+  
+  for (const record of countryRecords) {
+    if (record.state) {
+      const stateKey = record.state.toLowerCase().replace(/\s+/g, '-');
+      if (!stateGroups.has(stateKey)) {
+        stateGroups.set(stateKey, {
+          name: record.state,
+          jobs: []
+        });
+      }
+      
+      stateGroups.get(stateKey)!.jobs.push({
+        slug: record.slug_url,
+        title: record.title,
+        occupation: record.occupation,
+        avgAnnualSalary: record.avgAnnualSalary,
+        avgHourlySalary: record.avgHourlySalary
+      });
+    }
+  }
+  
+  return stateGroups;
+}
+

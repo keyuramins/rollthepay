@@ -1,4 +1,4 @@
-# Roll The Pay
+# RollThePay
 
 A comprehensive salary information platform that provides accurate compensation data for jobs across different countries and regions. Our mission is to increase transparency in the labor market by making salary information accessible to everyone.
 
@@ -219,4 +219,4 @@ This project follows strict architectural principles:
 
 ## License
 
-© 2024 Roll The Pay. All rights reserved.
+© 2024 RollThePay. All rights reserved.

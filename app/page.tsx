@@ -1,5 +1,5 @@
 import { getDataset } from "@/lib/data/parse";
-import { Header } from "@/components/navigation/header";
+import { NewHeader } from "@/components/navigation/new-header";
 import { HeroSection } from "@/components/home/hero-section";
 import { StatsSection } from "@/components/home/stats-section";
 import { MissionSection } from "@/components/home/mission-section";
@@ -15,7 +15,7 @@ export default function Home() {
   const countries = new Set(all.map(rec => rec.country)).size;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 overflow-x-hidden">
       {/* <Header /> */}
       <HeroSection />
       <StatsSection totalSalaries={totalSalaries} countries={countries} />

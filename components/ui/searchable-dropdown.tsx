@@ -101,12 +101,20 @@ export function SearchableDropdown({
       return;
     }
     const term = searchQuery.trim().toLowerCase();
+    
+    // Only show occupation dropdown if user has typed at least 3 characters
+    if (term.length < 3) {
+      setOccupationSuggestions([]);
+      setIsOccupationDropdownOpen(false);
+      return;
+    }
+    
     const pool: OccupationSuggestion[] = allOccupations
       .filter(o => o.country === selectedCountry.slug)
       .map(o => ({ ...o, display: o.title.replace(/^Average\s+/i, "").trim() }))
       .sort((a, b) => a.display.localeCompare(b.display));
 
-    const matches = term.length === 0 ? pool : pool.filter(o => o.display.toLowerCase().includes(term));
+    const matches = pool.filter(o => o.display.toLowerCase().includes(term));
     setOccupationSuggestions(matches);
     setIsOccupationDropdownOpen(true);
   }, [searchQuery, isHome, selectedCountry, allOccupations, isOccupationDropdownOpen, occupationSuggestions.length]);
@@ -203,11 +211,25 @@ export function SearchableDropdown({
     if (!isHome) return; // occupation search only on home
     if (!selectedCountry) return; // need a country first
     const query = searchQuery.trim();
+    
     if (query.length === 0) {
       router.push(`/${selectedCountry.slug}`);
       return;
     }
-    router.push(`/${selectedCountry.slug}/${slugify(query)}`);
+    
+    // If there are occupation suggestions, go to the first result
+    if (occupationSuggestions.length > 0) {
+      const firstResult = occupationSuggestions[0];
+      router.push(
+        firstResult.state
+          ? `/${selectedCountry.slug}/${firstResult.state.toLowerCase().replace(/\s+/g,'-')}/${firstResult.slug}`
+          : `/${selectedCountry.slug}/${firstResult.slug}`
+      );
+      return;
+    }
+    
+    // If no results found, go to the country page
+    router.push(`/${selectedCountry.slug}`);
   }
 
   const inputValue = useMemo(() => {
@@ -255,7 +277,10 @@ export function SearchableDropdown({
           onChange={(e) => setSearchQuery(e.target.value)}
           onFocus={() => {
             if (isHome && selectedCountry) {
-              setIsOccupationDropdownOpen(true);
+              // Only open occupation dropdown if user has typed at least 3 characters
+              if (searchQuery.trim().length >= 3) {
+                setIsOccupationDropdownOpen(true);
+              }
             } else {
               setIsDropdownOpen(true);
             }
@@ -279,7 +304,7 @@ export function SearchableDropdown({
               setIsOccupationDropdownOpen(true);
             }
           }}
-          className={`block ${fullWidth ? 'w-full' : 'w-80'} pr-10 py-3 border ${inputBorderClass} rounded-lg text-base leading-5 ${inputBgClass} ${inputTextClass} focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-md`}
+          className={`block ${fullWidth ? 'w-full' : 'w-full sm:w-80 lg:w-96'} pr-10 py-3 border ${inputBorderClass} rounded-lg text-base leading-5 ${inputBgClass} ${inputTextClass} focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-md`}
           style={{ 
             paddingLeft: (isHome && selectedCountry) ? 48 + chipWidth + 12 : 48,
             paddingRight: (isHome && selectedCountry) ? 80 : undefined
@@ -301,7 +326,13 @@ export function SearchableDropdown({
                 handleEnter();
               }}
               aria-label="Go to results"
-              title={searchQuery.trim().length === 0 ? `Go to ${selectedCountry.name}` : `Search in ${selectedCountry.name}`}
+              title={
+                searchQuery.trim().length === 0 
+                  ? `Go to ${selectedCountry.name}` 
+                  : occupationSuggestions.length > 0 
+                    ? `Go to first result: ${occupationSuggestions[0].display}` 
+                    : `Go to ${selectedCountry.name}`
+              }
               className="mr-2 inline-flex h-8 w-8 items-center justify-center rounded-md border border-blue-600 text-blue-600 bg-white hover:bg-blue-50 cursor-pointer"
             >
               <ArrowRight className="h-4 w-4" />
@@ -328,7 +359,7 @@ export function SearchableDropdown({
 
       {isDropdownOpen && (!isHome || !selectedCountry) && (
         <div 
-          className={`absolute ${dropdownPosition === 'top' ? 'bottom-full mb-2' : 'top-full mt-2'} left-0 ${fullWidth ? 'w-full' : 'w-80'} ${dropdownBgClass} rounded-lg shadow-xl ring-1 ring-black ring-opacity-5 z-50 border border-gray-200`}
+          className={`absolute ${dropdownPosition === 'top' ? 'bottom-full mb-2' : 'top-full mt-2'} left-0 ${fullWidth ? 'w-full' : 'w-full sm:w-80 lg:w-96'} ${dropdownBgClass} rounded-lg shadow-xl ring-1 ring-black ring-opacity-5 z-50 border border-gray-200`}
         >
           <div className="py-1 max-h-[300px] overflow-y-auto">
             {groupedCountries.length > 0 ? (
@@ -345,13 +376,15 @@ export function SearchableDropdown({
                           setSelectedCountry(country);
                           setIsDropdownOpen(false);
                           setSearchQuery("");
-                          // immediately open occupations dropdown with full list
-                          const pool = allOccupations
-                            .filter(o => o.country === country.slug)
-                            .map(o => ({ ...o, display: o.title.replace(/^Average\s+/i, "").trim() }))
-                            .sort((a, b) => a.display.localeCompare(b.display));
-                          setOccupationSuggestions(pool);
-                          setTimeout(() => setIsOccupationDropdownOpen(true), 0);
+                          // Don't immediately open occupations dropdown - wait for user to type
+                          setOccupationSuggestions([]);
+                          setIsOccupationDropdownOpen(false);
+                          // Focus the input field after country selection
+                          setTimeout(() => {
+                            if (inputRef.current) {
+                              inputRef.current.focus();
+                            }
+                          }, 0);
                         } else {
                           setIsDropdownOpen(false);
                           router.push(`/${country.slug}`);
@@ -379,7 +412,7 @@ export function SearchableDropdown({
       {/* Occupation suggestions dropdown (home after country selection) */}
       {isHome && selectedCountry && isOccupationDropdownOpen && (
         <div 
-          className={`absolute ${dropdownPosition === 'top' ? 'bottom-full mb-2' : 'top-full mt-2'} left-0 ${fullWidth ? 'w-full' : 'w-80'} ${dropdownBgClass} rounded-lg shadow-xl ring-1 ring-black ring-opacity-5 z-50 border border-gray-200`} 
+          className={`absolute ${dropdownPosition === 'top' ? 'bottom-full mb-2' : 'top-full mt-2'} left-0 ${fullWidth ? 'w-full' : 'w-full sm:w-80 lg:w-96'} ${dropdownBgClass} rounded-lg shadow-xl ring-1 ring-black ring-opacity-5 z-50 border border-gray-200`} 
           onMouseDown={(e) => e.preventDefault()}
         >
           <div className="py-1 max-h-[300px] overflow-y-auto">

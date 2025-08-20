@@ -16,12 +16,6 @@ export function StateHeroSection({ stateName, countryName, jobCount }: StateHero
             Explore salary information and career opportunities in {stateName}, {countryName}
           </p>
           
-          <div className="mt-8">
-            <div className="inline-flex items-center px-6 py-3 bg-blue-100 text-blue-800 rounded-full text-lg font-medium">
-              <span className="mr-2">💼</span>
-              {jobCount} Salary Records Available
-            </div>
-          </div>
         </div>
       </div>
     </section>

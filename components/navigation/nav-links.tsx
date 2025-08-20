@@ -6,8 +6,6 @@ interface NavLinksProps {
 
 export function NavLinks({ mobile = false }: NavLinksProps) {
   const links = [
-    { href: "/", label: "Home" },
-    { href: "/countries", label: "Countries" },
     { href: "/about", label: "About" },
   ];
 

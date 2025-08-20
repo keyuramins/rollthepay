@@ -13,10 +13,10 @@ interface SalaryBreakdownTableProps {
 
 export function SalaryBreakdownTable({ data, title, subtitle }: SalaryBreakdownTableProps) {
   return (
-    <div className="bg-white rounded-lg shadow-md p-6">
+    <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200">
       <div className="mb-6">
-        <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
-        {subtitle && <p className="text-sm text-gray-600 mt-1">{subtitle}</p>}
+        <h3 className="text-xl font-bold text-gray-900 mb-2">{title}</h3>
+        {subtitle && <p className="text-sm text-gray-600">{subtitle}</p>}
       </div>
       
       <div className="overflow-x-auto">
