@@ -22,11 +22,7 @@ export function OccupationCTASection({ countryName, locationText }: OccupationCT
               View All Salary Data in {countryName}
             </button>
           </Link>
-          <Link href="/countries">
-            <button className="border border-white text-white px-8 py-3 rounded-md font-medium hover:bg-white hover:text-blue-600 transition-colors">
-              Browse All Countries
-            </button>
-          </Link>
+
         </div>
       </div>
     </section>

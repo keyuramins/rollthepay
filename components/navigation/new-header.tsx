@@ -1,10 +1,10 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Logo } from "./logo";
-import { NavLinks } from "./nav-links";
 import { Button } from "@/components/ui/button";
-import { Menu, X, ChevronDown } from "lucide-react";
+import { Menu, X, ChevronDown, Search, ArrowRight, Check } from "lucide-react";
+import { usePathname, useRouter } from "next/navigation";
 
 // Define continents and their countries based on available data
 const continents = [
@@ -33,11 +33,11 @@ const continents = [
       { name: "Japan", slug: "japan" },
       { name: "South Korea", slug: "south-korea" },
       { name: "Singapore", slug: "singapore" },
+      { name: "Turkey", slug: "turkey" },
       { name: "Thailand", slug: "thailand" },
       { name: "Vietnam", slug: "vietnam" },
       { name: "Malaysia", slug: "malaysia" },
-      { name: "Indonesia", slug: "indonesia" },
-      { name: "Philippines", slug: "philippines" }
+      { name: "Indonesia", slug: "indonesia" }
     ]
   },
   {
@@ -63,7 +63,6 @@ const continents = [
       { name: "United Arab Emirates", slug: "united-arab-emirates" },
       { name: "Saudi Arabia", slug: "saudi-arabia" },
       { name: "Israel", slug: "israel" },
-      { name: "Turkey", slug: "turkey" },
       { name: "Qatar", slug: "qatar" },
       { name: "Kuwait", slug: "kuwait" },
       { name: "Bahrain", slug: "bahrain" },
@@ -122,7 +121,364 @@ const continents = [
   }
 ];
 
-export function NewHeader() {
+// Header-specific occupation searchable dropdown component
+function HeaderSearchableDropdown({ allOccupations = [] as Array<{ country: string; title: string; slug: string; state: string | null; location: string | null; }> }: { allOccupations?: Array<{ country: string; title: string; slug: string; state: string | null; location: string | null; }> }) {
+  const [searchQuery, setSearchQuery] = useState("");
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [filteredCountries, setFilteredCountries] = useState<any[]>([]);
+  const [selectedCountry, setSelectedCountry] = useState<any>(null);
+  const [isOccupationDropdownOpen, setIsOccupationDropdownOpen] = useState(false);
+  const [occupationSuggestions, setOccupationSuggestions] = useState<any[]>([]);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const chipRef = useRef<HTMLSpanElement>(null);
+  const [chipWidth, setChipWidth] = useState<number>(0);
+  const router = useRouter();
+  const pathname = usePathname();
+  const isHome = pathname === "/";
+
+  // Get country from URL if available
+  useEffect(() => {
+    const segments = pathname.split('/').filter(Boolean);
+    if (segments.length > 0) {
+      const countrySlug = segments[0];
+      const found = COUNTRIES.find(c => c.slug === countrySlug);
+      if (found) {
+        setSelectedCountry(found);
+      }
+    }
+  }, [pathname]);
+
+  const COUNTRIES = [
+    { name: "Australia", code: "AU", continent: "oceania", slug: "australia" },
+    { name: "India", code: "IN", continent: "asia", slug: "india" },
+    { name: "United States", code: "US", continent: "north_america", slug: "united-states" },
+    { name: "United Kingdom", code: "GB", continent: "europe", slug: "united-kingdom" },
+    { name: "Canada", code: "CA", continent: "north_america", slug: "canada" },
+    { name: "Germany", code: "DE", continent: "europe", slug: "germany" },
+    { name: "France", code: "FR", continent: "europe", slug: "france" },
+    { name: "Japan", code: "JP", continent: "asia", slug: "japan" },
+    { name: "Brazil", code: "BR", continent: "south_america", slug: "brazil" },
+    { name: "South Africa", code: "ZA", continent: "africa", slug: "south-africa" },
+  ];
+
+  const CONTINENTS = [
+    { name: "Africa", code: "africa" },
+    { name: "Asia", code: "asia" },
+    { name: "Europe", code: "europe" },
+    { name: "Middle East", code: "middle_east" },
+    { name: "North America", code: "north_america" },
+    { name: "Oceania", code: "oceania" },
+    { name: "South America", code: "south_america" },
+  ];
+
+  // Filter countries based on search query
+  useEffect(() => {
+    if (searchQuery.trim() === "") {
+      setFilteredCountries(COUNTRIES);
+    } else {
+      const term = searchQuery.toLowerCase();
+      const filtered = COUNTRIES.filter(country =>
+        country.name.toLowerCase().includes(term) ||
+        country.continent.toLowerCase().includes(term)
+      );
+      setFilteredCountries(filtered);
+    }
+  }, [searchQuery]);
+
+  // Build occupation suggestions when searching after a country is picked
+  useEffect(() => {
+    if (!selectedCountry) {
+      if (occupationSuggestions.length !== 0) setOccupationSuggestions([]);
+      if (isOccupationDropdownOpen) setIsOccupationDropdownOpen(false);
+      return;
+    }
+    
+    const term = searchQuery.trim().toLowerCase();
+    
+    // Only show occupation dropdown if user has typed at least 3 characters
+    if (term.length < 3) {
+      setOccupationSuggestions([]);
+      setIsOccupationDropdownOpen(false);
+      return;
+    }
+    
+    // Build from provided occupations
+    const termNormalized = term.replace(/[^a-z0-9\s-]/g, "");
+    const pool = allOccupations
+      .filter(o => o.country.toLowerCase() === selectedCountry.slug)
+      .map(o => {
+        const raw = o.title || "";
+        const cleaned = raw
+          .replace(/^Average\s+/i, "")
+          .replace(/\s+Salary.*$/i, "")
+          .trim();
+        return {
+          title: raw,
+          slug: o.slug,
+          state: o.state,
+          location: o.location,
+          display: cleaned,
+          haystack: `${cleaned} ${o.slug}`.toLowerCase()
+        };
+      })
+      .sort((a, b) => a.display.localeCompare(b.display));
+
+    const matches = pool.filter(o => o.haystack.includes(termNormalized));
+    setOccupationSuggestions(matches.slice(0, 20));
+    setIsOccupationDropdownOpen(true);
+  }, [searchQuery, selectedCountry, isOccupationDropdownOpen, occupationSuggestions.length, allOccupations]);
+
+  // Handle click outside to close dropdown
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsDropdownOpen(false);
+        setIsOccupationDropdownOpen(false);
+      }
+    }
+    
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  // Measure inline country tag width to pad input accordingly
+  useEffect(() => {
+    if (!chipRef.current) {
+      setChipWidth(0);
+      return;
+    }
+    setChipWidth(chipRef.current.offsetWidth);
+  }, [selectedCountry]);
+
+  const groupedCountries = CONTINENTS.map(continent => ({
+    ...continent,
+    countries: filteredCountries.filter(country => country.continent === continent.code)
+  })).filter(group => group.countries.length > 0);
+
+  function handleEnter() {
+    if (!selectedCountry) return; // need a country first
+    const query = searchQuery.trim();
+    
+    if (query.length === 0) {
+      router.push(`/${selectedCountry.slug}`);
+      return;
+    }
+    
+    // If there are occupation suggestions, go to the first result
+    if (occupationSuggestions.length > 0) {
+      const firstResult = occupationSuggestions[0];
+      
+      // Build the URL according to our routing rules
+      let url = `/${selectedCountry.slug}`;
+      
+      if (firstResult.state) {
+        const normalizedState = firstResult.state.toLowerCase().replace(/\s+/g, '-');
+        url += `/${normalizedState}`;
+        
+        if (firstResult.location) {
+          const normalizedLocation = firstResult.location.toLowerCase().replace(/\s+/g, '-');
+          url += `/${normalizedLocation}`;
+        }
+      }
+      
+      url += `/${firstResult.slug}`;
+      router.push(url);
+      return;
+    }
+    
+    // If no results found, go to the country page
+    router.push(`/${selectedCountry.slug}`);
+  }
+
+  return (
+    <div ref={dropdownRef} className="relative">
+      <div className="relative">
+        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+          <Search className="h-4 w-4 text-gray-400" />
+        </div>
+        {/* Inline tag area inside input */}
+        {selectedCountry && (
+          <div className="absolute inset-y-0 left-10 flex items-center">
+            <span ref={chipRef} className="inline-flex items-center px-2 py-1 rounded-full bg-blue-100 text-blue-700 text-xs">
+              {selectedCountry.name}
+              {isHome && (
+                <button
+                  aria-label="Remove selected country"
+                  className="ml-2 hover:text-blue-800"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setSelectedCountry(null);
+                    setSearchQuery("");
+                    setIsDropdownOpen(false);
+                    setIsOccupationDropdownOpen(false);
+                  }}
+                >
+                  <X className="h-3 w-3" />
+                </button>
+              )}
+            </span>
+          </div>
+        )}
+        <input
+          ref={inputRef}
+          type="text"
+          placeholder={
+            selectedCountry
+              ? `Search occupations in ${selectedCountry.name}...`
+              : "Search countries..."
+          }
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          onFocus={() => {
+            if (selectedCountry) {
+              if (searchQuery.trim().length >= 3) {
+                setIsOccupationDropdownOpen(true);
+              }
+            } else {
+              if (isHome) setIsDropdownOpen(true);
+            }
+          }}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              e.preventDefault();
+              handleEnter();
+            } else if ((e.key === 'ArrowDown' || e.key === 'ArrowUp') && selectedCountry) {
+              setIsOccupationDropdownOpen(true);
+            }
+          }}
+          className="block w-80 lg:w-96 pr-20 py-2 border border-gray-300 rounded-md text-sm text-gray-900 placeholder-gray-500 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          style={{ 
+            paddingLeft: selectedCountry ? 48 + chipWidth + 12 : 48
+          }}
+        />
+        <div className="absolute inset-y-0 right-0 pr-2 flex items-center">
+          {selectedCountry && (
+            <button
+              type="button"
+              onClick={() => {
+                handleEnter();
+              }}
+              aria-label="Go to results"
+              title={
+                searchQuery.trim().length === 0 
+                  ? `Go to ${selectedCountry.name}` 
+                  : occupationSuggestions.length > 0 
+                    ? `Go to first result: ${occupationSuggestions[0].display}` 
+                    : `Go to ${selectedCountry.name}`
+              }
+              className="mr-2 inline-flex h-6 w-6 items-center justify-center rounded-md border border-blue-600 text-blue-600 bg-white hover:bg-blue-50 cursor-pointer"
+            >
+              <ArrowRight className="h-3 w-3" />
+            </button>
+          )}
+          <button
+            type="button"
+            onClick={() => {
+              if (selectedCountry) {
+                setIsOccupationDropdownOpen(!isOccupationDropdownOpen);
+              } else {
+                if (isHome) setIsDropdownOpen(!isDropdownOpen);
+              }
+            }}
+          >
+            <ChevronDown 
+              className={`h-4 w-4 text-gray-400 ${(selectedCountry ? isOccupationDropdownOpen : isDropdownOpen) ? 'transform rotate-180' : ''} transition-transform duration-200`}
+            />
+          </button>
+        </div>
+      </div>
+
+      {/* Country dropdown (home only) */}
+      {isHome && isDropdownOpen && !selectedCountry && (
+        <div className="absolute top-full mt-1 left-0 w-80 lg:w-96 bg-white rounded-lg shadow-xl ring-1 ring-black ring-opacity-5 z-50 border border-gray-200">
+          <div className="py-1 max-h-[300px] overflow-y-auto">
+            {groupedCountries.length > 0 ? (
+              groupedCountries.map((continent) => (
+                <div key={continent.code}>
+                  <div className="px-4 py-2 text-sm font-semibold text-gray-700 bg-gray-50 border-b">
+                    {continent.name}
+                  </div>
+                  {continent.countries.map((country) => (
+                    <button
+                      key={country.code}
+                      onClick={() => {
+                        setSelectedCountry(country);
+                        setIsDropdownOpen(false);
+                        setSearchQuery("");
+                        setOccupationSuggestions([]);
+                        setIsOccupationDropdownOpen(false);
+                        setTimeout(() => {
+                          if (inputRef.current) {
+                            inputRef.current.focus();
+                          }
+                        }, 0);
+                      }}
+                      className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-colors duration-150 flex items-center justify-between"
+                    >
+                      <span>{country.name}</span>
+                      {selectedCountry?.code === country.code && (
+                        <Check className="h-4 w-4 text-blue-600" />
+                      )}
+                    </button>
+                  ))}
+                </div>
+              ))
+            ) : (
+              <div className="px-4 py-6 text-center text-gray-500">
+                No countries found matching "{searchQuery}"
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Occupation suggestions dropdown */}
+      {selectedCountry && isOccupationDropdownOpen && (
+        <div 
+          className="absolute top-full mt-1 left-0 w-80 lg:w-96 bg-white rounded-lg shadow-xl ring-1 ring-black ring-opacity-5 z-50 border border-gray-200" 
+          onMouseDown={(e) => e.preventDefault()}
+        >
+          <div className="py-1 max-h-[300px] overflow-y-auto">
+            {occupationSuggestions.map(s => (
+              <button
+                key={`${s.slug}-${s.state ?? 'na'}`}
+                onClick={() => {
+                  setIsDropdownOpen(false);
+                  setIsOccupationDropdownOpen(false);
+                  setSearchQuery("");
+                  
+                  // Build the URL according to our routing rules
+                  let url = `/${selectedCountry.slug}`;
+                  
+                  if (s.state) {
+                    const normalizedState = s.state.toLowerCase().replace(/\s+/g, '-');
+                    url += `/${normalizedState}`;
+                    
+                    if (s.location) {
+                      const normalizedLocation = s.location.toLowerCase().replace(/\s+/g, '-');
+                      url += `/${normalizedLocation}`;
+                    }
+                  }
+                  
+                  url += `/${s.slug}`;
+                  router.push(url);
+                }}
+                className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-colors duration-150"
+              >
+                {s.display}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+export function NewHeader({ allOccupations = [] as Array<{ country: string; title: string; slug: string; state: string | null; location: string | null; }> }: { allOccupations?: Array<{ country: string; title: string; slug: string; state: string | null; location: string | null; }> }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [hoveredContinent, setHoveredContinent] = useState<string | null>(null);
   const closeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -145,11 +501,14 @@ export function NewHeader() {
     <header className="bg-white shadow-sm border-b sticky top-0 z-50">
       <div className="max-w-7xl lg:max-w-full mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
-          {/* Logo */}
-          <Logo />
+          {/* Logo and Search Bar - Left Side */}
+          <div className="flex items-center space-x-6">
+            <Logo />
+            <HeaderSearchableDropdown allOccupations={allOccupations} />
+          </div>
 
-          {/* Continent Dropdowns - Desktop - Centered */}
-          <div className="hidden md:flex space-x-4 flex-1 justify-center">
+          {/* Continent Dropdowns - Right Corner */}
+          <div className="hidden md:flex space-x-2">
             {continents.map((continent) => (
               <div
                 key={continent.code}
@@ -159,16 +518,17 @@ export function NewHeader() {
               >
                 <Button
                   variant="ghost"
-                  className="flex items-center space-x-1 text-gray-600 hover:text-gray-900"
+                  size="sm"
+                  className="flex items-center space-x-1 text-gray-600 hover:text-gray-900 text-sm px-3 py-2"
                 >
                   <span>{continent.name}</span>
-                  <ChevronDown className="h-4 w-4" />
+                  <ChevronDown className="h-3 w-3" />
                 </Button>
                 
                 {/* Dropdown Content */}
                 {hoveredContinent === continent.code && (
                   <div 
-                    className="absolute top-full left-0 mt-1 w-64 bg-white rounded-lg shadow-xl ring-1 ring-black ring-opacity-5 z-50 border border-gray-200"
+                    className="absolute top-full right-0 mt-1 w-64 bg-white rounded-lg shadow-xl ring-1 ring-black ring-opacity-5 z-50 border border-gray-200"
                     onMouseEnter={() => handleMouseEnter(continent.code)}
                     onMouseLeave={handleMouseLeave}
                   >
@@ -186,26 +546,12 @@ export function NewHeader() {
                             {country.name}
                           </a>
                         ))}
-                        {/* View All Option */}
-                        <div className="border-t border-gray-200 mt-2 pt-2">
-                          <a
-                            href="/countries"
-                            className="block px-4 py-2 text-sm font-medium text-blue-600 hover:bg-blue-50 hover:text-blue-700 transition-colors duration-150"
-                          >
-                            All Countries
-                          </a>
-                        </div>
                       </div>
                     </div>
                   </div>
                 )}
               </div>
             ))}
-          </div>
-
-          {/* About Link - Right Corner */}
-          <div className="hidden md:block">
-            <NavLinks />
           </div>
 
           {/* Mobile menu button */}
@@ -231,7 +577,12 @@ export function NewHeader() {
       {mobileMenuOpen && (
         <div className="md:hidden">
           <div className="px-2 pt-2 pb-3 space-y-1 bg-white border-t">
-            <NavLinks mobile={true} />
+            {/* Mobile search */}
+            <div className="p-4">
+              <HeaderSearchableDropdown allOccupations={allOccupations} />
+            </div>
+            
+            {/* Mobile continent navigation */}
             <div className="p-4 space-y-2">
               {continents.map((continent, idx) => (
                 <div key={continent.code} className="space-y-1">
@@ -247,17 +598,6 @@ export function NewHeader() {
                       {country.name}
                     </a>
                   ))}
-                  {/* View All Option for Mobile */}
-                  {
-                    continents.length === idx + 1 && (
-                      <a
-                        href="/countries"
-                        className="block px-6 py-2 text-sm font-medium text-blue-600 hover:text-blue-700"
-                      >
-                        All Countries
-                      </a>
-                    )
-                  }
                 </div>
               ))}
             </div>

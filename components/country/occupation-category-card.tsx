@@ -1,6 +1,13 @@
 import Link from "next/link";
 import { formatCurrency } from "@/lib/format/currency";
 
+// Helper function to normalize slugs for URLs (handles special characters)
+function normalizeSlugForURL(slug: string): string {
+  return slug
+    .replace(/#/g, '-sharp')  // Replace # with -sharp
+    .replace(/\+/g, '-plus'); // Replace + with -plus
+}
+
 interface OccupationCategoryCardProps {
   occupation: string;
   records: Array<{
@@ -44,7 +51,7 @@ export function OccupationCategoryCard({
             {records.slice(0, 5).map((record) => (
               <Link
                 key={record.slug_url}
-                href={`/${countrySlug}${record.state ? `/${record.state.toLowerCase().replace(/\s+/g, '-')}` : ''}/${record.slug_url}`}
+                href={`/${countrySlug}${record.state ? `/${record.state.toLowerCase().replace(/\s+/g, '-')}` : ''}${record.location ? `/${record.location.toLowerCase().replace(/\s+/g, '-')}` : ''}/${normalizeSlugForURL(record.slug_url)}`}
                 className="block p-3 rounded-md border border-gray-100 hover:border-blue-200 hover:bg-blue-50 transition-colors"
               >
                 <div className="flex items-center justify-between">
@@ -61,7 +68,7 @@ export function OccupationCategoryCard({
                   </div>
                   {record.avgAnnualSalary && (
                     <div className="text-sm font-medium text-gray-900 ml-4">
-                      {formatCurrency(record.avgAnnualSalary, countrySlug, record)}
+                      {formatCurrency(record.avgAnnualSalary, countrySlug, undefined)}
                     </div>
                   )}
                 </div>

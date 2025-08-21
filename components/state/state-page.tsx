@@ -3,35 +3,65 @@ import { NewHeader } from "@/components/navigation/new-header";
 import { Breadcrumbs } from "@/components/occupation/breadcrumbs";
 import { StateHeroSection } from "./state-hero-section";
 import { OccupationList } from "@/components/ui/occupation-list";
-import { getStateData, getDataset } from "@/lib/data/parse";
+import { LocationsGrid } from "./locations-grid";
+import { getStateData, getDataset, getLocationData } from "@/lib/data/parse";
 
 interface StatePageProps {
   country: string;
   state: string;
 }
 
-export function StatePage({ country, state }: StatePageProps) {
-  const stateGroups = getStateData(country);
+export async function StatePage({ country, state }: StatePageProps) {
+  const stateGroups = await getStateData(country);
   const stateData = stateGroups.get(state);
   
   if (!stateData) {
     return null; // This should be handled by the parent component
   }
   
-  const countryName = getDataset().all.find(r => r.country.toLowerCase() === country)?.country || country;
+  const countryName = (await getDataset()).all.find(r => r.country.toLowerCase() === country)?.country || country;
   const stateName = stateData.name;
   const jobs = stateData.jobs;
   
+  // Get unique locations if they exist
+  const locations = Array.from(new Set(
+    (await getDataset()).all
+      .filter(rec => rec.country.toLowerCase() === country.toLowerCase() && rec.state === stateName)
+      .map(rec => rec.location)
+      .filter(Boolean)
+  )) as string[];
+  
+  // Prepare occupation data for the list (only jobs in this state)
+  const { all } = await getDataset();
+  const occupationItems = all
+    .filter(rec => rec.country.toLowerCase() === country.toLowerCase() && rec.state === stateName)
+    .map(record => ({
+      id: record.slug_url,
+      displayName: record.title || record.h1Title || "Unknown Job",
+      originalName: record.title || record.h1Title || "Unknown Job",
+      slug_url: record.slug_url,
+      location: record.location || undefined,
+      state: record.state || undefined,
+      avgAnnualSalary: record.avgAnnualSalary || undefined,
+      countrySlug: country
+    }));
+
   // Breadcrumb navigation
   const breadcrumbs = [
-    { name: "Countries", href: "/countries" },
+    { name: "Home", href: "/" },
     { name: countryName, href: `/${country}` },
     { name: stateName, href: "#", current: true },
   ];
   
   return (
     <div className="min-h-screen bg-gray-50">
-      <NewHeader />
+      <NewHeader allOccupations={all.map(rec => ({
+        country: rec.country.toLowerCase(),
+        title: rec.title || rec.h1Title || "",
+        slug: rec.slug_url,
+        state: rec.state ? rec.state : null,
+        location: rec.location ? rec.location : null,
+      }))} />
       
       <main>
         {/* Breadcrumbs */}
@@ -48,20 +78,22 @@ export function StatePage({ country, state }: StatePageProps) {
         />
 
         <OccupationList 
-          items={jobs.map(job => ({
-            id: job.slug,
-            displayName: job.title || "Unknown Job",
-            originalName: job.title || "Unknown Job",
-            slug_url: job.slug,
-            location: undefined,
-            state: undefined,
-            avgAnnualSalary: job.avgAnnualSalary,
-            countrySlug: country
-          }))}
-          title={`Salary Records in ${stateName}`}
-          description={`Explore salary information and job opportunities in ${stateName}, ${countryName}.`}
-          currentState={stateName.toLowerCase().replace(/\s+/g, '-')}
+          items={occupationItems}
+          title="Explore Jobs by Category"
+          description={`Browse salary information organized by job categories and specializations in ${stateName}.`}
+          states={[stateName]}
+          currentState={state.toLowerCase().replace(/\s+/g, '-')}
         />
+
+        {locations.length > 0 && (
+          <LocationsGrid
+            country={country}
+            state={stateName}
+            title="Explore by Location"
+            description={`Find salary data specific to different cities and locations within ${stateName}.`}
+            className="bg-white"
+          />
+        )}
 
         {/* CTA Section */}
         <section className="bg-blue-600 py-16">
@@ -79,11 +111,7 @@ export function StatePage({ country, state }: StatePageProps) {
                   View All Salary Data in {countryName}
                 </button>
               </Link>
-              <Link href="/countries">
-                <button className="border border-white text-white px-8 py-3 rounded-md font-medium hover:bg-white hover:text-blue-600 transition-colors">
-                  Browse All Countries
-                </button>
-              </Link>
+
             </div>
           </div>
         </section>

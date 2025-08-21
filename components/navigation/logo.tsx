@@ -1,10 +1,10 @@
 import Link from "next/link";
-import { Globe } from "lucide-react";
+import { TrendingUp } from "lucide-react";
 
 export function Logo() {
   return (
     <Link href="/" className="flex items-center space-x-2">
-      <Globe className="h-8 w-8 text-blue-600" />
+      <TrendingUp className="h-8 w-8 text-blue-600" />
       <span className="text-xl font-bold text-gray-900">RollThePay</span>
     </Link>
   );

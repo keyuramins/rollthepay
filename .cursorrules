@@ -24,12 +24,16 @@ These rules are authoritative for this repository. Follow them for all new code,
 - **Numeric parsing**: Coerce numeric-like strings; default to `null` when not parseable. Never infer currency from numbers; always from country metadata.
 
 ## Routing & URL Conventions
-- **Route pattern**: `/[country]/[state?]/[slug]` all lowercase.
-  - Country is required. If a state exists in data, it occupies the second segment; otherwise use just `/[country]/[slug]`.
-  - Values for `[country]`, `[state]`, `[slug]` must be lowercase and URL-safe.
+- **Route pattern**: `/[country]/[state?]/[location?]/[slug]` all lowercase.
+  - Country is required. If a state exists in data, it occupies the second segment.
+  - If a location exists in data, it occupies the third segment.
+  - Values for `[country]`, `[state]`, `[location]`, `[slug]` must be lowercase and URL-safe.
 - **App Router structure**:
   - `app/[country]/[slug]/page.tsx` for country-only records.
   - `app/[country]/[state]/[slug]/page.tsx` for country+state records.
+  - `app/[country]/[state]/[location]/[slug]/page.tsx` for country+state+location records.
+  - `app/[country]/[state]/page.tsx` for state overview pages.
+  - `app/[country]/[state]/[location]/page.tsx` for location overview pages.
 - **Static params**: Implement `generateStaticParams` to enumerate all pages from CSV at build time. Set `export const dynamicParams = false` to guarantee static paths only.
 - **Canonical**: Provide canonical URLs in metadata. No querystring variants.
 
@@ -43,7 +47,7 @@ These rules are authoritative for this repository. Follow them for all new code,
 ## SEO & Metadata
 - **Per-page metadata**: Use Next metadata API. Derive values once from CSV row:
   - `title`: from `title` (fallback `h1Title` only if `title` absent).
-  - `description`: concise summary including occupation, country, and if present state; avoid keyword stuffing.
+  - `description`: concise summary including occupation, country, state, and location if present; avoid keyword stuffing.
   - `alternates.canonical`: computed from the route.
   - OpenGraph/Twitter cards with consistent branding.
 - **Headings**: Exactly one `<h1>` per page, matching the chosen display title. Do not repeat title text in multiple headings.
@@ -67,7 +71,7 @@ These rules are authoritative for this repository. Follow them for all new code,
 ## Data-driven Page Contract
 - From each CSV row, the page must render:
   - Primary title (from `title`)
-  - Country and optional state
+  - Country, state, and location (if present)
   - Occupation and slug (unchanged)
   - Salary ranges (low, high, average) with currency formatting per locale
   - Experience buckets if present
@@ -87,7 +91,7 @@ These rules are authoritative for this repository. Follow them for all new code,
 - **Testing**: Add basic unit tests for parsing and formatting functions when introduced.
 
 ## Implementation Checklist (per new route/page)
-1. Define route in `app/[country]/[state?]/[slug]/page.tsx` as a Server Component.
+1. Define route in `app/[country]/[state?]/[location?]/[slug]/page.tsx` as a Server Component.
 2. `export const revalidate = 31536000` and `export const dynamicParams = false`.
 3. Implement `generateStaticParams` to enumerate rows from relevant CSV.
 4. Parse CSV once in a server utility and reuse.
@@ -95,7 +99,7 @@ These rules are authoritative for this repository. Follow them for all new code,
 6. Render one unique page component that composes shared UI.
 7. Format numbers/currency with `Intl` per locale.
 8. Skip invalid or `#REF!` cells; do not render empty content.
-9. Ensure URLs are `/country[/state]/slug` all lowercase with slug from CSV unchanged.
+9. Ensure URLs are `/country[/state][/location]/slug` all lowercase with slug from CSV unchanged.
 10. Add route to sitemap. Verify no duplicate `title`/`h1`.
 
 ## Prohibited
@@ -107,5 +111,28 @@ These rules are authoritative for this repository. Follow them for all new code,
 ## Notes from README
 - Mission: provide accurate salary data by country/state; simple UX; transparent labor market info.
 - Keep content concise and relevant to the occupation and location. Avoid marketing fluff on data pages.
+
+## Location Routing Rules (NEW)
+- **Location pages**: When a CSV record has both `state` and `location` fields populated, create a location page at `/[country]/[state]/[location]`.
+- **Location page structure**: Location pages should mirror state pages but show jobs specific to that location within the state.
+- **Location normalization**: Convert location names to URL-safe format (lowercase, hyphenated) similar to state normalization.
+- **Location data grouping**: Group records by location within each state, similar to how states are grouped within countries.
+- **Location breadcrumbs**: Include location in breadcrumb navigation: Home > Countries > Country > State > Location.
+- **Location metadata**: Generate appropriate metadata for location pages including location-specific descriptions.
+- **Location occupation lists**: Show only jobs that have the specific location field populated, filtered by state and location.
+
+## Filebrowser API Integration Rules
+- **Data Source**: Use Filebrowser API instead of Minio for all CSV data access.
+- **Environment Variables**: Require `FILEBROWSER_API_KEY` and `FILEBROWSER_BASE_URL` in `.env`.
+- **API Configuration**: Use `source=folder` and entry folder `/rollthepay` as configured in server logs.
+- **Authentication**: Pass API key as Bearer token in Authorization header for all API calls.
+- **Data Structure**: Maintain the same CSV structure: `/rollthepay/continents/countries.csv`.
+- **Caching**: Preserve 1-year memory caching strategy with build-time bypass.
+- **Error Handling**: Gracefully handle API errors and provide clear troubleshooting guidance.
+- **Testing**: Use `npm run migrate-to-filebrowser` script to validate API connectivity.
+- **API Endpoints**: Use `/api/resources` for metadata and `/api/raw` for file content.
+- **Path Encoding**: Properly encode paths for URL parameters using `encodeURIComponent`.
+- **Recursive Discovery**: Implement recursive directory traversal to discover all CSV files.
+- **Build Safety**: Ensure no API calls during Next.js static generation phases.
 
 

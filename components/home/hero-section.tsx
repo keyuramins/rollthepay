@@ -4,19 +4,18 @@ import { ArrowRight, TrendingUp } from "lucide-react";
 import Link from "next/link";
 import { getDataset } from "@/lib/data/parse";
 
-export function HeroSection() {
-  const { all } = getDataset();
+export async function HeroSection() {
+  const { all } = await getDataset();
   const occupations = all.map(rec => ({
     country: rec.country.toLowerCase(),
     title: rec.title,
     slug: rec.slug_url,
     state: rec.state ? rec.state : null,
+    location: rec.location ? rec.location : null,
   }));
   return (
-    <section className="relative bg-gradient-to-br from-blue-600 via-indigo-600 to-blue-800 min-h-[70vh] sm:h-[80vh] flex items-center py-12 sm:py-0">
-      {/* Accent Elements */}
-      <div className="absolute top-0 right-0 w-48 h-48 sm:w-96 sm:h-96 bg-blue-400/20 rounded-full blur-3xl"></div>
-      <div className="absolute bottom-0 left-0 w-48 h-48 sm:w-96 sm:h-96 bg-indigo-400/20 rounded-full blur-3xl"></div>
+    <section className="relative bg-gradient-to-br from-blue-600 via-indigo-600 to-blue-800 min-h-[50vh] sm:h-[65vh] flex items-center py-12 sm:py-0">
+ 
 
       <div className="relative z-10 w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center">
@@ -34,7 +33,7 @@ export function HeroSection() {
           </p>
         
           {/* Search Section - Prominent and Centered */}
-          <div className="mb-6 sm:mb-8 text-left">
+          <div className="sm:mb-8 text-left">
             <div className="max-w-xl mx-auto px-2">
               <SearchableDropdown 
                 variant="light" 
@@ -47,18 +46,7 @@ export function HeroSection() {
             </div>
           </div>
 
-          {/* CTA Button */}
-          <div className="flex justify-center px-2">
-            <Link href="/countries">
-              <Button 
-                size="lg" 
-                className="bg-white text-blue-700 hover:bg-blue-50 px-4 sm:px-6 py-2 sm:py-3 text-sm sm:text-base font-medium shadow-lg hover:shadow-xl transition-all duration-300 rounded-lg cursor-pointer w-full sm:w-auto"
-              >
-                Explore All Countries
-                <ArrowRight className="ml-2 w-4 h-4" />
-              </Button>
-            </Link>
-          </div>
+
         </div>
       </div>
     </section>

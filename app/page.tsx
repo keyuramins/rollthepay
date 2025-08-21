@@ -8,15 +8,16 @@ import { CTASection } from "@/components/home/cta-section";
 import { Footer } from "@/components/ui/footer";
 
 export const revalidate = 31536000;
+export const dynamic = "force-dynamic";
 
-export default function Home() {
-  const { all } = getDataset();
+export default async function Home() {
+  const { all } = await getDataset();
   const totalSalaries = all.length;
   const countries = new Set(all.map(rec => rec.country)).size;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 overflow-x-hidden">
-      {/* <Header /> */}
+      {/* <NewHeader /> */}
       <HeroSection />
       <StatsSection totalSalaries={totalSalaries} countries={countries} />
       <MissionSection />

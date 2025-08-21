@@ -10,9 +10,7 @@ export function AboutCTASection() {
           Explore our comprehensive salary database and make informed career decisions.
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <a href="/countries" className="bg-white text-blue-600 px-8 py-3 rounded-md font-medium hover:bg-gray-100 transition-colors">
-            Browse Countries
-          </a>
+          
           <a href="/" className="border border-white text-white px-8 py-3 rounded-md font-medium hover:bg-white hover:text-blue-600 transition-colors">
             Back to Home
           </a>

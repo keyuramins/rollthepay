@@ -603,13 +603,13 @@ export function ComprehensiveStats({ record, country }: ComprehensiveStatsProps)
               </div>
             </div>
             {/* Mini Line Chart */}
-            <div className="absolute top-4 right-4">
+            {/* <div className="absolute top-4 right-4">
               <MiniLineChart
                 data={annualSalaryData}
                 color="#2563EB"
                 mainValue={`$${record.avgAnnualSalary?.toLocaleString() || 'N/A'}`}
               />
-            </div>
+            </div> */}
           </div>
         </div>
 
@@ -628,13 +628,13 @@ export function ComprehensiveStats({ record, country }: ComprehensiveStatsProps)
               </div>
             </div>
             {/* Mini Line Chart */}
-            <div className="absolute top-4 right-4">
+            {/* <div className="absolute top-4 right-4">
               <MiniLineChart
                 data={hourlySalaryData}
                 color="#059669"
                 mainValue={`$${record.avgHourlySalary?.toFixed(2) || 'N/A'}/hr`}
               />
-            </div>
+            </div> */}
           </div>
         </div>
 

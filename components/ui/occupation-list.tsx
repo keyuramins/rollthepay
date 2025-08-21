@@ -5,6 +5,13 @@ import Link from "next/link";
 import { AZFilter } from "./az-filter";
 import { MapPin, ChevronLeft, ChevronRight } from "lucide-react";
 
+// Helper function to normalize slugs for URLs (handles special characters)
+function normalizeSlugForURL(slug: string): string {
+  return slug
+    .replace(/#/g, '-sharp')  // Replace # with -sharp
+    .replace(/\+/g, '-plus'); // Replace + with -plus
+}
+
 interface OccupationItem {
     id: string;
     displayName: string;
@@ -22,10 +29,11 @@ interface OccupationListProps {
     description: string;
     className?: string;
     currentState?: string; // Context when rendering on a state page
+    currentLocation?: string; // Context when rendering on a location page
     states?: string[]; // List of states for determining state items on country page
 }
 
-export function OccupationList({ items, title, description, className = "", currentState, states }: OccupationListProps) {
+export function OccupationList({ items, title, description, className = "", currentState, currentLocation, states }: OccupationListProps) {
     const [mounted, setMounted] = useState(false);
     const [azFilteredItems, setAzFilteredItems] = useState<OccupationItem[]>([]);
     const [searchQuery, setSearchQuery] = useState("");
@@ -160,15 +168,32 @@ export function OccupationList({ items, title, description, className = "", curr
                 {/* Results */}
                 <div className="grid grid-cols-1 gap-4">
                     {paginatedItems.map((item) => {
-                        // Compute route
+                        // Compute route based on current page context
                         let href: string;
-                        if (currentState) {
-                            href = `/${item.countrySlug}/${currentState}/${item.slug_url}`;
+                        
+                        const normalizedSlug = normalizeSlugForURL(item.slug_url);
+                        
+                        if (currentLocation && currentState) {
+                            // We're on a location page: /[country]/[state]/[location]/[slug]
+                            href = `/${item.countrySlug}/${currentState}/${currentLocation}/${normalizedSlug}`;
+                        } else if (currentState) {
+                            // We're on a state page: check if item has location
+                            if (item.location) {
+                                // Item has location: /[country]/[state]/[location]/[slug]
+                                href = `/${item.countrySlug}/${currentState}/${item.location.toLowerCase().replace(/\s+/g, "-")}/${normalizedSlug}`;
+                            } else {
+                                // Item has no location: /[country]/[state]/[slug]
+                                href = `/${item.countrySlug}/${currentState}/${normalizedSlug}`;
+                            }
+                        } else if (item.state && item.location) {
+                            // Item has both state and location: /[country]/[state]/[location]/[slug]
+                            href = `/${item.countrySlug}/${item.state.toLowerCase().replace(/\s+/g, "-")}/${item.location.toLowerCase().replace(/\s+/g, "-")}/${normalizedSlug}`;
                         } else if (item.state) {
-                            href = `/${item.countrySlug}/${item.state.toLowerCase().replace(/\s+/g, "-")}/${item.slug_url}`;
+                            // Item has only state: /[country]/[state]/[slug]
+                            href = `/${item.countrySlug}/${item.state.toLowerCase().replace(/\s+/g, "-")}/${normalizedSlug}`;
                         } else {
-                            const isStateItem = !item.location && !item.state && states && states.some(state => state.toLowerCase().replace(/\s+/g, "-") === item.slug_url);
-                            href = isStateItem ? `/${item.countrySlug}/${item.slug_url}` : `/${item.countrySlug}/${item.slug_url}`;
+                            // Country-level item: /[country]/[slug]
+                            href = `/${item.countrySlug}/${normalizedSlug}`;
                         }
 
                         return (
@@ -206,7 +231,7 @@ export function OccupationList({ items, title, description, className = "", curr
                             <span>No results found.</span>
                         )}
                     </div>
-                    {totalItems > 0 && (
+                    {totalItems > PAGE_SIZE && (
                         <nav className="flex items-center gap-2" aria-label="Pagination">
                             <button
                                 className="inline-flex items-center rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 disabled:opacity-50"

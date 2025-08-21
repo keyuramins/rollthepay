@@ -6,34 +6,43 @@ import { SalaryDistributionChart } from "@/components/ui/salary-distribution-cha
 import { SkillsChart } from "@/components/ui/skills-chart";
 import { ExperienceTimelineChart } from "@/components/ui/experience-timeline-chart";
 import { OccupationCTASection } from "./cta-section";
+import { DataOverviewSection } from "./data-overview-section";
+import { ContentSections } from "./content-sections";
+import { CareerProgressionSection } from "./career-progression-section";
 import { formatCurrency, formatHourlyRate } from "@/lib/format/currency";
-import { findRecordByPath } from "@/lib/data/parse";
+import { findRecordByPath, getDataset } from "@/lib/data/parse";
+import { generateOccupationContent } from "@/lib/ai/content-generator";
 import type { OccupationRecord } from "@/lib/data/types";
 
 interface OccupationPageProps {
   country: string;
   state?: string;
+  location?: string;
   slug: string;
 }
 
-export function OccupationPage({ country, state, slug }: OccupationPageProps) {
-  const record = findRecordByPath({ country, state, slug });
+export async function OccupationPage({ country, state, location, slug }: OccupationPageProps) {
+  const record = await findRecordByPath({ country, state, location, slug });
   
   if (!record) {
     return null; // This should be handled by the parent component
   }
   
+  // Generate AI content for the occupation
+  const aiContent = await generateOccupationContent(record);
+  
   const countryName = record.country;
   const stateName = record.state;
+  const locationName = record.location;
   const title = record.title || record.h1Title || record.occupation || record.slug_url;
   const occupation = record.occupation;
-  const location = record.location;
   
   // Breadcrumb navigation
   const breadcrumbs = [
     { name: "Home", href: "/" },
     { name: countryName, href: `/${country}` },
     ...(stateName ? [{ name: stateName, href: `/${country}/${stateName.toLowerCase().replace(/\s+/g, '-')}` }] : []),
+    ...(locationName ? [{ name: locationName, href: `/${country}/${stateName?.toLowerCase().replace(/\s+/g, '-')}/${locationName.toLowerCase().replace(/\s+/g, '-')}` }] : []),
     { name: title, href: "#", current: true },
   ];
   
@@ -51,8 +60,8 @@ export function OccupationPage({ country, state, slug }: OccupationPageProps) {
   const hasHourlyData = record.avgHourlySalary || record.hourlyLowValue || record.hourlyHighValue;
   
   const locationText = stateName ? 
-    `${location ? location + ', ' : ''}${stateName}, ${countryName}` : 
-    `${location ? location + ', ' : ''}${countryName}`;
+    `${locationName ? locationName + ', ' : ''}${stateName}, ${countryName}` : 
+    `${locationName ? locationName + ', ' : ''}${countryName}`;
 
   // Salary breakdown moved to ComprehensiveStats component
 
@@ -80,7 +89,13 @@ export function OccupationPage({ country, state, slug }: OccupationPageProps) {
   
   return (
     <div className="min-h-screen bg-gray-50">
-      <NewHeader />
+      <NewHeader allOccupations={(await getDataset()).all.map(rec => ({
+        country: rec.country.toLowerCase(),
+        title: rec.title || rec.h1Title || "",
+        slug: rec.slug_url,
+        state: rec.state ? rec.state : null,
+        location: rec.location ? rec.location : null,
+      }))} />
       
       <main>
         {/* Breadcrumbs */}
@@ -103,6 +118,25 @@ export function OccupationPage({ country, state, slug }: OccupationPageProps) {
             <ComprehensiveStats record={record} country={country} />
           </div>
         </section>
+
+        {/* Data Overview Section */}
+        <DataOverviewSection record={record} country={country} />
+
+        {/* AI-Generated Content Sections */}
+        <ContentSections content={aiContent} />
+
+        {/* Career Progression Section */}
+        <CareerProgressionSection 
+          content={aiContent} 
+          record={record} 
+          allOccupations={(await getDataset()).all.map(rec => ({
+            country: rec.country.toLowerCase(),
+            title: rec.title || rec.h1Title || "",
+            slug: rec.slug_url,
+            state: rec.state ? rec.state : null,
+            location: rec.location ? rec.location : null,
+          }))} 
+        />
 
         {/* Total Pay Information */}
 

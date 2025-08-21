@@ -12,11 +12,7 @@ export function CountryCTASection() {
           and get the insights you need to advance your career.
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <Link href="/countries">
-            <button className="bg-white text-blue-600 px-8 py-3 rounded-md font-medium hover:bg-gray-100 transition-colors">
-              Browse All Countries
-            </button>
-          </Link>
+
           <Link href="/">
             <button className="border border-white text-white px-8 py-3 rounded-md font-medium hover:bg-white hover:text-blue-600 transition-colors">
               Back to Home

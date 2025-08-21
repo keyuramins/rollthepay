@@ -39,6 +39,7 @@ interface OccupationIndexItem {
   title: string;
   slug: string; // slug_url
   state: string | null;
+  location: string | null;
 }
 
 interface SearchableDropdownProps {
@@ -220,11 +221,22 @@ export function SearchableDropdown({
     // If there are occupation suggestions, go to the first result
     if (occupationSuggestions.length > 0) {
       const firstResult = occupationSuggestions[0];
-      router.push(
-        firstResult.state
-          ? `/${selectedCountry.slug}/${firstResult.state.toLowerCase().replace(/\s+/g,'-')}/${firstResult.slug}`
-          : `/${selectedCountry.slug}/${firstResult.slug}`
-      );
+      
+      // Build the URL according to our routing rules
+      let url = `/${selectedCountry.slug}`;
+      
+      if (firstResult.state) {
+        const normalizedState = firstResult.state.toLowerCase().replace(/\s+/g, '-');
+        url += `/${normalizedState}`;
+        
+        if (firstResult.location) {
+          const normalizedLocation = firstResult.location.toLowerCase().replace(/\s+/g, '-');
+          url += `/${normalizedLocation}`;
+        }
+      }
+      
+      url += `/${firstResult.slug}`;
+      router.push(url);
       return;
     }
     
@@ -423,11 +435,22 @@ export function SearchableDropdown({
                   setIsDropdownOpen(false);
                   setIsOccupationDropdownOpen(false);
                   setSearchQuery("");
-                  router.push(
-                    s.state
-                      ? `/${selectedCountry.slug}/${s.state.toLowerCase().replace(/\s+/g,'-')}/${s.slug}`
-                      : `/${selectedCountry.slug}/${s.slug}`
-                  );
+                  
+                  // Build the URL according to our routing rules
+                  let url = `/${selectedCountry.slug}`;
+                  
+                  if (s.state) {
+                    const normalizedState = s.state.toLowerCase().replace(/\s+/g, '-');
+                    url += `/${normalizedState}`;
+                    
+                    if (s.location) {
+                      const normalizedLocation = s.location.toLowerCase().replace(/\s+/g, '-');
+                      url += `/${normalizedLocation}`;
+                    }
+                  }
+                  
+                  url += `/${s.slug}`;
+                  router.push(url);
                 }}
                 className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-colors duration-150"
               >

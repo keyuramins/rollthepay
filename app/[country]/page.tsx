@@ -9,7 +9,7 @@ import { StatesGrid } from "@/components/country/states-grid";
 import { CountryCTASection } from "@/components/country/cta-section";
 
 export const revalidate = 31536000;
-export const dynamicParams = false;
+export const dynamicParams = true;
 
 interface CountryPageProps {
   params: Promise<{ country: string }>;
@@ -17,7 +17,7 @@ interface CountryPageProps {
 
 export async function generateMetadata({ params }: CountryPageProps): Promise<Metadata> {
   const { country } = await params;
-  const { byCountry } = getDataset();
+  const { byCountry } = await getDataset();
   const countryLower = country.toLowerCase();
   const countryData = byCountry.get(countryLower);
   
@@ -46,16 +46,9 @@ export async function generateMetadata({ params }: CountryPageProps): Promise<Me
   };
 }
 
-export async function generateStaticParams() {
-  const { byCountry } = getDataset();
-  return Array.from(byCountry.keys()).map((country) => ({
-    country: country.toLowerCase(),
-  }));
-}
-
 export default async function CountryPage({ params }: CountryPageProps) {
   const { country } = await params;
-  const { byCountry } = getDataset();
+  const { byCountry } = await getDataset();
   const countryLower = country.toLowerCase();
   const countryData = byCountry.get(countryLower);
   
@@ -82,9 +75,18 @@ export default async function CountryPage({ params }: CountryPageProps) {
     countrySlug: countryLower
   }));
 
+  // Build header suggestions array
+  const headerOccupations = countryData.map(rec => ({
+    country: rec.country.toLowerCase(),
+    title: rec.title || rec.h1Title || "",
+    slug: rec.slug_url,
+    state: rec.state ? rec.state : null,
+    location: rec.location ? rec.location : null,
+  }));
+
   return (
     <div className="min-h-screen bg-gray-50">
-      <NewHeader />
+      <NewHeader allOccupations={headerOccupations} />
       
       <main>
         {/* Breadcrumbs */}
@@ -93,7 +95,6 @@ export default async function CountryPage({ params }: CountryPageProps) {
             <Breadcrumbs
               breadcrumbs={[
                 { name: "Home", href: "/" },
-                { name: "Countries", href: "/countries" },
                 { name: countryName, href: "#", current: true },
               ]}
             />
