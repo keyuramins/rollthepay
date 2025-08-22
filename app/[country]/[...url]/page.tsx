@@ -7,7 +7,7 @@ import { LocationPage } from "@/components/location/location-page";
 import { OccupationPage } from "@/components/occupation/occupation-page";
 
 export const revalidate = 31536000; // 1 year
-export const dynamicParams = true; // Allow dynamic page generation
+export const dynamicParams = false; // Ensure static generation only
 
 interface UnifiedPageProps {
   params: Promise<{ country: string; url: string[] }>;
@@ -51,167 +51,170 @@ function normalizeSlugForComparison(slug: string): string {
     .replace(/\+/g, '-plus'); // Replace + with -plus
 }
 
-
+// Helper function to generate occupation metadata
+async function generateOccupationMetadata(country: string, state?: string, location?: string, slug?: string): Promise<Metadata> {
+  if (!slug) {
+    return {
+      title: "Invalid URL - RollThePay",
+      description: "The requested URL is invalid. Please check the URL or browse our available occupations.",
+    };
+  }
+  
+  const record = await findRecordByPath({ country, state, location, slug });
+  
+  if (!record) {
+    return {
+      title: "Occupation Not Found - RollThePay",
+      description: "The requested occupation could not be found. Please check the URL or browse our available occupations.",
+    };
+  }
+  
+  const countryName = record.country;
+  const stateName = record.state;
+  const locationName = record.location;
+  const title = cleanTitle(record.title);
+  
+  // Build location string for metadata
+  let locationString = "";
+  if (locationName && stateName) {
+    locationString = `${locationName}, ${stateName}, ${countryName}`;
+  } else if (stateName) {
+    locationString = `${stateName}, ${countryName}`;
+  } else {
+    locationString = countryName;
+  }
+  
+  const metaTitle = `${title} in ${locationString} - RollThePay`;
+  const metaDescription = `Discover comprehensive salary information for ${title} in ${locationString}. Get detailed compensation data, salary ranges, experience levels, skills analysis, and career insights.`;
+  
+  return {
+    title: metaTitle,
+    description: metaDescription,
+    alternates: {
+      canonical: `/${country}${state ? `/${normalizeStateName(state)}` : ''}${location ? `/${normalizeLocationName(location)}` : ''}/${slug}`,
+    },
+    openGraph: {
+      title: metaTitle,
+      description: metaDescription,
+      type: "website",
+      url: `/${country}${state ? `/${normalizeStateName(state)}` : ''}${location ? `/${normalizeLocationName(location)}` : ''}/${slug}`,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: metaTitle,
+      description: metaDescription,
+    },
+  };
+}
 
 export async function generateMetadata({ params }: UnifiedPageProps): Promise<Metadata> {
   const { country, url } = await params;
   
-  if (url.length === 1) {
-    const stateOrSlug = url[0];
-    const stateGroups = await getStateData(country);
-    const stateData = stateGroups.get(stateOrSlug);
-    
-    if (stateData) {
-      // It's a state page
-      const countryName = (await getDataset()).all.find(r => r.country.toLowerCase() === country)?.country || country;
-      const stateName = stateData.name;
+  try {
+    if (url.length === 1) {
+      const stateOrSlug = url[0];
+      const stateGroups = await getStateData(country);
+      const stateData = stateGroups.get(stateOrSlug);
       
-      const metaTitle = `${stateName} Salary Data - RollThePay`;
-      const metaDescription = `Explore salary information and job opportunities in ${stateName}, ${countryName}. Get comprehensive compensation data for various occupations.`;
-      
-      return {
-        title: metaTitle,
-        description: metaDescription,
-        alternates: {
-          canonical: `/${country}/${stateOrSlug}`,
-        },
-        openGraph: {
-          title: metaTitle,
-          description: metaDescription,
-          type: "website",
-          url: `/${country}/${stateOrSlug}`,
-        },
-      };
-    } else {
-      // It's a country-level occupation page
-      const record = await findRecordByPath({ country, slug: stateOrSlug });
-      if (!record) {
-        return { title: "Occupation Not Found - RollThePay" };
-      }
-      
-      const countryName = record.country;
-      const title = cleanTitle(record.title);
-      const occupation = record.occupation;
-      const location = record.location;
-      
-      const metaTitle = `${title} in ${countryName} - RollThePay`;
-      const metaDescription = `Discover comprehensive salary information for ${title} in ${location ? location + ', ' : ''}${countryName}. Get detailed compensation data, salary ranges, experience levels, skills analysis, and career insights.`;
-      
-      return {
-        title: metaTitle,
-        description: metaDescription,
-        alternates: {
-          canonical: `/${country}/${stateOrSlug}`,
-        },
-        openGraph: {
-          title: metaTitle,
-          description: metaDescription,
-          type: "website",
-          url: `/${country}/${stateOrSlug}`,
-        },
-      };
-    }
-  } else if (url.length === 2) {
-    // This could be either a state-level occupation page OR a location page
-    const [state, secondSegment] = url;
-    const stateGroups = await getStateData(country);
-    const stateData = stateGroups.get(state);
-    
-    if (stateData) {
-      // Check if it's a location page
-      const locationGroups = await getLocationData(country, stateData.name);
-      const locationData = locationGroups.get(secondSegment);
-      
-      if (locationData) {
-        // It's a location page
+      if (stateData) {
+        // It's a state page
         const countryName = (await getDataset()).all.find(r => r.country.toLowerCase() === country)?.country || country;
         const stateName = stateData.name;
-        const locationName = locationData.name;
         
-        const metaTitle = `${locationName}, ${stateName} Salary Data - RollThePay`;
-        const metaDescription = `Explore salary information and job opportunities in ${locationName}, ${stateName}, ${countryName}. Get comprehensive compensation data for various occupations.`;
+        const metaTitle = `${stateName} Salary Data - RollThePay`;
+        const metaDescription = `Explore salary information and job opportunities in ${stateName}, ${countryName}. Get comprehensive compensation data for various occupations.`;
         
         return {
           title: metaTitle,
           description: metaDescription,
           alternates: {
-            canonical: `/${country}/${state}/${secondSegment}`,
+            canonical: `/${country}/${stateOrSlug}`,
           },
           openGraph: {
             title: metaTitle,
             description: metaDescription,
             type: "website",
-            url: `/${country}/${state}/${secondSegment}`,
+            url: `/${country}/${stateOrSlug}`,
+          },
+          twitter: {
+            card: "summary_large_image",
+            title: metaTitle,
+            description: metaDescription,
           },
         };
       } else {
-        // This is a state-level occupation page: /[country]/[state]/[slug]
-        const record = await findRecordByPath({ country, state: denormalizeStateName(state), slug: secondSegment });
+        // It's a country-level occupation page
+        return await generateOccupationMetadata(country, undefined, undefined, stateOrSlug);
+      }
+    } else if (url.length === 2) {
+      // This could be either a state-level occupation page OR a location page
+      const [state, secondSegment] = url;
+      const stateGroups = await getStateData(country);
+      const stateData = stateGroups.get(state);
+      
+      if (stateData) {
+        // Check if it's a location page
+        const locationGroups = await getLocationData(country, stateData.name);
+        const locationData = locationGroups.get(secondSegment);
         
-        if (!record) {
-          return { title: "Occupation Not Found - RollThePay" };
-        }
-        
-        const countryName = record.country;
-        const stateName = record.state;
-        const title = cleanTitle(record.title);
-        
-        const metaTitle = `${title} in ${stateName}, ${countryName} - RollThePay`;
-        const metaDescription = `Discover comprehensive salary information for ${title} in ${stateName}, ${countryName}. Get detailed compensation data, salary ranges, experience levels, skills analysis, and career insights.`;
-        
-        return {
-          title: metaTitle,
-          description: metaDescription,
-          alternates: {
-            canonical: `/${country}/${state}/${secondSegment}`,
-          },
-          openGraph: {
+        if (locationData) {
+          // It's a location page
+          const countryName = (await getDataset()).all.find(r => r.country.toLowerCase() === country)?.country || country;
+          const stateName = stateData.name;
+          const locationName = locationData.name;
+          
+          const metaTitle = `${locationName}, ${stateName} Salary Data - RollThePay`;
+          const metaDescription = `Explore salary information and job opportunities in ${locationName}, ${stateName}, ${countryName}. Get comprehensive compensation data for various occupations.`;
+          
+          return {
             title: metaTitle,
             description: metaDescription,
-            type: "website",
-            url: `/${country}/${state}/${secondSegment}`,
-          },
+            alternates: {
+              canonical: `/${country}/${state}/${secondSegment}`,
+            },
+            openGraph: {
+              title: metaTitle,
+              description: metaDescription,
+              type: "website",
+              url: `/${country}/${state}/${secondSegment}`,
+            },
+            twitter: {
+              card: "summary_large_image",
+              title: metaTitle,
+              description: metaDescription,
+            },
+          };
+        } else {
+          // This is a state-level occupation page: /[country]/[state]/[slug]
+          return await generateOccupationMetadata(country, denormalizeStateName(state), undefined, secondSegment);
+        }
+      } else {
+        return { 
+          title: "Page Not Found - RollThePay",
+          description: "The requested page could not be found. Please check the URL or browse our available content.",
         };
       }
+    } else if (url.length === 3) {
+      // This is a location-level occupation page: /[country]/[state]/[location]/[slug]
+      const [state, location, slug] = url;
+      return await generateOccupationMetadata(
+        country, 
+        denormalizeStateName(state), 
+        denormalizeLocationName(location), 
+        slug
+      );
     } else {
-      return { title: "Page Not Found - RollThePay" };
+      return { 
+        title: "Page Not Found - RollThePay",
+        description: "The requested page could not be found. Please check the URL or browse our available content.",
+      };
     }
-  } else if (url.length === 3) {
-    // This is a location-level occupation page: /[country]/[state]/[location]/[slug]
-    const [state, location, slug] = url;
-    const record = await findRecordByPath({ 
-      country, 
-      state: denormalizeStateName(state), 
-      slug 
-    });
-    
-    if (!record) {
-      return { title: "Occupation Not Found - RollThePay" };
-    }
-    
-    const countryName = record.country;
-    const stateName = record.state;
-    const locationName = record.location;
-    const title = cleanTitle(record.title);
-    
-    const metaTitle = `${title} in ${locationName}, ${stateName}, ${countryName} - RollThePay`;
-    const metaDescription = `Discover comprehensive salary information for ${title} in ${locationName}, ${stateName}, ${countryName}. Get detailed compensation data, salary ranges, experience levels, skills analysis, and career insights.`;
-    
+  } catch (error) {
+    console.error('Error generating metadata:', error);
     return {
-      title: metaTitle,
-      description: metaDescription,
-      alternates: {
-        canonical: `/${country}/${state}/${location}/${slug}`,
-      },
-      openGraph: {
-        title: metaTitle,
-        description: metaDescription,
-        type: "website",
-        url: `/${country}/${state}/${location}/${slug}`,
-      },
+      title: "Error - RollThePay",
+      description: "An error occurred while loading this page. Please try again or contact support.",
     };
-  } else {
-    return { title: "Page Not Found - RollThePay" };
   }
 }
 

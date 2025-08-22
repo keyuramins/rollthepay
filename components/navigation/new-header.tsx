@@ -349,7 +349,7 @@ function HeaderSearchableDropdown({ allOccupations = [] as Array<{ country: stri
               setIsOccupationDropdownOpen(true);
             }
           }}
-          className="block w-80 lg:w-96 pr-20 py-2 border border-gray-300 rounded-md text-sm text-gray-900 placeholder-gray-500 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          className="block w-full pr-20 py-2 border border-gray-300 rounded-md text-sm text-gray-900 placeholder-gray-500 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
           style={{ 
             paddingLeft: selectedCountry ? 48 + chipWidth + 12 : 48
           }}
@@ -393,7 +393,7 @@ function HeaderSearchableDropdown({ allOccupations = [] as Array<{ country: stri
 
       {/* Country dropdown (home only) */}
       {isHome && isDropdownOpen && !selectedCountry && (
-        <div className="absolute top-full mt-1 left-0 w-80 lg:w-96 bg-white rounded-lg shadow-xl ring-1 ring-black ring-opacity-5 z-50 border border-gray-200">
+        <div className="absolute top-full mt-1 left-0 right-0 bg-white rounded-lg shadow-xl ring-1 ring-black ring-opacity-5 z-50 border border-gray-200">
           <div className="py-1 max-h-[300px] overflow-y-auto">
             {groupedCountries.length > 0 ? (
               groupedCountries.map((continent) => (
@@ -438,7 +438,7 @@ function HeaderSearchableDropdown({ allOccupations = [] as Array<{ country: stri
       {/* Occupation suggestions dropdown */}
       {selectedCountry && isOccupationDropdownOpen && (
         <div 
-          className="absolute top-full mt-1 left-0 w-80 lg:w-96 bg-white rounded-lg shadow-xl ring-1 ring-black ring-opacity-5 z-50 border border-gray-200" 
+          className="absolute top-full mt-1 left-0 right-0 bg-white rounded-lg shadow-xl ring-1 ring-black ring-opacity-5 z-50 border border-gray-200" 
           onMouseDown={(e) => e.preventDefault()}
         >
           <div className="py-1 max-h-[300px] overflow-y-auto">
@@ -500,15 +500,21 @@ export function NewHeader({ allOccupations = [] as Array<{ country: string; titl
   return (
     <header className="bg-white shadow-sm border-b sticky top-0 z-50">
       <div className="max-w-7xl lg:max-w-full mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
-          {/* Logo and Search Bar - Left Side */}
-          <div className="flex items-center space-x-6">
+        <div className="flex items-center h-16">
+          {/* Logo - Left Side */}
+          <div className="flex items-center pr-4">
             <Logo />
-            <HeaderSearchableDropdown allOccupations={allOccupations} />
           </div>
 
-          {/* Continent Dropdowns - Right Corner */}
-          <div className="hidden md:flex space-x-2">
+          {/* Search Bar - Center */}
+          <div className="flex-1 flex justify-center px-4 lg:px-8">
+            <div className="w-full max-w-3xl">
+              <HeaderSearchableDropdown allOccupations={allOccupations} />
+            </div>
+          </div>
+
+          {/* Continent Dropdowns - Right Side */}
+          <div className="hidden md:flex space-x-2 pl-4">
             {continents.map((continent) => (
               <div
                 key={continent.code}
@@ -555,7 +561,7 @@ export function NewHeader({ allOccupations = [] as Array<{ country: string; titl
           </div>
 
           {/* Mobile menu button */}
-          <div className="md:hidden">
+          <div className="md:hidden pl-4">
             <Button
               variant="ghost"
               size="sm"

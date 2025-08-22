@@ -17,6 +17,17 @@ export const metadata: Metadata = {
   alternates: {
     canonical: "/about",
   },
+  openGraph: {
+    title: "About - RollThePay",
+    description: "Learn about RollThePay's mission to provide accurate salary information and increase transparency in the labor market.",
+    type: "website",
+    url: "/about",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "About - RollThePay",
+    description: "Learn about RollThePay's mission to provide accurate salary information and increase transparency in the labor market.",
+  },
 };
 
 export default function AboutPage() {

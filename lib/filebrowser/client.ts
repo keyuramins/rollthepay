@@ -6,7 +6,20 @@ const CACHE_DURATION = 31536000 * 1000; // 1 year in milliseconds
 const memoryCache = new Map<string, { data: any; timestamp: number; ttl: number }>();
 
 // Build-time bypass - prevent Filebrowser calls during build
-const isBuildTime = process.env.NODE_ENV === 'production' && process.env.NEXT_PHASE === 'phase-production-build';
+// Only bypass during actual build phases, not during runtime
+const isBuildTime = process.env.NODE_ENV === 'production' && 
+                   (process.env.NEXT_PHASE === 'phase-production-build' || 
+                    process.env.NEXT_PHASE === 'phase-production-optimize' ||
+                    process.env.NEXT_PHASE === 'phase-production-compile');
+
+// Debug build-time detection
+if (typeof process !== 'undefined' && process.env) {
+  console.log('🔍 Build-time detection:');
+  console.log(`  NODE_ENV: ${process.env.NODE_ENV}`);
+  console.log(`  NEXT_PHASE: ${process.env.NEXT_PHASE || 'NOT SET'}`);
+  console.log(`  isBuildTime: ${isBuildTime}`);
+  console.log(`  Current timestamp: ${Date.now()}`);
+}
 
 // Filebrowser configuration
 const FILEBROWSER_BASE_URL = process.env.FILEBROWSER_BASE_URL;
@@ -18,8 +31,10 @@ const ENTRY_FOLDER = '/rollthepay'; // Based on server logs
 if (typeof process !== 'undefined' && process.env) {
   console.log('🔍 Environment variables check:');
   console.log(`  NODE_ENV: ${process.env.NODE_ENV}`);
+  console.log(`  NEXT_PHASE: ${process.env.NEXT_PHASE || 'NOT SET'}`);
   console.log(`  FILEBROWSER_BASE_URL: ${process.env.FILEBROWSER_BASE_URL || 'NOT SET'}`);
   console.log(`  FILEBROWSER_API_KEY: ${process.env.FILEBROWSER_API_KEY ? 'SET (length: ' + process.env.FILEBROWSER_API_KEY.length + ')' : 'NOT SET'}`);
+  console.log(`  Current working directory: ${process.cwd()}`);
 }
 
 // Validate environment variables
@@ -154,12 +169,20 @@ async function listDirectory(path: string): Promise<string[]> {
 
 // Get all CSV files from the rollthepay folder
 export async function getAllCsvFiles(): Promise<string[]> {
+  console.log('🔍 getAllCsvFiles() called at:', new Date().toISOString());
+  console.log('🔍 Build-time detection in client:');
+  console.log('  NODE_ENV:', process.env.NODE_ENV);
+  console.log('  NEXT_PHASE:', process.env.NEXT_PHASE || 'NOT SET');
+  console.log('  isBuildTime:', isBuildTime);
+  
   // Return empty list during build to prevent API calls
   if (isBuildTime) {
-    if (!isBuildTime) console.log('Build-time bypass: returning empty CSV file list');
+    console.log('🚫 Build-time bypass: returning empty CSV file list');
     return [];
   }
 
+  console.log('✅ Not in build time - proceeding with Filebrowser API calls');
+  
   const cacheKey = 'all-csv-files';
   
   // Check cache first
@@ -190,12 +213,20 @@ export async function getAllCsvFiles(): Promise<string[]> {
 
 // Get object (file content) from Filebrowser
 export async function getObject(objectName: string): Promise<string> {
+  console.log('🔍 getObject() called for:', objectName, 'at:', new Date().toISOString());
+  console.log('🔍 Build-time detection in getObject:');
+  console.log('  NODE_ENV:', process.env.NODE_ENV);
+  console.log('  NEXT_PHASE:', process.env.NEXT_PHASE || 'NOT SET');
+  console.log('  isBuildTime:', isBuildTime);
+  
   // Return empty data during build to prevent API calls
   if (isBuildTime) {
-    if (!isBuildTime) console.log(`Build-time bypass: returning empty data for ${objectName}`);
+    console.log(`🚫 Build-time bypass: returning empty data for ${objectName}`);
     return '';
   }
 
+  console.log('✅ Not in build time - proceeding with Filebrowser API calls');
+  
   const cacheKey = `object:${objectName}`;
   
   // Check cache first

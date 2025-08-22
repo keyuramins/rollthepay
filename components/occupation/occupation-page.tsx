@@ -29,7 +29,7 @@ export async function OccupationPage({ country, state, location, slug }: Occupat
   }
   
   // Generate AI content for the occupation
-  const aiContent = await generateOccupationContent(record);
+  // const aiContent = await generateOccupationContent(record);
   
   const countryName = record.country;
   const stateName = record.state;
@@ -120,14 +120,14 @@ export async function OccupationPage({ country, state, location, slug }: Occupat
         </section>
 
         {/* Data Overview Section */}
-        <DataOverviewSection record={record} country={country} />
+        {/* <DataOverviewSection record={record} country={country} /> */}
 
         {/* AI-Generated Content Sections */}
-        <ContentSections content={aiContent} />
+        {/* <ContentSections content={aiContent} /> */}
 
         {/* Career Progression Section */}
         <CareerProgressionSection 
-          content={aiContent} 
+          content={undefined} 
           record={record} 
           allOccupations={(await getDataset()).all.map(rec => ({
             country: rec.country.toLowerCase(),

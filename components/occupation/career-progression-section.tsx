@@ -10,7 +10,7 @@ function normalizeSlugForURL(slug: string): string {
 }
 
 interface CareerProgressionSectionProps {
-  content: AIGeneratedContent;
+  content: AIGeneratedContent | undefined;
   record: OccupationRecord;
   allOccupations: Array<{
     country: string;
@@ -54,7 +54,7 @@ export function CareerProgressionSection({ content, record, allOccupations }: Ca
   const relatedOccupations = findRelatedOccupations();
 
   // Generate related opportunities using AI content
-  const relatedOpportunities = content.relatedOpportunities;
+  // const relatedOpportunities = content.relatedOpportunities;
 
   return (
     <section className="py-16 bg-white">
@@ -82,9 +82,9 @@ export function CareerProgressionSection({ content, record, allOccupations }: Ca
             </div>
             
             <div className="space-y-4">
-              <p className="text-gray-700 leading-relaxed">
+              {/* <p className="text-gray-700 leading-relaxed">
                 {relatedOpportunities}
-              </p>
+              </p> */}
               
               {relatedOccupations.length > 0 && (
                 <div className="bg-white rounded-lg p-4 border border-green-200">
@@ -112,7 +112,7 @@ export function CareerProgressionSection({ content, record, allOccupations }: Ca
         </div>
 
         {/* Career Development Tips */}
-        <div className="mt-12 bg-gray-50 rounded-xl p-8">
+        {/* <div className="mt-12 bg-gray-50 rounded-xl p-8">
           <div className="text-center mb-8">
             <h3 className="text-2xl font-bold text-gray-900 mb-4">
               Career Development Strategies
@@ -159,7 +159,7 @@ export function CareerProgressionSection({ content, record, allOccupations }: Ca
               </p>
             </div>
           </div>
-        </div>
+        </div> */}
       </div>
     </section>
   );

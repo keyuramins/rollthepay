@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "test:ai": "node scripts/test-ai-content.js"
+    "test:ai": "node scripts/test-ai-content.js",
+    "migrate-to-filebrowser": "node scripts/migrate-to-filebrowser.js"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.15",

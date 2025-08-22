@@ -43,6 +43,11 @@ export async function generateMetadata({ params }: CountryPageProps): Promise<Me
       type: "website",
       url: `/${country}`,
     },
+    twitter: {
+      card: "summary_large_image",
+      title: `${countryName} Salary Information - RollThePay`,
+      description: `Discover salary data for ${totalJobs}+ jobs in ${countryName}. Get accurate compensation information to advance your career.`,
+    },
   };
 }
 

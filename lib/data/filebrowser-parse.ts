@@ -9,7 +9,20 @@ let lastCacheTime = 0;
 const CACHE_DURATION = 31536000 * 1000; // 1 year in milliseconds
 
 // Build-time bypass - prevent Filebrowser calls during build
-const isBuildTime = process.env.NODE_ENV === 'production' && process.env.NEXT_PHASE === 'phase-production-build';
+// Only bypass during actual build phases, not during runtime
+const isBuildTime = process.env.NODE_ENV === 'production' && 
+                   (process.env.NEXT_PHASE === 'phase-production-build' || 
+                    process.env.NEXT_PHASE === 'phase-production-optimize' ||
+                    process.env.NEXT_PHASE === 'phase-production-compile');
+
+// Debug build-time detection
+if (typeof process !== 'undefined' && process.env) {
+  console.log('🔍 Filebrowser-parse build-time detection:');
+  console.log(`  NODE_ENV: ${process.env.NODE_ENV}`);
+  console.log(`  NEXT_PHASE: ${process.env.NEXT_PHASE || 'NOT SET'}`);
+  console.log(`  isBuildTime: ${isBuildTime}`);
+  console.log(`  Current timestamp: ${Date.now()}`);
+}
 
 function isInvalidToken(value: unknown): boolean {
   if (value == null) return true;
@@ -224,14 +237,22 @@ async function readCsvFromFilebrowser(objectName: string): Promise<OccupationRec
 }
 
 export async function getDataset(): Promise<DatasetIndex> {
+  console.log('🔍 getDataset() called at:', new Date().toISOString());
+  console.log('🔍 Current environment:');
+  console.log('  NODE_ENV:', process.env.NODE_ENV);
+  console.log('  NEXT_PHASE:', process.env.NEXT_PHASE || 'NOT SET');
+  console.log('  isBuildTime:', isBuildTime);
+  
   // Return empty dataset during build to prevent Filebrowser calls
   if (isBuildTime) {
-    if (!isBuildTime) console.log('Build-time bypass: returning empty dataset');
+    console.log('🚫 Build-time bypass: returning empty dataset');
     return {
       all: [],
       byCountry: new Map<string, OccupationRecord[]>()
     };
   }
+
+  console.log('✅ Not in build time - proceeding with Filebrowser API calls');
 
   if (cachedIndex && Date.now() - lastCacheTime < CACHE_DURATION) {
     console.log('📋 Returning cached dataset (still valid for 1 year)');
@@ -239,10 +260,16 @@ export async function getDataset(): Promise<DatasetIndex> {
   }
 
   try {
+    console.log('🚀 Starting dataset initialization...');
+    
     // Initialize Filebrowser if not already done
     if (!filebrowserInitialized) {
+      console.log('🔌 Initializing Filebrowser connection...');
       await initializeFilebrowser();
       filebrowserInitialized = true;
+      console.log('✅ Filebrowser connection established');
+    } else {
+      console.log('✅ Filebrowser already initialized');
     }
 
     console.log('🔍 Discovering all CSV files from rollthepay folder...');

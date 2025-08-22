@@ -13,6 +13,42 @@ A comprehensive salary information platform that provides accurate compensation 
 - **Real-time Data**: Up-to-date salary information with regular updates
 - **User-friendly Interface**: Clean, intuitive design for easy navigation
 
+## Filebrowser Configuration
+
+This application uses Filebrowser API to access CSV data files. To get the application working, you need to set up the following environment variables:
+
+### Required Environment Variables
+
+Create a `.env.local` file in the root directory with the following variables:
+
+```bash
+# Filebrowser API Configuration
+FILEBROWSER_BASE_URL=http://your-filebrowser-server:port
+FILEBROWSER_API_KEY=your_api_key_here
+```
+
+### Setup Instructions
+
+1. **Install Filebrowser**: Ensure you have Filebrowser running and accessible
+2. **Create .env.local**: Add the environment variables above to a `.env.local` file
+3. **Upload Data**: Place your CSV files in the `/rollthepay` folder in Filebrowser
+4. **Test Connection**: Run `npm run migrate-to-filebrowser` to validate your setup
+5. **Restart Development Server**: Run `npm run dev` to restart with new environment variables
+
+### Troubleshooting
+
+- **"Data Loading Error"**: Check that your environment variables are set correctly
+- **"No CSV files found"**: Ensure CSV files are uploaded to the `/rollthepay` folder in Filebrowser
+- **"Filebrowser data access failed"**: Verify your Filebrowser server is running and accessible
+- **Connection issues**: Run `npm run migrate-to-filebrowser` to test your Filebrowser setup
+
+### Data Structure
+
+The application expects CSV files with the following structure:
+- Files should be organized by continent/country in the `/rollthepay` folder
+- CSV files should contain salary data with columns like `title`, `country`, `state`, `location`, `avgAnnualSalary`, etc.
+- See `lib/data/types.ts` for the complete data schema
+
 ## Project Structure
 
 ```
