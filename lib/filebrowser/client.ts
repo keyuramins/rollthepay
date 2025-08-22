@@ -12,12 +12,16 @@ const isBuildTime = process.env.NODE_ENV === 'production' &&
                     process.env.NEXT_PHASE === 'phase-production-optimize' ||
                     process.env.NEXT_PHASE === 'phase-production-compile');
 
+// Client-side bypass - prevent Filebrowser calls in browser
+const isClientSide = typeof window !== 'undefined';
+
 // Debug build-time detection
 if (typeof process !== 'undefined' && process.env) {
   console.log('🔍 Build-time detection:');
   console.log(`  NODE_ENV: ${process.env.NODE_ENV}`);
   console.log(`  NEXT_PHASE: ${process.env.NEXT_PHASE || 'NOT SET'}`);
   console.log(`  isBuildTime: ${isBuildTime}`);
+  console.log(`  isClientSide: ${isClientSide}`);
   console.log(`  Current timestamp: ${Date.now()}`);
 }
 
@@ -39,6 +43,11 @@ if (typeof process !== 'undefined' && process.env) {
 
 // Validate environment variables
 function validateConfig() {
+  // Skip validation on client side
+  if (isClientSide) {
+    throw new Error('Filebrowser operations are not supported on the client side. This is a server-side only feature.');
+  }
+
   console.log('🔧 Validating Filebrowser configuration...');
   console.log(`  FILEBROWSER_BASE_URL: ${FILEBROWSER_BASE_URL ? 'SET' : 'MISSING'}`);
   console.log(`  FILEBROWSER_API_KEY: ${FILEBROWSER_API_KEY ? 'SET' : 'MISSING'}`);
@@ -174,10 +183,17 @@ export async function getAllCsvFiles(): Promise<string[]> {
   console.log('  NODE_ENV:', process.env.NODE_ENV);
   console.log('  NEXT_PHASE:', process.env.NEXT_PHASE || 'NOT SET');
   console.log('  isBuildTime:', isBuildTime);
+  console.log('  isClientSide:', isClientSide);
   
   // Return empty list during build to prevent API calls
   if (isBuildTime) {
     console.log('🚫 Build-time bypass: returning empty CSV file list');
+    return [];
+  }
+
+  // Return empty list on client side to prevent API calls
+  if (isClientSide) {
+    console.log('🚫 Client-side bypass: returning empty CSV file list');
     return [];
   }
 
@@ -218,10 +234,17 @@ export async function getObject(objectName: string): Promise<string> {
   console.log('  NODE_ENV:', process.env.NODE_ENV);
   console.log('  NEXT_PHASE:', process.env.NEXT_PHASE || 'NOT SET');
   console.log('  isBuildTime:', isBuildTime);
+  console.log('  isClientSide:', isClientSide);
   
   // Return empty data during build to prevent API calls
   if (isBuildTime) {
     console.log(`🚫 Build-time bypass: returning empty data for ${objectName}`);
+    return '';
+  }
+
+  // Return empty data on client side to prevent API calls
+  if (isClientSide) {
+    console.log(`🚫 Client-side bypass: returning empty data for ${objectName}`);
     return '';
   }
 
@@ -260,6 +283,12 @@ export async function listObjects(prefix: string = '', recursive: boolean = true
   // Return empty list during build to prevent API calls
   if (isBuildTime) {
     if (!isBuildTime) console.log(`Build-time bypass: returning empty list for ${prefix}`);
+    return [];
+  }
+
+  // Return empty list on client side to prevent API calls
+  if (isClientSide) {
+    console.log(`🚫 Client-side bypass: returning empty list for ${prefix}`);
     return [];
   }
 
@@ -302,6 +331,12 @@ export async function objectExists(objectName: string): Promise<boolean> {
     return false;
   }
 
+  // Return false on client side to prevent API calls
+  if (isClientSide) {
+    console.log(`🚫 Client-side bypass: returning false for ${objectName}`);
+    return false;
+  }
+
   const cacheKey = `exists:${objectName}`;
   
   // Check cache first
@@ -336,6 +371,12 @@ export async function getObjectMetadata(objectName: string) {
     return null;
   }
 
+  // Return null on client side to prevent API calls
+  if (isClientSide) {
+    console.log(`🚫 Client-side bypass: returning null metadata for ${objectName}`);
+    return null;
+  }
+
   const cacheKey = `metadata:${objectName}`;
   
   // Check cache first
@@ -365,6 +406,12 @@ export async function initializeFilebrowser(): Promise<boolean> {
   if (isBuildTime) {
     if (!isBuildTime) console.log('Skipping Filebrowser initialization during build');
     return true;
+  }
+
+  // Skip initialization on client side
+  if (isClientSide) {
+    console.log('🚫 Skipping Filebrowser initialization on client side');
+    return false;
   }
 
   try {

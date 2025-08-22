@@ -1,6 +1,6 @@
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { getDataset, findRecordByPath, getStateData, getLocationData } from "@/lib/data/parse";
+import { optimizedDataAccess } from "@/lib/data/optimized-parse";
 
 import { StatePage } from "@/components/state/state-page";
 import { LocationPage } from "@/components/location/location-page";
@@ -60,7 +60,7 @@ async function generateOccupationMetadata(country: string, state?: string, locat
     };
   }
   
-  const record = await findRecordByPath({ country, state, location, slug });
+  const record = await optimizedDataAccess.findRecordByPath({ country, state, location, slug });
   
   if (!record) {
     return {
@@ -113,16 +113,15 @@ export async function generateMetadata({ params }: UnifiedPageProps): Promise<Me
   try {
     if (url.length === 1) {
       const stateOrSlug = url[0];
-      const stateGroups = await getStateData(country);
-      const stateData = stateGroups.get(stateOrSlug);
+      const states = await optimizedDataAccess.getAllStates(country);
+      const stateData = states.find(s => normalizeStateName(s) === stateOrSlug);
       
       if (stateData) {
         // It's a state page
-        const countryName = (await getDataset()).all.find(r => r.country.toLowerCase() === country)?.country || country;
-        const stateName = stateData.name;
+        const countryName = country.charAt(0).toUpperCase() + country.slice(1);
         
-        const metaTitle = `${stateName} Salary Data - RollThePay`;
-        const metaDescription = `Explore salary information and job opportunities in ${stateName}, ${countryName}. Get comprehensive compensation data for various occupations.`;
+        const metaTitle = `${stateData} Salary Data - RollThePay`;
+        const metaDescription = `Explore salary information and job opportunities in ${stateData}, ${countryName}. Get comprehensive compensation data for various occupations.`;
         
         return {
           title: metaTitle,
@@ -149,22 +148,20 @@ export async function generateMetadata({ params }: UnifiedPageProps): Promise<Me
     } else if (url.length === 2) {
       // This could be either a state-level occupation page OR a location page
       const [state, secondSegment] = url;
-      const stateGroups = await getStateData(country);
-      const stateData = stateGroups.get(state);
+      const states = await optimizedDataAccess.getAllStates(country);
+      const stateData = states.find(s => normalizeStateName(s) === state);
       
       if (stateData) {
         // Check if it's a location page
-        const locationGroups = await getLocationData(country, stateData.name);
-        const locationData = locationGroups.get(secondSegment);
+        const locations = await optimizedDataAccess.getAllLocations(country, stateData);
+        const locationData = locations.find(l => normalizeLocationName(l) === secondSegment);
         
         if (locationData) {
           // It's a location page
-          const countryName = (await getDataset()).all.find(r => r.country.toLowerCase() === country)?.country || country;
-          const stateName = stateData.name;
-          const locationName = locationData.name;
+          const countryName = country.charAt(0).toUpperCase() + country.slice(1);
           
-          const metaTitle = `${locationName}, ${stateName} Salary Data - RollThePay`;
-          const metaDescription = `Explore salary information and job opportunities in ${locationName}, ${stateName}, ${countryName}. Get comprehensive compensation data for various occupations.`;
+          const metaTitle = `${locationData}, ${stateData} Salary Data - RollThePay`;
+          const metaDescription = `Explore salary information and job opportunities in ${locationData}, ${stateData}, ${countryName}. Get comprehensive compensation data for various occupations.`;
           
           return {
             title: metaTitle,
@@ -225,8 +222,8 @@ export default async function UnifiedPage({ params }: UnifiedPageProps) {
   if (url.length === 1) {
     // This could be either a state page OR a country-level occupation page
     // We need to check if it's a valid state first
-    const stateGroups = await getStateData(country);
-    const stateData = stateGroups.get(url[0]);
+    const states = await optimizedDataAccess.getAllStates(country);
+    const stateData = states.find(s => normalizeStateName(s) === url[0]);
     
     if (stateData) {
       // This is a state page: /[country]/[state]
@@ -238,37 +235,32 @@ export default async function UnifiedPage({ params }: UnifiedPageProps) {
   } else if (url.length === 2) {
     // This could be either a state-level occupation page OR a location page
     const [state, secondSegment] = url;
-    const stateGroups = await getStateData(country);
-    const stateData = stateGroups.get(decodeURIComponent(state));
+    const states = await optimizedDataAccess.getAllStates(country);
+    const stateData = states.find(s => normalizeStateName(s) === decodeURIComponent(state));
     
     if (stateData) {
       // Check if it's a location page by looking for a location with this name
-      const { all } = await getDataset();
-      const hasLocation = all.some(rec => 
-        rec.country.toLowerCase() === country.toLowerCase() &&
-        rec.state === stateData.name &&
-        rec.location &&
-        normalizeLocationName(rec.location) === decodeURIComponent(secondSegment)
-      );
+      const locations = await optimizedDataAccess.getAllLocations(country, stateData);
+      const hasLocation = locations.some(loc => normalizeLocationName(loc) === decodeURIComponent(secondSegment));
       
       if (hasLocation) {
         // This is a location page: /[country]/[state]/[location]
         return <LocationPageComponent country={country} state={state} location={decodeURIComponent(secondSegment)} />;
       } else {
         // Check if this is an occupation page with both state and location
-                  const occupationRecord = all.find(rec => 
-            rec.country.toLowerCase() === country.toLowerCase() &&
-            rec.state === stateData.name &&
-            normalizeSlugForComparison(rec.slug_url) === normalizeSlugForComparison(decodeURIComponent(secondSegment))
-          );
+        const occupationRecord = await optimizedDataAccess.findRecordByPath({
+          country,
+          state: stateData,
+          slug: decodeURIComponent(secondSegment)
+        });
         
         if (occupationRecord && occupationRecord.location) {
           // This is a location-level occupation page: /[country]/[state]/[slug] but should redirect to /[country]/[state]/[location]/[slug]
           // For now, we'll treat it as a state-level occupation page
-          return <OccupationPageComponent country={country} state={stateData.name} slug={decodeURIComponent(secondSegment)} />;
+          return <OccupationPageComponent country={country} state={stateData} slug={decodeURIComponent(secondSegment)} />;
         } else {
           // This is a state-level occupation page: /[country]/[state]/[slug]
-          return <OccupationPageComponent country={country} state={stateData.name} slug={decodeURIComponent(secondSegment)} />;
+          return <OccupationPageComponent country={country} state={stateData} slug={decodeURIComponent(secondSegment)} />;
         }
       }
     } else {
@@ -279,13 +271,12 @@ export default async function UnifiedPage({ params }: UnifiedPageProps) {
     const [state, location, slug] = url;
     
     // Find the record with this specific location
-    const { all } = await getDataset();
-          const record = all.find(rec => 
-        rec.country.toLowerCase() === country.toLowerCase() &&
-        rec.state?.toLowerCase().replace(/\s+/g, '-') === decodeURIComponent(state) &&
-        rec.location?.toLowerCase().replace(/\s+/g, '-') === decodeURIComponent(location) &&
-        normalizeSlugForComparison(rec.slug_url) === normalizeSlugForComparison(decodeURIComponent(slug))
-      );
+    const record = await optimizedDataAccess.findRecordByPath({
+      country,
+      state: denormalizeStateName(decodeURIComponent(state)),
+      location: denormalizeLocationName(decodeURIComponent(location)),
+      slug: decodeURIComponent(slug)
+    });
     
     if (!record) {
       notFound();
@@ -300,8 +291,8 @@ export default async function UnifiedPage({ params }: UnifiedPageProps) {
 
 // State Page Component
 async function StatePageComponent({ country, state }: { country: string; state: string }) {
-  const stateGroups = await getStateData(country);
-  const stateData = stateGroups.get(decodeURIComponent(state));
+  const states = await optimizedDataAccess.getAllStates(country);
+  const stateData = states.find(s => normalizeStateName(s) === decodeURIComponent(state));
   
   if (!stateData) {
     notFound();
@@ -312,7 +303,7 @@ async function StatePageComponent({ country, state }: { country: string; state: 
 
 // Occupation Page Component
 async function OccupationPageComponent({ country, state, location, slug }: { country: string; state?: string; location?: string; slug: string }) {
-  const record = await findRecordByPath({ country, state, location, slug });
+  const record = await optimizedDataAccess.findRecordByPath({ country, state, location, slug });
   
   if (!record) {
     notFound();
@@ -323,14 +314,28 @@ async function OccupationPageComponent({ country, state, location, slug }: { cou
 
 // Location Page Component
 async function LocationPageComponent({ country, state, location }: { country: string; state: string; location: string }) {
-  const locationGroups = await getLocationData(country, denormalizeStateName(decodeURIComponent(state)));
-  const locationData = locationGroups.get(decodeURIComponent(location));
+  // Decode the URL parameters
+  const decodedState = decodeURIComponent(state);
+  const decodedLocation = decodeURIComponent(location);
+  
+  // Find the actual state name from the normalized state slug
+  const states = await optimizedDataAccess.getAllStates(country);
+  const stateData = states.find(s => normalizeStateName(s) === decodedState);
+  
+  if (!stateData) {
+    notFound();
+  }
+  
+  // Find the actual location name from the normalized location slug
+  const locations = await optimizedDataAccess.getAllLocations(country, stateData);
+  const locationData = locations.find(l => normalizeLocationName(l) === decodedLocation);
 
   if (!locationData) {
     notFound();
   }
 
-  return <LocationPage country={country} state={state} location={location} />;
+  // Pass the actual state and location names to the LocationPage component
+  return <LocationPage country={country} state={stateData} location={locationData} />;
 }
 
 

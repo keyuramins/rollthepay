@@ -14,17 +14,9 @@ interface LocationPageProps {
 export async function LocationPage({ country, state, location }: LocationPageProps) {
   const { all } = await getDataset();
   
-  // Get the actual state and location names from the normalized slugs
-  const stateName = all.find(r => 
-    r.country.toLowerCase() === country.toLowerCase() && 
-    r.state?.toLowerCase().replace(/\s+/g, '-') === state
-  )?.state || state;
-  
-  const locationName = all.find(r => 
-    r.country.toLowerCase() === country.toLowerCase() && 
-    r.state === stateName &&
-    r.location?.toLowerCase().replace(/\s+/g, '-') === location
-  )?.location || location;
+  // The state and location parameters are now the actual names, not normalized slugs
+  const stateName = state;
+  const locationName = location;
   
   // Get jobs for this specific location
   const locationJobs = all.filter(rec => 
@@ -55,7 +47,7 @@ export async function LocationPage({ country, state, location }: LocationPagePro
   const breadcrumbs = [
     { name: "Home", href: "/" },
     { name: countryName, href: `/${country}` },
-    { name: stateName, href: `/${country}/${state}` },
+    { name: stateName, href: `/${country}/${stateName.toLowerCase().replace(/\s+/g, '-')}` },
     { name: locationName, href: "#", current: true },
   ];
   
@@ -89,8 +81,8 @@ export async function LocationPage({ country, state, location }: LocationPagePro
           title="Explore Jobs by Category"
           description={`Browse salary information organized by job categories and specializations in ${locationName}, ${stateName}.`}
           states={[stateName]}
-          currentState={state}
-          currentLocation={location}
+          currentState={stateName.toLowerCase().replace(/\s+/g, '-')}
+          currentLocation={locationName.toLowerCase().replace(/\s+/g, '-')}
         />
 
         {/* CTA Section */}
@@ -99,20 +91,21 @@ export async function LocationPage({ country, state, location }: LocationPagePro
             <h2 className="text-3xl font-bold text-white mb-6">
               Explore More Salary Data
             </h2>
-            <p className="text-xl text-blue-100 mb-8 max-w-3xl mx-auto">
-              Compare salaries across different locations and discover career opportunities 
-              in {locationName}, {stateName}, {countryName}.
+            <p className="text-xl text-blue-100 mb-8">
+              Discover comprehensive salary information for various occupations and locations
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link href={`/${country}/${state}`}>
-                <button className="bg-white text-blue-600 px-8 py-3 rounded-md font-medium hover:bg-gray-100 transition-colors">
-                  View All Salary Data in {stateName}
-                </button>
+            <div className="space-y-4 sm:space-y-0 sm:space-x-4 sm:flex sm:justify-center">
+              <Link
+                href={`/${country}/${stateName.toLowerCase().replace(/\s+/g, '-')}`}
+                className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-blue-600 bg-white hover:bg-blue-50 transition-colors"
+              >
+                View State Data
               </Link>
-              <Link href={`/${country}`}>
-                <button className="border border-white text-white px-8 py-3 rounded-md font-medium hover:bg-white hover:text-blue-600 transition-colors">
-                  Browse All Jobs in {countryName}
-                </button>
+              <Link
+                href={`/${country}`}
+                className="inline-flex items-center px-6 py-3 border border-white text-base font-medium rounded-md text-white hover:bg-blue-700 transition-colors"
+              >
+                View Country Data
               </Link>
             </div>
           </div>

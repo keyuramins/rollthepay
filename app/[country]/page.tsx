@@ -1,6 +1,6 @@
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { getDataset } from "@/lib/data/parse";
+import { optimizedDataAccess } from "@/lib/data/optimized-parse";
 import { NewHeader } from "@/components/navigation/new-header";
 import { Breadcrumbs } from "@/components/occupation/breadcrumbs";
 import { CountryHeroSection } from "@/components/country/hero-section";
@@ -9,7 +9,7 @@ import { StatesGrid } from "@/components/country/states-grid";
 import { CountryCTASection } from "@/components/country/cta-section";
 
 export const revalidate = 31536000;
-export const dynamicParams = true;
+export const dynamicParams = false; // Ensure static generation only
 
 interface CountryPageProps {
   params: Promise<{ country: string }>;
@@ -17,19 +17,15 @@ interface CountryPageProps {
 
 export async function generateMetadata({ params }: CountryPageProps): Promise<Metadata> {
   const { country } = await params;
-  const { byCountry } = await getDataset();
-  const countryLower = country.toLowerCase();
-  const countryData = byCountry.get(countryLower);
+  const countryData = await optimizedDataAccess.getCountryData(country);
   
-  if (!countryData || countryData.length === 0) {
+  if (!countryData) {
     return {
       title: "Country Not Found - RollThePay",
     };
   }
 
-  const countryName = country.charAt(0).toUpperCase() + country.slice(1);
-  const totalJobs = countryData.length;
-  const avgSalary = countryData.reduce((sum, rec) => sum + (rec.avgAnnualSalary || 0), 0) / countryData.length;
+  const { countryName, totalJobs } = countryData;
 
   return {
     title: `${countryName} Salary Information - RollThePay`,
@@ -53,41 +49,14 @@ export async function generateMetadata({ params }: CountryPageProps): Promise<Me
 
 export default async function CountryPage({ params }: CountryPageProps) {
   const { country } = await params;
-  const { byCountry } = await getDataset();
-  const countryLower = country.toLowerCase();
-  const countryData = byCountry.get(countryLower);
   
-  if (!countryData || countryData.length === 0) {
+  const countryData = await optimizedDataAccess.getCountryData(country);
+  
+  if (!countryData) {
     notFound();
   }
 
-  const countryName = country.charAt(0).toUpperCase() + country.slice(1);
-  const totalJobs = countryData.length;
-  const avgSalary = countryData.reduce((sum, rec) => sum + (rec.avgAnnualSalary || 0), 0) / totalJobs;
-  
-  // Get unique states if they exist
-  const states = Array.from(new Set(countryData.map(rec => rec.state).filter(Boolean))) as string[];
-  
-  // Prepare occupation data for the list
-  const occupationItems = countryData.map(record => ({
-    id: record.slug_url,
-    displayName: record.title || record.h1Title || "Unknown Occupation",
-    originalName: record.title || record.h1Title || "Unknown Occupation",
-    slug_url: record.slug_url,
-    location: record.location || undefined,
-    state: record.state || undefined,
-    avgAnnualSalary: record.avgAnnualSalary || undefined,
-    countrySlug: countryLower
-  }));
-
-  // Build header suggestions array
-  const headerOccupations = countryData.map(rec => ({
-    country: rec.country.toLowerCase(),
-    title: rec.title || rec.h1Title || "",
-    slug: rec.slug_url,
-    state: rec.state ? rec.state : null,
-    location: rec.location ? rec.location : null,
-  }));
+  const { countryName, totalJobs, avgSalary, states, occupationItems, headerOccupations } = countryData;
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -111,7 +80,7 @@ export default async function CountryPage({ params }: CountryPageProps) {
           totalJobs={totalJobs}
           avgSalary={avgSalary}
           statesCount={states.length}
-          countrySlug={countryLower}
+          countrySlug={country}
         />
 
         <OccupationList
@@ -124,7 +93,7 @@ export default async function CountryPage({ params }: CountryPageProps) {
         {states.length > 0 && (
           <StatesGrid
             states={states}
-            countrySlug={countryLower}
+            countrySlug={country}
             title="Explore by State/Region"
             description={`Find salary data specific to different regions within ${countryName}.`}
             className="bg-white"

@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { InstantLink } from "@/components/ui/enhanced-link";
 import { getDataset } from "@/lib/data/parse";
 
 interface LocationsGridProps {
@@ -40,13 +40,13 @@ export async function LocationsGrid({
         {/* Locations Grid */}
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
           {locations.map((location) => (
-            <Link
+            <InstantLink
               key={location}
               href={`/${country}/${state.toLowerCase().replace(/\s+/g, "-")}/${location.toLowerCase().replace(/\s+/g, "-")}`}
               className="block bg-white rounded-lg border border-gray-300 p-6 hover:shadow-md transition-all hover:border-blue-300 hover:scale-105 text-center shadow-sm"
             >
               <h3 className="text-lg font-semibold text-gray-900">{location}</h3>
-            </Link>
+            </InstantLink>
           ))}
         </div>
       </div>

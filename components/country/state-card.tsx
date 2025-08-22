@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { InstantLink } from "@/components/ui/enhanced-link";
 import { formatCurrency } from "@/lib/format/currency";
 
 interface StateCardProps {
@@ -10,7 +10,7 @@ interface StateCardProps {
 
 export function StateCard({ state, recordCount, avgSalary, countrySlug }: StateCardProps) {
   return (
-    <Link
+    <InstantLink
       href={`/${countrySlug}/${state?.toLowerCase().replace(/\s+/g, '-') || ''}`}
       className="block group"
     >
@@ -33,6 +33,6 @@ export function StateCard({ state, recordCount, avgSalary, countrySlug }: StateC
           )}
         </div>
       </div>
-    </Link>
+    </InstantLink>
   );
 }

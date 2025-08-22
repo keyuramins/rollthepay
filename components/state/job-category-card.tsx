@@ -1,19 +1,13 @@
-import Link from "next/link";
-
-// Helper function to normalize slugs for URLs (handles special characters)
-function normalizeSlugForURL(slug: string): string {
-  return slug
-    .replace(/#/g, '-sharp')  // Replace # with -sharp
-    .replace(/\+/g, '-plus'); // Replace + with -plus
-}
+import { InstantLink } from "@/components/ui/enhanced-link";
+import { normalizeSlugForURL } from "@/lib/format/slug";
 
 interface JobCategoryCardProps {
   job: {
     slug: string;
-    title: string;
-    occupation?: string;
-    avgAnnualSalary?: string;
-    avgHourlySalary?: string;
+    title: string | null;
+    occupation: string | null;
+    avgAnnualSalary: number | null;
+    avgHourlySalary: number | null;
   };
   country: string;
   state: string;
@@ -21,7 +15,7 @@ interface JobCategoryCardProps {
 
 export function JobCategoryCard({ job, country, state }: JobCategoryCardProps) {
   return (
-    <Link href={`/${country}/${state}/${normalizeSlugForURL(job.slug)}`} className="group">
+    <InstantLink href={`/${country}/${state}/${normalizeSlugForURL(job.slug)}`} className="group">
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
         <h3 className="text-lg font-semibold text-gray-900 group-hover:text-blue-600 mb-2">
           {job.title}
@@ -48,6 +42,6 @@ export function JobCategoryCard({ job, country, state }: JobCategoryCardProps) {
           </div>
         )}
       </div>
-    </Link>
+    </InstantLink>
   );
 }

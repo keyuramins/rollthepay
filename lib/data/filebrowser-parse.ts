@@ -15,12 +15,16 @@ const isBuildTime = process.env.NODE_ENV === 'production' &&
                     process.env.NEXT_PHASE === 'phase-production-optimize' ||
                     process.env.NEXT_PHASE === 'phase-production-compile');
 
+// Client-side bypass - prevent Filebrowser calls in browser
+const isClientSide = typeof window !== 'undefined';
+
 // Debug build-time detection
 if (typeof process !== 'undefined' && process.env) {
   console.log('🔍 Filebrowser-parse build-time detection:');
   console.log(`  NODE_ENV: ${process.env.NODE_ENV}`);
   console.log(`  NEXT_PHASE: ${process.env.NEXT_PHASE || 'NOT SET'}`);
   console.log(`  isBuildTime: ${isBuildTime}`);
+  console.log(`  isClientSide: ${isClientSide}`);
   console.log(`  Current timestamp: ${Date.now()}`);
 }
 
@@ -242,10 +246,20 @@ export async function getDataset(): Promise<DatasetIndex> {
   console.log('  NODE_ENV:', process.env.NODE_ENV);
   console.log('  NEXT_PHASE:', process.env.NEXT_PHASE || 'NOT SET');
   console.log('  isBuildTime:', isBuildTime);
+  console.log('  isClientSide:', isClientSide);
   
   // Return empty dataset during build to prevent Filebrowser calls
   if (isBuildTime) {
     console.log('🚫 Build-time bypass: returning empty dataset');
+    return {
+      all: [],
+      byCountry: new Map<string, OccupationRecord[]>()
+    };
+  }
+
+  // Return empty dataset on client side to prevent Filebrowser calls
+  if (isClientSide) {
+    console.log('🚫 Client-side bypass: returning empty dataset');
     return {
       all: [],
       byCountry: new Map<string, OccupationRecord[]>()
@@ -340,6 +354,12 @@ export async function findRecordByPath(params: { country: string; state?: string
     return null;
   }
 
+  // Return null on client side to prevent Filebrowser calls
+  if (isClientSide) {
+    console.log('🚫 Client-side bypass: returning null for findRecordByPath');
+    return null;
+  }
+
   try {
     const { all } = await getDataset();
     const country = params.country.toLowerCase();
@@ -380,6 +400,20 @@ export async function getStateData(country: string) {
   // Return empty state groups during build to prevent Filebrowser calls
   if (isBuildTime) {
     if (!isBuildTime) console.log('Build-time bypass: returning empty state data');
+    return new Map<string, { 
+      name: string; 
+      jobs: Array<{
+        slug: string;
+        title: string | null;
+        avgAnnualSalary: number | null;
+        avgHourlySalary: number | null;
+      }>;
+    }>();
+  }
+
+  // Return empty state groups on client side to prevent Filebrowser calls
+  if (isClientSide) {
+    console.log('🚫 Client-side bypass: returning empty state data');
     return new Map<string, { 
       name: string; 
       jobs: Array<{
@@ -453,6 +487,21 @@ export async function getLocationData(country: string, state: string) {
     }>();
   }
 
+  // Return empty location groups on client side to prevent Filebrowser calls
+  if (isClientSide) {
+    console.log('🚫 Client-side bypass: returning empty location data');
+    return new Map<string, { 
+      name: string; 
+      jobs: Array<{
+        slug: string;
+        title: string | null;
+        occupation: string | null;
+        avgAnnualSalary: number | null;
+        avgHourlySalary: number | null;
+      }>;
+    }>();
+  }
+
   try {
     const { all } = await getDataset();
     const stateRecords = all.filter(record => 
@@ -503,6 +552,12 @@ export function clearCache() {
   // Skip cache clearing during build
   if (isBuildTime) {
     if (!isBuildTime) console.log('Build-time bypass: skipping cache clear');
+    return;
+  }
+
+  // Skip cache clearing on client side
+  if (isClientSide) {
+    console.log('🚫 Client-side bypass: skipping cache clear');
     return;
   }
 

@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import TopLoader from "nextjs-toploader";
+//  import TopLoader from "nextjs-toploader";
 import { TooltipProvider } from "@/components/ui/tooltip";
 
 const geistSans = Geist({
@@ -45,12 +45,12 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <TopLoader 
+        {/* <TopLoader 
           color="#3b82f6"
           showSpinner={false}
           easing="ease"
           speed={200}
-        />
+        /> */}
         <TooltipProvider>
           {children}
         </TooltipProvider>

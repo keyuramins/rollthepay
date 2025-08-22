@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { InstantLink } from "@/components/ui/enhanced-link";
 
 interface StatesGridProps {
   states: string[];
@@ -20,13 +20,13 @@ export function StatesGrid({ states, countrySlug, title, description, className 
         {/* States Grid */}
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
           {states.map((state) => (
-            <Link
+            <InstantLink
               key={state}
               href={`/${countrySlug}/${state.toLowerCase().replace(/\s+/g, "-")}`}
               className="block bg-white rounded-lg border border-gray-300 p-6 hover:shadow-md transition-all hover:border-blue-300 hover:scale-105 text-center shadow-sm"
             >
               <h3 className="text-lg font-semibold text-gray-900">{state}</h3>
-            </Link>
+            </InstantLink>
           ))}
         </div>
       </div>

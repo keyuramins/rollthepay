@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { InstantLink as Link } from "@/components/ui/enhanced-link";
 import type { OccupationRecord } from "@/lib/data/types";
 import type { AIGeneratedContent } from "@/lib/ai/content-generator";
 
@@ -59,14 +59,14 @@ export function CareerProgressionSection({ content, record, allOccupations }: Ca
   return (
     <section className="py-16 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                 <div className="text-center mb-12">
+                 {/* <div className="text-center mb-12">
            <h2 className="text-3xl font-bold text-gray-900 mb-4">
              Career Opportunities
            </h2>
            <p className="text-lg text-gray-600 max-w-3xl mx-auto">
              Explore related opportunities and career paths in your field
            </p>
-         </div>
+         </div> */}
 
          <div className="grid grid-cols-1 gap-8">
 
@@ -92,6 +92,9 @@ export function CareerProgressionSection({ content, record, allOccupations }: Ca
                   <div className="grid grid-cols-1 gap-2">
                     {relatedOccupations.map((occupation, index) => (
                       <Link
+                        prefetch={true}
+                        prefetchOnMount={true}
+                        prefetchDelay={120}
                         key={index}
                         href={`/${occupation.country.toLowerCase()}${occupation.state ? `/${occupation.state.toLowerCase().replace(/\s+/g, '-')}` : ''}${occupation.location ? `/${occupation.location.toLowerCase().replace(/\s+/g, '-')}` : ''}/${normalizeSlugForURL(occupation.slug)}`}
                         className="flex items-center justify-between p-3 rounded-lg border border-gray-200 hover:border-green-300 hover:bg-green-50 transition-colors duration-200"
