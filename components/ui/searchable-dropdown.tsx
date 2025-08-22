@@ -68,6 +68,8 @@ export function SearchableDropdown({
   const [occupationSuggestions, setOccupationSuggestions] = useState<OccupationSuggestion[]>([]);
   const [isOccupationDropdownOpen, setIsOccupationDropdownOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isCountryLoading, setIsCountryLoading] = useState(false);
+  const [isOccupationLoading, setIsOccupationLoading] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const chipRef = useRef<HTMLSpanElement>(null);
@@ -79,17 +81,21 @@ export function SearchableDropdown({
   // Determine if we are on the homepage
   const isHome = useMemo(() => pathname === "/", [pathname]);
 
-  // Prefetch country pages on mount and when countries change
+  // Enhanced prefetching for all country pages on mount
   useEffect(() => {
+    console.log('🚀 Prefetching all country pages...');
     COUNTRIES.forEach(country => {
-      prefetchRoute(`/${country.slug}`).catch(console.error);
+      prefetchRoute(`/${country.slug}`).catch(error => {
+        console.log(`⚠️ Failed to prefetch ${country.slug}:`, error);
+      });
     });
   }, []);
 
-  // Prefetch occupation pages when suggestions are available
+  // Enhanced prefetching for occupation pages when suggestions are available
   useEffect(() => {
     if (occupationSuggestions.length > 0 && selectedCountry) {
-      occupationSuggestions.slice(0, 5).forEach(suggestion => {
+      console.log(`🚀 Prefetching ${occupationSuggestions.length} occupation pages for ${selectedCountry.name}...`);
+      occupationSuggestions.slice(0, 10).forEach(suggestion => {
         let url = `/${selectedCountry.slug}`;
         
         if (suggestion.state) {
@@ -103,10 +109,31 @@ export function SearchableDropdown({
         }
         
         url += `/${suggestion.slug}`;
-        prefetchRoute(url).catch(console.error);
+        prefetchRoute(url).catch(error => {
+          console.log(`⚠️ Failed to prefetch occupation ${suggestion.slug}:`, error);
+        });
       });
     }
   }, [occupationSuggestions, selectedCountry]);
+
+  // Prefetch state pages for selected country
+  useEffect(() => {
+    if (selectedCountry && allOccupations.length > 0) {
+      const countryOccupations = allOccupations.filter(o => o.country === selectedCountry.slug);
+      const states = new Set(countryOccupations.map(o => o.state).filter(Boolean));
+      
+      console.log(`🚀 Prefetching ${states.size} state pages for ${selectedCountry.name}...`);
+      states.forEach(state => {
+        if (state) {
+          const normalizedState = state.toLowerCase().replace(/\s+/g, '-');
+          const stateUrl = `/${selectedCountry.slug}/${normalizedState}`;
+          prefetchRoute(stateUrl).catch(error => {
+            console.log(`⚠️ Failed to prefetch state ${state}:`, error);
+          });
+        }
+      });
+    }
+  }, [selectedCountry, allOccupations]);
 
   // Filter countries based on search query (when no country selected or not on home)
   useEffect(() => {
@@ -244,17 +271,22 @@ export function SearchableDropdown({
     if (!selectedCountry) return; // need a country first
     const query = searchQuery.trim();
     
+    console.log('🚀 handleEnter: Starting navigation...');
     setIsLoading(true);
+    setIsOccupationLoading(true);
+    
+    // Add a minimum loading time to ensure spinner is visible
+    const startTime = Date.now();
+    const minLoadingTime = 500; // 500ms minimum loading time
     
     try {
       if (query.length === 0) {
+        console.log('🚀 handleEnter: Navigating to country page');
         await router.push(`/${selectedCountry.slug}`);
-        return;
-      }
-      
-      // If there are occupation suggestions, go to the first result
-      if (occupationSuggestions.length > 0) {
+      } else if (occupationSuggestions.length > 0) {
+        // If there are occupation suggestions, go to the first result
         const firstResult = occupationSuggestions[0];
+        console.log('🚀 handleEnter: Navigating to occupation page:', firstResult.display);
         
         // Build the URL according to our routing rules
         let url = `/${selectedCountry.slug}`;
@@ -271,13 +303,23 @@ export function SearchableDropdown({
         
         url += `/${firstResult.slug}`;
         await router.push(url);
-        return;
+      } else {
+        // If no results found, go to the country page
+        console.log('🚀 handleEnter: No results found, navigating to country page');
+        await router.push(`/${selectedCountry.slug}`);
       }
-      
-      // If no results found, go to the country page
-      await router.push(`/${selectedCountry.slug}`);
     } finally {
-      setIsLoading(false);
+      // Ensure minimum loading time for better UX
+      const elapsed = Date.now() - startTime;
+      const remaining = Math.max(0, minLoadingTime - elapsed);
+      
+      console.log(`⏱️ handleEnter: Loading time - elapsed: ${elapsed}ms, remaining: ${remaining}ms`);
+      
+      setTimeout(() => {
+        console.log('✅ handleEnter: Clearing loading states');
+        setIsLoading(false);
+        setIsOccupationLoading(false);
+      }, remaining);
     }
   }
 
@@ -296,18 +338,35 @@ export function SearchableDropdown({
         }
       }, 0);
     } else {
-      setIsLoading(true);
+      setIsCountryLoading(true);
+      
+      // Add a minimum loading time to ensure spinner is visible
+      const startTime = Date.now();
+      const minLoadingTime = 300; // 300ms minimum loading time
+      
       try {
         setIsDropdownOpen(false);
         await router.push(`/${country.slug}`);
       } finally {
-        setIsLoading(false);
+        // Ensure minimum loading time for better UX
+        const elapsed = Date.now() - startTime;
+        const remaining = Math.max(0, minLoadingTime - elapsed);
+        
+        setTimeout(() => {
+          setIsCountryLoading(false);
+        }, remaining);
       }
     }
   }
 
   async function handleOccupationSelect(suggestion: OccupationSuggestion) {
     setIsLoading(true);
+    setIsOccupationLoading(true);
+    
+    // Add a minimum loading time to ensure spinner is visible
+    const startTime = Date.now();
+    const minLoadingTime = 500; // 500ms minimum loading time
+    
     try {
       setIsDropdownOpen(false);
       setIsOccupationDropdownOpen(false);
@@ -329,7 +388,14 @@ export function SearchableDropdown({
       url += `/${suggestion.slug}`;
       await router.push(url);
     } finally {
-      setIsLoading(false);
+      // Ensure minimum loading time for better UX
+      const elapsed = Date.now() - startTime;
+      const remaining = Math.max(0, minLoadingTime - elapsed);
+      
+      setTimeout(() => {
+        setIsLoading(false);
+        setIsOccupationLoading(false);
+      }, remaining);
     }
   }
 
@@ -344,7 +410,11 @@ export function SearchableDropdown({
     <div ref={dropdownRef} className={containerClasses}>
       <div className="relative">
         <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-          <Search className={`h-5 w-5 ${iconColor} opacity-40`} />
+          {isLoading || isOccupationLoading ? (
+            <Loader2 className="h-5 w-5 text-blue-600 animate-spin" />
+          ) : (
+            <Search className={`h-5 w-5 ${iconColor} opacity-40`} />
+          )}
         </div>
         {/* Inline tag area inside input */}
         {isHome && selectedCountry && (
@@ -405,7 +475,11 @@ export function SearchableDropdown({
               setIsOccupationDropdownOpen(true);
             }
           }}
-          className={`block ${fullWidth ? 'w-full' : 'w-full sm:w-80 lg:w-96'} pr-10 py-3 border ${inputBorderClass} rounded-lg text-base leading-5 ${inputBgClass} ${inputTextClass} focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-md`}
+          className={`block ${fullWidth ? 'w-full' : 'w-full sm:w-80 lg:w-96'} pr-10 py-3 border rounded-lg text-base leading-5 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-md transition-all duration-200 ${
+            isLoading || isOccupationLoading 
+              ? 'border-blue-400 bg-blue-50 text-blue-900 placeholder-blue-700' 
+              : `${inputBorderClass} ${inputBgClass} ${inputTextClass}`
+          }`}
           style={{ 
             paddingLeft: (isHome && selectedCountry) ? 48 + chipWidth + 12 : 48,
             paddingRight: (isHome && selectedCountry) ? 80 : undefined
@@ -424,9 +498,10 @@ export function SearchableDropdown({
             <button
               type="button"
               onClick={() => {
+                console.log('🔘 Button clicked! Loading states:', { isLoading, isOccupationLoading });
                 handleEnter();
               }}
-              disabled={isLoading}
+              disabled={isLoading || isOccupationLoading}
               aria-label="Go to results"
               title={
                 searchQuery.trim().length === 0 
@@ -435,10 +510,14 @@ export function SearchableDropdown({
                     ? `Go to first result: ${occupationSuggestions[0].display}` 
                     : `Go to ${selectedCountry.name}`
               }
-              className="mr-2 inline-flex h-8 w-8 items-center justify-center rounded-md border border-blue-600 text-blue-600 bg-white hover:bg-blue-50 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+              className={`mr-2 inline-flex h-8 w-8 items-center justify-center rounded-md border transition-all duration-200 ${
+                isLoading || isOccupationLoading 
+                  ? 'border-blue-400 text-blue-400 bg-blue-50 cursor-not-allowed' 
+                  : 'border-blue-600 text-blue-600 bg-white hover:bg-blue-50 cursor-pointer'
+              }`}
             >
-              {isLoading ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
+              {isLoading || isOccupationLoading ? (
+                <Loader2 className="h-4 w-4 animate-spin text-blue-600" />
               ) : (
                 <ArrowRight className="h-4 w-4" />
               )}
@@ -478,13 +557,15 @@ export function SearchableDropdown({
                     <button
                       key={country.code}
                       onClick={() => handleCountrySelect(country)}
-                      disabled={isLoading}
+                      disabled={isCountryLoading}
                       className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-colors duration-150 flex items-center justify-between disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       <span>{country.name}</span>
-                      {selectedCountry?.code === country.code && (
+                      {isCountryLoading && selectedCountry?.code === country.code ? (
+                        <Loader2 className="h-4 w-4 animate-spin text-blue-600" />
+                      ) : selectedCountry?.code === country.code ? (
                         <Check className="h-4 w-4 text-blue-600" />
-                      )}
+                      ) : null}
                     </button>
                   ))}
                 </div>
@@ -509,10 +590,13 @@ export function SearchableDropdown({
               <button
                 key={`${s.slug}-${s.state ?? 'na'}`}
                 onClick={() => handleOccupationSelect(s)}
-                disabled={isLoading}
-                className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-colors duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled={isLoading || isOccupationLoading}
+                className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-colors duration-150 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-between"
               >
-                {s.display}
+                <span>{s.display}</span>
+                {(isLoading || isOccupationLoading) && (
+                  <Loader2 className="h-4 w-4 animate-spin text-blue-600" />
+                )}
               </button>
             ))}
           </div>
