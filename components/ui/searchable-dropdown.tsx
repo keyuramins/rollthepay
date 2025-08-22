@@ -267,17 +267,17 @@ export function SearchableDropdown({
   }
 
   async function handleEnter() {
-    if (!isHome) return; // occupation search only on home
+    setIsLoading(true);
+    //if (!isHome) return; // occupation search only on home
     if (!selectedCountry) return; // need a country first
     const query = searchQuery.trim();
     
     console.log('🚀 handleEnter: Starting navigation...');
-    setIsLoading(true);
     setIsOccupationLoading(true);
     
     // Add a minimum loading time to ensure spinner is visible
-    const startTime = Date.now();
-    const minLoadingTime = 500; // 500ms minimum loading time
+    // const startTime = Date.now();
+    // const minLoadingTime = 500; // 500ms minimum loading time
     
     try {
       if (query.length === 0) {
@@ -310,16 +310,16 @@ export function SearchableDropdown({
       }
     } finally {
       // Ensure minimum loading time for better UX
-      const elapsed = Date.now() - startTime;
-      const remaining = Math.max(0, minLoadingTime - elapsed);
+      // const elapsed = Date.now() - startTime;
+      // const remaining = Math.max(0, minLoadingTime - elapsed);
       
-      console.log(`⏱️ handleEnter: Loading time - elapsed: ${elapsed}ms, remaining: ${remaining}ms`);
+      // console.log(`⏱️ handleEnter: Loading time - elapsed: ${elapsed}ms, remaining: ${remaining}ms`);
       
-      setTimeout(() => {
-        console.log('✅ handleEnter: Clearing loading states');
-        setIsLoading(false);
-        setIsOccupationLoading(false);
-      }, remaining);
+      // setTimeout(() => {
+      //   console.log('✅ handleEnter: Clearing loading states');
+      //   setIsLoading(false);
+      //   setIsOccupationLoading(false);
+      // }, remaining);
     }
   }
 
