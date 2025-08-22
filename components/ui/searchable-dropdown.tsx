@@ -2,7 +2,8 @@
 
 import { useState, useEffect, useRef, useMemo } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { Search, ChevronDown, X, Check, ArrowRight } from "lucide-react";
+import { Search, ChevronDown, X, Check, ArrowRight, Loader2 } from "lucide-react";
+import { prefetchRoute } from "@/lib/prefetch";
 
 interface Country {
   name: string;
@@ -66,6 +67,7 @@ export function SearchableDropdown({
   interface OccupationSuggestion extends OccupationIndexItem { display: string }
   const [occupationSuggestions, setOccupationSuggestions] = useState<OccupationSuggestion[]>([]);
   const [isOccupationDropdownOpen, setIsOccupationDropdownOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const chipRef = useRef<HTMLSpanElement>(null);
@@ -76,6 +78,35 @@ export function SearchableDropdown({
 
   // Determine if we are on the homepage
   const isHome = useMemo(() => pathname === "/", [pathname]);
+
+  // Prefetch country pages on mount and when countries change
+  useEffect(() => {
+    COUNTRIES.forEach(country => {
+      prefetchRoute(`/${country.slug}`).catch(console.error);
+    });
+  }, []);
+
+  // Prefetch occupation pages when suggestions are available
+  useEffect(() => {
+    if (occupationSuggestions.length > 0 && selectedCountry) {
+      occupationSuggestions.slice(0, 5).forEach(suggestion => {
+        let url = `/${selectedCountry.slug}`;
+        
+        if (suggestion.state) {
+          const normalizedState = suggestion.state.toLowerCase().replace(/\s+/g, '-');
+          url += `/${normalizedState}`;
+          
+          if (suggestion.location) {
+            const normalizedLocation = suggestion.location.toLowerCase().replace(/\s+/g, '-');
+            url += `/${normalizedLocation}`;
+          }
+        }
+        
+        url += `/${suggestion.slug}`;
+        prefetchRoute(url).catch(console.error);
+      });
+    }
+  }, [occupationSuggestions, selectedCountry]);
 
   // Filter countries based on search query (when no country selected or not on home)
   useEffect(() => {
@@ -208,40 +239,98 @@ export function SearchableDropdown({
       .replace(/-+/g, "-");
   }
 
-  function handleEnter() {
+  async function handleEnter() {
     if (!isHome) return; // occupation search only on home
     if (!selectedCountry) return; // need a country first
     const query = searchQuery.trim();
     
-    if (query.length === 0) {
-      router.push(`/${selectedCountry.slug}`);
-      return;
-    }
+    setIsLoading(true);
     
-    // If there are occupation suggestions, go to the first result
-    if (occupationSuggestions.length > 0) {
-      const firstResult = occupationSuggestions[0];
+    try {
+      if (query.length === 0) {
+        await router.push(`/${selectedCountry.slug}`);
+        return;
+      }
+      
+      // If there are occupation suggestions, go to the first result
+      if (occupationSuggestions.length > 0) {
+        const firstResult = occupationSuggestions[0];
+        
+        // Build the URL according to our routing rules
+        let url = `/${selectedCountry.slug}`;
+        
+        if (firstResult.state) {
+          const normalizedState = firstResult.state.toLowerCase().replace(/\s+/g, '-');
+          url += `/${normalizedState}`;
+          
+          if (firstResult.location) {
+            const normalizedLocation = firstResult.location.toLowerCase().replace(/\s+/g, '-');
+            url += `/${normalizedLocation}`;
+          }
+        }
+        
+        url += `/${firstResult.slug}`;
+        await router.push(url);
+        return;
+      }
+      
+      // If no results found, go to the country page
+      await router.push(`/${selectedCountry.slug}`);
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  async function handleCountrySelect(country: Country) {
+    if (isHome) {
+      setSelectedCountry(country);
+      setIsDropdownOpen(false);
+      setSearchQuery("");
+      // Don't immediately open occupations dropdown - wait for user to type
+      setOccupationSuggestions([]);
+      setIsOccupationDropdownOpen(false);
+      // Focus the input field after country selection
+      setTimeout(() => {
+        if (inputRef.current) {
+          inputRef.current.focus();
+        }
+      }, 0);
+    } else {
+      setIsLoading(true);
+      try {
+        setIsDropdownOpen(false);
+        await router.push(`/${country.slug}`);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+  }
+
+  async function handleOccupationSelect(suggestion: OccupationSuggestion) {
+    setIsLoading(true);
+    try {
+      setIsDropdownOpen(false);
+      setIsOccupationDropdownOpen(false);
+      setSearchQuery("");
       
       // Build the URL according to our routing rules
-      let url = `/${selectedCountry.slug}`;
+      let url = `/${selectedCountry!.slug}`;
       
-      if (firstResult.state) {
-        const normalizedState = firstResult.state.toLowerCase().replace(/\s+/g, '-');
+      if (suggestion.state) {
+        const normalizedState = suggestion.state.toLowerCase().replace(/\s+/g, '-');
         url += `/${normalizedState}`;
         
-        if (firstResult.location) {
-          const normalizedLocation = firstResult.location.toLowerCase().replace(/\s+/g, '-');
+        if (suggestion.location) {
+          const normalizedLocation = suggestion.location.toLowerCase().replace(/\s+/g, '-');
           url += `/${normalizedLocation}`;
         }
       }
       
-      url += `/${firstResult.slug}`;
-      router.push(url);
-      return;
+      url += `/${suggestion.slug}`;
+      await router.push(url);
+    } finally {
+      setIsLoading(false);
     }
-    
-    // If no results found, go to the country page
-    router.push(`/${selectedCountry.slug}`);
   }
 
   const inputValue = useMemo(() => {
@@ -337,6 +426,7 @@ export function SearchableDropdown({
               onClick={() => {
                 handleEnter();
               }}
+              disabled={isLoading}
               aria-label="Go to results"
               title={
                 searchQuery.trim().length === 0 
@@ -345,9 +435,13 @@ export function SearchableDropdown({
                     ? `Go to first result: ${occupationSuggestions[0].display}` 
                     : `Go to ${selectedCountry.name}`
               }
-              className="mr-2 inline-flex h-8 w-8 items-center justify-center rounded-md border border-blue-600 text-blue-600 bg-white hover:bg-blue-50 cursor-pointer"
+              className="mr-2 inline-flex h-8 w-8 items-center justify-center rounded-md border border-blue-600 text-blue-600 bg-white hover:bg-blue-50 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <ArrowRight className="h-4 w-4" />
+              {isLoading ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <ArrowRight className="h-4 w-4" />
+              )}
             </button>
           )}
           <button
@@ -383,26 +477,9 @@ export function SearchableDropdown({
                   {continent.countries.map((country) => (
                     <button
                       key={country.code}
-                      onClick={() => {
-                        if (isHome) {
-                          setSelectedCountry(country);
-                          setIsDropdownOpen(false);
-                          setSearchQuery("");
-                          // Don't immediately open occupations dropdown - wait for user to type
-                          setOccupationSuggestions([]);
-                          setIsOccupationDropdownOpen(false);
-                          // Focus the input field after country selection
-                          setTimeout(() => {
-                            if (inputRef.current) {
-                              inputRef.current.focus();
-                            }
-                          }, 0);
-                        } else {
-                          setIsDropdownOpen(false);
-                          router.push(`/${country.slug}`);
-                        }
-                      }}
-                      className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-colors duration-150 flex items-center justify-between"
+                      onClick={() => handleCountrySelect(country)}
+                      disabled={isLoading}
+                      className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-colors duration-150 flex items-center justify-between disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       <span>{country.name}</span>
                       {selectedCountry?.code === country.code && (
@@ -431,28 +508,9 @@ export function SearchableDropdown({
             {occupationSuggestions.map(s => (
               <button
                 key={`${s.slug}-${s.state ?? 'na'}`}
-                onClick={() => {
-                  setIsDropdownOpen(false);
-                  setIsOccupationDropdownOpen(false);
-                  setSearchQuery("");
-                  
-                  // Build the URL according to our routing rules
-                  let url = `/${selectedCountry.slug}`;
-                  
-                  if (s.state) {
-                    const normalizedState = s.state.toLowerCase().replace(/\s+/g, '-');
-                    url += `/${normalizedState}`;
-                    
-                    if (s.location) {
-                      const normalizedLocation = s.location.toLowerCase().replace(/\s+/g, '-');
-                      url += `/${normalizedLocation}`;
-                    }
-                  }
-                  
-                  url += `/${s.slug}`;
-                  router.push(url);
-                }}
-                className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-colors duration-150"
+                onClick={() => handleOccupationSelect(s)}
+                disabled={isLoading}
+                className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-colors duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {s.display}
               </button>
