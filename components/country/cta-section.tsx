@@ -13,7 +13,7 @@ export function CountryCTASection() {
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
 
-          <Link href="/">
+          <Link href="/" prefetch={true}>
             <button className="border border-white text-white px-8 py-3 rounded-md font-medium hover:bg-white hover:text-blue-600 transition-colors">
               Back to Home
             </button>

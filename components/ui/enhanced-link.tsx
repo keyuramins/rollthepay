@@ -65,19 +65,22 @@ export function EnhancedLink({
     
     // Prefetch related routes for instant navigation
     if (prefetch && href) {
-      // Prefetch parent routes
-      const segments = href.split('/').filter(Boolean);
-      if (segments.length > 1) {
-        const parentRoute = `/${segments.slice(0, -1).join('/')}`;
-        prefetchRoute(parentRoute).catch(console.error);
-      }
+      //Prefetch the current route
+      prefetchRoute(href).catch(console.error);
       
-      // Prefetch sibling routes (same level)
-      if (segments.length >= 2) {
-        const baseRoute = `/${segments.slice(0, -1).join('/')}`;
-        // This could be enhanced to prefetch actual sibling routes
-        prefetchRoute(baseRoute).catch(console.error);
-      }
+      // Prefetch parent routes
+      // const segments = href.split('/').filter(Boolean);
+      // if (segments.length > 1) {
+      //   const parentRoute = `/${segments.slice(0, -1).join('/')}`;
+      //   prefetchRoute(parentRoute).catch(console.error);
+      // }
+      
+      // // Prefetch sibling routes (same level)
+      // if (segments.length >= 2) {
+      //   const baseRoute = `/${segments.slice(0, -1).join('/')}`;
+      //   // This could be enhanced to prefetch actual sibling routes
+      //   prefetchRoute(baseRoute).catch(console.error);
+      // }
     }
   }, [href, prefetch, onClick]);
 

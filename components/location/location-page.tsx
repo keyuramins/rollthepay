@@ -96,12 +96,14 @@ export async function LocationPage({ country, state, location }: LocationPagePro
             </p>
             <div className="space-y-4 sm:space-y-0 sm:space-x-4 sm:flex sm:justify-center">
               <Link
+                prefetch={true}
                 href={`/${country}/${stateName.toLowerCase().replace(/\s+/g, '-')}`}
                 className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-blue-600 bg-white hover:bg-blue-50 transition-colors"
               >
                 View State Data
               </Link>
               <Link
+                prefetch={true}
                 href={`/${country}`}
                 className="inline-flex items-center px-6 py-3 border border-white text-base font-medium rounded-md text-white hover:bg-blue-700 transition-colors"
               >

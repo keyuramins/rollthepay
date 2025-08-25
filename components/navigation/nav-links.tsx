@@ -14,6 +14,7 @@ export function NavLinks({ mobile = false }: NavLinksProps) {
       <nav className="space-y-2">
         {links.map((link) => (
           <Link
+            prefetch={true}
             key={link.href}
             href={link.href}
             className="block text-gray-600 hover:text-gray-900 hover:bg-gray-50 px-3 py-2 rounded-md text-base font-medium"
@@ -29,6 +30,7 @@ export function NavLinks({ mobile = false }: NavLinksProps) {
     <nav className="hidden md:flex space-x-8">
       {links.map((link) => (
         <Link
+          prefetch={true}
           key={link.href}
           href={link.href}
           className="text-gray-600 hover:text-gray-900 px-3 py-2 text-sm font-medium"

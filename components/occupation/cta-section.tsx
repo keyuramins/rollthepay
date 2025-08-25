@@ -17,7 +17,7 @@ export function OccupationCTASection({ countryName, locationText }: OccupationCT
           in {locationText}.
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <Link href={`/${countryName.toLowerCase().replace(/\s+/g, '-')}`}>
+          <Link prefetch={true} href={`/${countryName.toLowerCase().replace(/\s+/g, '-')}`}>
             <button className="bg-white text-blue-600 px-8 py-3 rounded-md font-medium hover:bg-gray-100 transition-colors">
               View All Salary Data in {countryName}
             </button>
