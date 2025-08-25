@@ -21,6 +21,10 @@ export const metadata: Metadata = {
   },
   description: "Accurate salary data by country and state.",
   metadataBase: new URL("https://rollthepay.example"),
+  robots: {
+    index: false,
+    follow: false
+  },
   other: {
     'mobile-web-app-capable': 'yes',
     'apple-mobile-web-app-capable': 'yes',
