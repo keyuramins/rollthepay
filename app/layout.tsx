@@ -20,7 +20,7 @@ export const metadata: Metadata = {
     template: "%s | RollThePay",
   },
   description: "Accurate salary data by country and state.",
-  metadataBase: new URL("https://rollthepay.example"),
+  metadataBase: new URL("https://rollthepay.serveriko.com"),
   robots: {
     index: false,
     follow: false

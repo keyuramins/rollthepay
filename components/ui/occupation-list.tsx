@@ -197,7 +197,9 @@ export function OccupationList({ items, title, description, className = "", curr
                         }
 
                         return (
-                            <Link key={item.id} href={href} className="block bg-white rounded-lg border border-blue-200 py-2 px-6 hover:shadow-md transition-shadow hover:border-blue-300">
+                            <Link
+                            prefetch={true}
+                            key={item.id} href={href} className="block bg-white rounded-lg border border-blue-200 py-2 px-6 hover:shadow-md transition-shadow hover:border-blue-300">
                                 <div className="flex items-center justify-between">
                                     <div className="flex-1">
                                         <h3 className="text-lg font-semibold text-gray-900 mb-2">{item.displayName}</h3>
