@@ -390,10 +390,29 @@ function SalaryRangeBar({ record }: { record: any }) {
           const center = total > 0 ? `${Math.max(m, f).toFixed(0)}%` : '—';
           const dominant = f > m ? 'female' : m > f ? 'male' : 'equal';
           const role = record.title || record.occupation || 'this role';
+          // Use exact Venus and Mars colors to match the icons
+          const maleColor = 'rgb(34 197 94)';   // tailwind green-500 (matches Mars icon)
+          const femaleColor = 'rgb(245 158 11)'; // tailwind amber-500 (matches Venus icon)
           const chartData = [
-            { name: 'Male', value: m, color: '#16a34a' },
-            { name: 'Female', value: f, color: '#f59e0b' },
+            { name: 'Male', value: m, color: maleColor },
+            { name: 'Female', value: f, color: femaleColor },
           ];
+
+          const renderSegmentLabel = (props: any) => {
+            const { cx, cy, midAngle, innerRadius, outerRadius, percent, value } = props;
+            if (!value || value <= 0) return null;
+            const RADIAN = Math.PI / 180;
+            // Place the label at the radial midpoint of the donut for perfect vertical centering
+            const ringCenterRadius = innerRadius + (outerRadius - innerRadius) / 2;
+            const x = cx + ringCenterRadius * Math.cos(-midAngle * RADIAN);
+            const y = cy + ringCenterRadius * Math.sin(-midAngle * RADIAN);
+            return (
+              <text x={x} y={y} fill="white" textAnchor="middle" 
+              dominantBaseline="central" fontSize={12} fontWeight={700}>
+                {Math.round(percent * 100)}%
+              </text>
+            );
+          };
 
           return (
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
@@ -411,30 +430,45 @@ function SalaryRangeBar({ record }: { record: any }) {
                     <div className="bg-card rounded-full border w-48 h-48 flex items-center justify-center">
                       <ResponsiveContainer width={192} height={192}>
                         <PieChart>
-                          <Pie data={chartData} dataKey="value" cx="50%" cy="50%" innerRadius={50} outerRadius={88} stroke="#ffffff" strokeWidth={2}>
-                            <Cell fill={chartData[0].color} />
-                            <Cell fill={chartData[1].color} />
+                          <Pie
+                            data={chartData}
+                            dataKey="value"
+                            cx="50%"
+                            cy="50%"
+                            innerRadius={50}
+                            outerRadius={88}
+                            stroke="#ffffff"
+                            strokeWidth={2}
+                            labelLine={false}
+                            label={renderSegmentLabel}
+                          >
+                            <Cell fill={"var(--chart-1)"} />
+                            <Cell fill={"var(--color-amber-600)"} />
                           </Pie>
                         </PieChart>
                       </ResponsiveContainer>
-                      <span className="absolute text-sm font-semibold text-foreground">{center}</span>
+                      <span
+                        className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 px-2 py-0.5 rounded-md text-xl font-extrabold ${dominant === 'female' ? 'text-amber-600' : dominant === 'male' ? 'text-chart-1' : 'text-foreground'}`}
+                      >
+                        {center}
+                      </span>
                     </div>
                   </div>
                   <div className="mt-4 flex items-center gap-6">
                     <div className="flex items-center gap-2">
-                      <span className="inline-block w-4 h-3 rounded-sm bg-amber-500" />
+                      <span className="inline-block w-4 h-3 rounded-sm bg-amber-600" />
                       <span className="text-xs text-muted-foreground">Female</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <span className="inline-block w-4 h-3 rounded-sm bg-green-600" />
+                      <span className="inline-block w-4 h-3 rounded-sm bg-chart-1" />
                       <span className="text-xs text-muted-foreground">Male</span>
                     </div>
                   </div>
                 </div>
 
                 <div className="flex flex-col items-center gap-2">
-                  <div className="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center">
-                    <Mars className="h-6 w-6 text-green-600" />
+                  <div className="w-12 h-12 rounded-full bg-chart-1/10 flex items-center justify-center">
+                    <Mars className="h-6 w-6 text-chart-1" />
                   </div>
                   <span className="text-xs text-muted-foreground">Male</span>
                 </div>

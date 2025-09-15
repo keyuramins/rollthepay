@@ -8,8 +8,12 @@ import { OccupationList } from "@/components/ui/occupation-list";
 import { StatesGrid } from "@/components/country/states-grid";
 import { CountryCTASection } from "@/components/country/cta-section";
 
+// Shorter revalidation for testing (can be increased later)
 export const revalidate = 31536000; // 1 minute for testing
 export const dynamicParams = false;
+
+// export const dynamicParams = true;
+// export const revalidate = 0;
 interface CountryPageProps {
   params: Promise<{ country: string }>;
 }

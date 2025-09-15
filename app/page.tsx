@@ -15,10 +15,8 @@ export const dynamic = 'force-dynamic';
 export const revalidate = 31536000; // 1 minute for testing
 export const dynamicParams = false;
 
-// const isRevalidate = process.env.NODE_ENV === 'development' && 0 || 31536000; // 1 minute for testing
-// const isDynamicParams = process.env.NODE_ENV === 'development' && true || false;
-// export const revalidate = isRevalidate; // 1 minute for testing
-// export const dynamicParams = isDynamicParams;
+// export const dynamicParams = true;
+// export const revalidate = 0;
 
 
 export async function generateMetadata(): Promise<Metadata> {
