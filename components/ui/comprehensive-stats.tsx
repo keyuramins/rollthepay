@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useMemo } from "react";
 import { Badge } from "@/components/ui/badge";
 import { PercentilesChart } from "@/components/ui/percentiles-chart";
 import { SalaryBreakdownTable } from "@/components/ui/salary-breakdown-table";
@@ -14,12 +15,127 @@ import {
   MapPin,
   Building,
   Award,
-  Zap
+  Zap,
+  BadgeCent,
+  AwardIcon,
+  MessageCircleIcon,
+  CodeIcon,
+  UserIcon,
+  CalculatorIcon,
+  ChartAreaIcon,
+  FlowerIcon
 } from "lucide-react";
 
 interface ComprehensiveStatsProps {
   record: any;
   country: string;
+}
+
+// Skills Filter Component
+interface SkillsFilterProps {
+  skills: Array<{
+    name: string;
+    value: number;
+    percentage: number;
+    color: string;
+    marketShare: number;
+    salaryImpact: number;
+    demandLevel: string;
+    demandColor: string;
+    category: string;
+  }>;
+  onFilterChange: (filter: string) => void;
+  onSortChange: (sort: string) => void;
+  activeFilter: string;
+  activeSort: string;
+}
+
+function SkillsFilter({ skills, onFilterChange, onSortChange, activeFilter, activeSort }: SkillsFilterProps) {
+  // Extract unique categories from skills data
+  const categories = useMemo(() => {
+    const categoryCounts = skills.reduce((acc, skill) => {
+      acc[skill.category] = (acc[skill.category] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>);
+
+    // Sort by count and take top 4-5 categories
+    const sortedCategories = Object.entries(categoryCounts)
+      .sort(([, a], [, b]) => b - a)
+      .slice(0, 5)
+      .map(([category]) => category);
+
+    // Debug logging (remove in production)
+    // console.log('Skills categories detected:', categoryCounts);
+    // console.log('Sorted categories for filters:', sortedCategories);
+
+    // Ensure we always have at least the categories that exist in the data
+    return sortedCategories.length > 0 ? sortedCategories : ['Technical'];
+  }, [skills]);
+
+  const categoryIcons: Record<string, string> = {
+    'Software': '<>',
+    'Management': '👤',
+    'Accounting': '📊',
+    'Analysis': '📈',
+    'Technical': '⚙️',
+    'Process': '🔄',
+    'Communication': '💬'
+  };
+
+  return (
+    <div className="mb-8">
+      <h3 className="text-2xl text-center font-bold text-gray-900 mb-2">Top Skills & Market Demand</h3>
+      <p className="text-sm text-gray-600 mb-6 text-center">Most in-demand skills with proficiency levels and salary impact analysis</p>
+
+      {/* Skill Category Filters */}
+      <div className="flex flex-wrap gap-2 mb-4 justify-center items-center">
+        <button
+          onClick={() => onFilterChange('All')}
+          className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${activeFilter === 'All'
+            ? 'bg-green-600 text-white'
+            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+            }`}
+        >
+          All
+        </button>
+        {categories.map((category) => (
+          <button
+            key={category}
+            onClick={() => onFilterChange(category)}
+            className={`px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 transition-colors ${activeFilter === category
+              ? 'bg-green-600 text-white'
+              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
+          >
+            <span dangerouslySetInnerHTML={{ __html: categoryIcons[category] || '📋' }} />
+            {category}
+          </button>
+        ))}
+      </div>
+
+      {/* Sorting Options */}
+      <div className="flex gap-2 justify-center items-center">
+        <button
+          onClick={() => onSortChange('proficiency')}
+          className={`px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 transition-colors ${activeSort === 'proficiency'
+            ? 'bg-blue-600 text-white'
+            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+            }`}
+        >
+          <span>🔽</span> By Proficiency
+        </button>
+        <button
+          onClick={() => onSortChange('demand')}
+          className={`px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 transition-colors ${activeSort === 'demand'
+            ? 'bg-blue-600 text-white'
+            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+            }`}
+        >
+          <span>📊</span> By Demand
+        </button>
+      </div>
+    </div>
+  );
 }
 
 // Mini Pie Chart Component for Gender Split
@@ -142,7 +258,7 @@ function SalaryRangeBar({ record }: { record: any }) {
               <div className="text-xs text-gray-500 mt-1">Entry Level</div>
             </div>
             <div className="text-center absolute" style={{ left: `${avgPosition}%`, transform: 'translateX(-50%)' }}>
-              <span className="text-sm font-medium text-green-600 font-semibold">${Number(avg).toLocaleString()}</span>
+              <span className="text-sm font-semibold text-green-600">${Number(avg).toLocaleString()}</span>
               <div className="text-xs text-green-600 mt-1">Market Average</div>
             </div>
             <div className="text-center">
@@ -166,44 +282,44 @@ function SalaryRangeBar({ record }: { record: any }) {
                 </linearGradient>
               </defs>
             </svg>
-              {/* Range bar with gradient */}
-              <div
-                className="absolute h-full rounded-full"
-                style={{
-                  width: '100%',
-                  background: 'linear-gradient(to right, #F97316 0%, #10B981 50%, #3B82F6 100%)'
-                }}
-              />
+            {/* Range bar with gradient */}
+            <div
+              className="absolute h-full rounded-full"
+              style={{
+                width: '100%',
+                background: 'linear-gradient(to right, #F97316 0%, #10B981 50%, #3B82F6 100%)'
+              }}
+            />
 
-              {/* Average marker line */}
-              <div
-                className="absolute top-0 h-full w-1.5 bg-green-500 shadow-lg"
-                style={{ left: `${avgPosition}%` }}
-              />
+            {/* Average marker line */}
+            <div
+              className="absolute top-0 h-full w-1.5 bg-green-500 shadow-lg"
+              style={{ left: `${avgPosition}%` }}
+            />
 
-              {/* Average marker dot with enhanced visibility and hover tooltip */}
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <div
-                    className="absolute top-1/2 w-5 h-5 bg-green-500 rounded-full border-4 border-white shadow-xl transform -translate-y-1/2 -translate-x-1/2 cursor-pointer z-20 hover:scale-110 transition-transform duration-200"
-                    style={{ left: `${avgPosition}%` }}
-                  />
-                </TooltipTrigger>
-                <TooltipContent
-                  className="z-[9999] bg-green-600 text-white border-0 shadow-2xl px-4 py-2 text-sm font-bold"
-                  side="top"
-                  sideOffset={12}
-                  align="center"
-                >
-                  <p className="text-white">${Number(avg).toLocaleString()}</p>
-                </TooltipContent>
-              </Tooltip>
+            {/* Average marker dot with enhanced visibility and hover tooltip */}
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div
+                  className="absolute top-1/2 w-5 h-5 bg-green-500 rounded-full border-4 border-white shadow-xl transform -translate-y-1/2 -translate-x-1/2 cursor-pointer z-20 hover:scale-110 transition-transform duration-200"
+                  style={{ left: `${avgPosition}%` }}
+                />
+              </TooltipTrigger>
+              <TooltipContent
+                className="z-[9999] bg-green-600 text-white border-0 shadow-2xl px-4 py-2 text-sm font-bold"
+                side="top"
+                sideOffset={12}
+                align="center"
+              >
+                <p className="text-white">${Number(avg).toLocaleString()}</p>
+              </TooltipContent>
+            </Tooltip>
 
-              {/* Range indicators */}
-              <div className="absolute inset-0 flex items-center justify-between px-3">
-                <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
-                <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-              </div>
+            {/* Range indicators */}
+            <div className="absolute inset-0 flex items-center justify-between px-3">
+              <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
+              <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+            </div>
           </div>
 
           {/* Enhanced labels below the chart */}
@@ -486,6 +602,10 @@ function MiniLineChart({ data, color, height = 40, width = 80, mainValue }: {
 }
 
 export function ComprehensiveStats({ record, country }: ComprehensiveStatsProps) {
+  // State for skills filtering and sorting
+  const [activeFilter, setActiveFilter] = useState('All');
+  const [activeSort, setActiveSort] = useState('proficiency');
+
   // Helper function to check if value exists and is not #REF! or invalid
   const isValidValue = (value: any) => {
     if (!value || value === '#REF!' || value === '' || value === '0' || value === '00') return false;
@@ -686,30 +806,192 @@ export function ComprehensiveStats({ record, country }: ComprehensiveStatsProps)
       {/* Comprehensive Experience Analysis */}
       <ComprehensiveExperienceAnalysis record={record} />
 
-      {/* Skills Breakdown */}
-      {skills.length > 0 && (
-        <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200 ">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Top Skills & Proficiency</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {skills.map((skill, index) => (
-              <div key={index} className="p-4 rounded-lg bg-green-50 border border-green-200">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="font-medium text-green-800">{skill.name}</span>
-                  <Badge variant="green" className="bg-green-100 text-green-800">
-                    {skill.percentage}%
-                  </Badge>
-                </div>
-                <div className="w-full bg-green-200 rounded-full h-2">
-                  <div
-                    className="bg-green-500 h-2 rounded-full transition-all duration-300"
-                    style={{ width: `${skill.percentage}%` }}
-                  ></div>
-                </div>
+      {/* Top Skills & Market Demand */}
+      {skills.length > 0 && (() => {
+        // Enhanced skills data with market demand analysis
+        // console.log('Processing skills:', skills);
+        const enhancedSkills = skills.map((skill, index) => {
+          // Derive market share from proficiency percentage
+          const marketShare = Math.min(skill.percentage * 1.2, 30); // Cap at 30%
+
+          // Derive salary impact based on skill importance
+          const salaryImpact = Math.min(skill.percentage * 0.6, 20); // Cap at 20%
+
+          // Determine demand level based on market share
+          let demandLevel = 'Low Demand';
+          let demandColor = 'blue';
+          if (marketShare >= 20) {
+            demandLevel = 'High Demand';
+            demandColor = 'green';
+          } else if (marketShare >= 10) {
+            demandLevel = 'Medium Demand';
+            demandColor = 'orange';
+          }
+
+          // Determine skill category based on skill name - more comprehensive detection
+          let category = 'Technical';
+          const skillName = skill.name.toLowerCase();
+
+          // Software & Programming
+          if (skillName.includes('programming') || skillName.includes('software') || skillName.includes('development') ||
+            skillName.includes('coding') || skillName.includes('api') || skillName.includes('framework') ||
+            skillName.includes('javascript') || skillName.includes('python') || skillName.includes('java') ||
+            skillName.includes('c#') || skillName.includes('c++') || skillName.includes('php') ||
+            skillName.includes('react') || skillName.includes('angular') || skillName.includes('vue') ||
+            skillName.includes('node') || skillName.includes('sql') || skillName.includes('database') ||
+            skillName.includes('mvc') || skillName.includes('microsoft') || skillName.includes('server')) {
+            category = 'Software';
+          }
+          // Management & Leadership
+          else if (skillName.includes('management') || skillName.includes('leadership') || skillName.includes('supervision') ||
+            skillName.includes('team') || skillName.includes('project') || skillName.includes('budget') ||
+            skillName.includes('planning') || skillName.includes('strategy') || skillName.includes('coordination')) {
+            category = 'Management';
+          }
+          // Accounting & Finance
+          else if (skillName.includes('accounting') || skillName.includes('financial') || skillName.includes('finance') ||
+            skillName.includes('ledger') || skillName.includes('bookkeeping') || skillName.includes('audit') ||
+            skillName.includes('tax') || skillName.includes('payroll') || skillName.includes('billing') ||
+            skillName.includes('invoice') || skillName.includes('revenue') || skillName.includes('expense')) {
+            category = 'Accounting';
+          }
+          // Analysis & Data
+          else if (skillName.includes('analysis') || skillName.includes('analytics') || skillName.includes('modeling') ||
+            skillName.includes('data') || skillName.includes('reporting') || skillName.includes('forecasting') ||
+            skillName.includes('statistics') || skillName.includes('metrics') || skillName.includes('kpi') ||
+            skillName.includes('dashboard') || skillName.includes('visualization') || skillName.includes('research')) {
+            category = 'Analysis';
+          }
+          // Process & Operations
+          else if (skillName.includes('process') || skillName.includes('operations') || skillName.includes('workflow') ||
+            skillName.includes('procedure') || skillName.includes('close') || skillName.includes('month') ||
+            skillName.includes('quarterly') || skillName.includes('compliance') || skillName.includes('quality') ||
+            skillName.includes('efficiency') || skillName.includes('optimization') || skillName.includes('automation')) {
+            category = 'Process';
+          }
+          // Communication & Customer Service
+          else if (skillName.includes('communication') || skillName.includes('customer') || skillName.includes('service') ||
+            skillName.includes('support') || skillName.includes('presentation') || skillName.includes('training') ||
+            skillName.includes('documentation') || skillName.includes('writing') || skillName.includes('verbal')) {
+            category = 'Communication';
+          }
+
+          return {
+            ...skill,
+            marketShare: Math.round(marketShare),
+            salaryImpact: Math.round(salaryImpact),
+            demandLevel,
+            demandColor,
+            category
+          };
+        });
+
+        // console.log('Enhanced skills with categories:', enhancedSkills);
+
+        // Filter skills based on active filter
+        const filteredSkills = activeFilter === 'All'
+          ? enhancedSkills
+          : enhancedSkills.filter(skill => skill.category === activeFilter);
+
+        // Sort skills based on active sort
+        const sortedSkills = useMemo(() => {
+          const skillsToSort = [...filteredSkills];
+          if (activeSort === 'proficiency') {
+            return skillsToSort.sort((a, b) => b.percentage - a.percentage);
+          } else if (activeSort === 'demand') {
+            return skillsToSort.sort((a, b) => b.marketShare - a.marketShare);
+          }
+          return skillsToSort;
+        }, [filteredSkills, activeSort]);
+
+        return (
+          <div className=" bg-green-50 rounded-2xl p-8 border border-green-200 shadow-md">
+            {/* Header Section with Filter Component */}
+            {/* <SkillsFilter
+              skills={enhancedSkills}
+              onFilterChange={setActiveFilter}
+              onSortChange={setActiveSort}
+              activeFilter={activeFilter}
+              activeSort={activeSort}
+            /> */}
+
+            <h3 className="text-2xl font-bold text-green-800 mb-2">Top Skills & Market Demand</h3>
+            <p className="text-sm text-green-700 mb-6">Most in-demand skills with proficiency levels and salary impact analysis</p>
+
+            {/* Skills Analysis Section */}
+            <div>
+              <div className="flex items-center gap-2 mb-6">
+                <AwardIcon className="w-4 h-4 text-green-900" />
+                <h4 className="text-lg font-semibold text-green-900">Skills Analysis ({sortedSkills.length} skills)</h4>
               </div>
-            ))}
+
+              <div className="space-y-2">
+                {sortedSkills.map((skill, index) => (
+                  <div key={index} className="flex items-center justify-between p-4 bg-gray-50/60 rounded-lg border border-green-100">
+                    <div className="flex items-center justify-center p-2 text-lg text-green-900 bg-green-100 rounded-md mr-4">
+                      {
+                        /* Show icons basedon the skill */
+                        skill.category === 'Software' ? <CodeIcon className="w-4 h-4 text-green-900" /> :
+                          skill.category === 'Management' ? <UserIcon className="w-4 h-4 text-green-900" /> :
+                            skill.category === 'Accounting' ? <CalculatorIcon className="w-4 h-4 text-green-900" /> :
+                              skill.category === 'Analysis' ? <ChartAreaIcon className="w-4 h-4 text-green-900" /> :
+                                skill.category === 'Technical' ? <CodeIcon className="w-4 h-4 text-green-900" /> :
+                                  skill.category === 'Process' ? <FlowerIcon className="w-4 h-4 text-green-900" /> :
+                                    skill.category === 'Communication' ? <MessageCircleIcon className="w-4 h-4 text-green-900" /> : <CodeIcon className="w-4 h-4 text-green-900" />
+                      }
+                    </div>
+                    <div className="flex-1">
+                      <div className="flex items-center gap-3 mb-2">
+                        <h5 className="font-medium text-gray-900 text-sm">{skill.name}</h5>
+                        <span className="px-2 py-1 bg-white text-xs border border-gray-300 rounded-md">
+                          {skill.category}
+                        </span>
+                      </div>
+
+                      <div className="flex items-center gap-4">
+                        <div className="flex items-center gap-2">
+                          <div className={`w-2 h-2 rounded-full ${skill.demandColor === 'green' ? 'bg-green-500' :
+                            skill.demandColor === 'orange' ? 'bg-orange-500' : 'bg-blue-500'
+                            }`}></div>
+                          <span className="text-xs text-gray-600">{skill.demandLevel}</span>
+                        </div>
+
+                        <span className="text-xs text-green-600 font-medium">
+                          +{skill.salaryImpact}% salary impact
+                        </span>
+                      </div>
+                      <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
+                        <div
+                          className="bg-green-500 h-2 rounded-full transition-all duration-300"
+                          style={{ width: `${(skill.marketShare / 30) * 100}%` }}
+                        ></div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-4">
+                      <div className="w-32">
+                        {/* <div className="w-full bg-gray-200 rounded-full h-2 mb-1">
+                          <div
+                            className="bg-green-500 h-2 rounded-full transition-all duration-300"
+                            style={{ width: `${(skill.marketShare / 30) * 100}%` }}
+                          ></div>
+                        </div> */}
+                        <div className="flex flex-col">
+                        <span className="text-sm text-green-600">
+                          {skill.marketShare}%
+                           </span>
+                           <span className="text-xs text-gray-600">
+                           Market Share</span>
+                          </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
-        </div>
-      )}
+        );
+      })()}
 
       {/* Annual Salary Information and Hourly Rate Information Cards */}
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
@@ -747,14 +1029,6 @@ export function ComprehensiveStats({ record, country }: ComprehensiveStatsProps)
           <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Average Hourly Rate Information</h3>
             <div className="space-y-4">
-              <div className="bg-green-50 p-4 rounded-lg border border-green-200">
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-green-900">
-                    ${record.avgHourlySalary ? Number(record.avgHourlySalary).toFixed(2) : 'N/A'}/hr
-                  </div>
-                  <div className="text-sm text-gray-600">Average Hourly Rate</div>
-                </div>
-              </div>
               <div className="flex justify-between items-center">
                 <span className="text-sm font-medium text-gray-600">Average Low Hourly</span>
                 <span className="text-lg font-semibold text-red-600">
@@ -767,6 +1041,14 @@ export function ComprehensiveStats({ record, country }: ComprehensiveStatsProps)
                   ${record.hourlyHighValue ? Number(record.hourlyHighValue).toFixed(2) : 'N/A'}/hr
                 </span>
               </div>
+              <div className="bg-green-50 p-4 rounded-lg border border-green-200">
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-green-900">
+                    ${record.avgHourlySalary ? Number(record.avgHourlySalary).toFixed(2) : 'N/A'}/hr
+                  </div>
+                  <div className="text-sm text-gray-600">Average Hourly Rate</div>
+                </div>
+              </div>
             </div>
           </div>
         )}
@@ -775,9 +1057,8 @@ export function ComprehensiveStats({ record, country }: ComprehensiveStatsProps)
       {/* Additional Compensation */}
       {(() => {
         // Check if there are any valid compensation types - modified to handle 0 values properly
-        const hasValidBonus = record.bonusRangeMin != null && record.bonusRangeMax != null &&
-          record.bonusRangeMin !== '#REF!' && record.bonusRangeMax !== '#REF!' &&
-          record.bonusRangeMin !== '' && record.bonusRangeMax !== '';
+        const hasValidBonus = (record.bonusRangeMin != null && record.bonusRangeMin !== '#REF!' && record.bonusRangeMin !== '') ||
+          (record.bonusRangeMax != null && record.bonusRangeMax !== '#REF!' && record.bonusRangeMax !== '');
         const hasValidProfitSharing = record.profitSharingMin != null && record.profitSharingMax != null &&
           record.profitSharingMin !== '#REF!' && record.profitSharingMax !== '#REF!' &&
           record.profitSharingMin !== '' && record.profitSharingMax !== '';
@@ -793,69 +1074,155 @@ export function ComprehensiveStats({ record, country }: ComprehensiveStatsProps)
         return (
           <div className="space-y-8">
 
-            {/* Bonus Compensation Chart */}
-            {hasValidBonus && (
-              <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200">
-                <div className="mb-6">
-                  <h4 className="text-xl font-bold text-gray-900 mb-2">Bonus Compensation</h4>
-                  <p className="text-sm text-gray-600">Performance-based bonus ranges and distribution</p>
-                </div>
-
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                  {/* Bonus Range Bar Chart */}
-                  <div className="lg:col-span-2">
-                    <div className="h-64">
-                      <ResponsiveContainer width="100%" height="100%">
-                        <BarChart data={[
-                          { name: 'Minimum', value: Number(record.bonusRangeMin) || 0, fill: '#F59E0B' },
-                          { name: 'Average', value: ((Number(record.bonusRangeMin) || 0) + (Number(record.bonusRangeMax) || 0)) / 2, fill: '#10B981' },
-                          { name: 'Maximum', value: Number(record.bonusRangeMax) || 0, fill: '#EF4444' }
-                        ]} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
-                          <CartesianGrid strokeDasharray="3 3" />
-                          <XAxis dataKey="name" />
-                          <YAxis tickFormatter={(value: number) => `$${value.toLocaleString()}`} />
-                          <RechartsTooltip
-                            formatter={(value: number) => [`$${value.toLocaleString()}`, 'Bonus Amount']}
-                            labelStyle={{ color: '#374151' }}
-                          />
-                          <Bar dataKey="value" radius={[4, 4, 0, 0]} />
-                        </BarChart>
-                      </ResponsiveContainer>
-                    </div>
-                  </div>
-
-                  {/* Bonus Statistics */}
-                  <div className="space-y-4">
-                    <div className="p-4 bg-yellow-50 rounded-lg border border-yellow-200">
-                      <div className="text-center">
-                        <div className="text-2xl font-bold text-yellow-900">
-                          ${(Number(record.bonusRangeMin) || 0).toLocaleString()}
-                        </div>
-                        <div className="text-sm text-yellow-600">Minimum Bonus</div>
-                      </div>
-                    </div>
-
-                    <div className="p-4 bg-green-50 rounded-lg border border-green-200">
-                      <div className="text-center">
-                        <div className="text-lg font-bold text-green-900">
-                          ${(((Number(record.bonusRangeMin) || 0) + (Number(record.bonusRangeMax) || 0)) / 2).toLocaleString()}
-                        </div>
-                        <div className="text-sm text-green-600">Average Bonus</div>
-                      </div>
-                    </div>
-
-                    <div className="p-4 bg-red-50 rounded-lg border border-red-200">
-                      <div className="text-center">
-                        <div className="text-lg font-bold text-red-900">
-                          ${(Number(record.bonusRangeMax) || 0).toLocaleString()}
-                        </div>
-                        <div className="text-sm text-red-600">Maximum Bonus</div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+            {/* Debug: Show bonus data */}
+            {/* {process.env.NODE_ENV === 'development' && (
+              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
+                <h4 className="font-bold text-yellow-800 mb-2">Debug: Bonus Data</h4>
+                <p className="text-sm text-yellow-700">bonusRangeMin: {String(record.bonusRangeMin)}</p>
+                <p className="text-sm text-yellow-700">bonusRangeMax: {String(record.bonusRangeMax)}</p>
+                <p className="text-sm text-yellow-700">hasValidBonus: {String(hasValidBonus)}</p>
               </div>
-            )}
+            )} */}
+
+            {/* Bonus Compensation - New Design */}
+            {hasValidBonus && (() => {
+              // Calculate bonus values
+              const minBonus = Number(record.bonusRangeMin) || 0;
+              const maxBonus = Number(record.bonusRangeMax) || 0;
+              const avgBonus = (minBonus + maxBonus) / 2;
+              const totalRange = maxBonus - minBonus;
+
+              // Calculate growth percentages
+              const minToAvgGrowth = minBonus > 0 ? ((avgBonus - minBonus) / minBonus * 100) : 0;
+              const avgToMaxGrowth = avgBonus > 0 ? ((maxBonus - avgBonus) / avgBonus * 100) : 0;
+
+              // Calculate median position and growth factor
+              const medianPosition = totalRange > 0 ? ((avgBonus - minBonus) / totalRange * 100) : 0;
+              const growthFactor = minBonus > 0 ? (maxBonus / minBonus) : 0;
+
+              return (
+                <div className="bg-green-50 rounded-2xl p-8 border border-green-200">
+                  <div className="mb-8">
+                    <h4 className="text-2xl font-bold text-green-800 mb-2">Bonus Compensation</h4>
+                    <p className="text-sm text-green-700 font-medium">Performance-based bonus ranges and distribution</p>
+                  </div>
+
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    {/* Left Side - Three Vertical Cards */}
+                    <div className="px-8">
+                      {/* Maximum Bonus Card */}
+                      <div className="bg-green-200/50 rounded-xl p-6 border border-green-300 shadow-lg">
+                        <div className="text-center">
+                          <p className="text-sm font-medium text-green-800 mb-2">Maximum Bonus</p>
+                          <p className="text-3xl font-bold text-green-900 mb-4">
+                            ${maxBonus.toLocaleString()}
+                          </p>
+                          <div className="w-full h-3 bg-green-200 rounded-full">
+                            <div className="w-full h-3 bg-green-600 rounded-full"></div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Connecting Line */}
+                      <div className="flex justify-center">
+                        <div className="w-0.5 h-6 bg-green-400"></div>
+                      </div>
+
+                      {/* Average Bonus Card */}
+                      <div className="bg-green-100/50 rounded-xl p-6 border border-green-300">
+                        <div className="text-center">
+                          <p className="text-sm font-medium text-green-800 mb-2">Average Bonus</p>
+                          <p className="text-3xl font-bold text-green-900 mb-4">
+                            ${avgBonus.toLocaleString()}
+                          </p>
+                          <div className="w-full h-3 bg-green-200 rounded-full">
+                            <div
+                              className="h-3 bg-green-600 rounded-full"
+                              style={{ width: '67%' }}
+                            ></div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Connecting Line */}
+                      <div className="flex justify-center">
+                        <div className="w-0.5 h-6 bg-green-400"></div>
+                      </div>
+
+                      {/* Minimum Bonus Card */}
+                      <div className="bg-green-100/50 rounded-xl p-6 border border-green-300">
+                        <div className="text-center">
+                          <p className="text-sm font-medium text-green-800 mb-2">Minimum Bonus</p>
+                          <p className="text-3xl font-bold text-green-900 mb-4">
+                            ${minBonus.toLocaleString()}
+                          </p>
+                          <div className="flex justify-center">
+                            <div className="w-3 h-3 bg-green-600 rounded-full"></div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Right Side - Growth Potential Analysis */}
+                    <div className="space-y-6">
+                      {/* Growth Potential Analysis Card */}
+                      <div className="bg-green-100 rounded-xl p-8 border border-green-300">
+                        <h5 className="text-xl font-bold text-green-800 mb-6">Growth Potential Analysis</h5>
+                        <div className="space-y-4">
+                          <div className="bg-green-50 rounded-lg p-4">
+                            <div className="flex justify-between items-center">
+                              <span className="text-sm font-medium text-green-700">From Minimum to Average:</span>
+                              <span className="text-xl font-bold text-green-900">
+                                +{minToAvgGrowth.toFixed(0)}%
+                              </span>
+                            </div>
+                          </div>
+                          <div className="bg-green-50 rounded-lg p-4">
+                            <div className="flex justify-between items-center">
+                              <span className="text-sm font-medium text-green-700">From Average to Maximum:</span>
+                              <span className="text-xl font-bold text-green-900">
+                                +{avgToMaxGrowth.toFixed(0)}%
+                              </span>
+                            </div>
+                          </div>
+                          <div className="bg-green-50 rounded-lg p-4">
+                            <div className="flex justify-between items-center">
+                              <span className="text-sm font-medium text-green-700">Total Range:</span>
+                              <span className="text-xl font-bold text-green-900">
+                                ${totalRange.toLocaleString()}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Two smaller cards below */}
+                      <div className="grid grid-cols-2 gap-4">
+                        {/* Median Position Card */}
+                        <div className="bg-green-100 rounded-xl p-6 border border-green-300">
+                          <div className="text-center">
+                            <p className="text-sm font-medium text-green-800 mb-3">Median Position</p>
+                            <p className="text-3xl font-bold text-green-900">
+                              {medianPosition.toFixed(0)}%
+                            </p>
+                          </div>
+                        </div>
+
+                        {/* Growth Factor Card */}
+                        <div className="bg-green-100 rounded-xl p-6 border border-green-300">
+                          <div className="text-center">
+                            <p className="text-sm font-medium text-green-800 mb-3">Growth Factor</p>
+                            <p className="text-3xl font-bold text-green-900">
+                              {growthFactor.toFixed(1)}x
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })()}
 
             {/* Commission Compensation Chart */}
             {hasValidCommission && (
