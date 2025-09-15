@@ -1,3 +1,6 @@
+import { Card, CardContent } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
+
 interface SalaryCardProps {
   title: string;
   amount: string;
@@ -8,13 +11,13 @@ export function SalaryCard({ title, amount, variant = 'average' }: SalaryCardPro
   const getVariantStyles = () => {
     switch (variant) {
       case 'low':
-        return 'bg-gray-50 text-red-600';
+        return 'bg-destructive/10 text-destructive border-destructive/20';
       case 'high':
-        return 'bg-gray-50 text-green-600';
+        return 'bg-green-50 text-green-600 border-green-200';
       case 'hourly':
-        return 'bg-green-50 text-green-600';
+        return 'bg-green-50 text-green-600 border-green-200';
       default:
-        return 'bg-blue-50 text-blue-600';
+        return 'bg-primary/10 text-primary border-primary/20';
     }
   };
 
@@ -23,13 +26,15 @@ export function SalaryCard({ title, amount, variant = 'average' }: SalaryCardPro
   };
 
   return (
-    <div className={`p-4 rounded-lg ${getVariantStyles()}`}>
-      <div className="text-center">
-        <div className={`font-bold ${getTextSize()}`}>
-          {amount}
+    <Card className={cn("p-4", getVariantStyles())}>
+      <CardContent className="p-0">
+        <div className="text-center">
+          <div className={cn("font-bold", getTextSize())}>
+            {amount}
+          </div>
+          <div className="text-sm text-muted-foreground">{title}</div>
         </div>
-        <div className="text-sm opacity-80">{title}</div>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 }

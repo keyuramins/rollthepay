@@ -78,12 +78,12 @@ export function AZFilter({ items, onFilteredItemsChange }: AZFilterProps) {
                 disabled={isDisabled}
                 className={`
                   px-1.5 sm:px-2 py-2.5 sm:py-3 text-xs sm:text-sm font-medium transition-all duration-200 
-                  rounded-lg border border-gray-300 text-center min-h-[40px] sm:min-h-[44px] flex items-center justify-center
+                  rounded-lg border border-input text-center min-h-[40px] sm:min-h-[44px] flex items-center justify-center
                   ${isActive && hasItems 
-                    ? 'bg-blue-600 text-white border-blue-600 shadow-sm' 
+                    ? 'bg-primary text-primary-foreground border-primary shadow-sm' 
                     : hasItems 
-                      ? 'bg-white text-gray-700 hover:bg-gray-50 hover:text-gray-900 cursor-pointer hover:shadow-sm active:bg-gray-100' 
-                      : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                      ? 'bg-card text-foreground hover:bg-muted hover:text-foreground cursor-pointer hover:shadow-sm active:bg-muted' 
+                      : 'bg-muted text-muted-foreground cursor-not-allowed'
                   }
                   ${isDisabled ? 'opacity-25' : ''}
                 `}
@@ -97,7 +97,7 @@ export function AZFilter({ items, onFilteredItemsChange }: AZFilterProps) {
 
       {/* Desktop: Horizontal connected layout - no wrapping */}
       <div className="hidden lg:flex justify-center">
-        <div className="inline-flex rounded-lg overflow-hidden border border-gray-300 shadow-sm flex-shrink-0">
+        <div className="inline-flex rounded-lg overflow-hidden border border-input shadow-sm flex-shrink-0">
           {filters.map((filter, index) => {
             const isFirst = index === 0;
             const isLast = index === filters.length - 1;
@@ -114,12 +114,12 @@ export function AZFilter({ items, onFilteredItemsChange }: AZFilterProps) {
                   px-2.5 py-2 text-sm font-medium transition-all duration-200 min-w-[36px] text-center
                   ${isFirst ? 'rounded-l-lg' : ''}
                   ${isLast ? 'rounded-r-lg' : ''}
-                  ${!isFirst ? 'border-l border-gray-300' : ''}
+                  ${!isFirst ? 'border-l border-input' : ''}
                   ${isActive && hasItems 
-                    ? 'bg-blue-600 text-white border-blue-600 shadow-sm' 
+                    ? 'bg-primary text-primary-foreground border-primary shadow-sm' 
                     : hasItems 
-                      ? 'bg-white text-gray-700 hover:bg-gray-50 hover:text-gray-900 cursor-pointer hover:shadow-sm' 
-                      : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                      ? 'bg-card text-foreground hover:bg-muted hover:text-foreground cursor-pointer hover:shadow-sm' 
+                      : 'bg-muted text-muted-foreground cursor-not-allowed'
                   }
                   ${isDisabled ? 'opacity-25' : ''}
                 `}

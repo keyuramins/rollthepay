@@ -297,17 +297,17 @@ function HeaderSearchableDropdown({ allOccupations = [] as Array<{ country: stri
     <div ref={dropdownRef} className="relative">
       <div className="relative">
         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-          <Search className="h-4 w-4 text-gray-400" />
+          <Search className="h-4 w-4 text-muted-foreground" />
         </div>
         {/* Inline tag area inside input */}
         {selectedCountry && (
           <div className="absolute inset-y-0 left-10 flex items-center">
-            <span ref={chipRef} className="inline-flex items-center px-2 py-1 rounded-full bg-blue-100 text-blue-700 text-xs">
+            <span ref={chipRef} className="inline-flex items-center px-2 py-1 rounded-full bg-primary/10 text-primary text-xs">
               {selectedCountry.name}
               {isHome && (
                 <button
                   aria-label="Remove selected country"
-                  className="ml-2 hover:text-blue-800"
+                  className="ml-2 hover:text-primary"
                   onClick={(e) => {
                     e.preventDefault();
                     setSelectedCountry(null);
@@ -349,7 +349,7 @@ function HeaderSearchableDropdown({ allOccupations = [] as Array<{ country: stri
               setIsOccupationDropdownOpen(true);
             }
           }}
-          className="block w-full pr-20 py-2 border border-gray-300 rounded-md text-sm text-gray-900 placeholder-gray-500 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          className="block w-full pr-20 py-2 border border-input rounded-md text-sm text-foreground placeholder-muted-foreground bg-background focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
           style={{ 
             paddingLeft: selectedCountry ? 48 + chipWidth + 12 : 48
           }}
@@ -369,7 +369,7 @@ function HeaderSearchableDropdown({ allOccupations = [] as Array<{ country: stri
                     ? `Go to first result: ${occupationSuggestions[0].display}` 
                     : `Go to ${selectedCountry.name}`
               }
-              className="mr-2 inline-flex h-6 w-6 items-center justify-center rounded-md border border-blue-600 text-blue-600 bg-white hover:bg-blue-50 cursor-pointer"
+              className="mr-2 inline-flex h-6 w-6 items-center justify-center rounded-md border border-primary text-primary bg-background hover:bg-primary/5 cursor-pointer"
             >
               <ArrowRight className="h-3 w-3" />
             </button>
@@ -385,7 +385,7 @@ function HeaderSearchableDropdown({ allOccupations = [] as Array<{ country: stri
             }}
           >
             <ChevronDown 
-              className={`h-4 w-4 text-gray-400 ${(selectedCountry ? isOccupationDropdownOpen : isDropdownOpen) ? 'transform rotate-180' : ''} transition-transform duration-200`}
+              className={`h-4 w-4 text-muted-foreground ${(selectedCountry ? isOccupationDropdownOpen : isDropdownOpen) ? 'transform rotate-180' : ''} transition-transform duration-200`}
             />
           </button>
         </div>
@@ -393,12 +393,12 @@ function HeaderSearchableDropdown({ allOccupations = [] as Array<{ country: stri
 
       {/* Country dropdown (home only) */}
       {isHome && isDropdownOpen && !selectedCountry && (
-        <div className="absolute top-full mt-1 left-0 right-0 bg-white rounded-lg shadow-xl ring-1 ring-black ring-opacity-5 z-50 border border-gray-200">
+        <div className="absolute top-full mt-1 left-0 right-0 bg-background rounded-lg shadow-xl ring-1 ring-black ring-opacity-5 z-50 border border">
           <div className="py-1 max-h-[300px] overflow-y-auto">
             {groupedCountries.length > 0 ? (
               groupedCountries.map((continent) => (
                 <div key={continent.code}>
-                  <div className="px-4 py-2 text-sm font-semibold text-gray-700 bg-gray-50 border-b">
+                  <div className="px-4 py-2 text-sm font-semibold text-foreground bg-muted border-b">
                     {continent.name}
                   </div>
                   {continent.countries.map((country) => (
@@ -416,18 +416,18 @@ function HeaderSearchableDropdown({ allOccupations = [] as Array<{ country: stri
                           }
                         }, 0);
                       }}
-                      className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-colors duration-150 flex items-center justify-between"
+                      className="w-full text-left px-4 py-2 text-sm text-foreground hover:bg-primary/5 hover:text-primary transition-colors duration-150 flex items-center justify-between"
                     >
                       <span>{country.name}</span>
                       {selectedCountry?.code === country.code && (
-                        <Check className="h-4 w-4 text-blue-600" />
+                        <Check className="h-4 w-4 text-primary" />
                       )}
                     </button>
                   ))}
                 </div>
               ))
             ) : (
-              <div className="px-4 py-6 text-center text-gray-500">
+              <div className="px-4 py-6 text-center text-muted-foreground">
                 No countries found matching "{searchQuery}"
               </div>
             )}
@@ -438,7 +438,7 @@ function HeaderSearchableDropdown({ allOccupations = [] as Array<{ country: stri
       {/* Occupation suggestions dropdown */}
       {selectedCountry && isOccupationDropdownOpen && (
         <div 
-          className="absolute top-full mt-1 left-0 right-0 bg-white rounded-lg shadow-xl ring-1 ring-black ring-opacity-5 z-50 border border-gray-200" 
+          className="absolute top-full mt-1 left-0 right-0 bg-background rounded-lg shadow-xl ring-1 ring-black ring-opacity-5 z-50 border border" 
           onMouseDown={(e) => e.preventDefault()}
         >
           <div className="py-1 max-h-[300px] overflow-y-auto">
@@ -466,7 +466,7 @@ function HeaderSearchableDropdown({ allOccupations = [] as Array<{ country: stri
                   url += `/${s.slug}`;
                   router.push(url);
                 }}
-                className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-colors duration-150"
+                className="w-full text-left px-4 py-2 text-sm text-foreground hover:bg-primary/5 hover:text-primary transition-colors duration-150"
               >
                 {s.display}
               </button>
@@ -498,7 +498,7 @@ export function NewHeader({ allOccupations = [] as Array<{ country: string; titl
   };
 
   return (
-    <header className="bg-white shadow-sm border-b sticky top-0 z-50">
+    <header className="bg-background shadow-sm border-b sticky top-0 z-50">
       <div className="max-w-7xl lg:max-w-full mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center h-16">
           {/* Logo - Left Side */}
@@ -525,7 +525,7 @@ export function NewHeader({ allOccupations = [] as Array<{ country: string; titl
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="flex items-center space-x-1 text-gray-600 hover:text-gray-900 text-sm px-3 py-2"
+                  className="flex items-center space-x-1 text-muted-foreground hover:text-foreground text-sm px-3 py-2"
                 >
                   <span>{continent.name}</span>
                   <ChevronDown className="h-3 w-3" />
@@ -534,12 +534,12 @@ export function NewHeader({ allOccupations = [] as Array<{ country: string; titl
                 {/* Dropdown Content */}
                 {hoveredContinent === continent.code && (
                   <div 
-                    className="absolute top-full right-0 mt-1 w-64 bg-white rounded-lg shadow-xl ring-1 ring-black ring-opacity-5 z-50 border border-gray-200"
+                    className="absolute top-full right-0 mt-1 w-64 bg-background rounded-lg shadow-xl ring-1 ring-black ring-opacity-5 z-50 border border"
                     onMouseEnter={() => handleMouseEnter(continent.code)}
                     onMouseLeave={handleMouseLeave}
                   >
                     <div className="py-2">
-                      <div className="px-4 py-2 text-sm font-semibold text-gray-700 bg-gray-50 border-b">
+                      <div className="px-4 py-2 text-sm font-semibold text-foreground bg-muted border-b">
                         {continent.name}
                       </div>
                       <div className="max-h-64 overflow-y-auto">
@@ -547,7 +547,7 @@ export function NewHeader({ allOccupations = [] as Array<{ country: string; titl
                           <a
                             key={country.slug}
                             href={`/${country.slug}`}
-                            className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-colors duration-150"
+                            className="block px-4 py-2 text-sm text-foreground hover:bg-primary/5 hover:text-primary transition-colors duration-150"
                           >
                             {country.name}
                           </a>
@@ -565,7 +565,7 @@ export function NewHeader({ allOccupations = [] as Array<{ country: string; titl
             <Button
               variant="ghost"
               size="sm"
-              className="text-gray-600 hover:text-gray-900"
+              className="text-muted-foreground hover:text-foreground"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             >
               <span className="sr-only">{mobileMenuOpen ? 'Close menu' : 'Open menu'}</span>
@@ -582,7 +582,7 @@ export function NewHeader({ allOccupations = [] as Array<{ country: string; titl
       {/* Mobile menu */}
       {mobileMenuOpen && (
         <div className="md:hidden">
-          <div className="px-2 pt-2 pb-3 space-y-1 bg-white border-t">
+          <div className="px-2 pt-2 pb-3 space-y-1 bg-background border-t">
             {/* Mobile search */}
             <div className="p-4">
               <HeaderSearchableDropdown allOccupations={allOccupations} />
@@ -592,14 +592,14 @@ export function NewHeader({ allOccupations = [] as Array<{ country: string; titl
             <div className="p-4 space-y-2">
               {continents.map((continent, idx) => (
                 <div key={continent.code} className="space-y-1">
-                  <div className="px-3 py-2 text-sm font-semibold text-gray-700 bg-gray-50 rounded-md">
+                  <div className="px-3 py-2 text-sm font-semibold text-foreground bg-muted rounded-md">
                     {continent.name}
                   </div>
                   {continent.countries.map((country) => (
                     <a
                       key={country.slug}
                       href={`/${country.slug}`}
-                      className="block px-6 py-2 text-sm text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-md"
+                      className="block px-6 py-2 text-sm text-foreground hover:text-foreground hover:bg-muted rounded-md"
                     >
                       {country.name}
                     </a>

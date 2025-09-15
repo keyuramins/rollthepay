@@ -3,20 +3,20 @@ export function WhyItMattersSection() {
     <section className="py-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold text-gray-900 mb-4">
+          <h2 className="text-3xl font-bold text-foreground mb-4">
             Why Salary Transparency Matters
           </h2>
-          <p className="text-lg text-gray-600 max-w-3xl mx-auto">
+          <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
             Access to accurate salary information benefits everyone in the workforce ecosystem.
           </p>
         </div>
         
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
           <div className="space-y-6">
-            <h3 className="text-2xl font-semibold text-gray-900">
+            <h3 className="text-2xl font-semibold text-foreground">
               For Job Seekers
             </h3>
-            <ul className="space-y-3 text-gray-600">
+            <ul className="space-y-3 text-muted-foreground">
               <li className="flex items-start">
                 <span className="text-green-500 mr-2">✓</span>
                 Negotiate better compensation packages
@@ -37,10 +37,10 @@ export function WhyItMattersSection() {
           </div>
           
           <div className="space-y-6">
-            <h3 className="text-2xl font-semibold text-gray-900">
+            <h3 className="text-2xl font-semibold text-foreground">
               For Employers
             </h3>
-            <ul className="space-y-3 text-gray-600">
+            <ul className="space-y-3 text-muted-foreground">
               <li className="flex items-start">
                 <span className="text-blue-500 mr-2">✓</span>
                 Set competitive compensation rates

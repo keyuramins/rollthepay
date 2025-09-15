@@ -88,7 +88,7 @@ export async function OccupationPage({ country, state, location, slug }: Occupat
   }));
   
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-muted">
       <NewHeader allOccupations={(await getDataset()).all.map(rec => ({
         country: rec.country.toLowerCase(),
         title: rec.title || rec.h1Title || "",
@@ -99,7 +99,7 @@ export async function OccupationPage({ country, state, location, slug }: Occupat
       
       <main>
         {/* Breadcrumbs */}
-        <div className="bg-white">
+        <div className="bg-background">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
             <Breadcrumbs breadcrumbs={breadcrumbs} />
           </div>
@@ -113,7 +113,7 @@ export async function OccupationPage({ country, state, location, slug }: Occupat
         />
 
         {/* Comprehensive Statistics */}
-        <section className="py-16 pt-4 bg-white">
+        <section className="py-16 pt-4 bg-background">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <ComprehensiveStats record={record} country={country} />
           </div>

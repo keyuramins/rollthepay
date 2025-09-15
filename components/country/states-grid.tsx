@@ -13,8 +13,8 @@ export function StatesGrid({ states, countrySlug, title, description, className 
     <section className={`py-16 ${className}`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-12">
-          <h2 className="text-3xl font-bold text-gray-900 mb-4">{title}</h2>
-          <p className="text-lg text-gray-600">{description}</p>
+          <h2 className="text-3xl font-bold text-foreground mb-4">{title}</h2>
+          <p className="text-lg text-muted-foreground">{description}</p>
         </div>
 
         {/* States Grid */}
@@ -23,9 +23,9 @@ export function StatesGrid({ states, countrySlug, title, description, className 
             <InstantLink
               key={state}
               href={`/${countrySlug}/${state.toLowerCase().replace(/\s+/g, "-")}`}
-              className="block bg-white rounded-lg border border-gray-300 p-6 hover:shadow-md transition-all hover:border-blue-300 hover:scale-105 text-center shadow-sm"
+              className="block bg-card rounded-lg border p-6 hover:shadow-md transition-all hover:border-primary/50 hover:scale-105 text-center shadow-sm"
             >
-              <h3 className="text-lg font-semibold text-gray-900">{state}</h3>
+              <h3 className="text-lg font-semibold text-foreground">{state}</h3>
             </InstantLink>
           ))}
         </div>

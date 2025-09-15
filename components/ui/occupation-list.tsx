@@ -94,17 +94,17 @@ export function OccupationList({ items, title, description, className = "", curr
             <section className={`py-16 ${className}`}>
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="mb-12">
-                        <h2 className="text-3xl font-bold text-gray-900 mb-4">{title}</h2>
-                        <p className="text-lg text-gray-600">{description}</p>
+                        <h2 className="text-3xl font-bold text-foreground mb-4">{title}</h2>
+                        <p className="text-lg text-muted-foreground">{description}</p>
                     </div>
                     <div className="grid grid-cols-1 gap-4">
                         {sortedItems.slice(0, PAGE_SIZE).map((item) => (
-                            <div key={item.id} className="bg-white rounded-lg border border-blue-200 py-2 px-6">
+                            <div key={item.id} className="bg-card rounded-lg border py-2 px-6">
                                 <div className="flex items-center justify-between">
                                     <div className="flex-1">
-                                        <h3 className="text-lg font-semibold text-gray-900 mb-2">{item.displayName}</h3>
+                                        <h3 className="text-lg font-semibold text-foreground mb-2">{item.displayName}</h3>
                                         {item.location && (
-                                            <div className="flex items-center text-gray-600">
+                                            <div className="flex items-center text-muted-foreground">
                                                 <MapPin className="w-4 h-4 text-pink-500 mr-2" />
                                                 <span>
                                                     {item.location}
@@ -115,7 +115,7 @@ export function OccupationList({ items, title, description, className = "", curr
                                     </div>
                                     <div className="text-right">
                                         {item.avgAnnualSalary && (
-                                            <div className="text-lg font-semibold text-gray-900">
+                                            <div className="text-lg font-semibold text-foreground">
                                                 ${item.avgAnnualSalary.toLocaleString()}
                                             </div>
                                         )}
@@ -135,8 +135,8 @@ export function OccupationList({ items, title, description, className = "", curr
                 <div className="mb-12">
                     <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6">
                         <div className="flex-1">
-                            <h2 className="text-3xl font-bold text-gray-900 mb-4">{title}</h2>
-                            <p className="text-lg text-gray-600">{description}</p>
+                            <h2 className="text-3xl font-bold text-foreground mb-4">{title}</h2>
+                            <p className="text-lg text-muted-foreground">{description}</p>
                         </div>
                         
                         {/* Search bar - positioned beside title on larger screens */}
@@ -202,9 +202,9 @@ export function OccupationList({ items, title, description, className = "", curr
                             key={item.id} href={href} className="block bg-white rounded-lg border border-blue-200 py-2 px-6 hover:shadow-md transition-shadow hover:border-blue-300">
                                 <div className="flex items-center justify-between">
                                     <div className="flex-1">
-                                        <h3 className="text-lg font-semibold text-gray-900 mb-2">{item.displayName}</h3>
+                                        <h3 className="text-lg font-semibold text-foreground mb-2">{item.displayName}</h3>
                                         {item.location && (
-                                            <div className="flex items-center text-gray-600">
+                                            <div className="flex items-center text-muted-foreground">
                                                 <MapPin className="w-4 h-4 text-pink-500 mr-2" />
                                                 <span>
                                                     {item.location}
@@ -215,7 +215,7 @@ export function OccupationList({ items, title, description, className = "", curr
                                     </div>
                                     <div className="text-right">
                                         {item.avgAnnualSalary && (
-                                            <div className="text-lg font-semibold text-gray-900">
+                                            <div className="text-lg font-semibold text-foreground">
                                                 ${item.avgAnnualSalary.toLocaleString()}
                                             </div>
                                         )}
@@ -228,7 +228,7 @@ export function OccupationList({ items, title, description, className = "", curr
 
                 {/* Footer: pagination only */}
                 <div className="mt-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-end">
-                    <div className="text-sm text-gray-600">
+                    <div className="text-sm text-muted-foreground">
                         {totalItems === 0 && (
                             <span>No results found.</span>
                         )}
@@ -236,7 +236,7 @@ export function OccupationList({ items, title, description, className = "", curr
                     {totalItems > PAGE_SIZE && (
                         <nav className="flex items-center gap-2" aria-label="Pagination">
                             <button
-                                className="inline-flex items-center rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+                                className="inline-flex items-center rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-foreground hover:bg-gray-50 disabled:opacity-50"
                                 onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                                 disabled={currentPageSafe === 1}
                             >
@@ -258,7 +258,7 @@ export function OccupationList({ items, title, description, className = "", curr
                                         <button
                                             key={page}
                                             onClick={() => setCurrentPage(page)}
-                                            className={`${page === currentPageSafe ? "bg-blue-600 text-white" : "bg-white text-gray-700 hover:bg-gray-50"} inline-flex items-center rounded-md border border-gray-300 px-3 py-2 text-sm`}
+                                            className={`${page === currentPageSafe ? "bg-blue-600 text-white" : "bg-white text-foreground hover:bg-gray-50"} inline-flex items-center rounded-md border border-gray-300 px-3 py-2 text-sm`}
                                         >
                                             {page}
                                         </button>
@@ -266,7 +266,7 @@ export function OccupationList({ items, title, description, className = "", curr
                                 })}
                             </div>
                             <button
-                                className="inline-flex items-center rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+                                className="inline-flex items-center rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-foreground hover:bg-gray-50 disabled:opacity-50"
                                 onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
                                 disabled={currentPageSafe === totalPages}
                             >

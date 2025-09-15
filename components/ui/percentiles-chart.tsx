@@ -17,10 +17,10 @@ export function PercentilesChart({ data, title, subtitle }: PercentilesChartProp
   const gradientId = "percentilesGradient";
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200 ">
+    <div className="bg-card rounded-lg shadow-md p-6 border">
       <div className="mb-6">
-        <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
-        {subtitle && <p className="text-sm text-gray-600 mt-1">{subtitle}</p>}
+        <h3 className="text-lg font-semibold text-foreground">{title}</h3>
+        {subtitle && <p className="text-sm text-muted-foreground mt-1">{subtitle}</p>}
       </div>
 
       <div className="h-72">
@@ -28,8 +28,8 @@ export function PercentilesChart({ data, title, subtitle }: PercentilesChartProp
           <AreaChart data={data} margin={{ top: 20, right: 24, left: 8, bottom: 8 }}>
             <defs>
               <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#0EA5E9" stopOpacity={0.35} />
-                <stop offset="95%" stopColor="#0EA5E9" stopOpacity={0.05} />
+                <stop offset="5%" stopColor="var(--primary)" stopOpacity={0.35} />
+                <stop offset="95%" stopColor="var(--primary)" stopOpacity={0.05} />
               </linearGradient>
             </defs>
             <CartesianGrid strokeDasharray="3 3" />
@@ -37,12 +37,12 @@ export function PercentilesChart({ data, title, subtitle }: PercentilesChartProp
             <YAxis />
             <Tooltip
               formatter={(value: number) => [`$${value.toLocaleString()}`, "Salary"]}
-              labelStyle={{ color: "#374151" }}
+              labelStyle={{ color: "var(--primary)" }}
             />
             <Area
               type="monotone"
               dataKey="value"
-              stroke="#0EA5E9"
+              stroke="var(--primary)"
               strokeWidth={3}
               fill={`url(#${gradientId})`}
               activeDot={{ r: 6 }}
@@ -60,8 +60,8 @@ export function PercentilesChart({ data, title, subtitle }: PercentilesChartProp
       {/* Legend at center bottom */}
       <div className="flex justify-center mt-4">
         <div className="flex items-center space-x-2">
-          <div className="w-4 h-0.5 bg-blue-500"></div>
-          <span className="text-sm text-gray-600">Salary Percentiles</span>
+          <div className="w-4 h-0.5 bg-primary"></div>
+          <span className="text-sm text-muted-foreground">Salary Percentiles</span>
         </div>
       </div>
     </div>

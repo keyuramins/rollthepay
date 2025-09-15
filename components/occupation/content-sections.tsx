@@ -11,8 +11,8 @@ function ContentSection({ title, content, type }: ContentSectionProps) {
     switch (type) {
       case 'overview':
         return (
-          <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
-            <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center">
+            <svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
           </div>
@@ -43,8 +43,8 @@ function ContentSection({ title, content, type }: ContentSectionProps) {
         );
       default:
         return (
-          <div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center">
-            <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="w-8 h-8 bg-muted rounded-lg flex items-center justify-center">
+            <svg className="w-5 h-5 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
           </div>
@@ -57,8 +57,8 @@ function ContentSection({ title, content, type }: ContentSectionProps) {
       <div className="flex items-start space-x-4">
         {getIcon(type)}
         <div className="flex-1">
-          <h3 className="text-lg font-semibold text-gray-900 mb-3">{title}</h3>
-          <p className="text-gray-700 leading-relaxed">{content}</p>
+          <h3 className="text-lg font-semibold text-foreground mb-3">{title}</h3>
+          <p className="text-foreground leading-relaxed">{content}</p>
         </div>
       </div>
     </div>
@@ -117,10 +117,10 @@ export function ContentSections({ content }: ContentSectionsProps) {
     <section className="py-16 bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold text-gray-900 mb-4">
+          <h2 className="text-3xl font-bold text-foreground mb-4">
             Comprehensive Analysis
           </h2>
-          <p className="text-lg text-gray-600 max-w-3xl mx-auto">
+          <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
             AI-powered insights and analysis to help you understand this role, its requirements, and career opportunities.
           </p>
         </div>

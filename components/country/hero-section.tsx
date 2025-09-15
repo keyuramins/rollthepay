@@ -17,22 +17,22 @@ export function CountryHeroSection({
   countrySlug 
 }: CountryHeroSectionProps) {
   return (
-    <section className="bg-white">
+    <section className="bg-background">
       <div className="max-w-7xl mx-auto px-4 py-16 sm:px-6 lg:px-8">
         <div className="text-center">
           {/* <div className="mb-4">
             <Link 
               href="/countries" 
-              className="inline-flex items-center text-blue-600 hover:text-blue-700 text-sm font-medium"
+              className="inline-flex items-center text-primary hover:text-primary/80 text-sm font-medium"
             >
               ← Back to Countries
             </Link>
           </div> */}
           
-          <h1 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl">
+          <h1 className="text-4xl font-bold tracking-tight text-foreground sm:text-5xl">
             Salary Information in {countryName}
           </h1>
-          <p className="mt-6 text-xl leading-8 text-gray-600 max-w-3xl mx-auto">
+          <p className="mt-6 text-xl leading-8 text-muted-foreground max-w-3xl mx-auto">
             Discover accurate salary data for {totalJobs}+ jobs across {countryName}. 
             Get the compensation insights you need to advance your career.
           </p>

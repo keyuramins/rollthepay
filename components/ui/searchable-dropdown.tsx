@@ -244,11 +244,11 @@ export function SearchableDropdown({
   // Always use light styling for better visibility
   const isLight = true;
   
-  const inputBgClass = "bg-white";
-  const inputTextClass = "text-gray-900 placeholder-gray-500";
-  const inputBorderClass = "border-gray-300 focus:border-blue-500";
-  const iconColor = "text-blue-600";
-  const dropdownBgClass = "bg-white";
+  const inputBgClass = "bg-background";
+  const inputTextClass = "text-foreground placeholder-muted-foreground";
+  const inputBorderClass = "border-input focus:border-primary focus:ring-2 focus:ring-primary/20";
+  const iconColor = "text-primary";
+  const dropdownBgClass = "bg-background";
 
   const containerClasses = [
     'relative',
@@ -415,11 +415,11 @@ export function SearchableDropdown({
         {/* Inline tag area inside input */}
         {isHome && selectedCountry && (
           <div className="absolute inset-y-0 left-10 flex items-center">
-            <span ref={chipRef} className="inline-flex items-center px-2 py-1 rounded-full bg-blue-100 text-blue-700 text-xs">
+            <span ref={chipRef} className="inline-flex items-center px-2 py-1 rounded-full bg-primary/10 text-primary text-xs">
               {selectedCountry.name}
               <button
                 aria-label="Remove selected country"
-                className="ml-2 hover:text-blue-800"
+                className="ml-2 hover:text-primary"
                 onClick={(e) => {
                   e.preventDefault();
                   setSelectedCountry(null);
@@ -471,11 +471,8 @@ export function SearchableDropdown({
               setIsOccupationDropdownOpen(true);
             }
           }}
-          className={`block ${fullWidth ? 'w-full' : 'w-full sm:w-80 lg:w-96'} pr-10 py-3 border rounded-lg text-base leading-5 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-md transition-all duration-200 ${
-            isLoading || isOccupationLoading 
-              ? 'border-blue-400 bg-blue-50 text-blue-900 placeholder-blue-700' 
-              : `${inputBorderClass} ${inputBgClass} ${inputTextClass}`
-          }`}
+          disabled={isLoading || isOccupationLoading}
+          className={`block ${fullWidth ? 'w-full' : 'w-full sm:w-80 lg:w-96'} pr-10 py-3 border rounded-lg text-base leading-5 focus:outline-none shadow-md transition-all duration-200 ${inputBorderClass} ${inputBgClass} ${inputTextClass} disabled:cursor-not-allowed`}
           style={{ 
             paddingLeft: (isHome && selectedCountry) ? 48 + chipWidth + 12 : 48,
             paddingRight: (isHome && selectedCountry) ? 80 : undefined
@@ -487,7 +484,7 @@ export function SearchableDropdown({
               onClick={() => setSearchQuery("")}
               className="mr-2"
             >
-              <X className={`h-4 w-4 ${iconColor} hover:text-blue-700`} />
+              <X className={`h-4 w-4 ${iconColor} hover:text-primary`} />
             </button>
           )}
           {isHome && selectedCountry && (
@@ -506,14 +503,12 @@ export function SearchableDropdown({
                     ? `Go to first result: ${occupationSuggestions[0].display}` 
                     : `Go to ${selectedCountry.name}`
               }
-              className={`mr-2 inline-flex h-8 w-8 items-center justify-center rounded-md border transition-all duration-200 ${
-                isLoading || isOccupationLoading 
-                  ? 'border-blue-400 text-blue-400 bg-blue-50 cursor-not-allowed' 
-                  : 'border-blue-600 text-blue-600 bg-white hover:bg-blue-50 cursor-pointer'
-              }`}
+              className={
+                `mr-2 inline-flex h-8 w-8 items-center justify-center rounded-md border transition-all duration-200 border-primary text-primary bg-background hover:bg-primary/5 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed`
+              }
             >
               {isLoading || isOccupationLoading ? (
-                <Loader2 className="h-4 w-4 animate-spin text-blue-600" />
+                <Loader2 className="h-4 w-4 animate-spin text-primary" />
               ) : (
                 <ArrowRight className="h-4 w-4" />
               )}
@@ -540,13 +535,13 @@ export function SearchableDropdown({
 
       {isDropdownOpen && (!isHome || !selectedCountry) && (
         <div 
-          className={`absolute ${dropdownPosition === 'top' ? 'bottom-full mb-2' : 'top-full mt-2'} left-0 ${fullWidth ? 'w-full' : 'w-full sm:w-80 lg:w-96'} ${dropdownBgClass} rounded-lg shadow-xl ring-1 ring-black ring-opacity-5 z-50 border border-gray-200`}
+          className={`absolute ${dropdownPosition === 'top' ? 'bottom-full mb-2' : 'top-full mt-2'} left-0 ${fullWidth ? 'w-full' : 'w-full sm:w-80 lg:w-96'} ${dropdownBgClass} rounded-lg shadow-xl ring-1 ring-black ring-opacity-5 z-50 border`}
         >
           <div className="py-1 max-h-[300px] overflow-y-auto">
             {groupedCountries.length > 0 ? (
               groupedCountries.map((continent) => (
                 <div key={continent.code}>
-                  <div className="px-4 py-2 text-sm font-semibold text-gray-700 bg-gray-50 border-b">
+                  <div className="px-4 py-2 text-sm font-semibold text-foreground bg-muted border-b">
                     {continent.name}
                   </div>
                   {continent.countries.map((country) => (
@@ -554,20 +549,20 @@ export function SearchableDropdown({
                       key={country.code}
                       onClick={() => handleCountrySelect(country)}
                       disabled={isCountryLoading}
-                      className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-colors duration-150 flex items-center justify-between disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="w-full text-left px-4 py-2 text-sm text-foreground hover:bg-primary/5 hover:text-primary transition-colors duration-150 flex items-center justify-between disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       <span>{country.name}</span>
                       {isCountryLoading && selectedCountry?.code === country.code ? (
-                        <Loader2 className="h-4 w-4 animate-spin text-blue-600" />
+                        <Loader2 className="h-4 w-4 animate-spin text-primary" />
                       ) : selectedCountry?.code === country.code ? (
-                        <Check className="h-4 w-4 text-blue-600" />
+                        <Check className="h-4 w-4 text-primary" />
                       ) : null}
                     </button>
                   ))}
                 </div>
               ))
             ) : (
-              <div className="px-4 py-6 text-center text-gray-500">
+              <div className="px-4 py-6 text-center text-muted-foreground">
                 No countries found matching "{searchQuery}"
               </div>
             )}
@@ -578,7 +573,7 @@ export function SearchableDropdown({
       {/* Occupation suggestions dropdown (home after country selection) */}
       {isHome && selectedCountry && isOccupationDropdownOpen && (
         <div 
-          className={`absolute ${dropdownPosition === 'top' ? 'bottom-full mb-2' : 'top-full mt-2'} left-0 ${fullWidth ? 'w-full' : 'w-full sm:w-80 lg:w-96'} ${dropdownBgClass} rounded-lg shadow-xl ring-1 ring-black ring-opacity-5 z-50 border border-gray-200`} 
+          className={`absolute ${dropdownPosition === 'top' ? 'bottom-full mb-2' : 'top-full mt-2'} left-0 ${fullWidth ? 'w-full' : 'w-full sm:w-80 lg:w-96'} ${dropdownBgClass} rounded-lg shadow-xl ring-1 ring-black ring-opacity-5 z-50 border`} 
           onMouseDown={(e) => e.preventDefault()}
         >
           <div className="py-1 max-h-[300px] overflow-y-auto">
@@ -587,11 +582,11 @@ export function SearchableDropdown({
                 key={`${s.slug}-${s.state ?? 'na'}`}
                 onClick={() => handleOccupationSelect(s)}
                 disabled={isLoading || isOccupationLoading}
-                className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-colors duration-150 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-between"
+                className="w-full text-left px-4 py-2 text-sm text-foreground hover:bg-primary/5 hover:text-primary transition-colors duration-150 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-between"
               >
                 <span>{s.display}</span>
                 {(isLoading || isOccupationLoading) && (
-                  <Loader2 className="h-4 w-4 animate-spin text-blue-600" />
+                  <Loader2 className="h-4 w-4 animate-spin text-primary" />
                 )}
               </button>
             ))}

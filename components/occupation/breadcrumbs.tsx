@@ -17,18 +17,18 @@ export function Breadcrumbs({ breadcrumbs }: BreadcrumbsProps) {
         {breadcrumbs.map((breadcrumb, index) => (
           <li key={breadcrumb.name}>
             {index === breadcrumbs.length - 1 ? (
-              <span className="text-gray-500">{breadcrumb.name}</span>
+              <span className="text-muted-foreground">{breadcrumb.name}</span>
             ) : (
               <Link
                 prefetch={true}
                 href={breadcrumb.href}
-                className="text-blue-600 hover:text-blue-700 font-medium"
+                className="text-chart-2 hover:text-prrimary hover:underline font-medium"
               >
                 {breadcrumb.name}
               </Link>
             )}
             {index < breadcrumbs.length - 1 && (
-              <span className="ml-4 text-gray-400">→</span>
+              <span className="ml-4 text-muted-foreground/80">→</span>
             )}
           </li>
         ))}

@@ -14,21 +14,20 @@ export async function HeroSection() {
     location: rec.location ? rec.location : null,
   }));
   return (
-    <section className="relative bg-gradient-to-br from-blue-600 via-indigo-600 to-blue-800 min-h-[50vh] sm:h-[65vh] flex items-center py-12 sm:py-0">
- 
-
+    <section className="relative bg-primary min-h-[50vh] sm:h-[65vh] flex items-center py-12 sm:py-0">
+      <div className="absolute inset-0 bg-gradient-to-br from-chart-4 via-chart-1 to-chart-4 z-1 backdrop-blur-xl opacity-95 brightness-70"></div>
       <div className="relative z-10 w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center">
           {/* Logo and Brand */}
-          <div className="inline-flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 bg-white/20 backdrop-blur-sm rounded-xl border border-white/30 mb-4 sm:mb-5 shadow-lg">
-            <TrendingUp className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
+          <div className="inline-flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 bg-background/20 backdrop-blur-sm rounded-xl border border-background/30 mb-4 sm:mb-5 shadow-lg">
+            <TrendingUp className="w-6 h-6 sm:w-7 sm:h-7 text-background" />
           </div>
           
-          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-3 sm:mb-4 tracking-tight leading-tight">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-background mb-3 sm:mb-4 tracking-tight leading-tight">
             RollThePay
           </h1>
           
-          <p className="text-base sm:text-lg text-blue-100 mb-6 sm:mb-8 max-w-2xl mx-auto px-2">
+          <p className="text-base sm:text-lg text-background/80 mb-6 sm:mb-8 max-w-2xl mx-auto px-2">
             Get accurate salary insights from thousands of employers worldwide 
           </p>
         
@@ -45,8 +44,6 @@ export async function HeroSection() {
               />
             </div>
           </div>
-
-
         </div>
       </div>
     </section>

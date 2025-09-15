@@ -8,7 +8,7 @@ import { WhyItMattersSection } from "@/components/about/why-it-matters-section";
 import { DataQualitySection } from "@/components/about/data-quality-section";
 import { AboutCTASection } from "@/components/about/cta-section";
 
-export const revalidate = 31536000;
+export const revalidate = 31536000; // 1 minute for testing
 export const dynamicParams = false;
 
 export const metadata: Metadata = {
@@ -32,12 +32,12 @@ export const metadata: Metadata = {
 
 export default function AboutPage() {
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-muted">
       <NewHeader />
       
       <main>
         {/* Breadcrumbs */}
-        <div className="bg-white">
+        <div className="bg-background">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
             <Breadcrumbs
               breadcrumbs={[

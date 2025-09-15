@@ -39,44 +39,44 @@ export function DataOverviewSection({ record, country }: DataOverviewSectionProp
     'Skills data not available';
 
   return (
-    <section className="py-16 bg-white">
+    <section className="py-16 bg-background">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold text-gray-900 mb-4">
+          <h2 className="text-3xl font-bold text-foreground mb-4">
             Data Overview
           </h2>
-          <p className="text-lg text-gray-600 max-w-3xl mx-auto">
+          <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
             A comprehensive summary of salary data, experience requirements, and market insights for {record.title || record.occupation} in {locationText}.
           </p>
         </div>
 
-        <div className="bg-gray-50 rounded-xl p-8">
+        <div className="bg-muted rounded-xl p-8">
           <div className="grid grid-cols-1 gap-8">
             {/* Right Column - Market Insights */}
             <div className="space-y-6">
               <div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-4">Market Insights</h3>
+                <h3 className="text-xl font-semibold text-foreground mb-4">Market Insights</h3>
                 <div className="space-y-4">
-                  <div className="bg-white p-4 rounded-lg border border-gray-200">
-                    <h4 className="font-medium text-gray-900 mb-2">Location Analysis</h4>
-                    <p className="text-sm text-gray-700">
+                  <div className="bg-card p-4 rounded-lg border">
+                    <h4 className="font-medium text-foreground mb-2">Location Analysis</h4>
+                    <p className="text-sm text-foreground">
                       {locationText} offers competitive compensation for {record.title || record.occupation} professionals. 
                       {record.state && ` Regional variations within ${record.state} may affect salary expectations.`}
                     </p>
                   </div>
 
                   {hasSkillsData && (
-                    <div className="bg-white p-4 rounded-lg border border-gray-200">
-                      <h4 className="font-medium text-gray-900 mb-2">Skills Demand</h4>
-                      <p className="text-sm text-gray-700">
+                    <div className="bg-card p-4 rounded-lg border">
+                      <h4 className="font-medium text-foreground mb-2">Skills Demand</h4>
+                      <p className="text-sm text-foreground">
                         {skillsSummary}
                       </p>
                     </div>
                   )}
 
-                  <div className="bg-white p-4 rounded-lg border border-gray-200">
-                    <h4 className="font-medium text-gray-900 mb-2">Career Outlook</h4>
-                    <p className="text-sm text-gray-700">
+                  <div className="bg-card p-4 rounded-lg border">
+                    <h4 className="font-medium text-foreground mb-2">Career Outlook</h4>
+                    <p className="text-sm text-foreground">
                       The demand for {record.title || record.occupation} professionals remains strong, with opportunities for advancement 
                       based on experience and skill development. Market conditions support competitive compensation packages.
                     </p>
@@ -87,10 +87,10 @@ export function DataOverviewSection({ record, country }: DataOverviewSectionProp
           </div>
 
           {/* Bottom Section - Summary */}
-          <div className="mt-8 pt-8 border-t border-gray-200">
+          <div className="mt-8 pt-8 border-t">
             <div className="text-center">
-              <h3 className="text-xl font-semibold text-gray-900 mb-4">Summary</h3>
-              <p className="text-gray-700 leading-relaxed max-w-4xl mx-auto">
+              <h3 className="text-xl font-semibold text-foreground mb-4">Summary</h3>
+              <p className="text-foreground leading-relaxed max-w-4xl mx-auto">
                 {record.title || record.occupation} represents a {hasSalaryData ? 'well-compensated' : 'competitive'} role in {locationText}. 
                 {hasExperienceData ? ' Experience significantly impacts earning potential, with clear progression paths available.' : ' The role offers growth opportunities for professionals at various career stages.'} 
                 {hasSkillsData ? ' Key skills are in high demand and directly correlate with compensation.' : ' Continuous skill development is essential for career advancement.'} 

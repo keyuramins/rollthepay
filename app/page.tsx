@@ -15,6 +15,12 @@ export const dynamic = 'force-dynamic';
 export const revalidate = 31536000; // 1 minute for testing
 export const dynamicParams = false;
 
+// const isRevalidate = process.env.NODE_ENV === 'development' && 0 || 31536000; // 1 minute for testing
+// const isDynamicParams = process.env.NODE_ENV === 'development' && true || false;
+// export const revalidate = isRevalidate; // 1 minute for testing
+// export const dynamicParams = isDynamicParams;
+
+
 export async function generateMetadata(): Promise<Metadata> {
   const { all } = await getDataset();
   const totalSalaries = all.length;
@@ -91,7 +97,7 @@ export default async function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 overflow-x-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-primary/5 to-primary/10 overflow-x-hidden">
       {/* <NewHeader /> */}
       <HeroSection />
       <StatsSection totalSalaries={totalSalaries} countries={countries} />
@@ -102,7 +108,7 @@ export default async function Home() {
       
       {/* Show error message if dataset loading failed */}
       {error && (
-        <div className="fixed bottom-4 right-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded shadow-lg max-w-md">
+        <div className="fixed bottom-4 right-4 bg-destructive/10 border border-destructive/20 text-destructive px-4 py-3 rounded shadow-lg max-w-md">
           <strong className="font-bold">Data Loading Error:</strong>
           <br />
           <span className="text-sm">

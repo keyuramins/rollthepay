@@ -11,11 +11,11 @@ export function Badge({ children, variant = 'default', size = 'md', className = 
   const baseClasses = "inline-flex items-center font-medium rounded-full";
   
   const variantClasses = {
-    default: "bg-gray-100 text-gray-800",
-    blue: "bg-blue-100 text-blue-800",
-    green: "bg-green-100 text-green-800",
-    purple: "bg-purple-100 text-purple-800",
-    red: "bg-red-100 text-red-800",
+    default: "bg-muted text-foreground",
+    blue: "bg-primary/10 text-primary",
+    green: "bg-green-100 text-green-600",
+    purple: "bg-purple-100 text-purple-600",
+    red: "bg-destructive/10 text-destructive",
   };
   
   const sizeClasses = {

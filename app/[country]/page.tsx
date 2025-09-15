@@ -8,9 +8,8 @@ import { OccupationList } from "@/components/ui/occupation-list";
 import { StatesGrid } from "@/components/country/states-grid";
 import { CountryCTASection } from "@/components/country/cta-section";
 
-export const revalidate = 31536000;
-export const dynamicParams = false; // Ensure static generation only
-
+export const revalidate = 31536000; // 1 minute for testing
+export const dynamicParams = false;
 interface CountryPageProps {
   params: Promise<{ country: string }>;
 }
@@ -59,12 +58,12 @@ export default async function CountryPage({ params }: CountryPageProps) {
   const { countryName, totalJobs, avgSalary, states, occupationItems, headerOccupations } = countryData;
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-muted">
       <NewHeader allOccupations={headerOccupations} />
       
       <main>
         {/* Breadcrumbs */}
-        <div className="bg-white">
+        <div className="bg-background">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
             <Breadcrumbs
               breadcrumbs={[
@@ -96,7 +95,7 @@ export default async function CountryPage({ params }: CountryPageProps) {
             countrySlug={country}
             title="Explore by State/Region"
             description={`Find salary data specific to different regions within ${countryName}.`}
-            className="bg-white"
+            className="bg-background"
           />
         )}
 

@@ -2,10 +2,12 @@
 
 import { useState, useMemo } from "react";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { PercentilesChart } from "@/components/ui/percentiles-chart";
 import { SalaryBreakdownTable } from "@/components/ui/salary-breakdown-table";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, BarChart, Bar, AreaChart, Area, PieChart, Pie } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, BarChart, Bar, AreaChart, Area, PieChart, Pie, Cell } from 'recharts';
 import {
   DollarSign,
   Clock,
@@ -21,6 +23,8 @@ import {
   MessageCircleIcon,
   CodeIcon,
   UserIcon,
+  Venus,
+  Mars,
   CalculatorIcon,
   ChartAreaIcon,
   FlowerIcon
@@ -84,55 +88,50 @@ function SkillsFilter({ skills, onFilterChange, onSortChange, activeFilter, acti
 
   return (
     <div className="mb-8">
-      <h3 className="text-2xl text-center font-bold text-gray-900 mb-2">Top Skills & Market Demand</h3>
-      <p className="text-sm text-gray-600 mb-6 text-center">Most in-demand skills with proficiency levels and salary impact analysis</p>
+      <h3 className="text-2xl text-center font-bold text-foreground mb-2">Top Skills & Market Demand</h3>
+      <p className="text-sm text-muted-foreground mb-6 text-center">Most in-demand skills with proficiency levels and salary impact analysis</p>
 
       {/* Skill Category Filters */}
       <div className="flex flex-wrap gap-2 mb-4 justify-center items-center">
-        <button
+        <Button
           onClick={() => onFilterChange('All')}
-          className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${activeFilter === 'All'
-            ? 'bg-green-600 text-white'
-            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-            }`}
+          variant={activeFilter === 'All' ? 'default' : 'outline'}
+          size="sm"
         >
           All
-        </button>
+        </Button>
         {categories.map((category) => (
-          <button
+          <Button
             key={category}
             onClick={() => onFilterChange(category)}
-            className={`px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 transition-colors ${activeFilter === category
-              ? 'bg-green-600 text-white'
-              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }`}
+            variant={activeFilter === category ? 'default' : 'outline'}
+            size="sm"
+            className="flex items-center gap-2"
           >
             <span dangerouslySetInnerHTML={{ __html: categoryIcons[category] || '📋' }} />
             {category}
-          </button>
+          </Button>
         ))}
       </div>
 
       {/* Sorting Options */}
       <div className="flex gap-2 justify-center items-center">
-        <button
+        <Button
           onClick={() => onSortChange('proficiency')}
-          className={`px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 transition-colors ${activeSort === 'proficiency'
-            ? 'bg-blue-600 text-white'
-            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-            }`}
+          variant={activeSort === 'proficiency' ? 'secondary' : 'outline'}
+          size="sm"
+          className="flex items-center gap-2"
         >
           <span>🔽</span> By Proficiency
-        </button>
-        <button
+        </Button>
+        <Button
           onClick={() => onSortChange('demand')}
-          className={`px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 transition-colors ${activeSort === 'demand'
-            ? 'bg-blue-600 text-white'
-            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-            }`}
+          variant={activeSort === 'demand' ? 'secondary' : 'outline'}
+          size="sm"
+          className="flex items-center gap-2"
         >
           <span>📊</span> By Demand
-        </button>
+        </Button>
       </div>
     </div>
   );
@@ -232,9 +231,9 @@ function SalaryRangeBar({ record }: { record: any }) {
 
   // Create data for the chart with proper structure
   const chartData = [
-    { name: 'Entry Level', value: low, fill: '#F97316' },
-    { name: 'Market Average', value: avg, fill: '#10B981' },
-    { name: 'Senior Level', value: high, fill: '#3B82F6' }
+    { name: 'Entry Level', value: low, fill: 'oklch(--primary)/50' },
+    { name: 'Market Average', value: avg, fill: 'oklch(--primary)' },
+    { name: 'Senior Level', value: high, fill: 'oklch(--primary)' }
   ];
 
   // Calculate positions for markers
@@ -242,36 +241,38 @@ function SalaryRangeBar({ record }: { record: any }) {
   const avgPosition = ((avg - low) / totalRange) * 100;
 
   return (
-    <div className="bg-white border border-gray-200 rounded-lg shadow-md p-6">
-      <div className="mb-6">
-        <h3 className="text-xl font-bold text-gray-900 mb-2">Salary Range</h3>
-        <p className="text-sm text-gray-600">Complete compensation range from entry level to senior positions</p>
-      </div>
+    <>
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-foreground">Salary Range</CardTitle>
+        <CardDescription className="text-muted-foreground">Complete compensation range from entry level to senior positions</CardDescription>
+      </CardHeader>
+      <CardContent>
 
-      <div className="space-y-6">
-        {/* Main Chart Container */}
-        <div className="relative">
-          {/* Value labels above the chart */}
-          <div className="flex justify-between mb-3">
-            <div className="text-center">
-              <span className="text-sm font-medium text-gray-700">${Number(low).toLocaleString()}</span>
-              <div className="text-xs text-gray-500 mt-1">Entry Level</div>
+        <div className="space-y-6">
+          {/* Main Chart Container */}
+          <div className="relative">
+            {/* Value labels above the chart */}
+            <div className="flex justify-between mb-3">
+              <div className="text-center">
+                <span className="text-sm font-medium text-muted-foreground">${Number(low).toLocaleString()}</span>
+                <div className="text-xs text-muted-foreground mt-1">Entry Level</div>
+              </div>
+              <div className="text-center absolute" style={{ left: `${avgPosition}%`, transform: 'translateX(-50%)' }}>
+                <span className="text-sm font-semibold text-primary">${Number(avg).toLocaleString()}</span>
+                <div className="text-xs text-primary mt-1">Market Average</div>
+              </div>
+              <div className="text-center">
+                <span className="text-sm font-medium text-muted-foreground">${Number(high).toLocaleString()}</span>
+                <div className="text-xs text-muted-foreground mt-1">Senior Level</div>
+              </div>
             </div>
-            <div className="text-center absolute" style={{ left: `${avgPosition}%`, transform: 'translateX(-50%)' }}>
-              <span className="text-sm font-semibold text-green-600">${Number(avg).toLocaleString()}</span>
-              <div className="text-xs text-green-600 mt-1">Market Average</div>
-            </div>
-            <div className="text-center">
-              <span className="text-sm font-medium text-gray-700">${Number(high).toLocaleString()}</span>
-              <div className="text-xs text-gray-500 mt-1">Senior Level</div>
-            </div>
-          </div>
 
 
 
 
-          {/* Custom Range Bar with Gradient */}
-          <div className="relative h-12 bg-gray-100 rounded-full overflow-hidden border border-gray-200 shadow-inner mt-4">
+            {/* Custom Range Bar with Gradient */}
+            <div className="relative h-12 bg-muted rounded-full overflow-hidden border shadow-inner mt-4">
             {/* Gradient definitions */}
             <svg className="absolute w-0 h-0">
               <defs>
@@ -287,13 +288,13 @@ function SalaryRangeBar({ record }: { record: any }) {
               className="absolute h-full rounded-full"
               style={{
                 width: '100%',
-                background: 'linear-gradient(to right, #F97316 0%, #10B981 50%, #3B82F6 100%)'
+                background: 'linear-gradient(to right, var(--accent) 0%, var(--primary) 40%, var(--primary) 80%)'
               }}
             />
 
             {/* Average marker line */}
             <div
-              className="absolute top-0 h-full w-1.5 bg-green-500 shadow-lg"
+              className="absolute top-0 h-full w-1.5 bg-accent shadow-lg"
               style={{ left: `${avgPosition}%` }}
             />
 
@@ -301,12 +302,12 @@ function SalaryRangeBar({ record }: { record: any }) {
             <Tooltip>
               <TooltipTrigger asChild>
                 <div
-                  className="absolute top-1/2 w-5 h-5 bg-green-500 rounded-full border-4 border-white shadow-xl transform -translate-y-1/2 -translate-x-1/2 cursor-pointer z-20 hover:scale-110 transition-transform duration-200"
+                  className="absolute top-1/2 w-5 h-5 bg-primary rounded-full border-4 border-background shadow-xl transform -translate-y-1/2 -translate-x-1/2 cursor-pointer z-20 hover:scale-110 transition-transform duration-200"
                   style={{ left: `${avgPosition}%` }}
                 />
               </TooltipTrigger>
               <TooltipContent
-                className="z-[9999] bg-green-600 text-white border-0 shadow-2xl px-4 py-2 text-sm font-bold"
+                className="z-[9999] bg-primary text-white border-0 shadow-2xl px-4 py-2 text-sm font-bold"
                 side="top"
                 sideOffset={12}
                 align="center"
@@ -315,59 +316,149 @@ function SalaryRangeBar({ record }: { record: any }) {
               </TooltipContent>
             </Tooltip>
 
-            {/* Range indicators */}
-            <div className="absolute inset-0 flex items-center justify-between px-3">
-              <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
-              <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-            </div>
           </div>
 
           {/* Enhanced labels below the chart */}
           <div className="flex justify-between mt-4 relative">
             <div className="text-center">
-              <div className="w-1 h-5 bg-orange-400 mx-auto mb-2 rounded-full"></div>
-              <span className="text-xs font-medium text-gray-600">Entry Level</span>
-              <div className="text-xs text-gray-500 mt-1">${Number(low).toLocaleString()}</div>
+              <div className="w-1 h-5 bg-primary mx-auto mb-2 rounded-full"></div>
+              <span className="text-xs font-medium text-muted-foreground">Entry Level</span>
+              <div className="text-xs text-muted-foreground mt-1">${Number(low).toLocaleString()}</div>
             </div>
             <div className="text-center absolute" style={{ left: `${avgPosition}%`, transform: 'translateX(-50%)' }}>
-              <div className="w-1 h-5 bg-green-500 mx-auto mb-2 rounded-full"></div>
-              <span className="text-xs font-medium text-green-600">Market Average</span>
-              <div className="text-xs text-green-600 mt-1">${Number(avg).toLocaleString()}</div>
+              <div className="w-1 h-5 bg-primary mx-auto mb-2 rounded-full"></div>
+              <span className="text-xs font-medium text-primary">Market Average</span>
+              <div className="text-xs text-primary mt-1">${Number(avg).toLocaleString()}</div>
             </div>
             <div className="text-center">
-              <div className="w-1 h-5 bg-blue-400 mx-auto mb-2 rounded-full"></div>
-              <span className="text-xs font-medium text-gray-600">Senior Level</span>
-              <div className="text-xs text-gray-500 mt-1">${Number(high).toLocaleString()}</div>
+              <div className="w-1 h-5 bg-primary mx-auto mb-2 rounded-full"></div>
+              <span className="text-xs font-medium text-primary">Senior Level</span>
+              <div className="text-xs text-muted-foreground mt-1">${Number(high).toLocaleString()}</div>
             </div>
           </div>
         </div>
 
-        {/* Additional Statistics */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4 border-t border-gray-200">
-          <div className="text-center p-4 bg-orange-50 rounded-lg border border-orange-200">
-            <p className="text-xs font-medium text-orange-700 mb-2">Range Spread</p>
-            <p className="text-lg font-bold text-orange-900">
-              ${(Number(high) - Number(low)).toLocaleString()}
-            </p>
-            <p className="text-xs text-orange-600 mt-1">Total range</p>
-          </div>
-          <div className="text-center p-4 bg-green-50 rounded-lg border border-green-200">
-            <p className="text-xs font-medium text-green-700 mb-2">Average Position</p>
-            <p className="text-lg font-bold text-green-900">
-              {((Number(avg) - Number(low)) / (Number(high) - Number(low)) * 100).toFixed(0)}%
-            </p>
-            <p className="text-xs text-green-600 mt-1">Above minimum</p>
-          </div>
-          <div className="text-center p-4 bg-blue-50 rounded-lg border border-blue-200">
-            <p className="text-xs font-medium text-blue-700 mb-2">Growth Potential</p>
-            <p className="text-lg font-bold text-blue-900">
-              +{((Number(high) - Number(avg)) / Number(avg) * 100).toFixed(0)}%
-            </p>
-            <p className="text-xs text-blue-600 mt-1">Above average</p>
+          {/* Additional Statistics */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4 border-t">
+            <div className="text-center p-4 bg-orange-50 rounded-lg border border-orange-200">
+              <p className="text-xs font-medium text-orange-600 mb-2">Range Spread</p>
+              <p className="text-lg font-bold text-orange-600">
+                ${(Number(high) - Number(low)).toLocaleString()}
+              </p>
+              <p className="text-xs text-orange-600 mt-1">Total range</p>
+            </div>
+            <div className="text-center p-4 bg-green-50 rounded-lg border border-green-200">
+              <p className="text-xs font-medium text-green-600 mb-2">Average Position</p>
+              <p className="text-lg font-bold text-green-600">
+                {((Number(avg) - Number(low)) / (Number(high) - Number(low)) * 100).toFixed(0)}%
+              </p>
+              <p className="text-xs text-green-600 mt-1">Above minimum</p>
+            </div>
+            <div className="text-center p-4 bg-primary/10 rounded-lg border border-primary/20">
+              <p className="text-xs font-medium text-primary mb-2">Growth Potential</p>
+              <p className="text-lg font-bold text-primary">
+                +{((Number(high) - Number(avg)) / Number(avg) * 100).toFixed(0)}%
+              </p>
+              <p className="text-xs text-primary mt-1">Above average</p>
+            </div>
           </div>
         </div>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
+
+    {/* Gender Salary Comparison Card */}
+    <Card className="mt-6">
+      <CardHeader>
+        {(() => {
+          const titleText = record.title || record.h1Title || record.occupation || 'This Role';
+          return (
+            <>
+              <CardTitle>Gender comparison</CardTitle>
+              <CardDescription>
+                As indicated, the accent colour represents the percentage share for women and the
+                primary colour represents the percentage share for men.
+              </CardDescription>
+            </>
+          );
+        })()}
+      </CardHeader>
+      <CardContent>
+        {(() => {
+          const m = Number(record.genderMale || 0);
+          const f = Number(record.genderFemale || 0);
+          const total = m + f;
+          const center = total > 0 ? `${Math.max(m, f).toFixed(0)}%` : '—';
+          const dominant = f > m ? 'female' : m > f ? 'male' : 'equal';
+          const role = record.title || record.occupation || 'this role';
+          const chartData = [
+            { name: 'Male', value: m, color: '#16a34a' },
+            { name: 'Female', value: f, color: '#f59e0b' },
+          ];
+
+          return (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
+              {/* Visual side */}
+              <div className="grid grid-cols-3 gap-6 items-center">
+                <div className="flex flex-col items-center gap-2">
+                  <div className="w-12 h-12 rounded-full bg-amber-100 flex items-center justify-center">
+                    <Venus className="h-6 w-6 text-amber-600" />
+                  </div>
+                  <span className="text-xs text-muted-foreground">Female</span>
+                </div>
+
+                <div className="flex flex-col items-center">
+                  <div className="relative">
+                    <div className="bg-card rounded-full border w-48 h-48 flex items-center justify-center">
+                      <ResponsiveContainer width={192} height={192}>
+                        <PieChart>
+                          <Pie data={chartData} dataKey="value" cx="50%" cy="50%" innerRadius={50} outerRadius={88} stroke="#ffffff" strokeWidth={2}>
+                            <Cell fill={chartData[0].color} />
+                            <Cell fill={chartData[1].color} />
+                          </Pie>
+                        </PieChart>
+                      </ResponsiveContainer>
+                      <span className="absolute text-sm font-semibold text-foreground">{center}</span>
+                    </div>
+                  </div>
+                  <div className="mt-4 flex items-center gap-6">
+                    <div className="flex items-center gap-2">
+                      <span className="inline-block w-4 h-3 rounded-sm bg-amber-500" />
+                      <span className="text-xs text-muted-foreground">Female</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="inline-block w-4 h-3 rounded-sm bg-green-600" />
+                      <span className="text-xs text-muted-foreground">Male</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex flex-col items-center gap-2">
+                  <div className="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center">
+                    <Mars className="h-6 w-6 text-green-600" />
+                  </div>
+                  <span className="text-xs text-muted-foreground">Male</span>
+                </div>
+              </div>
+
+              {/* Text side */}
+              <div className="space-y-4">
+                <p className="text-sm text-foreground">
+                  This pie chart demonstrates the gender share for {role}. As indicated, the golden colour represents the percentage share
+                  for women and the green represents the percentage share for men.
+                </p>
+                <p className="text-sm text-foreground">
+                  {total === 0 && 'No gender distribution data is available for this profession.'}
+                  {total > 0 && dominant === 'female' && `As shown via chart, female employees are involved ${f}% in contrast with male at ${m}%.`}
+                  {total > 0 && dominant === 'male' && `As shown via chart, male employees are involved ${m}% in contrast with female at ${f}%.`}
+                  {total > 0 && dominant === 'equal' && 'As shown via chart, the shares are evenly balanced between male and female.'}
+                </p>
+              </div>
+            </div>
+          );
+        })()}
+      </CardContent>
+    </Card>
+    </>
   );
 }
 
@@ -394,24 +485,25 @@ function ComprehensiveExperienceAnalysis({ record }: { record: any }) {
   if (experienceLevels.length === 0 && yearsExperience.length === 0) return null;
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200 ">
+    <div className="bg-card rounded-lg shadow-md p-6 border border ">
       <div className="mb-8">
-        <h3 className="text-2xl font-bold text-gray-900 mb-2">Comprehensive Experience Analysis</h3>
-        <p className="text-gray-600">Salary progression across experience levels and years of experience</p>
+        <h3 className="text-2xl font-bold text-foreground mb-2">Comprehensive Experience Analysis</h3>
+          <p className="text-muted-foreground">Salary progression across experience levels and years of experience</p>
       </div>
 
       <div className="space-y-12">
         {/* Experience Levels Line Chart */}
         {experienceLevels.length > 0 && (
           <div>
-            <h4 className="text-lg font-semibold text-gray-800 mb-2">Experience Level Salaries (Hourly)</h4>
-            <p className="text-sm text-gray-600 mb-6">Hourly rate by experience level</p>
+            <h4 className="text-lg font-semibold text-foreground mb-2">Experience Level Salaries (Hourly)</h4>
+              <p className="text-sm text-muted-foreground mb-6">Hourly rate by experience level</p>
             <div className="h-80">
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={experienceLevels} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="name" />
                   <YAxis tickFormatter={(value: number) => `$${value.toLocaleString()}/hr`} />
+                  
                   <RechartsTooltip
                     formatter={(value: number) => [`$${value.toLocaleString()}/hr`, 'Hourly rate']}
                     labelStyle={{ color: '#374151' }}
@@ -419,10 +511,10 @@ function ComprehensiveExperienceAnalysis({ record }: { record: any }) {
                   <Line
                     type="monotone"
                     dataKey="value"
-                    stroke="#3B82F6"
+                    stroke="var(--chart-1)"
                     strokeWidth={3}
-                    dot={{ r: 6, fill: '#3B82F6', strokeWidth: 2, stroke: '#ffffff' }}
-                    activeDot={{ r: 8, stroke: '#3B82F6', strokeWidth: 2, fill: '#ffffff' }}
+                    dot={{ r: 6, fill: 'var(--chart-1)', strokeWidth: 2, stroke: '#ffffff' }}
+                    activeDot={{ r: 8, stroke: 'var(--chart-1)', strokeWidth: 2, fill: '#ffffff' }}
                   />
                 </LineChart>
               </ResponsiveContainer>
@@ -430,8 +522,8 @@ function ComprehensiveExperienceAnalysis({ record }: { record: any }) {
             <div className="mt-3 flex justify-start">
               <div className="flex justify-center w-full">
                 <div className="flex items-center space-x-2">
-                  <div className="w-3 h-3 rounded-full bg-blue-500" />
-                  <span className="text-sm text-gray-700">Hourly salary</span>
+                  <div className="w-3 h-3 rounded-full bg-chart-1" />
+                  <span className="text-sm text-foreground">Hourly salary</span>
                 </div>
               </div>
             </div>
@@ -441,8 +533,8 @@ function ComprehensiveExperienceAnalysis({ record }: { record: any }) {
         {/* Years of Experience Line Chart */}
         {yearsExperience.length > 0 && (
           <div>
-            <h4 className="text-lg font-semibold text-gray-800 mb-2">Years of Experience Salaries</h4>
-            <p className="text-sm text-gray-600 mb-6">Annual salary progression by years of experience</p>
+            <h4 className="text-lg font-semibold text-foreground mb-2">Years of Experience Salaries</h4>
+              <p className="text-sm text-muted-foreground mb-6">Annual salary progression by years of experience</p>
             <div className="h-80">
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={yearsExperience} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
@@ -456,10 +548,10 @@ function ComprehensiveExperienceAnalysis({ record }: { record: any }) {
                   <Line
                     type="monotone"
                     dataKey="value"
-                    stroke="#06B6D4"
+                    stroke="var(--chart-2)"
                     strokeWidth={3}
-                    dot={{ r: 6, fill: '#06B6D4', strokeWidth: 2, stroke: '#ffffff' }}
-                    activeDot={{ r: 8, stroke: '#06B6D4', strokeWidth: 2, fill: '#ffffff' }}
+                    dot={{ r: 6, fill: 'var(--chart-2)', strokeWidth: 2, stroke: '#ffffff' }}
+                    activeDot={{ r: 8, stroke: 'var(--chart-2)', strokeWidth: 2, fill: '#ffffff' }}
                   />
                 </LineChart>
               </ResponsiveContainer>
@@ -467,8 +559,8 @@ function ComprehensiveExperienceAnalysis({ record }: { record: any }) {
             <div className="mt-3 flex justify-start">
               <div className="flex justify-center w-full">
                 <div className="flex items-center space-x-2">
-                  <div className="w-3 h-3 rounded-full bg-cyan-500" />
-                  <span className="text-sm text-gray-700">Annual salary</span>
+                  <div className="w-3 h-3 rounded-full bg-chart-2" />
+                  <span className="text-sm text-foreground">Annual salary</span>
                 </div>
               </div>
             </div>
@@ -709,15 +801,15 @@ export function ComprehensiveStats({ record, country }: ComprehensiveStatsProps)
       {/* Key Metrics Grid (3 cards) */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* Average Annual */}
-        <div className="relative overflow-hidden p-6 rounded-2xl border border-blue-200 bg-gradient-to-br from-blue-50 via-white to-blue-50 shadow-sm hover:shadow-md transition-shadow">
+        <div className="relative overflow-hidden p-6 rounded-2xl border border-primary/20 bg-gradient-to-br from-blue-50 via-white to-blue-50 shadow-sm hover:shadow-md transition-shadow">
           <div className="relative flex items-center justify-between">
             <div className="flex items-center space-x-3">
-              <div className="p-3 rounded-xl bg-blue-600 text-white shadow">
+              <div className="p-3 rounded-xl bg-primary text-white shadow">
                 <DollarSign className="w-5 h-5" />
               </div>
               <div>
-                <p className="text-sm font-medium text-blue-700">Average Annual</p>
-                <p className="text-3xl font-extrabold text-blue-900 tracking-tight">
+                <p className="text-sm font-medium text-primary">Average Annual</p>
+                <p className="text-3xl font-extrabold text-primary tracking-tight">
                   ${record.avgAnnualSalary?.toLocaleString() || 'N/A'}
                 </p>
               </div>
@@ -741,8 +833,8 @@ export function ComprehensiveStats({ record, country }: ComprehensiveStatsProps)
                 <Clock className="w-5 h-5" />
               </div>
               <div>
-                <p className="text-sm font-medium text-green-700">Average Hourly</p>
-                <p className="text-3xl font-extrabold text-green-900 tracking-tight">
+                <p className="text-sm font-medium text-green-600">Average Hourly</p>
+                <p className="text-3xl font-extrabold text-green-600 tracking-tight">
                   ${record.avgHourlySalary?.toFixed(2) || 'N/A'}/hr
                 </p>
               </div>
@@ -766,8 +858,8 @@ export function ComprehensiveStats({ record, country }: ComprehensiveStatsProps)
                 <Users className="w-5 h-5" />
               </div>
               <div>
-                <p className="text-xs font-medium text-purple-700">Gender Split</p>
-                <p className="text-xl font-bold text-purple-900 tracking-tight">
+                <p className="text-xs font-medium text-purple-600">Gender Split</p>
+                <p className="text-xl font-bold text-purple-600 tracking-tight">
                   {record.genderMale || 0}% M / {record.genderFemale || 0}% F
                 </p>
               </div>
@@ -905,7 +997,7 @@ export function ComprehensiveStats({ record, country }: ComprehensiveStatsProps)
         }, [filteredSkills, activeSort]);
 
         return (
-          <div className=" bg-green-50 rounded-2xl p-8 border border-green-200 shadow-md">
+          <div className=" bg-card rounded-2xl p-8 border border-green-200 shadow-md">
             {/* Header Section with Filter Component */}
             {/* <SkillsFilter
               skills={enhancedSkills}
@@ -915,73 +1007,74 @@ export function ComprehensiveStats({ record, country }: ComprehensiveStatsProps)
               activeSort={activeSort}
             /> */}
 
-            <h3 className="text-2xl font-bold text-green-800 mb-2">Top Skills & Market Demand</h3>
-            <p className="text-sm text-green-700 mb-6">Most in-demand skills with proficiency levels and salary impact analysis</p>
+            <h3 className="text-2xl font-bold text-foreground mb-2">Top Skills & Market Demand</h3>
+            <p className="text-sm text-muted-foreground mb-6">Most in-demand skills with proficiency levels and salary impact analysis</p>
 
             {/* Skills Analysis Section */}
             <div>
               <div className="flex items-center gap-2 mb-6">
-                <AwardIcon className="w-4 h-4 text-green-900" />
-                <h4 className="text-lg font-semibold text-green-900">Skills Analysis ({sortedSkills.length} skills)</h4>
+                <AwardIcon className="w-4 h-4 text-primary" />
+                <h4 className="text-lg font-semibold text-primary ">Skills Analysis ({sortedSkills.length} skills)</h4>
               </div>
 
               <div className="space-y-2">
                 {sortedSkills.map((skill, index) => (
-                  <div key={index} className="flex items-center justify-between p-4 bg-gray-50/60 rounded-lg border border-green-100">
-                    <div className="flex items-center justify-center p-2 text-lg text-green-900 bg-green-100 rounded-md mr-4">
+                  <div key={index} className="flex items-center justify-between p-4 bg-muted/30 rounded-lg border border-border">
+                    <div className="flex items-center justify-center p-2 text-lg text-primary bg-primary/10 rounded-md mr-4">
                       {
                         /* Show icons basedon the skill */
-                        skill.category === 'Software' ? <CodeIcon className="w-4 h-4 text-green-900" /> :
-                          skill.category === 'Management' ? <UserIcon className="w-4 h-4 text-green-900" /> :
-                            skill.category === 'Accounting' ? <CalculatorIcon className="w-4 h-4 text-green-900" /> :
-                              skill.category === 'Analysis' ? <ChartAreaIcon className="w-4 h-4 text-green-900" /> :
-                                skill.category === 'Technical' ? <CodeIcon className="w-4 h-4 text-green-900" /> :
-                                  skill.category === 'Process' ? <FlowerIcon className="w-4 h-4 text-green-900" /> :
-                                    skill.category === 'Communication' ? <MessageCircleIcon className="w-4 h-4 text-green-900" /> : <CodeIcon className="w-4 h-4 text-green-900" />
+                        skill.category === 'Software' ? <CodeIcon className="w-4 h-4 text-primary" /> :
+                          skill.category === 'Management' ? <UserIcon className="w-4 h-4 text-green-600" /> :
+                            skill.category === 'Accounting' ? <CalculatorIcon className="w-4 h-4 text-primary" /> :
+                              skill.category === 'Analysis' ? <ChartAreaIcon className="w-4 h-4 text-primary" /> :
+                                skill.category === 'Technical' ? <CodeIcon className="w-4 h-4 text-primary" /> :
+                                  skill.category === 'Process' ? <FlowerIcon className="w-4 h-4 text-green-600" /> :
+                                    skill.category === 'Communication' ? <MessageCircleIcon className="w-4 h-4 text-primary" /> : <CodeIcon className="w-4 h-4 text-primary" />
                       }
                     </div>
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-2">
-                        <h5 className="font-medium text-gray-900 text-sm">{skill.name}</h5>
-                        <span className="px-2 py-1 bg-white text-xs border border-gray-300 rounded-md">
+                        <h5 className="font-medium text-foreground text-sm">{skill.name}</h5>
+                          <span className="px-2 py-1 bg-background text-xs border rounded-md">
                           {skill.category}
                         </span>
                       </div>
 
                       <div className="flex items-center gap-4">
                         <div className="flex items-center gap-2">
-                          <div className={`w-2 h-2 rounded-full ${skill.demandColor === 'green' ? 'bg-green-500' :
-                            skill.demandColor === 'orange' ? 'bg-orange-500' : 'bg-blue-500'
+                          <div className={`w-2 h-2 rounded-full ${skill.demandColor === 'green' ? 'bg-primary' :
+                            skill.demandColor === 'orange' ? 'bg-destructive' : 'bg-chart-1'
                             }`}></div>
-                          <span className="text-xs text-gray-600">{skill.demandLevel}</span>
+                          <span className="text-xs text-muted-foreground">{skill.demandLevel}</span>
                         </div>
 
-                        <span className="text-xs text-green-600 font-medium">
+                        <span className="text-xs text-foreground font-medium">
                           +{skill.salaryImpact}% salary impact
                         </span>
                       </div>
-                      <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
+                      <div className="w-full bg-primary/20 rounded-full h-2 mt-3">
                         <div
-                          className="bg-green-500 h-2 rounded-full transition-all duration-300"
+                          className="bg-primary h-2 rounded-full transition-all duration-300"
                           style={{ width: `${(skill.marketShare / 30) * 100}%` }}
                         ></div>
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-4">
-                      <div className="w-32">
+                    <div className="">
+                      <div className="w-auto">
                         {/* <div className="w-full bg-gray-200 rounded-full h-2 mb-1">
                           <div
                             className="bg-green-500 h-2 rounded-full transition-all duration-300"
                             style={{ width: `${(skill.marketShare / 30) * 100}%` }}
                           ></div>
                         </div> */}
-                        <div className="flex flex-col">
-                        <span className="text-sm text-green-600">
+                        <div className="block text-center">
+                        <div className="text-sm font-semibold text-chart-1">
                           {skill.marketShare}%
-                           </span>
-                           <span className="text-xs text-gray-600">
-                           Market Share</span>
+                           </div>
+                           <div className="text-xs font-light text-foreground">
+                           Market Share
+                           </div>
                           </div>
                       </div>
                     </div>
@@ -997,27 +1090,27 @@ export function ComprehensiveStats({ record, country }: ComprehensiveStatsProps)
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
         {/* Annual Salary Details */}
         {isValidValue(record.avgAnnualSalary) && (
-          <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Average Annual Salary Information</h3>
+          <div className="bg-card rounded-lg shadow-md p-6 border border-border">
+            <h3 className="text-lg font-semibold text-foreground mb-4">Average Annual Salary Information</h3>
             <div className="space-y-4">
               <div className="flex justify-between items-center">
-                <span className="text-sm font-medium text-gray-600">Average Low Range</span>
-                <span className="text-lg font-semibold text-red-600">
+                <span className="text-sm font-medium text-muted-foreground">Average Low Range</span>
+                <span className="text-lg font-semibold text-destructive">
                   ${record.lowSalary ? Number(record.lowSalary).toLocaleString() : 'N/A'}
                 </span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-sm font-medium text-gray-600">Average High Range</span>
-                <span className="text-lg font-semibold text-green-600">
+                <span className="text-sm font-medium text-muted-foreground">Average High Range</span>
+                <span className="text-lg font-semibold text-chart-1">
                   ${record.highSalary ? Number(record.highSalary).toLocaleString() : 'N/A'}
                 </span>
               </div>
-              <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+              <div className="bg-secondary p-4 rounded-lg border border-border">
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-blue-900">
+                  <div className="text-2xl font-bold text-primary">
                     ${record.avgAnnualSalary ? Number(record.avgAnnualSalary).toLocaleString() : 'N/A'}
                   </div>
-                  <div className="text-sm text-gray-600">Average Annual Salary</div>
+                  <div className="text-sm text-muted-foreground">Average Annual Salary</div>
                 </div>
               </div>
             </div>
@@ -1026,27 +1119,27 @@ export function ComprehensiveStats({ record, country }: ComprehensiveStatsProps)
 
         {/* Hourly Rate Details */}
         {isValidValue(record.avgHourlySalary) && (
-          <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Average Hourly Rate Information</h3>
+          <div className="bg-card rounded-lg shadow-md p-6 border border-border">
+            <h3 className="text-lg font-semibold text-foreground mb-4">Average Hourly Rate Information</h3>
             <div className="space-y-4">
               <div className="flex justify-between items-center">
-                <span className="text-sm font-medium text-gray-600">Average Low Hourly</span>
-                <span className="text-lg font-semibold text-red-600">
+                <span className="text-sm font-medium text-muted-foreground">Average Low Hourly</span>
+                <span className="text-lg font-semibold text-destructive">
                   ${record.hourlyLowValue ? Number(record.hourlyLowValue).toFixed(2) : 'N/A'}/hr
                 </span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-sm font-medium text-gray-600">Average High Hourly</span>
-                <span className="text-lg font-semibold text-green-600">
+                <span className="text-sm font-medium text-muted-foreground">Average High Hourly</span>
+                <span className="text-lg font-semibold text-chart-1">
                   ${record.hourlyHighValue ? Number(record.hourlyHighValue).toFixed(2) : 'N/A'}/hr
                 </span>
               </div>
-              <div className="bg-green-50 p-4 rounded-lg border border-green-200">
+              <div className="bg-secondary p-4 rounded-lg border border-border">
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-green-900">
+                  <div className="text-2xl font-bold text-green-600">
                     ${record.avgHourlySalary ? Number(record.avgHourlySalary).toFixed(2) : 'N/A'}/hr
                   </div>
-                  <div className="text-sm text-gray-600">Average Hourly Rate</div>
+                  <div className="text-sm text-muted-foreground">Average Hourly Rate</div>
                 </div>
               </div>
             </div>
@@ -1101,43 +1194,43 @@ export function ComprehensiveStats({ record, country }: ComprehensiveStatsProps)
               const growthFactor = minBonus > 0 ? (maxBonus / minBonus) : 0;
 
               return (
-                <div className="bg-green-50 rounded-2xl p-8 border border-green-200">
+                <div className="bg-card rounded-2xl p-8 border border-border">
                   <div className="mb-8">
-                    <h4 className="text-2xl font-bold text-green-800 mb-2">Bonus Compensation</h4>
-                    <p className="text-sm text-green-700 font-medium">Performance-based bonus ranges and distribution</p>
+                    <h4 className="text-2xl font-bold text-foreground mb-2">Bonus Compensation</h4>
+                    <p className="text-sm text-muted-foreground font-medium">Performance-based bonus ranges and distribution</p>
                   </div>
 
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                     {/* Left Side - Three Vertical Cards */}
                     <div className="px-8">
                       {/* Maximum Bonus Card */}
-                      <div className="bg-green-200/50 rounded-xl p-6 border border-green-300 shadow-lg">
+                      <div className="bg-secondary rounded-xl p-6 border border-border shadow-lg">
                         <div className="text-center">
-                          <p className="text-sm font-medium text-green-800 mb-2">Maximum Bonus</p>
-                          <p className="text-3xl font-bold text-green-900 mb-4">
+                          <p className="text-sm font-medium text-foreground mb-2">Maximum Bonus</p>
+                          <p className="text-3xl font-bold text-chart-1 mb-4">
                             ${maxBonus.toLocaleString()}
                           </p>
-                          <div className="w-full h-3 bg-green-200 rounded-full">
-                            <div className="w-full h-3 bg-green-600 rounded-full"></div>
+                          <div className="w-full h-3 bg-secondary rounded-full">
+                            <div className="w-full h-3 bg-chart-1 rounded-full"></div>
                           </div>
                         </div>
                       </div>
 
                       {/* Connecting Line */}
                       <div className="flex justify-center">
-                        <div className="w-0.5 h-6 bg-green-400"></div>
+                        <div className="w-0.5 h-6 bg-chart-1"></div>
                       </div>
 
                       {/* Average Bonus Card */}
-                      <div className="bg-green-100/50 rounded-xl p-6 border border-green-300">
+                      <div className="bg-secondary/20 rounded-xl p-6 border border-border">
                         <div className="text-center">
-                          <p className="text-sm font-medium text-green-800 mb-2">Average Bonus</p>
-                          <p className="text-3xl font-bold text-green-900 mb-4">
+                          <p className="text-sm font-medium text-foreground mb-2">Average Bonus</p>
+                          <p className="text-3xl font-bold text-chart-1 mb-4">
                             ${avgBonus.toLocaleString()}
                           </p>
-                          <div className="w-full h-3 bg-green-200 rounded-full">
+                          <div className="w-full h-3 bg-secondary rounded-full">
                             <div
-                              className="h-3 bg-green-600 rounded-full"
+                              className="h-3 bg-chart-1 rounded-full"
                               style={{ width: '67%' }}
                             ></div>
                           </div>
@@ -1146,18 +1239,18 @@ export function ComprehensiveStats({ record, country }: ComprehensiveStatsProps)
 
                       {/* Connecting Line */}
                       <div className="flex justify-center">
-                        <div className="w-0.5 h-6 bg-green-400"></div>
+                        <div className="w-0.5 h-6 bg-chart-1"></div>
                       </div>
 
                       {/* Minimum Bonus Card */}
-                      <div className="bg-green-100/50 rounded-xl p-6 border border-green-300">
+                      <div className="bg-secondary/20 rounded-xl p-6 border border-border">
                         <div className="text-center">
-                          <p className="text-sm font-medium text-green-800 mb-2">Minimum Bonus</p>
-                          <p className="text-3xl font-bold text-green-900 mb-4">
+                          <p className="text-sm font-medium text-foreground mb-2">Minimum Bonus</p>
+                          <p className="text-3xl font-bold text-chart-1 mb-4">
                             ${minBonus.toLocaleString()}
                           </p>
                           <div className="flex justify-center">
-                            <div className="w-3 h-3 bg-green-600 rounded-full"></div>
+                            <div className="w-3 h-3 bg-chart-1 rounded-full"></div>
                           </div>
                         </div>
                       </div>
@@ -1166,29 +1259,29 @@ export function ComprehensiveStats({ record, country }: ComprehensiveStatsProps)
                     {/* Right Side - Growth Potential Analysis */}
                     <div className="space-y-6">
                       {/* Growth Potential Analysis Card */}
-                      <div className="bg-green-100 rounded-xl p-8 border border-green-300">
+                      <div className="bg-chart-1/5 rounded-xl p-8 border border-border">
                         <h5 className="text-xl font-bold text-green-800 mb-6">Growth Potential Analysis</h5>
                         <div className="space-y-4">
-                          <div className="bg-green-50 rounded-lg p-4">
+                          <div className="bg-background rounded-lg p-4">
                             <div className="flex justify-between items-center">
-                              <span className="text-sm font-medium text-green-700">From Minimum to Average:</span>
-                              <span className="text-xl font-bold text-green-900">
+                              <span className="text-sm font-medium text-foreground">From Minimum to Average:</span>
+                              <span className="text-xl font-bold text-chart-1">
                                 +{minToAvgGrowth.toFixed(0)}%
                               </span>
                             </div>
                           </div>
-                          <div className="bg-green-50 rounded-lg p-4">
+                          <div className="bg-background rounded-lg p-4">
                             <div className="flex justify-between items-center">
-                              <span className="text-sm font-medium text-green-700">From Average to Maximum:</span>
-                              <span className="text-xl font-bold text-green-900">
+                              <span className="text-sm font-medium text-foreground">From Average to Maximum:</span>
+                              <span className="text-xl font-bold text-chart-1">
                                 +{avgToMaxGrowth.toFixed(0)}%
                               </span>
                             </div>
                           </div>
-                          <div className="bg-green-50 rounded-lg p-4">
+                          <div className="bg-background rounded-lg p-4">
                             <div className="flex justify-between items-center">
-                              <span className="text-sm font-medium text-green-700">Total Range:</span>
-                              <span className="text-xl font-bold text-green-900">
+                              <span className="text-sm font-medium text-foreground">Total Range:</span>
+                              <span className="text-xl font-bold text-chart-1">
                                 ${totalRange.toLocaleString()}
                               </span>
                             </div>
@@ -1199,20 +1292,20 @@ export function ComprehensiveStats({ record, country }: ComprehensiveStatsProps)
                       {/* Two smaller cards below */}
                       <div className="grid grid-cols-2 gap-4">
                         {/* Median Position Card */}
-                        <div className="bg-green-100 rounded-xl p-6 border border-green-300">
+                        <div className="bg-chart-1/5 rounded-xl p-6 border border-border">
                           <div className="text-center">
-                            <p className="text-sm font-medium text-green-800 mb-3">Median Position</p>
-                            <p className="text-3xl font-bold text-green-900">
+                            <p className="text-sm font-medium text-foreground mb-3">Median Position</p>
+                            <p className="text-3xl font-bold text-chart-1">
                               {medianPosition.toFixed(0)}%
                             </p>
                           </div>
                         </div>
 
                         {/* Growth Factor Card */}
-                        <div className="bg-green-100 rounded-xl p-6 border border-green-300">
+                        <div className="bg-chart-1/5 rounded-xl p-6 border border-border">
                           <div className="text-center">
-                            <p className="text-sm font-medium text-green-800 mb-3">Growth Factor</p>
-                            <p className="text-3xl font-bold text-green-900">
+                            <p className="text-sm font-medium text-foreground mb-3">Growth Factor</p>
+                            <p className="text-3xl font-bold text-chart-1">
                               {growthFactor.toFixed(1)}x
                             </p>
                           </div>
@@ -1226,10 +1319,10 @@ export function ComprehensiveStats({ record, country }: ComprehensiveStatsProps)
 
             {/* Commission Compensation Chart */}
             {hasValidCommission && (
-              <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200">
+              <div className="bg-card rounded-lg shadow-md p-6 border border">
                 <div className="mb-6">
-                  <h4 className="text-xl font-bold text-gray-900 mb-2">Commission Structure</h4>
-                  <p className="text-sm text-gray-600">Sales-based commission ranges and potential earnings</p>
+                  <h4 className="text-xl font-bold text-foreground mb-2">Commission Structure</h4>
+                    <p className="text-sm text-muted-foreground">Sales-based commission ranges and potential earnings</p>
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -1282,7 +1375,7 @@ export function ComprehensiveStats({ record, country }: ComprehensiveStatsProps)
 
                     <div className="p-4 bg-green-50 rounded-lg border border-green-200">
                       <div className="text-center">
-                        <div className="text-lg font-bold text-green-900">
+                        <div className="text-lg font-bold text-green-600">
                           ${(((Number(record.commissionMin) || 0) + (Number(record.commissionMax) || 0)) / 2).toLocaleString()}
                         </div>
                         <div className="text-sm text-green-600">Average Commission</div>
@@ -1295,7 +1388,7 @@ export function ComprehensiveStats({ record, country }: ComprehensiveStatsProps)
                         return (
                           <div className="p-4 bg-orange-50 rounded-lg border border-orange-200">
                             <div className="text-center">
-                              <div className="text-lg font-bold text-orange-900">
+                              <div className="text-lg font-bold text-orange-600">
                                 ${min.toLocaleString()}
                               </div>
                               <div className="text-sm text-orange-600">Minimum Commission</div>
@@ -1312,10 +1405,10 @@ export function ComprehensiveStats({ record, country }: ComprehensiveStatsProps)
 
             {/* Profit Sharing Chart */}
             {hasValidProfitSharing && (
-              <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200">
+              <div className="bg-card rounded-lg shadow-md p-6 border border">
                 <div className="mb-6">
-                  <h4 className="text-xl font-bold text-gray-900 mb-2">Profit Sharing</h4>
-                  <p className="text-sm text-gray-600">Company profit distribution and employee benefits</p>
+                  <h4 className="text-xl font-bold text-foreground mb-2">Profit Sharing</h4>
+                    <p className="text-sm text-muted-foreground">Company profit distribution and employee benefits</p>
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -1372,7 +1465,7 @@ export function ComprehensiveStats({ record, country }: ComprehensiveStatsProps)
 
                     <div className="p-4 bg-green-50 rounded-lg border border-green-200">
                       <div className="text-center">
-                        <div className="text-lg font-bold text-green-900">
+                        <div className="text-lg font-bold text-green-600">
                           ${(((Number(record.profitSharingMin) || 0) + (Number(record.profitSharingMax) || 0)) / 2).toLocaleString()}
                         </div>
                         <div className="text-sm text-green-600">Average Profit Share</div>
@@ -1385,7 +1478,7 @@ export function ComprehensiveStats({ record, country }: ComprehensiveStatsProps)
                         return (
                           <div className="p-4 bg-orange-50 rounded-lg border border-orange-200">
                             <div className="text-center">
-                              <div className="text-lg font-bold text-orange-900">
+                              <div className="text-lg font-bold text-orange-600">
                                 ${min.toLocaleString()}
                               </div>
                               <div className="text-sm text-orange-600">Minimum Profit Share</div>
@@ -1412,10 +1505,10 @@ export function ComprehensiveStats({ record, country }: ComprehensiveStatsProps)
                 );
 
                 return (
-                  <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200">
+                  <div className="bg-card rounded-lg shadow-md p-6 border border">
                     <div className="mb-6">
-                      <h4 className="text-xl font-bold text-gray-900 mb-2">Total Additional Compensation Potential</h4>
-                      <p className="text-sm text-gray-600">Combined maximum earnings from all compensation sources</p>
+                      <h4 className="text-xl font-bold text-foreground mb-2">Total Additional Compensation Potential</h4>
+                        <p className="text-sm text-muted-foreground">Combined maximum earnings from all compensation sources</p>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -1453,14 +1546,14 @@ export function ComprehensiveStats({ record, country }: ComprehensiveStatsProps)
                       )}
                     </div>
 
-                    <div className="mt-6 pt-6 border-t border-gray-200">
+                    <div className="mt-6 pt-6 border-t border">
                       <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-6">
                         <div className="text-center">
-                          <div className="text-3xl font-bold text-blue-900 mb-2">
+                          <div className="text-3xl font-bold text-primary mb-2">
                             ${totalMax.toLocaleString()}
                           </div>
-                          <div className="text-lg text-blue-700 font-medium">Total Maximum Additional Compensation</div>
-                          <div className="text-sm text-blue-600 mt-1">Combined from all sources</div>
+                          <div className="text-lg text-primary font-medium">Total Maximum Additional Compensation</div>
+                          <div className="text-sm text-primary mt-1">Combined from all sources</div>
                         </div>
                       </div>
                     </div>
@@ -1475,15 +1568,15 @@ export function ComprehensiveStats({ record, country }: ComprehensiveStatsProps)
 
       {/* Related Data */}
       {(relatedOccupations.length > 0 || relatedLocations.length > 0 || relatedStates.length > 0) && (
-        <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Related Information</h3>
+        <div className="bg-card rounded-lg shadow-md p-6 border border">
+          <h3 className="text-lg font-semibold text-foreground mb-4">Related Information</h3>
 
           {relatedOccupations.length > 0 && (
             <div className="mb-6">
-              <h4 className="text-md font-medium text-gray-700 mb-3">Related Occupations</h4>
+              <h4 className="text-md font-medium text-foreground mb-3">Related Occupations</h4>
               <div className="flex flex-wrap gap-2">
                 {relatedOccupations.map((occ, index) => (
-                  <Badge key={index} variant="blue" className="bg-blue-50 text-blue-700 border-blue-200">
+                  <Badge key={index} variant="blue" className="bg-primary/10 text-primary border-primary/20">
                     {occ}
                   </Badge>
                 ))}
@@ -1493,10 +1586,10 @@ export function ComprehensiveStats({ record, country }: ComprehensiveStatsProps)
 
           {relatedLocations.length > 0 && (
             <div className="mb-6">
-              <h4 className="text-md font-medium text-gray-700 mb-3">Related Locations</h4>
+              <h4 className="text-md font-medium text-foreground mb-3">Related Locations</h4>
               <div className="flex flex-wrap gap-2">
                 {relatedLocations.map((loc, index) => (
-                  <Badge key={index} variant="green" className="bg-green-50 text-green-700 border-green-200">
+                  <Badge key={index} variant="green" className="bg-green-50 text-green-600 border-green-200">
                     <MapPin className="w-3 h-3 mr-1" />
                     {loc}
                   </Badge>
@@ -1507,10 +1600,10 @@ export function ComprehensiveStats({ record, country }: ComprehensiveStatsProps)
 
           {relatedStates.length > 0 && (
             <div className="mb-6">
-              <h4 className="text-md font-medium text-gray-700 mb-3">Related States</h4>
+              <h4 className="text-md font-medium text-foreground mb-3">Related States</h4>
               <div className="flex flex-wrap gap-2">
                 {relatedStates.map((state, index) => (
-                  <Badge key={index} variant="purple" className="bg-purple-50 text-purple-700 border-purple-200">
+                  <Badge key={index} variant="purple" className="bg-purple-50 text-purple-600 border-purple-200">
                     <Building className="w-3 h-3 mr-1" />
                     {state}
                   </Badge>

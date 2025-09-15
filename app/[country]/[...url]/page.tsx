@@ -6,8 +6,8 @@ import { StatePage } from "@/components/state/state-page";
 import { LocationPage } from "@/components/location/location-page";
 import { OccupationPage } from "@/components/occupation/occupation-page";
 
-export const revalidate = 31536000; // 1 year
-export const dynamicParams = false; // Ensure static generation only
+export const revalidate = 31536000; // 1 minute for testing
+export const dynamicParams = false;
 
 interface UnifiedPageProps {
   params: Promise<{ country: string; url: string[] }>;

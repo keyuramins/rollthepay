@@ -17,7 +17,7 @@ export function NavLinks({ mobile = false }: NavLinksProps) {
             prefetch={true}
             key={link.href}
             href={link.href}
-            className="block text-gray-600 hover:text-gray-900 hover:bg-gray-50 px-3 py-2 rounded-md text-base font-medium"
+            className="block text-muted-foreground hover:text-foreground hover:bg-accent px-3 py-2 rounded-md text-base font-medium cursor-pointer"
           >
             {link.label}
           </Link>
@@ -33,7 +33,7 @@ export function NavLinks({ mobile = false }: NavLinksProps) {
           prefetch={true}
           key={link.href}
           href={link.href}
-          className="text-gray-600 hover:text-gray-900 px-3 py-2 text-sm font-medium"
+          className="text-muted-foreground hover:text-foreground px-3 py-2 text-sm font-medium cursor-pointer"
         >
           {link.label}
         </Link>
