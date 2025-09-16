@@ -18,8 +18,13 @@ const nextConfig: NextConfig = {
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
   },
 
-  // Headers for compression and caching
+  // Headers for compression and caching (production only)
   async headers() {
+    // Only enable headers in production environment
+    if (process.env.NODE_ENV !== 'production') {
+      return [];
+    }
+    
     return [
       {
         source: '/(.*)',

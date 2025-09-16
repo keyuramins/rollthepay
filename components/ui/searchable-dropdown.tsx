@@ -41,6 +41,9 @@ interface OccupationIndexItem {
   slug: string; // slug_url
   state: string | null;
   location: string | null;
+  // Optional fields for richer dropdown context (if available from caller)
+  averageSalary?: number | null;
+  currencyCode?: string | null; // e.g., 'AUD', 'INR'
 }
 
 interface SearchableDropdownProps {
@@ -70,6 +73,9 @@ export function SearchableDropdown({
   const [isLoading, setIsLoading] = useState(false);
   const [isCountryLoading, setIsCountryLoading] = useState(false);
   const [isOccupationLoading, setIsOccupationLoading] = useState(false);
+  const [debouncedQuery, setDebouncedQuery] = useState("");
+  const virtualListRef = useRef<HTMLDivElement>(null);
+  const [scrollTop, setScrollTop] = useState(0);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const chipRef = useRef<HTMLSpanElement>(null);
@@ -159,24 +165,131 @@ export function SearchableDropdown({
       if (isOccupationDropdownOpen) setIsOccupationDropdownOpen(false);
       return;
     }
-    const term = searchQuery.trim().toLowerCase();
+    const term = debouncedQuery.trim().toLowerCase();
     
     // Only show occupation dropdown if user has typed at least 3 characters
-    if (term.length < 3) {
+    if (term.length < 2) {
       setOccupationSuggestions([]);
       setIsOccupationDropdownOpen(false);
       return;
     }
     
+    // Fuzzy + strict ranking
     const pool: OccupationSuggestion[] = allOccupations
       .filter(o => o.country === selectedCountry.slug)
       .map(o => ({ ...o, display: o.title.replace(/^Average\s+/i, "").trim() }))
       .sort((a, b) => a.display.localeCompare(b.display));
 
-    const matches = pool.filter(o => o.display.toLowerCase().includes(term));
-    setOccupationSuggestions(matches);
+    const normalize = (s: string) => s.toLowerCase().normalize('NFKD').replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, ' ').trim();
+    const singularize = (s: string) => s.endsWith('s') ? s.slice(0, -1) : s;
+    const generateVariants = (token: string): string[] => {
+      const base = singularize(token);
+      const v = new Set<string>([token, base]);
+      // common forms
+      v.add(base + 's');
+      v.add(base + 'er');
+      v.add(base + 'ers');
+      v.add(base + 'or');
+      v.add(base + 'ors');
+      v.add(base + 'ing');
+      v.add(base + 'al');
+      v.add(base + 'als');
+      if (!base.endsWith('ion')) v.add(base + 'ion');
+      if (!base.endsWith('ions')) v.add(base + 'ions');
+      // short prefix variant to support partial typing like "applica"
+      if (base.length > 4) v.add(base.slice(0, Math.max(4, Math.floor(base.length * 0.6))));
+      return Array.from(v);
+    };
+
+    const queryNorm = normalize(term);
+    const queryTokens = queryNorm.split(' ').filter(Boolean).map(singularize);
+    const queryVariants = queryTokens.map(generateVariants);
+
+    function isSubsequence(q: string, t: string) {
+      let i = 0, j = 0; // q in t
+      while (i < q.length && j < t.length) {
+        if (q[i] === t[j]) i++;
+        j++;
+      }
+      return i === q.length;
+    }
+
+    function scoreMatch(queryTokens: string[], title: string): number {
+      const tNorm = normalize(title);
+      const tTokens = tNorm.split(' ').filter(Boolean).map(singularize);
+      const tJoined = tTokens.join(' ');
+
+      // Exact equal
+      if (tJoined === queryTokens.join(' ')) return 1000;
+      let score = 0;
+
+      // Starts with full query
+      if (tJoined.startsWith(queryTokens.join(' '))) score += 800;
+
+      // All tokens prefix some title tokens (e.g., "application te" -> "applications tester")
+      const allPrefix = queryTokens.every((qt, i) => {
+        const variants = queryVariants[i] || [qt];
+        return tTokens.some(tt => variants.some(v => tt.startsWith(v)));
+      });
+      if (allPrefix) score += 700;
+
+      // Word-start matches and order bonus
+      let orderIdx = -1;
+      let orderMatches = 0;
+      for (let i = 0; i < queryTokens.length; i++) {
+        const qt = queryTokens[i];
+        const variants = queryVariants[i] || [qt];
+        const idx = tTokens.findIndex(tt => variants.some(v => tt.startsWith(v) || tt === v));
+        if (idx >= 0) {
+          if (idx > orderIdx) orderMatches++;
+          orderIdx = idx;
+          score += 40; // per-token prefix bonus
+        }
+      }
+      if (orderMatches >= 2) score += 60; // sequential order bonus
+
+      // Substring includes
+      if (tJoined.includes(queryTokens.join(' '))) score += 300;
+
+      // Fuzzy subsequence for each token
+      for (let i = 0; i < queryTokens.length; i++) {
+        const qt = queryTokens[i];
+        const variants = queryVariants[i] || [qt];
+        if (variants.some(v => isSubsequence(v, tJoined))) score += 30;
+      }
+
+      // Shorter titles with earlier matches rank a bit higher
+      score += Math.max(0, 50 - Math.max(0, tJoined.indexOf(queryTokens[0] || '')));
+      score += Math.max(0, 80 - tJoined.length);
+
+      return score;
+    }
+
+    // Rank, then deduplicate by slug/state/location; keep all matches (scrollable list)
+    const ranked = pool
+      .map(o => ({ item: o, score: scoreMatch(queryTokens, o.display) }))
+      .filter(x => x.score > 0)
+      .sort((a, b) => b.score - a.score);
+
+    const seen = new Set<string>();
+    const deduped: OccupationSuggestion[] = [];
+    for (const r of ranked) {
+      const key = `${r.item.slug}|${r.item.state ?? ''}|${r.item.location ?? ''}`;
+      if (!seen.has(key)) {
+        seen.add(key);
+        deduped.push(r.item);
+      }
+    }
+
+    setOccupationSuggestions(deduped);
     setIsOccupationDropdownOpen(true);
-  }, [searchQuery, isHome, selectedCountry, allOccupations, isOccupationDropdownOpen, occupationSuggestions.length]);
+  }, [debouncedQuery, isHome, selectedCountry, allOccupations, isOccupationDropdownOpen, occupationSuggestions.length]);
+
+  // Debounce user input to avoid recalculating on every keystroke
+  useEffect(() => {
+    const id = setTimeout(() => setDebouncedQuery(searchQuery), 250);
+    return () => clearTimeout(id);
+  }, [searchQuery]);
 
   // Initialize selected country from URL on non-home pages
   useEffect(() => {
@@ -576,20 +689,77 @@ export function SearchableDropdown({
           className={`absolute ${dropdownPosition === 'top' ? 'bottom-full mb-2' : 'top-full mt-2'} left-0 ${fullWidth ? 'w-full' : 'w-full sm:w-80 lg:w-96'} ${dropdownBgClass} rounded-lg shadow-xl ring-1 ring-black ring-opacity-5 z-50 border`} 
           onMouseDown={(e) => e.preventDefault()}
         >
-          <div className="py-1 max-h-[300px] overflow-y-auto">
-            {occupationSuggestions.map(s => (
-              <button
-                key={`${s.slug}-${s.state ?? 'na'}`}
-                onClick={() => handleOccupationSelect(s)}
-                disabled={isLoading || isOccupationLoading}
-                className="w-full text-left px-4 py-2 text-sm text-foreground hover:bg-primary/5 hover:text-primary transition-colors duration-150 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-between"
-              >
-                <span>{s.display}</span>
-                {(isLoading || isOccupationLoading) && (
-                  <Loader2 className="h-4 w-4 animate-spin text-primary" />
-                )}
-              </button>
-            ))}
+          <div
+            ref={virtualListRef}
+            className="py-1 max-h-[300px] overflow-y-auto"
+            onScroll={(e) => {
+              const el = e.currentTarget as HTMLDivElement;
+              setScrollTop(el.scrollTop);
+            }}
+          >
+            {(() => {
+              const itemHeight = 56; // px per row (approx)
+              const viewportHeight = 300; // matches max-h
+              const overscan = 6;
+              const startIndex = Math.max(0, Math.floor(scrollTop / itemHeight) - overscan);
+              const visibleCount = Math.ceil(viewportHeight / itemHeight) + overscan * 2;
+              const endIndex = Math.min(occupationSuggestions.length, startIndex + visibleCount);
+              const totalHeight = occupationSuggestions.length * itemHeight;
+              const offsetY = startIndex * itemHeight;
+              const slice = occupationSuggestions.slice(startIndex, endIndex);
+
+              return (
+                <div style={{ height: totalHeight }}>
+                  <div style={{ transform: `translateY(${offsetY}px)` }}>
+                    {slice.map(s => {
+              const subtitleParts: string[] = [];
+              if (s.state) subtitleParts.push(s.state);
+              if (s.location) subtitleParts.push(s.location);
+              const region = subtitleParts.join(' • ');
+              const formatCurrency = (amount?: number | null, currencyCode?: string | null) => {
+                if (typeof amount !== 'number' || !isFinite(amount)) return null;
+                const countrySlug = selectedCountry?.slug;
+                const defaultLocale = countrySlug === 'australia' ? 'en-AU' : countrySlug === 'india' ? 'en-IN' : undefined;
+                const code = currencyCode || (countrySlug === 'australia' ? 'AUD' : countrySlug === 'india' ? 'INR' : undefined);
+                try {
+                  if (code) {
+                    return new Intl.NumberFormat(defaultLocale, { style: 'currency', currency: code, maximumFractionDigits: 0 }).format(amount);
+                  }
+                  return new Intl.NumberFormat(defaultLocale, { maximumFractionDigits: 0 }).format(amount);
+                } catch {
+                  return `${code ?? ''} ${Math.round(amount)}`.trim();
+                }
+              };
+              const salary = formatCurrency(s.averageSalary ?? null, s.currencyCode ?? null);
+              return (
+                <button
+                  key={`${s.slug}-${s.state ?? 'na'}-${s.location ?? 'na'}`}
+                  onClick={() => handleOccupationSelect(s)}
+                  disabled={isLoading || isOccupationLoading}
+                  className="w-full text-left px-4 py-2 text-sm text-foreground hover:bg-primary/5 hover:text-primary transition-colors duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex-1 min-w-0">
+                      <div className="font-medium truncate">{s.display}</div>
+                      {(region || salary) && (
+                        <div className="text-xs text-muted-foreground mt-0.5 truncate">
+                          {region}
+                          {region && salary ? ' • ' : ''}
+                          {salary}
+                        </div>
+                      )}
+                    </div>
+                    {(isLoading || isOccupationLoading) && (
+                      <Loader2 className="h-4 w-4 mt-1 shrink-0 animate-spin text-primary" />
+                    )}
+                  </div>
+                </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              );
+            })()}
           </div>
         </div>
       )}

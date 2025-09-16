@@ -8,13 +8,14 @@ import { WhyItMattersSection } from "@/components/about/why-it-matters-section";
 import { DataQualitySection } from "@/components/about/data-quality-section";
 import { AboutCTASection } from "@/components/about/cta-section";
 
-// Shorter revalidation for testing (can be increased later)
-export const revalidate = 31536000; // 1 minute for testing
+
+
+
+export const revalidate = 31536000;
 export const dynamicParams = false;
 
-// export const dynamicParams = true;
-// export const revalidate = 0;
-
+// Shorter revalidation for testing (can be increased later)
+// 1 minute for testing
 export const metadata: Metadata = {
   title: "About - RollThePay",
   description: "Learn about RollThePay's mission to provide accurate salary information and increase transparency in the labor market.",

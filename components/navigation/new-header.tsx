@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import { Logo } from "./logo";
 import { Button } from "@/components/ui/button";
 import { Menu, X, ChevronDown, Search, ArrowRight, Check } from "lucide-react";
@@ -122,13 +122,23 @@ const continents = [
 ];
 
 // Header-specific occupation searchable dropdown component
-function HeaderSearchableDropdown({ allOccupations = [] as Array<{ country: string; title: string; slug: string; state: string | null; location: string | null; }> }: { allOccupations?: Array<{ country: string; title: string; slug: string; state: string | null; location: string | null; }> }) {
+type HeaderOccupation = {
+  country: string;
+  title: string;
+  slug: string;
+  state: string | null;
+  location: string | null;
+  averageSalary?: number | null;
+  currencyCode?: string | null;
+};
+
+function HeaderSearchableDropdown({ allOccupations = [] as Array<HeaderOccupation> }: { allOccupations?: Array<HeaderOccupation> }) {
   const [searchQuery, setSearchQuery] = useState("");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [filteredCountries, setFilteredCountries] = useState<any[]>([]);
   const [selectedCountry, setSelectedCountry] = useState<any>(null);
   const [isOccupationDropdownOpen, setIsOccupationDropdownOpen] = useState(false);
-  const [occupationSuggestions, setOccupationSuggestions] = useState<any[]>([]);
+  const [occupationSuggestions, setOccupationSuggestions] = useState<Array<HeaderOccupation & { display: string }>>([]);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const chipRef = useRef<HTMLSpanElement>(null);
@@ -136,6 +146,9 @@ function HeaderSearchableDropdown({ allOccupations = [] as Array<{ country: stri
   const router = useRouter();
   const pathname = usePathname();
   const isHome = pathname === "/";
+  const [debouncedQuery, setDebouncedQuery] = useState("");
+  const virtualListRef = useRef<HTMLDivElement>(null);
+  const [scrollTop, setScrollTop] = useState(0);
 
   // Get country from URL if available
   useEffect(() => {
@@ -194,40 +207,95 @@ function HeaderSearchableDropdown({ allOccupations = [] as Array<{ country: stri
       return;
     }
     
-    const term = searchQuery.trim().toLowerCase();
+    const term = debouncedQuery.trim().toLowerCase();
     
-    // Only show occupation dropdown if user has typed at least 3 characters
-    if (term.length < 3) {
+    // Only show occupation dropdown if user has typed at least 2 characters
+    if (term.length < 2) {
       setOccupationSuggestions([]);
       setIsOccupationDropdownOpen(false);
       return;
     }
     
-    // Build from provided occupations
-    const termNormalized = term.replace(/[^a-z0-9\s-]/g, "");
+    // Fuzzy + strict ranking mirroring components/ui/searchable-dropdown.tsx
     const pool = allOccupations
       .filter(o => o.country.toLowerCase() === selectedCountry.slug)
-      .map(o => {
-        const raw = o.title || "";
-        const cleaned = raw
-          .replace(/^Average\s+/i, "")
-          .replace(/\s+Salary.*$/i, "")
-          .trim();
-        return {
-          title: raw,
-          slug: o.slug,
-          state: o.state,
-          location: o.location,
-          display: cleaned,
-          haystack: `${cleaned} ${o.slug}`.toLowerCase()
-        };
-      })
+      .map(o => ({ ...o, display: (o.title || "").replace(/^Average\s+/i, "").trim() }))
       .sort((a, b) => a.display.localeCompare(b.display));
 
-    const matches = pool.filter(o => o.haystack.includes(termNormalized));
-    setOccupationSuggestions(matches.slice(0, 20));
+    const normalize = (s: string) => s.toLowerCase().normalize('NFKD').replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, ' ').trim();
+    const singularize = (s: string) => s.endsWith('s') ? s.slice(0, -1) : s;
+    const generateVariants = (token: string): string[] => {
+      const base = singularize(token);
+      const v = new Set<string>([token, base]);
+      v.add(base + 's'); v.add(base + 'er'); v.add(base + 'ers'); v.add(base + 'or'); v.add(base + 'ors'); v.add(base + 'ing'); v.add(base + 'al'); v.add(base + 'als');
+      if (!base.endsWith('ion')) v.add(base + 'ion');
+      if (!base.endsWith('ions')) v.add(base + 'ions');
+      if (base.length > 4) v.add(base.slice(0, Math.max(4, Math.floor(base.length * 0.6))));
+      return Array.from(v);
+    };
+
+    const queryNorm = normalize(term);
+    const queryTokens = queryNorm.split(' ').filter(Boolean).map(singularize);
+    const queryVariants = queryTokens.map(generateVariants);
+
+    function isSubsequence(q: string, t: string) {
+      let i = 0, j = 0;
+      while (i < q.length && j < t.length) { if (q[i] === t[j]) i++; j++; }
+      return i === q.length;
+    }
+
+    function scoreMatch(title: string): number {
+      const tNorm = normalize(title);
+      const tTokens = tNorm.split(' ').filter(Boolean).map(singularize);
+      const tJoined = tTokens.join(' ');
+      if (tJoined === queryTokens.join(' ')) return 1000;
+      let score = 0;
+      if (tJoined.startsWith(queryTokens.join(' '))) score += 800;
+      const allPrefix = queryTokens.every((qt, i) => {
+        const variants = queryVariants[i] || [qt];
+        return tTokens.some(tt => variants.some(v => tt.startsWith(v)));
+      });
+      if (allPrefix) score += 700;
+      let orderIdx = -1, orderMatches = 0;
+      for (let i = 0; i < queryTokens.length; i++) {
+        const qt = queryTokens[i];
+        const variants = queryVariants[i] || [qt];
+        const idx = tTokens.findIndex(tt => variants.some(v => tt.startsWith(v) || tt === v));
+        if (idx >= 0) { if (idx > orderIdx) orderMatches++; orderIdx = idx; score += 40; }
+      }
+      if (orderMatches >= 2) score += 60;
+      if (tJoined.includes(queryTokens.join(' '))) score += 300;
+      for (let i = 0; i < queryTokens.length; i++) {
+        const qt = queryTokens[i];
+        const variants = queryVariants[i] || [qt];
+        if (variants.some(v => isSubsequence(v, tJoined))) score += 30;
+      }
+      score += Math.max(0, 50 - Math.max(0, tJoined.indexOf(queryTokens[0] || '')));
+      score += Math.max(0, 80 - tJoined.length);
+      return score;
+    }
+
+    const ranked = pool
+      .map(o => ({ item: o, score: scoreMatch(o.display) }))
+      .filter(x => x.score > 0)
+      .sort((a, b) => b.score - a.score);
+
+    const seen = new Set<string>();
+    const deduped: Array<HeaderOccupation & { display: string }> = [];
+    for (const r of ranked) {
+      const key = `${r.item.slug}|${r.item.state ?? ''}|${r.item.location ?? ''}`;
+      if (!seen.has(key)) { seen.add(key); deduped.push(r.item); }
+    }
+
+    setOccupationSuggestions(deduped);
     setIsOccupationDropdownOpen(true);
-  }, [searchQuery, selectedCountry, isOccupationDropdownOpen, occupationSuggestions.length, allOccupations]);
+  }, [debouncedQuery, selectedCountry, isOccupationDropdownOpen, occupationSuggestions.length, allOccupations]);
+
+  // Debounce input
+  useEffect(() => {
+    const id = setTimeout(() => setDebouncedQuery(searchQuery), 250);
+    return () => clearTimeout(id);
+  }, [searchQuery]);
 
   // Handle click outside to close dropdown
   useEffect(() => {
@@ -349,7 +417,7 @@ function HeaderSearchableDropdown({ allOccupations = [] as Array<{ country: stri
               setIsOccupationDropdownOpen(true);
             }
           }}
-          className="block w-full pr-20 py-2 border border-input rounded-md text-sm text-foreground placeholder-muted-foreground bg-background focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
+          className="block w-full pr-20 py-2 border-input border rounded-md text-sm text-foreground placeholder-muted-foreground bg-background focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
           style={{ 
             paddingLeft: selectedCountry ? 48 + chipWidth + 12 : 48
           }}
@@ -369,7 +437,7 @@ function HeaderSearchableDropdown({ allOccupations = [] as Array<{ country: stri
                     ? `Go to first result: ${occupationSuggestions[0].display}` 
                     : `Go to ${selectedCountry.name}`
               }
-              className="mr-2 inline-flex h-6 w-6 items-center justify-center rounded-md border border-primary text-primary bg-background hover:bg-primary/5 cursor-pointer"
+              className="mr-2 inline-flex h-6 w-6 items-center justify-center rounded-md border-primary border text-primary bg-background hover:bg-primary/5 cursor-pointer"
             >
               <ArrowRight className="h-3 w-3" />
             </button>
@@ -393,7 +461,7 @@ function HeaderSearchableDropdown({ allOccupations = [] as Array<{ country: stri
 
       {/* Country dropdown (home only) */}
       {isHome && isDropdownOpen && !selectedCountry && (
-        <div className="absolute top-full mt-1 left-0 right-0 bg-background rounded-lg shadow-xl ring-1 ring-black ring-opacity-5 z-50 border border">
+        <div className="absolute top-full mt-1 left-0 right-0 bg-background rounded-lg shadow-xl ring-1 ring-black ring-opacity-5 z-50 border">
           <div className="py-1 max-h-[300px] overflow-y-auto">
             {groupedCountries.length > 0 ? (
               groupedCountries.map((continent) => (
@@ -438,39 +506,90 @@ function HeaderSearchableDropdown({ allOccupations = [] as Array<{ country: stri
       {/* Occupation suggestions dropdown */}
       {selectedCountry && isOccupationDropdownOpen && (
         <div 
-          className="absolute top-full mt-1 left-0 right-0 bg-background rounded-lg shadow-xl ring-1 ring-black ring-opacity-5 z-50 border border" 
+          className="absolute top-full mt-1 left-0 right-0 bg-background rounded-lg shadow-xl ring-1 ring-black ring-opacity-5 z-50 border" 
           onMouseDown={(e) => e.preventDefault()}
         >
-          <div className="py-1 max-h-[300px] overflow-y-auto">
-            {occupationSuggestions.map(s => (
-              <button
-                key={`${s.slug}-${s.state ?? 'na'}`}
-                onClick={() => {
-                  setIsDropdownOpen(false);
-                  setIsOccupationDropdownOpen(false);
-                  setSearchQuery("");
-                  
-                  // Build the URL according to our routing rules
-                  let url = `/${selectedCountry.slug}`;
-                  
-                  if (s.state) {
-                    const normalizedState = s.state.toLowerCase().replace(/\s+/g, '-');
-                    url += `/${normalizedState}`;
-                    
-                    if (s.location) {
-                      const normalizedLocation = s.location.toLowerCase().replace(/\s+/g, '-');
-                      url += `/${normalizedLocation}`;
-                    }
-                  }
-                  
-                  url += `/${s.slug}`;
-                  router.push(url);
-                }}
-                className="w-full text-left px-4 py-2 text-sm text-foreground hover:bg-primary/5 hover:text-primary transition-colors duration-150"
-              >
-                {s.display}
-              </button>
-            ))}
+          <div
+            ref={virtualListRef}
+            className="py-1 max-h-[300px] overflow-y-auto"
+            onScroll={(e) => {
+              const el = e.currentTarget as HTMLDivElement;
+              setScrollTop(el.scrollTop);
+            }}
+          >
+            {(() => {
+              const itemHeight = 56;
+              const viewportHeight = 300;
+              const overscan = 6;
+              const startIndex = Math.max(0, Math.floor(scrollTop / itemHeight) - overscan);
+              const visibleCount = Math.ceil(viewportHeight / itemHeight) + overscan * 2;
+              const endIndex = Math.min(occupationSuggestions.length, startIndex + visibleCount);
+              const totalHeight = occupationSuggestions.length * itemHeight;
+              const offsetY = startIndex * itemHeight;
+              const slice = occupationSuggestions.slice(startIndex, endIndex);
+
+              const formatCurrency = (amount?: number | null, currencyCode?: string | null) => {
+                if (typeof amount !== 'number' || !isFinite(amount)) return null;
+                const countrySlug = selectedCountry?.slug;
+                const defaultLocale = countrySlug === 'australia' ? 'en-AU' : countrySlug === 'india' ? 'en-IN' : undefined;
+                const code = currencyCode || (countrySlug === 'australia' ? 'AUD' : countrySlug === 'india' ? 'INR' : undefined);
+                try {
+                  if (code) return new Intl.NumberFormat(defaultLocale, { style: 'currency', currency: code, maximumFractionDigits: 0 }).format(amount);
+                  return new Intl.NumberFormat(defaultLocale, { maximumFractionDigits: 0 }).format(amount);
+                } catch {
+                  return `${code ?? ''} ${Math.round(amount)}`.trim();
+                }
+              };
+
+              return (
+                <div style={{ height: totalHeight }}>
+                  <div style={{ transform: `translateY(${offsetY}px)` }}>
+                    {slice.map(s => {
+                      const subtitleParts: string[] = [];
+                      if (s.state) subtitleParts.push(s.state);
+                      if (s.location) subtitleParts.push(s.location);
+                      const region = subtitleParts.join(' • ');
+                      const salary = formatCurrency(s.averageSalary ?? null, s.currencyCode ?? null);
+                      return (
+                        <button
+                          key={`${s.slug}-${s.state ?? 'na'}-${s.location ?? 'na'}`}
+                          onClick={() => {
+                            setIsDropdownOpen(false);
+                            setIsOccupationDropdownOpen(false);
+                            setSearchQuery("");
+                            let url = `/${selectedCountry.slug}`;
+                            if (s.state) {
+                              const normalizedState = s.state.toLowerCase().replace(/\s+/g, '-');
+                              url += `/${normalizedState}`;
+                              if (s.location) {
+                                const normalizedLocation = s.location.toLowerCase().replace(/\s+/g, '-');
+                                url += `/${normalizedLocation}`;
+                              }
+                            }
+                            url += `/${s.slug}`;
+                            router.push(url);
+                          }}
+                          className="w-full text-left px-4 py-2 text-sm text-foreground hover:bg-primary/5 hover:text-primary transition-colors duration-150"
+                        >
+                          <div className="flex items-start justify-between gap-3">
+                            <div className="flex-1 min-w-0">
+                              <div className="font-medium truncate">{s.display}</div>
+                              {(region || salary) && (
+                                <div className="text-xs text-muted-foreground mt-0.5 truncate">
+                                  {region}
+                                  {region && salary ? ' • ' : ''}
+                                  {salary}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              );
+            })()}
           </div>
         </div>
       )}
@@ -534,7 +653,7 @@ export function NewHeader({ allOccupations = [] as Array<{ country: string; titl
                 {/* Dropdown Content */}
                 {hoveredContinent === continent.code && (
                   <div 
-                    className="absolute top-full right-0 mt-1 w-64 bg-background rounded-lg shadow-xl ring-1 ring-black ring-opacity-5 z-50 border border"
+                    className="absolute top-full right-0 mt-1 w-64 bg-background rounded-lg shadow-xl ring-1 ring-black ring-opacity-5 z-50 border"
                     onMouseEnter={() => handleMouseEnter(continent.code)}
                     onMouseLeave={handleMouseLeave}
                   >
