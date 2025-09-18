@@ -34,9 +34,10 @@ export function OccupationHeroSection({
           
           {avgSalary && (
             <div className="mt-8">
-              <div className="inline-flex items-center px-6 py-3 bg-green-100 text-green-800 rounded-full text-lg font-medium">
+              <div className="inline-flex items-center px-6 py-3 bg-chart-1/10
+               text-primary rounded-full text-lg font-semibold">
                 <span className="mr-2">💰</span>
-                Average Annual Salary: {avgSalary}
+                Average Annual Salary: <span className="ml-2 font-bold">{avgSalary}</span>
               </div>
             </div>
           )}

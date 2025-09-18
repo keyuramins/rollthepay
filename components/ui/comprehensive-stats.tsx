@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { PercentilesChart } from "@/components/ui/percentiles-chart";
 import { SalaryBreakdownTable } from "@/components/ui/salary-breakdown-table";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, BarChart, Bar, AreaChart, Area, PieChart, Pie, Cell } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, BarChart, Bar, AreaChart, Area, PieChart, Pie, Cell, Label } from 'recharts';
 import {
   DollarSign,
   Clock,
@@ -245,7 +245,7 @@ function SalaryRangeBar({ record }: { record: any }) {
     <>
       <Card>
         <CardHeader>
-          <CardTitle className="text-foreground">Salary Range</CardTitle>
+          <CardTitle className="text-foreground">Yearly Salary Range</CardTitle>
           <CardDescription className="text-muted-foreground">Complete compensation range from entry level to senior positions</CardDescription>
         </CardHeader>
         <CardContent>
@@ -318,29 +318,10 @@ function SalaryRangeBar({ record }: { record: any }) {
                 </Tooltip>
 
               </div>
-
-              {/* Enhanced labels below the chart */}
-              <div className="flex justify-between mt-4 relative">
-                <div className="text-center">
-                  <div className="w-1 h-5 bg-primary mx-auto mb-2 rounded-full"></div>
-                  <span className="text-xs font-medium text-muted-foreground">Entry Level</span>
-                  <div className="text-xs text-muted-foreground mt-1">${Number(low).toLocaleString()}</div>
-                </div>
-                <div className="text-center absolute" style={{ left: `${avgPosition}%`, transform: 'translateX(-50%)' }}>
-                  <div className="w-1 h-5 bg-primary mx-auto mb-2 rounded-full"></div>
-                  <span className="text-xs font-medium text-primary">Market Average</span>
-                  <div className="text-xs text-primary mt-1">${Number(avg).toLocaleString()}</div>
-                </div>
-                <div className="text-center">
-                  <div className="w-1 h-5 bg-primary mx-auto mb-2 rounded-full"></div>
-                  <span className="text-xs font-medium text-primary">Senior Level</span>
-                  <div className="text-xs text-muted-foreground mt-1">${Number(high).toLocaleString()}</div>
-                </div>
-              </div>
             </div>
 
             {/* Additional Statistics */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4 border-t">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4">
               <div className="text-center p-4 bg-orange-50 rounded-lg border border-orange-200">
                 <p className="text-xs font-medium text-orange-600 mb-2">Range Spread</p>
                 <p className="text-lg font-bold text-orange-600">
@@ -366,145 +347,253 @@ function SalaryRangeBar({ record }: { record: any }) {
           </div>
         </CardContent>
       </Card>
+    </>
+  );
+}
 
-      {/* Gender Salary Comparison Card */}
-      <Card className="mt-6">
-        <CardHeader>
-          {(() => {
-            const titleText = record.title || record.h1Title || record.occupation || 'This Role';
-            return (
-              <>
-                <CardTitle>Gender comparison</CardTitle>
-                <CardDescription>
-                  As indicated, the accent colour represents the percentage share for women and the
-                  primary colour represents the percentage share for men.
-                </CardDescription>
-              </>
-            );
-          })()}
-        </CardHeader>
-        <CardContent>
-          {(() => {
-            const m = Number(record.genderMale || 0);
-            const f = Number(record.genderFemale || 0);
-            const total = m + f;
-            const center = total > 0 ? `${Math.max(m, f).toFixed(0)}%` : '—';
-            const dominant = f > m ? 'female' : m > f ? 'male' : 'equal';
-            const role = record.title || record.occupation || 'this role';
-            // Use exact Venus and Mars colors to match the icons
-            const maleColor = 'rgb(34 197 94)';   // tailwind green-500 (matches Mars icon)
-            const femaleColor = 'rgb(245 158 11)'; // tailwind amber-500 (matches Venus icon)
-            const chartData = [
-              { name: 'Male', value: m, color: maleColor },
-              { name: 'Female', value: f, color: femaleColor },
-            ];
+const GenderCard = ({ record }: { record: any }) => {
+  return (
+    <Card className="mt-6">
+    <CardHeader>
+      {(() => {
+        const titleText = record.title || record.h1Title || record.occupation || 'This Role';
+        return (
+          <>
+            <CardTitle>Gender comparison</CardTitle>
+            <CardDescription>
+              As indicated, the accent colour represents the percentage share for women and the
+              primary colour represents the percentage share for men.
+            </CardDescription>
+          </>
+        );
+      })()}
+    </CardHeader>
+    <CardContent>
+      {(() => {
+        const m = Number(record.genderMale || 0);
+        const f = Number(record.genderFemale || 0);
+        const total = m + f;
+        const center = total > 0 ? `${Math.max(m, f).toFixed(0)}%` : '—';
+        const dominant = f > m ? 'female' : m > f ? 'male' : 'equal';
+        const role = record.title || record.occupation || 'this role';
+        // Use exact Venus and Mars colors to match the icons
+        const maleColor = 'rgb(34 197 94)';   // tailwind green-500 (matches Mars icon)
+        const femaleColor = 'rgb(245 158 11)'; // tailwind amber-500 (matches Venus icon)
+        const chartData = [
+          { name: 'Male', value: m, color: maleColor },
+          { name: 'Female', value: f, color: femaleColor },
+        ];
 
-            const renderSegmentLabel = (props: any) => {
-              const { cx, cy, midAngle, innerRadius, outerRadius, percent, value } = props;
-              if (!value || value <= 0) return null;
-              const RADIAN = Math.PI / 180;
-              // Place the label at the radial midpoint of the donut for perfect vertical centering
-              const ringCenterRadius = innerRadius + (outerRadius - innerRadius) / 2;
-              const x = cx + ringCenterRadius * Math.cos(-midAngle * RADIAN);
-              const y = cy + ringCenterRadius * Math.sin(-midAngle * RADIAN);
-              return (
-                <text x={x} y={y} fill="white" textAnchor="middle"
-                  dominantBaseline="central" fontSize={12} fontWeight={700}>
-                  {Math.round(percent * 100)}%
-                </text>
-              );
-            };
+        const renderSegmentLabel = (props: any) => {
+          const { cx, cy, midAngle, innerRadius, outerRadius, percent, value } = props;
+          if (!value || value <= 0) return null;
+          const RADIAN = Math.PI / 180;
+          // Place the label at the radial midpoint of the donut for perfect vertical centering
+          const ringCenterRadius = innerRadius + (outerRadius - innerRadius) / 2;
+          const x = cx + ringCenterRadius * Math.cos(-midAngle * RADIAN);
+          const y = cy + ringCenterRadius * Math.sin(-midAngle * RADIAN);
+          return (
+            <text x={x} y={y} fill="white" textAnchor="middle"
+              dominantBaseline="central" fontSize={12} fontWeight={700}>
+              {Math.round(percent * 100)}%
+            </text>
+          );
+        };
 
-            return (
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
-                {/* Visual side */}
-                <div className="grid grid-cols-3 gap-6 items-center">
-                  <div className="flex flex-col items-center gap-2">
-                    <div className="flex items-center justify-center">
-                      <Image
-                        src="/female.png"
-                        alt="Female"
-                        width={24}
-                        height={24}
-                        className="h-12 w-8"
-                      />
-                    </div>
+        return (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
+            {/* Visual side */}
+            <div className="grid grid-cols-3 gap-6 items-center">
+              <div className="flex flex-col items-center gap-2">
+                <div className="flex items-center justify-center">
+                  <Image
+                    src="/female.png"
+                    alt="Female"
+                    width={24}
+                    height={24}
+                    className="h-12 w-8"
+                  />
+                </div>
+                <span className="text-xs text-muted-foreground">Female</span>
+              </div>
+
+              <div className="flex flex-col items-center">
+                <div className="relative">
+                  <div className="bg-card rounded-full border w-48 h-48 flex items-center justify-center">
+                    <ResponsiveContainer width={192} height={192}>
+                      <PieChart>
+                        <Pie
+                          data={chartData}
+                          dataKey="value"
+                          cx="50%"
+                          cy="50%"
+                          innerRadius={50}
+                          outerRadius={88}
+                          stroke="#ffffff"
+                          strokeWidth={2}
+                          labelLine={false}
+                          label={renderSegmentLabel}
+                        >
+                          <Cell fill={"var(--chart-1)"} />
+                          <Cell fill={"var(--color-amber-600)"} />
+                        </Pie>
+                      </PieChart>
+                    </ResponsiveContainer>
+                    <span
+                      className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 px-2 py-0.5 rounded-md text-xl font-extrabold ${dominant === 'female' ? 'text-amber-600' : dominant === 'male' ? 'text-chart-1' : 'text-foreground'}`}
+                    >
+                      {center}
+                    </span>
+                  </div>
+                </div>
+                <div className="mt-4 flex items-center gap-6">
+                  <div className="flex items-center gap-2">
+                    <span className="inline-block w-4 h-3 rounded-sm bg-amber-600" />
                     <span className="text-xs text-muted-foreground">Female</span>
                   </div>
-
-                  <div className="flex flex-col items-center">
-                    <div className="relative">
-                      <div className="bg-card rounded-full border w-48 h-48 flex items-center justify-center">
-                        <ResponsiveContainer width={192} height={192}>
-                          <PieChart>
-                            <Pie
-                              data={chartData}
-                              dataKey="value"
-                              cx="50%"
-                              cy="50%"
-                              innerRadius={50}
-                              outerRadius={88}
-                              stroke="#ffffff"
-                              strokeWidth={2}
-                              labelLine={false}
-                              label={renderSegmentLabel}
-                            >
-                              <Cell fill={"var(--chart-1)"} />
-                              <Cell fill={"var(--color-amber-600)"} />
-                            </Pie>
-                          </PieChart>
-                        </ResponsiveContainer>
-                        <span
-                          className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 px-2 py-0.5 rounded-md text-xl font-extrabold ${dominant === 'female' ? 'text-amber-600' : dominant === 'male' ? 'text-chart-1' : 'text-foreground'}`}
-                        >
-                          {center}
-                        </span>
-                      </div>
-                    </div>
-                    <div className="mt-4 flex items-center gap-6">
-                      <div className="flex items-center gap-2">
-                        <span className="inline-block w-4 h-3 rounded-sm bg-amber-600" />
-                        <span className="text-xs text-muted-foreground">Female</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <span className="inline-block w-4 h-3 rounded-sm bg-chart-1" />
-                        <span className="text-xs text-muted-foreground">Male</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="flex flex-col items-center gap-2">
-                    <Image
-                      src="/male.png"
-                      alt="Male"
-                      width={24}
-                      height={24}
-                      // Mask the image to solid --primry color, the image is a png
-                      className="h-12 w-8"
-                    />
+                  <div className="flex items-center gap-2">
+                    <span className="inline-block w-4 h-3 rounded-sm bg-chart-1" />
                     <span className="text-xs text-muted-foreground">Male</span>
                   </div>
                 </div>
-
-                {/* Text side */}
-                <div className="space-y-4">
-                  <p className="text-sm text-foreground">
-                    This pie chart demonstrates the gender share for {role}. As indicated, the golden colour represents the percentage share
-                    for women and the green represents the percentage share for men.
-                  </p>
-                  <p className="text-sm text-foreground">
-                    {total === 0 && 'No gender distribution data is available for this profession.'}
-                    {total > 0 && dominant === 'female' && `As shown via chart, female employees are involved ${f}% in contrast with male at ${m}%.`}
-                    {total > 0 && dominant === 'male' && `As shown via chart, male employees are involved ${m}% in contrast with female at ${f}%.`}
-                    {total > 0 && dominant === 'equal' && 'As shown via chart, the shares are evenly balanced between male and female.'}
-                  </p>
-                </div>
               </div>
-            );
-          })()}
-        </CardContent>
-      </Card>
-    </>
+
+              <div className="flex flex-col items-center gap-2">
+                <Image
+                  src="/male.png"
+                  alt="Male"
+                  width={24}
+                  height={24}
+                  // Mask the image to solid --primry color, the image is a png
+                  className="h-12 w-8"
+                />
+                <span className="text-xs text-muted-foreground">Male</span>
+              </div>
+            </div>
+
+            {/* Text side */}
+            <div className="space-y-4">
+              <p className="text-sm text-foreground">
+                This pie chart demonstrates the gender share for {role}. As indicated, the golden colour represents the percentage share
+                for women and the green represents the percentage share for men.
+              </p>
+              <p className="text-sm text-foreground">
+                {total === 0 && 'No gender distribution data is available for this profession.'}
+                {total > 0 && dominant === 'female' && `As shown via chart, female employees are involved ${f}% in contrast with male at ${m}%.`}
+                {total > 0 && dominant === 'male' && `As shown via chart, male employees are involved ${m}% in contrast with female at ${f}%.`}
+                {total > 0 && dominant === 'equal' && 'As shown via chart, the shares are evenly balanced between male and female.'}
+              </p>
+            </div>
+          </div>
+        );
+      })()}
+    </CardContent>
+  </Card>
+  )
+}
+
+// Enhanced Horizontal Hourly Salary Range Bar Component
+function HourlySalaryRangeBar({ record }: { record: any }) {
+  // Prefer explicit hourly fields, fallback to annual/2080 if missing
+  const fallbackHoursPerYear = 2080;
+  const low = record.hourlyLowValue ?? (record.totalPayMin != null ? Number(record.totalPayMin) / fallbackHoursPerYear : undefined);
+  const high = record.hourlyHighValue ?? (record.totalPayMax != null ? Number(record.totalPayMax) / fallbackHoursPerYear : undefined);
+  const avg = record.avgHourlySalary ?? (record.avgAnnualSalary != null ? Number(record.avgAnnualSalary) / fallbackHoursPerYear : undefined);
+
+  if (!low || !high || !avg) return null;
+
+  const totalRange = Number(high) - Number(low);
+  if (totalRange <= 0) return null;
+  const avgPosition = ((Number(avg) - Number(low)) / totalRange) * 100;
+
+  return (
+    <Card className="mt-6">
+      <CardHeader>
+        <CardTitle className="text-foreground">Hourly Salary Range</CardTitle>
+        <CardDescription className="text-muted-foreground">Hourly compensation range from entry level to senior positions</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-6">
+          <div className="relative">
+            {/* Value labels above the chart */}
+            <div className="flex justify-between mb-3">
+              <div className="text-center">
+                <span className="text-sm font-medium text-muted-foreground">${Number(low).toFixed(2)}</span>
+                <div className="text-xs text-muted-foreground mt-1">Entry Level</div>
+              </div>
+              <div className="text-center absolute" style={{ left: `${avgPosition}%`, transform: 'translateX(-50%)' }}>
+                <span className="text-sm font-semibold text-primary">${Number(avg).toFixed(2)}</span>
+                <div className="text-xs text-primary mt-1">Market Average</div>
+              </div>
+              <div className="text-center">
+                <span className="text-sm font-medium text-muted-foreground">${Number(high).toFixed(2)}</span>
+                <div className="text-xs text-muted-foreground mt-1">Senior Level</div>
+              </div>
+            </div>
+
+            {/* Range Bar */}
+            <div className="relative h-12 bg-muted rounded-full overflow-hidden border shadow-inner mt-4">
+              <div
+                className="absolute h-full rounded-full"
+                style={{
+                  width: '100%',
+                  background: 'linear-gradient(to right, var(--accent) 0%, var(--primary) 40%, var(--primary) 80%)'
+                }}
+              />
+
+              {/* Average marker line */}
+              <div
+                className="absolute top-0 h-full w-1.5 bg-accent shadow-lg"
+                style={{ left: `${avgPosition}%` }}
+              />
+
+              {/* Average marker dot with tooltip */}
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div
+                    className="absolute top-1/2 w-5 h-5 bg-primary rounded-full border-4 border-background shadow-xl transform -translate-y-1/2 -translate-x-1/2 cursor-pointer z-20 hover:scale-110 transition-transform duration-200"
+                    style={{ left: `${avgPosition}%` }}
+                  />
+                </TooltipTrigger>
+                <TooltipContent
+                  className="z-[9999] bg-primary text-white border-0 shadow-2xl px-4 py-2 text-sm font-bold"
+                  side="top"
+                  sideOffset={12}
+                  align="center"
+                >
+                  <p className="text-white">${Number(avg).toFixed(2)}/hr</p>
+                </TooltipContent>
+              </Tooltip>
+            </div>
+          </div>
+
+          {/* Additional Statistics */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4">
+            <div className="text-center p-4 bg-orange-50 rounded-lg border border-orange-200">
+              <p className="text-xs font-medium text-orange-600 mb-2">Range Spread</p>
+              <p className="text-lg font-bold text-orange-600">
+                ${(Number(high) - Number(low)).toFixed(2)}
+              </p>
+              <p className="text-xs text-orange-600 mt-1">Total range (per hour)</p>
+            </div>
+            <div className="text-center p-4 bg-green-50 rounded-lg border border-green-200">
+              <p className="text-xs font-medium text-green-600 mb-2">Average Position</p>
+              <p className="text-lg font-bold text-green-600">
+                {(((Number(avg) - Number(low)) / (Number(high) - Number(low))) * 100).toFixed(0)}%
+              </p>
+              <p className="text-xs text-green-600 mt-1">Above minimum</p>
+            </div>
+            <div className="text-center p-4 bg-primary/10 rounded-lg border border-primary/20">
+              <p className="text-xs font-medium text-primary mb-2">Growth Potential</p>
+              <p className="text-lg font-bold text-primary">
+                +{(((Number(high) - Number(avg)) / Number(avg)) * 100).toFixed(0)}%
+              </p>
+              <p className="text-xs text-primary mt-1">Above average</p>
+            </div>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
   );
 }
 
@@ -539,7 +628,7 @@ function ComprehensiveExperienceAnalysis({ record, country }: { record: any; cou
           <p className="text-sm text-muted-foreground mb-6">Hourly rate by experience level</p>
           <div className="h-80">
             <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={experienceLevels} margin={{ top: 50, right: 30, left: 20, bottom: 50 }}>
+              <AreaChart data={experienceLevels} margin={{ top: 50, right: 30, left: 56, bottom: 48 }}>
                 <defs>
                   <linearGradient id="stepGradient" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="0%" stopColor="var(--chart-1)" stopOpacity={0.3} />
@@ -557,6 +646,7 @@ function ComprehensiveExperienceAnalysis({ record, country }: { record: any; cou
                   dataKey="name"
                   axisLine={false}
                   tickLine={false}
+                  tickMargin={12}
                   tick={(props: any) => {
                     const { x, y, payload } = props;
                     const text: string = String(payload?.value ?? '');
@@ -564,9 +654,9 @@ function ComprehensiveExperienceAnalysis({ record, country }: { record: any; cou
                     const height = 28; // fixed pill height
                     const fontSize = 12;
                     const baseWidth = Math.max(42, text.length * 8); // approximate text width
-                    const width = (baseWidth + padX * 2) - 10;
+                    const width = (baseWidth + padX * 2) - 12;
                     const rectX = x - width / 2;
-                    const rectY = y + 25; // place below axis line
+                    const rectY = y ; // place below axis line
                     return (
                       <g>
                         <rect
@@ -594,14 +684,17 @@ function ComprehensiveExperienceAnalysis({ record, country }: { record: any; cou
                       </g>
                     );
                   }}
-                />
+                >
+                  <Label value="Experience level" position="insideBottom" offset={-40} style={{ fill: 'var(--muted-foreground)', fontSize: 14, fontWeight: 500 }} />
+                </XAxis>
                 <YAxis
-                  tickFormatter={(value: number) => `$${value.toLocaleString()}/hr`}
+                  width={80}
                   axisLine={false}
                   tickLine={false}
                   tick={(props: any) => {
                     const { x, y, payload } = props;
-                    const text = `$${Number(payload?.value ?? 0).toLocaleString()}/hr`;
+                    const v = Number(payload?.value ?? 0);
+                    const text = v >= 1000 ? `$${Math.round(v / 1000)}k/hr` : `$${v.toLocaleString()}/hr`;
                     const padX = 1; // horizontal padding inside pill
                     const height = 28; // fixed pill height
                     const fontSize = 12;
@@ -636,7 +729,9 @@ function ComprehensiveExperienceAnalysis({ record, country }: { record: any; cou
                       </g>
                     );
                   }}
-                />
+                >
+                  <Label value="Hourly rate ($/hr)" angle={-90} position="insideLeft" offset={-20} style={{ fill: 'var(--muted-foreground)', fontSize: 14, fontWeight: 500, textAnchor: 'middle' }} />
+                </YAxis>
 
                 <RechartsTooltip
                   formatter={(value: number) => [`$${value.toLocaleString()}/hr`, 'Hourly rate']}
@@ -658,7 +753,7 @@ function ComprehensiveExperienceAnalysis({ record, country }: { record: any; cou
                   dot={(props: any) => {
                     const { cx, cy, payload } = props;
                     const value = payload?.value;
-                    if (!value) return null;
+                    if (!value) return (<g></g>);
                     
                     const text = `$${Number(value).toLocaleString()}/hr`;
                     const textWidth = Math.max(text.length * 8, 55);
@@ -701,7 +796,7 @@ function ComprehensiveExperienceAnalysis({ record, country }: { record: any; cou
                   activeDot={(props: any) => {
                     const { cx, cy, payload } = props;
                     const value = payload?.value;
-                    if (!value) return null;
+                    if (!value) return (<g></g>);
                     
                     const text = `$${Number(value).toLocaleString()}/hr`;
                     const textWidth = Math.max(text.length * 8, 55);
@@ -745,11 +840,11 @@ function ComprehensiveExperienceAnalysis({ record, country }: { record: any; cou
               </AreaChart>
             </ResponsiveContainer>
           </div>
-          <div className="mt-3 flex justify-start">
+          <div className="mt-6 flex justify-start">
             <div className="flex justify-center w-full">
               <div className="flex items-center space-x-2 rounded-full px-2 py-1 bg-secondary/30 border border-border mt-2">
                 <div className="w-3 h-3 rounded-full bg-chart-1" />
-                <span className="text-sm text-foreground">Hourly salary</span>
+                <span className="text-sm text-primary font-bold">Hourly salary by experience level</span>
               </div>
             </div>
           </div>
@@ -1092,10 +1187,10 @@ export function ComprehensiveStats({ record, country }: ComprehensiveStatsProps)
       {/* Key Metrics Grid (3 cards) */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* Average Annual */}
-        <div className="relative overflow-hidden p-6 rounded-2xl border border-primary/20 bg-gradient-to-br from-blue-50 via-white to-blue-50 shadow-sm hover:shadow-md transition-shadow">
+        <div className="relative overflow-hidden p-6 rounded-2xl border border-primary/20 bg-gradient-to-br from-primary/5 via-white to-primary/5 shadow-sm hover:shadow-md transition-shadow">
           <div className="relative flex items-center justify-between">
             <div className="flex items-center space-x-3">
-              <div className="p-3 rounded-xl bg-primary text-white shadow">
+              <div className="p-3 rounded-xl bg-primary text-background shadow">
                 <DollarSign className="w-5 h-5" />
               </div>
               <div>
@@ -1165,6 +1260,17 @@ export function ComprehensiveStats({ record, country }: ComprehensiveStatsProps)
 
       {/* Enhanced Salary Range horizontal graph below cards */}
       <SalaryRangeBar
+        record={record}
+      />
+ 
+
+
+      {/* Hourly Salary Range graph */}
+      <HourlySalaryRangeBar
+        record={record}
+      />
+
+      <GenderCard
         record={record}
       />
 
@@ -1318,11 +1424,11 @@ export function ComprehensiveStats({ record, country }: ComprehensiveStatsProps)
                       {
                         /* Show icons basedon the skill */
                         skill.category === 'Software' ? <CodeIcon className="w-4 h-4 text-primary" /> :
-                          skill.category === 'Management' ? <UserIcon className="w-4 h-4 text-green-600" /> :
+                          skill.category === 'Management' ? <UserIcon className="w-4 h-4 text-primary" /> :
                             skill.category === 'Accounting' ? <CalculatorIcon className="w-4 h-4 text-primary" /> :
                               skill.category === 'Analysis' ? <ChartAreaIcon className="w-4 h-4 text-primary" /> :
                                 skill.category === 'Technical' ? <CodeIcon className="w-4 h-4 text-primary" /> :
-                                  skill.category === 'Process' ? <FlowerIcon className="w-4 h-4 text-green-600" /> :
+                                  skill.category === 'Process' ? <FlowerIcon className="w-4 h-4 text-primary" /> :
                                     skill.category === 'Communication' ? <MessageCircleIcon className="w-4 h-4 text-primary" /> : <CodeIcon className="w-4 h-4 text-primary" />
                       }
                     </div>
@@ -1430,7 +1536,7 @@ export function ComprehensiveStats({ record, country }: ComprehensiveStatsProps)
               </div>
               <div className="bg-secondary p-4 rounded-lg border border-border">
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-green-600">
+                  <div className="text-2xl font-bold text-primary">
                     ${record.avgHourlySalary ? Number(record.avgHourlySalary).toFixed(2) : 'N/A'}/hr
                   </div>
                   <div className="text-sm text-muted-foreground">Average Hourly Rate</div>
@@ -1677,7 +1783,7 @@ export function ComprehensiveStats({ record, country }: ComprehensiveStatsProps)
                     <div className="space-y-6">
                       {/* Growth Potential Analysis Card */}
                       <div className="bg-chart-1/5 rounded-xl p-8 border border-border">
-                        <h5 className="text-xl font-bold text-green-800 mb-6">Growth Potential Analysis</h5>
+                        <h5 className="text-xl font-bold text-primary mb-6">Growth Potential Analysis</h5>
                         <div className="space-y-4">
                           <div className="bg-background rounded-lg p-4">
                             <div className="flex justify-between items-center">
@@ -1699,7 +1805,7 @@ export function ComprehensiveStats({ record, country }: ComprehensiveStatsProps)
                             <div className="flex justify-between items-center">
                               <span className="text-sm font-medium text-foreground">Total Range:</span>
                               <span className="text-xl font-bold text-chart-1">
-                                ${metrics.totalRange.toLocaleString()}
+                                ${maxBonus.toLocaleString()}
                               </span>
                             </div>
                           </div>
@@ -1811,7 +1917,7 @@ export function ComprehensiveStats({ record, country }: ComprehensiveStatsProps)
                     <div className="space-y-6">
                       {/* Growth Potential Analysis Card */}
                       <div className="bg-chart-1/5 rounded-xl p-8 border border-border">
-                        <h5 className="text-xl font-bold text-green-800 mb-6">Growth Potential Analysis</h5>
+                        <h5 className="text-xl font-bold text-primary mb-6">Growth Potential Analysis</h5>
                         <div className="space-y-4">
                           <div className="bg-background rounded-lg p-4">
                             <div className="flex justify-between items-center">
@@ -1945,7 +2051,7 @@ export function ComprehensiveStats({ record, country }: ComprehensiveStatsProps)
                     <div className="space-y-6">
                       {/* Growth Potential Analysis Card */}
                       <div className="bg-chart-1/5 rounded-xl p-8 border border-border">
-                        <h5 className="text-xl font-bold text-green-800 mb-6">Growth Potential Analysis</h5>
+                        <h5 className="text-xl font-bold text-primary mb-6">Growth Potential Analysis</h5>
                         <div className="space-y-4">
                           <div className="bg-background rounded-lg p-4">
                             <div className="flex justify-between items-center">

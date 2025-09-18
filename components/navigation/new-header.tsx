@@ -442,7 +442,7 @@ function HeaderSearchableDropdown({ allOccupations = [] as Array<HeaderOccupatio
               <ArrowRight className="h-3 w-3" />
             </button>
           )}
-          <button
+          {/* <button
             type="button"
             onClick={() => {
               if (selectedCountry) {
@@ -455,7 +455,7 @@ function HeaderSearchableDropdown({ allOccupations = [] as Array<HeaderOccupatio
             <ChevronDown 
               className={`h-4 w-4 text-muted-foreground ${(selectedCountry ? isOccupationDropdownOpen : isDropdownOpen) ? 'transform rotate-180' : ''} transition-transform duration-200`}
             />
-          </button>
+          </button> */}
         </div>
       </div>
 

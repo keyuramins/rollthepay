@@ -13,6 +13,8 @@ import { AboutCTASection } from "@/components/about/cta-section";
 
 
 
+
+
 export const revalidate = 31536000;
 export const dynamicParams = false;
 
