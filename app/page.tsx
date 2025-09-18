@@ -11,6 +11,8 @@ import { Footer } from "@/components/ui/footer";
 
 
 
+
+
 export const revalidate = 31536000;
 export const dynamicParams = false;
 

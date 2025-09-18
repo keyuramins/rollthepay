@@ -649,36 +649,97 @@ function ComprehensiveExperienceAnalysis({ record, country }: { record: any; cou
                   }}
                 />
                 <Area
-                  type="stepAfter"
+                  type="monotone"
                   dataKey="value"
                   stroke="var(--chart-1)"
                   strokeWidth={3}
                   strokeDasharray="8 4"
                   fill="url(#stepGradient)"
-                  dot={{
-                    r: 8,
-                    fill: 'var(--chart-1)',
-                    strokeWidth: 5,
-                    stroke: 'var(--background)',
-                    filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.1))'
+                  dot={(props: any) => {
+                    const { cx, cy, payload } = props;
+                    const value = payload?.value;
+                    if (!value) return null;
+                    
+                    const text = `$${Number(value).toLocaleString()}/hr`;
+                    const textWidth = Math.max(text.length * 8, 55);
+                    const pillWidth = textWidth;
+                    const pillHeight = 32;
+                    
+                    return (
+                      <g>
+                        <defs>
+                          <linearGradient id={`pillGradient-${cx}-${cy}`} x1="0%" y1="0%" x2="100%" y2="0%">
+                            <stop offset="0%" stopColor="var(--chart-1)" stopOpacity={0.9} />
+                            <stop offset="100%" stopColor="var(--primary)" stopOpacity={0.7} />
+                          </linearGradient>
+                        </defs>
+                        <rect
+                          x={cx - pillWidth / 2}
+                          y={cy - pillHeight / 2}
+                          width={pillWidth}
+                          height={pillHeight}
+                          rx={16}
+                          ry={16}
+                          fill={`url(#pillGradient-${cx}-${cy})`}
+                          // stroke="var(--background)"
+                          // strokeWidth={2}
+                          filter="drop-shadow(0 2px 4px rgba(0,0,0,0.15))"
+                        />
+                        <text
+                          x={cx}
+                          y={cy + 4}
+                          textAnchor="middle"
+                          fill="var(--background)"
+                          fontSize="12"
+                          fontWeight="700"
+                        >
+                          {text}
+                        </text>
+                      </g>
+                    );
                   }}
-                  activeDot={{
-                    r: 12,
-                    stroke: 'var(--chart-1)',
-                    strokeWidth: 5,
-                    fill: 'var(--background)',
-                    filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.15))'
-                  }}
-                  label={{
-                    position: 'top',
-                    formatter: (value: number) => `$${value.toLocaleString()}/hr`,
-                    style: {
-                      fontSize: '16px',
-                      fill: 'var(--chart-1)',
-                      fontWeight: '700',
-                      textShadow: '0 1px 2px rgba(0,0,0,0.1)',
-                      transform: 'translateY(-12px)'
-                    },
+                  activeDot={(props: any) => {
+                    const { cx, cy, payload } = props;
+                    const value = payload?.value;
+                    if (!value) return null;
+                    
+                    const text = `$${Number(value).toLocaleString()}/hr`;
+                    const textWidth = Math.max(text.length * 8, 55);
+                    const pillWidth = textWidth + 2;
+                    const pillHeight = 36;
+                    
+                    return (
+                      <g>
+                        <defs>
+                          <linearGradient id={`activePillGradient-${cx}-${cy}`} x1="0%" y1="0%" x2="100%" y2="0%">
+                            <stop offset="0%" stopColor="var(--primary)" stopOpacity={1} />
+                            <stop offset="100%" stopColor="var(--chart-1)" stopOpacity={0.8} />
+                          </linearGradient>
+                        </defs>
+                        <rect
+                          x={cx - pillWidth / 2}
+                          y={cy - pillHeight / 2}
+                          width={pillWidth}
+                          height={pillHeight}
+                          rx={18}
+                          ry={18}
+                          fill={`url(#activePillGradient-${cx}-${cy})`}
+                          // stroke="var(--background)"
+                          // strokeWidth={3}
+                          filter="drop-shadow(0 4px 8px rgba(0,0,0,0.2))"
+                        />
+                        <text
+                          x={cx}
+                          y={cy + 5}
+                          textAnchor="middle"
+                          fill="var(--background)"
+                          fontSize="13"
+                          fontWeight="700"
+                        >
+                          {text}
+                        </text>
+                      </g>
+                    );
                   }}
                 />
               </AreaChart>
