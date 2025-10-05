@@ -22,45 +22,45 @@ export function OccupationCategoryCard({
   avgSalary 
 }: OccupationCategoryCardProps) {
   return (
-    <div className="bg-card rounded-lg shadow-sm border p-6">
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold text-foreground">{occupation}</h3>
-        <div className="text-right">
-          <div className="text-sm text-muted-foreground">Average Salary</div>
-          <div className="text-lg font-bold text-green-600">
+    <div className="occupation-category-card">
+      <div className="occupation-category-card__header">
+        <h3 className="occupation-category-card__title">{occupation}</h3>
+        <div className="occupation-category-card__salary">
+          <div className="occupation-category-card__salary-label">Average Salary</div>
+          <div className="occupation-category-card__salary-value">
             {formatCurrency(avgSalary, countrySlug, undefined)}
           </div>
         </div>
       </div>
       
-      <div className="mb-4">
-        <div className="text-sm text-muted-foreground">
+      <div className="occupation-category-card__count">
+        <div className="occupation-category-card__count-text">
           {records.length} salary record{records.length !== 1 ? 's' : ''}
         </div>
       </div>
       
-      <div className="pt-4 border-t">
-        <div className="grid grid-cols-1 gap-3">
+      <div className="occupation-category-card__records">
+        <div className="occupation-category-card__records-grid">
           {records.slice(0, 5).map((record) => (
             <InstantLink
               key={record.slug_url}
               href={`/${countrySlug}${record.state ? `/${record.state.toLowerCase().replace(/\s+/g, '-')}` : ''}${record.location ? `/${record.location.toLowerCase().replace(/\s+/g, '-')}` : ''}/${normalizeSlugForURL(record.slug_url)}`}
-              className="block p-3 rounded-md border hover:border-primary/50 hover:bg-primary/5 transition-colors"
+              className="occupation-category-card__record-link"
             >
-              <div className="flex items-center justify-between">
-                <div className="flex-1 min-w-0">
-                  <h4 className="text-sm font-medium text-foreground truncate">
+              <div className="occupation-category-card__record-content">
+                <div className="occupation-category-card__record-info">
+                  <h4 className="occupation-category-card__record-title">
                     {record.title}
                   </h4>
                   {record.location && (
-                    <p className="text-xs text-muted-foreground mt-1">
+                    <p className="occupation-category-card__record-location">
                       📍 {record.location}
                       {record.state && `, ${record.state}`}
                     </p>
                   )}
                 </div>
                 {record.avgAnnualSalary && (
-                  <div className="text-sm font-medium text-foreground ml-4">
+                  <div className="occupation-category-card__record-salary">
                     {formatCurrency(record.avgAnnualSalary, countrySlug, undefined)}
                   </div>
                 )}
@@ -69,10 +69,10 @@ export function OccupationCategoryCard({
           ))}
           
           {records.length > 5 && (
-            <div className="text-center pt-2">
+            <div className="occupation-category-card__view-all">
               <InstantLink
                 href={`/${countrySlug}?occupation=${encodeURIComponent(occupation)}`}
-                className="text-primary hover:text-primary/80 text-sm font-medium"
+                className="occupation-category-card__view-all-link"
               >
                 View all {records.length} {occupation} salary records →
               </InstantLink>

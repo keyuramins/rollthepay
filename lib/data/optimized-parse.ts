@@ -48,7 +48,14 @@ export class OptimizedDataAccess {
     // Try prefetch cache first
     const prefetched = getPrefetchedData(cacheKey);
     if (prefetched) {
-      return prefetched;
+      return prefetched as {
+        countryName: string;
+        totalJobs: number;
+        avgSalary: number;
+        states: string[];
+        occupationItems: any[];
+        headerOccupations: any[];
+      };
     }
 
     // Fallback to regular fetch and cache
@@ -60,7 +67,7 @@ export class OptimizedDataAccess {
     const countryName = countrySlug.charAt(0).toUpperCase() + countrySlug.slice(1);
     const totalJobs = records.length;
     const avgSalary = records.reduce((sum, rec) => sum + (rec.avgAnnualSalary || 0), 0) / totalJobs;
-    const states = Array.from(new Set(records.map(rec => rec.state).filter(Boolean)));
+    const states = Array.from(new Set(records.map(rec => rec.state).filter(Boolean))) as string[];
     
     const occupationItems = records.map(record => ({
       id: record.slug_url,
@@ -110,13 +117,33 @@ export class OptimizedDataAccess {
     // Try prefetch cache first
     const prefetched = getPrefetchedData(cacheKey);
     if (prefetched) {
-      return prefetched;
+      return prefetched as {
+        name: string;
+        jobs: Array<{
+          slug: string;
+          title: string | null;
+          occupation: string | null;
+          avgAnnualSalary: number | null;
+          avgHourlySalary: number | null;
+        }>;
+      };
     }
 
     // Fallback to regular fetch
     const stateGroups = await getStateData(countrySlug);
     const stateKey = state.toLowerCase().replace(/\s+/g, '-');
-    return stateGroups.get(stateKey) || null;
+    const stateData = stateGroups.get(stateKey);
+    
+    if (!stateData) return null;
+    
+    // Transform the data to include occupation field
+    return {
+      name: stateData.name,
+      jobs: stateData.jobs.map(job => ({
+        ...job,
+        occupation: job.title // Use title as occupation since that's what it represents
+      }))
+    };
   }
 
   // Get location data with prefetch optimization
@@ -135,13 +162,33 @@ export class OptimizedDataAccess {
     // Try prefetch cache first
     const prefetched = getPrefetchedData(cacheKey);
     if (prefetched) {
-      return prefetched;
+      return prefetched as {
+        name: string;
+        jobs: Array<{
+          slug: string;
+          title: string | null;
+          occupation: string | null;
+          avgAnnualSalary: number | null;
+          avgHourlySalary: number | null;
+        }>;
+      };
     }
 
     // Fallback to regular fetch
     const locationGroups = await getLocationData(countrySlug, state);
     const locationKey = location.toLowerCase().replace(/\s+/g, '-');
-    return locationGroups.get(locationKey) || null;
+    const locationData = locationGroups.get(locationKey);
+    
+    if (!locationData) return null;
+    
+    // Transform the data to include occupation field
+    return {
+      name: locationData.name,
+      jobs: locationData.jobs.map(job => ({
+        ...job,
+        occupation: job.title // Use title as occupation since that's what it represents
+      }))
+    };
   }
 
   // Find record by path with prefetch optimization
@@ -154,7 +201,7 @@ export class OptimizedDataAccess {
     // Try prefetch cache first
     const prefetched = getPrefetchedData(cacheKey);
     if (prefetched) {
-      return prefetched;
+      return prefetched as OccupationRecord;
     }
 
     // Fallback to regular fetch
@@ -170,7 +217,14 @@ export class OptimizedDataAccess {
   async getAllStates(countrySlug: string): Promise<string[]> {
     const dataset = await this.getDataset();
     const records = dataset.byCountry.get(countrySlug) || [];
-    return Array.from(new Set(records.map(rec => rec.state).filter(Boolean)));
+    // Filter out null/undefined states, ensure only strings are returned
+    return Array.from(
+      new Set(
+        records
+          .map(rec => rec.state)
+          .filter((state): state is string => typeof state === 'string' && !!state)
+      )
+    );
   }
 
   // Get all locations for a state with optimization
@@ -178,7 +232,14 @@ export class OptimizedDataAccess {
     const dataset = await this.getDataset();
     const records = dataset.byCountry.get(countrySlug) || [];
     const stateRecords = records.filter(rec => rec.state === state);
-    return Array.from(new Set(stateRecords.map(rec => rec.location).filter(Boolean)));
+    // Filter out null/undefined locations, ensure only strings are returned
+    return Array.from(
+      new Set(
+        stateRecords
+          .map(rec => rec.location)
+          .filter((loc): loc is string => typeof loc === 'string' && !!loc)
+      )
+    );
   }
 
   // Get occupation suggestions for search

@@ -25,7 +25,7 @@ export function DataOverviewSection({ record, country }: DataOverviewSectionProp
 
   // Calculate hourly range if available
   const hourlyRange = record.hourlyLowValue && record.hourlyHighValue ? 
-    `${formatHourlyRate(record.hourlyLowValue, country, record)} - ${formatHourlyRate(record.hourlyHighValue, country, record)}` : 
+    `${formatHourlyRate(record.hourlyLowValue, country)} - ${formatHourlyRate(record.hourlyHighValue, country)}` : 
     'Not available';
 
   // Experience level summary

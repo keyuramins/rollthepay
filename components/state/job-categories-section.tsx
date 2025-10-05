@@ -4,9 +4,9 @@ interface JobCategoriesSectionProps {
   jobs: Array<{
     slug: string;
     title: string;
-    occupation?: string;
-    avgAnnualSalary?: string;
-    avgHourlySalary?: string;
+    occupation?: string | null;
+    avgAnnualSalary?: string | number | null;
+    avgHourlySalary?: string | number | null;
   }>;
   stateName: string;
   country: string;
@@ -14,13 +14,13 @@ interface JobCategoriesSectionProps {
 
 export function JobCategoriesSection({ jobs, stateName, country }: JobCategoriesSectionProps) {
   return (
-    <section className="py-16">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <h2 className="text-3xl font-bold text-foreground mb-8 text-center">
+    <section className="job-categories-section">
+      <div className="job-categories-section__container">
+        <h2 className="job-categories-section__title">
           Salary Records in {stateName}
         </h2>
         
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="job-categories-section__grid">
           {jobs.map((job) => (
             <JobCategoryCard 
               key={job.slug} 

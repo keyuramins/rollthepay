@@ -2,8 +2,10 @@
 
 import { useState, useEffect, useRef, useMemo } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { Search, ChevronDown, X, Check, ArrowRight, Loader2 } from "lucide-react";
+import { Search, X, Check, ArrowRight, Loader2 } from "lucide-react";
 import { prefetchRoute } from "@/lib/prefetch";
+import { continents, CONTINENTS } from "@/app/constants/continents";
+import { gsap } from "gsap";
 
 interface Country {
   name: string;
@@ -12,28 +14,17 @@ interface Country {
   slug: string;
 }
 
-const CONTINENTS = [
-  { name: "Africa", code: "africa" },
-  { name: "Asia", code: "asia" },
-  { name: "Europe", code: "europe" },
-  { name: "Middle East", code: "middle_east" },
-  { name: "North America", code: "north_america" },
-  { name: "Oceania", code: "oceania" },
-  { name: "South America", code: "south_america" },
-];
+// Using imported CONTINENTS from constants
 
-const COUNTRIES: Country[] = [
-  { name: "Australia", code: "AU", continent: "oceania", slug: "australia" },
-  { name: "India", code: "IN", continent: "asia", slug: "india" },
-  { name: "United States", code: "US", continent: "north_america", slug: "united-states" },
-  { name: "United Kingdom", code: "GB", continent: "europe", slug: "united-kingdom" },
-  { name: "Canada", code: "CA", continent: "north_america", slug: "canada" },
-  { name: "Germany", code: "DE", continent: "europe", slug: "germany" },
-  { name: "France", code: "FR", continent: "europe", slug: "france" },
-  { name: "Japan", code: "JP", continent: "asia", slug: "japan" },
-  { name: "Brazil", code: "BR", continent: "south_america", slug: "brazil" },
-  { name: "South Africa", code: "ZA", continent: "africa", slug: "south-africa" },
-];
+// Flatten all countries from continents data
+const COUNTRIES: Country[] = continents.flatMap(continent => 
+  continent.countries.map(country => ({
+    name: country.name,
+    code: country.code,
+    continent: country.continent,
+    slug: country.slug
+  }))
+);
 
 interface OccupationIndexItem {
   country: string; // lowercased
@@ -53,6 +44,7 @@ interface SearchableDropdownProps {
   fullWidth?: boolean;
   centered?: boolean;
   allOccupations?: OccupationIndexItem[]; // provided on home for suggestions
+  headerMode?: boolean; // new prop for header mode
 }
 
 export function SearchableDropdown({ 
@@ -61,7 +53,8 @@ export function SearchableDropdown({
   className = "",
   fullWidth = false,
   centered = false,
-  allOccupations = []
+  allOccupations = [],
+  headerMode = false
 }: SearchableDropdownProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -79,13 +72,18 @@ export function SearchableDropdown({
   const dropdownRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const chipRef = useRef<HTMLSpanElement>(null);
+  const arrowButtonRef = useRef<HTMLButtonElement>(null);
   const [chipWidth, setChipWidth] = useState<number>(0);
   const [selectedCountry, setSelectedCountry] = useState<Country | null>(null);
+  const [userRemovedCountry, setUserRemovedCountry] = useState<boolean>(false);
   const router = useRouter();
   const pathname = usePathname();
 
   // Determine if we are on the homepage
   const isHome = useMemo(() => pathname === "/", [pathname]);
+  
+  // In header mode, we're effectively in "home mode" for occupation search
+  const isInSearchMode = useMemo(() => isHome || headerMode, [isHome, headerMode]);
 
   // Enhanced prefetching for all country pages on mount
   useEffect(() => {
@@ -141,10 +139,10 @@ export function SearchableDropdown({
     }
   }, [selectedCountry, allOccupations]);
 
-  // Filter countries based on search query (when no country selected or not on home)
+  // Filter countries based on search query (when no country selected or not in search mode)
   useEffect(() => {
-    // If a country is already selected on homepage, we're in occupation search mode.
-    if (isHome && selectedCountry) return;
+    // If a country is already selected in search mode, we're in occupation search mode.
+    if (isInSearchMode && selectedCountry) return;
 
     if (searchQuery.trim() === "") {
       setFilteredCountries(COUNTRIES);
@@ -156,11 +154,11 @@ export function SearchableDropdown({
       );
       setFilteredCountries(filtered);
     }
-  }, [searchQuery, isHome, selectedCountry]);
+  }, [searchQuery, isInSearchMode, selectedCountry]);
 
-  // Build occupation suggestions when searching after a country is picked (home only)
+  // Build occupation suggestions when searching after a country is picked (search mode)
   useEffect(() => {
-    if (!(isHome && selectedCountry)) {
+    if (!(isInSearchMode && selectedCountry)) {
       if (occupationSuggestions.length !== 0) setOccupationSuggestions([]);
       if (isOccupationDropdownOpen) setIsOccupationDropdownOpen(false);
       return;
@@ -283,7 +281,7 @@ export function SearchableDropdown({
 
     setOccupationSuggestions(deduped);
     setIsOccupationDropdownOpen(true);
-  }, [debouncedQuery, isHome, selectedCountry, allOccupations, isOccupationDropdownOpen, occupationSuggestions.length]);
+  }, [debouncedQuery, isInSearchMode, selectedCountry, allOccupations, isOccupationDropdownOpen, occupationSuggestions.length]);
 
   // Debounce user input to avoid recalculating on every keystroke
   useEffect(() => {
@@ -291,16 +289,21 @@ export function SearchableDropdown({
     return () => clearTimeout(id);
   }, [searchQuery]);
 
-  // Initialize selected country from URL on non-home pages
+  // Reset userRemovedCountry flag when pathname changes (user navigated to different page)
   useEffect(() => {
-    if (!isHome && !selectedCountry) {
+    setUserRemovedCountry(false);
+  }, [pathname]);
+
+  // Initialize selected country from URL on non-home pages or in header mode
+  useEffect(() => {
+    if ((!isHome || headerMode) && !selectedCountry && !userRemovedCountry) {
       const seg = pathname.split('/').filter(Boolean)[0];
       if (seg) {
         const found = COUNTRIES.find(c => c.slug === seg.toLowerCase());
         if (found) setSelectedCountry(found);
       }
     }
-  }, [isHome, pathname, selectedCountry]);
+  }, [isHome, headerMode, pathname, selectedCountry, userRemovedCountry]);
 
   // Handle click outside to close dropdown
   useEffect(() => {
@@ -349,6 +352,104 @@ export function SearchableDropdown({
     setChipWidth(chipRef.current.offsetWidth);
   }, [selectedCountry]);
 
+  // Animate elements when country is selected
+  useEffect(() => {
+    if (isInSearchMode && selectedCountry && chipRef.current && arrowButtonRef.current) {
+      // Create animation timeline
+      const tl = gsap.timeline();
+      
+      // Set initial states
+      gsap.set(arrowButtonRef.current, { 
+        scale: 1, 
+        opacity: 0,
+        x: 0
+      });
+      
+      // Hide the original placeholder by temporarily removing it
+      const originalPlaceholder = inputRef.current?.getAttribute('placeholder');
+      if (inputRef.current) {
+        inputRef.current.setAttribute('placeholder', '');
+      }
+      
+      // Create animated placeholder text
+      const placeholderText = `Search occupations in ${selectedCountry.name}...`;
+      const placeholderElement = document.createElement('div');
+      placeholderElement.textContent = placeholderText;
+      placeholderElement.style.position = 'absolute';
+      
+      // Calculate precise position using getBoundingClientRect
+      const chipRect = chipRef.current.getBoundingClientRect();
+      const inputRect = inputRef.current!.getBoundingClientRect();
+      const leftOffset = chipRect.right - inputRect.left + 8; // 8px spacing
+      placeholderElement.style.left = `${leftOffset}px`;
+      
+      placeholderElement.style.top = '50%';
+      placeholderElement.style.transform = 'translateY(-50%)';
+      placeholderElement.style.fontSize = '16px';
+      placeholderElement.style.color = 'rgb(156, 163, 175)'; // muted-foreground color
+      placeholderElement.style.pointerEvents = 'none';
+      placeholderElement.style.zIndex = '1';
+      placeholderElement.style.whiteSpace = 'nowrap';
+      
+      // Insert placeholder element
+      if (inputRef.current && inputRef.current.parentElement) {
+        inputRef.current.parentElement.appendChild(placeholderElement);
+      }
+      
+      // Split text into characters
+      const chars = placeholderText.split('');
+      placeholderElement.innerHTML = chars.map(char => 
+        `<span style="display: inline-block;">${char === ' ' ? '&nbsp;' : char}</span>`
+      ).join('');
+      
+      const charElements = placeholderElement.querySelectorAll('span');
+      
+      // Set initial state for characters
+      gsap.set(charElements, {
+        y: 20,
+        opacity: 0,
+        scale: 1.5
+      });
+      
+      // Animate characters in
+      tl.to(charElements, {
+        y: 0,
+        opacity: 1,
+        scale: 1,
+        duration: 0.6,
+        stagger: 0.02,
+        ease: "back.out(1.7)"
+      })
+        
+      // Clean up placeholder element and restore original placeholder
+      .to({}, {
+        duration: 0,
+        onComplete: () => {
+          if (placeholderElement.parentElement) {
+            placeholderElement.parentElement.removeChild(placeholderElement);
+          }
+          // Restore the original placeholder
+          if (inputRef.current && originalPlaceholder) {
+            inputRef.current.setAttribute('placeholder', originalPlaceholder);
+          }
+        }
+      })
+      // Arrow appears instantly
+      .to(arrowButtonRef.current, {
+        opacity: 1,
+        duration: 0.1,
+      })
+      // Fast horizontal shake/nudge animation
+      .to(arrowButtonRef.current, {
+        x: 10,
+        duration: 0.2,
+        ease: "bounce.inOut",
+        yoyo: true,
+        repeat: 10
+      }, "<");
+    }
+  }, [isInSearchMode, selectedCountry]);
+
   const groupedCountries = CONTINENTS.map(continent => ({
     ...continent,
     countries: filteredCountries.filter(country => country.continent === continent.code)
@@ -381,7 +482,7 @@ export function SearchableDropdown({
 
   async function handleEnter() {
     setIsLoading(true);
-    //if (!isHome) return; // occupation search only on home
+    //if (!isInSearchMode) return; // occupation search only in search mode
     if (!selectedCountry) return; // need a country first
     const query = searchQuery.trim();
     
@@ -437,8 +538,9 @@ export function SearchableDropdown({
   }
 
   async function handleCountrySelect(country: Country) {
-    if (isHome) {
+    if (isInSearchMode) {
       setSelectedCountry(country);
+      setUserRemovedCountry(false); // Reset the flag when user selects a country
       setIsDropdownOpen(false);
       setSearchQuery("");
       // Don't immediately open occupations dropdown - wait for user to type
@@ -513,11 +615,11 @@ export function SearchableDropdown({
   }
 
   const inputValue = useMemo(() => {
-    if (!isHome && selectedCountry && searchQuery === "") {
-      return selectedCountry.name; // show selected by default on non-home pages
+    if (!isInSearchMode && selectedCountry && searchQuery === "") {
+      return selectedCountry.name; // show selected by default on non-search mode pages
     }
     return searchQuery;
-  }, [isHome, selectedCountry, searchQuery]);
+  }, [isInSearchMode, selectedCountry, searchQuery]);
 
   return (
     <div ref={dropdownRef} className={containerClasses}>
@@ -526,8 +628,8 @@ export function SearchableDropdown({
             <Search className={`h-5 w-5 ${iconColor} opacity-40`} />
         </div>
         {/* Inline tag area inside input */}
-        {isHome && selectedCountry && (
-          <div className="absolute inset-y-0 left-10 flex items-center">
+        {isInSearchMode && selectedCountry && (
+          <div className="absolute inset-y-0 left-12 flex items-center z-10">
             <span ref={chipRef} className="inline-flex items-center px-2 py-1 rounded-full bg-primary/10 text-primary text-xs">
               {selectedCountry.name}
               <button
@@ -536,8 +638,17 @@ export function SearchableDropdown({
                 onClick={(e) => {
                   e.preventDefault();
                   setSelectedCountry(null);
+                  setUserRemovedCountry(true);
                   setSearchQuery("");
-                  setIsDropdownOpen(false);
+                  setIsDropdownOpen(true); // Show country dropdown immediately
+                  setIsOccupationDropdownOpen(false);
+                  setOccupationSuggestions([]);
+                  // Focus the input field after country removal
+                  setTimeout(() => {
+                    if (inputRef.current) {
+                      inputRef.current.focus();
+                    }
+                  }, 0);
                 }}
               >
                 <X className="h-3 w-3" />
@@ -549,14 +660,16 @@ export function SearchableDropdown({
           ref={inputRef}
           type="text"
           placeholder={
-            isHome && selectedCountry
+            isInSearchMode && selectedCountry
               ? `Search occupations in ${selectedCountry.name}...`
-              : placeholder
+              : isInSearchMode && userRemovedCountry
+                ? "Select a country..."
+                : placeholder
           }
           value={inputValue}
           onChange={(e) => setSearchQuery(e.target.value)}
           onFocus={() => {
-            if (isHome && selectedCountry) {
+            if (isInSearchMode && selectedCountry) {
               // Only open occupation dropdown if user has typed at least 3 characters
               if (searchQuery.trim().length >= 3) {
                 setIsOccupationDropdownOpen(true);
@@ -564,7 +677,7 @@ export function SearchableDropdown({
             } else {
               setIsDropdownOpen(true);
             }
-            if (!isHome && selectedCountry && searchQuery === "") {
+            if (!isInSearchMode && selectedCountry && searchQuery === "") {
               setTimeout(() => {
                 if (inputRef.current) {
                   const val = inputRef.current.value;
@@ -575,20 +688,20 @@ export function SearchableDropdown({
           }}
           onKeyDown={(e) => {
             if (e.key === 'Enter') {
-              // Only allow occupation search on home after picking a country
-              if (isHome && selectedCountry) {
+              // Only allow occupation search in search mode after picking a country
+              if (isInSearchMode && selectedCountry) {
                 e.preventDefault();
                 handleEnter();
               }
-            } else if ((e.key === 'ArrowDown' || e.key === 'ArrowUp') && isHome && selectedCountry) {
+            } else if ((e.key === 'ArrowDown' || e.key === 'ArrowUp') && isInSearchMode && selectedCountry) {
               setIsOccupationDropdownOpen(true);
             }
           }}
           disabled={isLoading || isOccupationLoading}
           className={`block ${fullWidth ? 'w-full' : 'w-full sm:w-80 lg:w-96'} pr-10 py-3 border rounded-lg text-base leading-5 focus:outline-none shadow-md transition-all duration-200 ${inputBorderClass} ${inputBgClass} ${inputTextClass} disabled:cursor-not-allowed`}
           style={{ 
-            paddingLeft: (isHome && selectedCountry) ? 48 + chipWidth + 12 : 48,
-            paddingRight: (isHome && selectedCountry) ? 80 : undefined
+            paddingLeft: (isInSearchMode && selectedCountry) ? 48 + chipWidth + 16 : 48,
+            paddingRight: (isInSearchMode && selectedCountry) ? 80 : undefined
           }}
         />
         <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
@@ -600,8 +713,9 @@ export function SearchableDropdown({
               <X className={`h-4 w-4 ${iconColor} hover:text-primary`} />
             </button>
           )}
-          {isHome && selectedCountry && (
+          {isInSearchMode && selectedCountry && (
             <button
+              ref={arrowButtonRef}
               type="button"
               onClick={() => {
                 console.log('🔘 Button clicked! Loading states:', { isLoading, isOccupationLoading });
@@ -646,7 +760,7 @@ export function SearchableDropdown({
 
       {/* Inline tag moved inside the input above */}
 
-      {isDropdownOpen && (!isHome || !selectedCountry) && (
+      {isDropdownOpen && (!isInSearchMode || !selectedCountry) && (
         <div 
           className={`absolute ${dropdownPosition === 'top' ? 'bottom-full mb-2' : 'top-full mt-2'} left-0 ${fullWidth ? 'w-full' : 'w-full sm:w-80 lg:w-96'} ${dropdownBgClass} rounded-lg shadow-xl ring-1 ring-black ring-opacity-5 z-50 border`}
         >
@@ -683,8 +797,8 @@ export function SearchableDropdown({
         </div>
       )}
 
-      {/* Occupation suggestions dropdown (home after country selection) */}
-      {isHome && selectedCountry && isOccupationDropdownOpen && (
+      {/* Occupation suggestions dropdown (search mode after country selection) */}
+      {isInSearchMode && selectedCountry && isOccupationDropdownOpen && (
         <div 
           className={`absolute ${dropdownPosition === 'top' ? 'bottom-full mb-2' : 'top-full mt-2'} left-0 ${fullWidth ? 'w-full' : 'w-full sm:w-80 lg:w-96'} ${dropdownBgClass} rounded-lg shadow-xl ring-1 ring-black ring-opacity-5 z-50 border`} 
           onMouseDown={(e) => e.preventDefault()}

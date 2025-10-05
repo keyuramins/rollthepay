@@ -1,7 +1,8 @@
 import Link from "next/link";
-import { NewHeader } from "@/components/navigation/new-header";
+import { Header } from "@/components/navigation/header";
 import { Breadcrumbs } from "@/components/occupation/breadcrumbs";
 import { LocationHeroSection } from "@/components/location/location-hero-section";
+import { LocationCTASection } from "@/components/location/location-cta-section";
 import { OccupationList } from "@/components/ui/occupation-list";
 import { getDataset } from "@/lib/data/parse";
 
@@ -53,7 +54,7 @@ export async function LocationPage({ country, state, location }: LocationPagePro
   
   return (
     <div className="min-h-screen bg-muted">
-      <NewHeader allOccupations={all.map(rec => ({
+      <Header allOccupations={all.map(rec => ({
         country: rec.country.toLowerCase(),
         title: rec.title || rec.h1Title || "",
         slug: rec.slug_url,
@@ -61,19 +62,16 @@ export async function LocationPage({ country, state, location }: LocationPagePro
         location: rec.location ? rec.location : null,
       }))} />
       
-      <main>
+      <main className="bg-background">
         {/* Breadcrumbs */}
-        <div className="bg-white">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
             <Breadcrumbs breadcrumbs={breadcrumbs} />
           </div>
-        </div>
         
         <LocationHeroSection 
           locationName={locationName}
           stateName={stateName}
           countryName={countryName}
-          jobCount={locationJobs.length}
         />
 
         <OccupationList 
@@ -85,33 +83,14 @@ export async function LocationPage({ country, state, location }: LocationPagePro
           currentLocation={locationName.toLowerCase().replace(/\s+/g, '-')}
         />
 
-        {/* CTA Section */}
-        <section className="bg-primary py-16">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <h2 className="text-3xl font-bold text-primary-foreground mb-6">
-              Explore More Salary Data
-            </h2>
-            <p className="text-xl text-primary-foreground/80 mb-8">
-              Discover comprehensive salary information for various occupations and locations
-            </p>
-            <div className="space-y-4 sm:space-y-0 sm:space-x-4 sm:flex sm:justify-center">
-              <Link
-                prefetch={true}
-                href={`/${country}/${stateName.toLowerCase().replace(/\s+/g, '-')}`}
-                className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-primary bg-background hover:bg-primary/5 transition-colors"
-              >
-                View State Data
-              </Link>
-              <Link
-                prefetch={true}
-                href={`/${country}`}
-                className="inline-flex items-center px-6 py-3 border border-primary-foreground text-base font-medium rounded-md text-primary-foreground hover:bg-primary-foreground/10 transition-colors"
-              >
-                View Country Data
-              </Link>
-            </div>
-          </div>
-        </section>
+        <LocationCTASection 
+          country={country}
+          state={state}
+          location={location}
+          countryName={countryName}
+          stateName={stateName}
+          locationName={locationName}
+        />
       </main>
     </div>
   );

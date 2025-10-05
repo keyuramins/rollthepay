@@ -3,26 +3,42 @@ import Link from "next/link";
 interface OccupationCTASectionProps {
   countryName: string;
   locationText: string;
+  record: any;
 }
 
-export function OccupationCTASection({ countryName, locationText }: OccupationCTASectionProps) {
+export function OccupationCTASection({ countryName, locationText, record }: OccupationCTASectionProps) {
   return (
-    <section className="bg-primary py-16">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        <h2 className="text-3xl font-bold text-primary-foreground mb-6">
+    <section className="cta-section">
+      <div className="cta-section__container">
+        <h2 className="cta-section__title">
           Explore More Salary Data
         </h2>
-        <p className="text-xl text-primary-foreground/80 mb-8 max-w-3xl mx-auto">
+        <p className="cta-section__description">
           Compare salaries across different locations and discover career opportunities 
           in {locationText}.
         </p>
-        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+        <div className="cta-section__buttons">
           <Link prefetch={true} href={`/${countryName.toLowerCase().replace(/\s+/g, '-')}`}>
-            <button className="bg-background text-primary px-8 py-3 rounded-md font-medium hover:bg-muted transition-colors">
+            <button className="cta-section__button">
               View All Salary Data in {countryName}
             </button>
           </Link>
-
+          
+          {record.state && (
+            <Link prefetch={true} href={`/${countryName.toLowerCase().replace(/\s+/g, '-')}/${record.state.toLowerCase().replace(/\s+/g, '-')}`}>
+              <button className="cta-section__button">
+                View All Salary Data in {record.state}
+              </button>
+            </Link>
+          )}
+          
+          {record.location && (
+            <Link prefetch={true} href={`/${countryName.toLowerCase().replace(/\s+/g, '-')}/${record.state.toLowerCase().replace(/\s+/g, '-')}/${record.location.toLowerCase().replace(/\s+/g, '-')}`}>
+              <button className="cta-section__button">
+                View All Salary Data in {record.location}
+              </button>
+            </Link>
+          )}
         </div>
       </div>
     </section>

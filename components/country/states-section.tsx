@@ -14,18 +14,18 @@ export function StatesSection({ states, countryName, countrySlug }: StatesSectio
   if (states.length === 0) return null;
 
   return (
-    <section className="bg-background py-16">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="mb-12">
-          <h2 className="text-3xl font-bold text-foreground mb-4">
+    <section className="states-section">
+      <div className="states-section__container">
+        <div className="states-section__header">
+          <h2 className="states-section__title">
             Explore by State/Region
           </h2>
-          <p className="text-lg text-muted-foreground">
+          <p className="states-section__description">
             Find salary data specific to different regions within {countryName}.
           </p>
         </div>
         
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="states-section__grid">
           {states.map((state) => (
             <StateCard
               key={state.name}

@@ -4,10 +4,10 @@ import { normalizeSlugForURL } from "@/lib/format/slug";
 interface JobCategoryCardProps {
   job: {
     slug: string;
-    title: string | null;
-    occupation: string | null;
-    avgAnnualSalary: number | null;
-    avgHourlySalary: number | null;
+    title: string;
+    occupation?: string | null;
+    avgAnnualSalary?: string | number | null;
+    avgHourlySalary?: string | number | null;
   };
   country: string;
   state: string;
@@ -15,28 +15,28 @@ interface JobCategoryCardProps {
 
 export function JobCategoryCard({ job, country, state }: JobCategoryCardProps) {
   return (
-    <InstantLink href={`/${country}/${state}/${normalizeSlugForURL(job.slug)}`} className="group">
-      <div className="bg-card rounded-lg shadow-sm border p-6 hover:shadow-md transition-shadow">
-        <h3 className="text-lg font-semibold text-foreground group-hover:text-primary mb-2">
+    <InstantLink href={`/${country}/${state}/${normalizeSlugForURL(job.slug)}`} className="job-category-card">
+      <div className="job-category-card__container">
+        <h3 className="job-category-card__title">
           {job.title}
         </h3>
-        <p className="text-muted-foreground text-sm mb-4">
+        <p className="job-category-card__occupation">
           {job.occupation || 'Professional role'}
         </p>
         
         {job.avgAnnualSalary && (
-          <div className="flex justify-between items-center">
-            <span className="text-sm text-muted-foreground">Average Salary</span>
-            <span className="text-lg font-bold text-green-600">
+          <div className="job-category-card__salary-row">
+            <span className="job-category-card__salary-label">Average Salary</span>
+            <span className="job-category-card__salary-value">
               {job.avgAnnualSalary}
             </span>
           </div>
         )}
         
         {job.avgHourlySalary && (
-          <div className="flex justify-between items-center mt-2">
-            <span className="text-sm text-muted-foreground">Hourly Rate</span>
-            <span className="text-sm font-medium text-primary">
+          <div className="job-category-card__salary-row--hourly">
+            <span className="job-category-card__salary-label">Hourly Rate</span>
+            <span className="job-category-card__hourly-value">
               {job.avgHourlySalary}
             </span>
           </div>

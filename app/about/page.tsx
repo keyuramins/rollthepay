@@ -1,5 +1,5 @@
 import { Metadata } from "next";
-import { NewHeader } from "@/components/navigation/new-header";
+import { Header } from "@/components/navigation/header";
 import { Breadcrumbs } from "@/components/occupation/breadcrumbs";
 import { AboutHeroSection } from "@/components/about/hero-section";
 import { AboutMissionSection } from "@/components/about/mission-section";
@@ -8,15 +8,8 @@ import { WhyItMattersSection } from "@/components/about/why-it-matters-section";
 import { DataQualitySection } from "@/components/about/data-quality-section";
 import { AboutCTASection } from "@/components/about/cta-section";
 
-
-
-
-
-
-
-
-export const revalidate = 31536000;
-export const dynamicParams = false;
+export const revalidate = 0;
+export const dynamicParams = true;
 
 // Shorter revalidation for testing (can be increased later)
 // 1 minute for testing
@@ -41,13 +34,13 @@ export const metadata: Metadata = {
 
 export default function AboutPage() {
   return (
-    <div className="min-h-screen bg-muted">
-      <NewHeader />
+    <div className="page-container">
+      <Header />
       
       <main>
         {/* Breadcrumbs */}
-        <div className="bg-background">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+        <div className="breadcrumbs-container">
+          <div className="breadcrumbs-wrapper">
             <Breadcrumbs
               breadcrumbs={[
                 { name: "Home", href: "/" },

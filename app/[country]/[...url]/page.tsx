@@ -1,23 +1,13 @@
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { optimizedDataAccess } from "@/lib/data/optimized-parse";
-
 import { StatePage } from "@/components/state/state-page";
 import { LocationPage } from "@/components/location/location-page";
 import { OccupationPage } from "@/components/occupation/occupation-page";
 
+export const revalidate = 0;
+export const dynamicParams = true;
 
-
-
-
-
-
-
-export const revalidate = 31536000;
-export const dynamicParams = false;
-
-// Shorter revalidation for testing (can be increased later)
-// 1 minute for testing
 interface UnifiedPageProps {
   params: Promise<{ country: string; url: string[] }>;
 }
@@ -346,5 +336,3 @@ async function LocationPageComponent({ country, state, location }: { country: st
   // Pass the actual state and location names to the LocationPage component
   return <LocationPage country={country} state={stateData} location={locationData} />;
 }
-
-

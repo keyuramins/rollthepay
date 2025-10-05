@@ -1,25 +1,16 @@
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { optimizedDataAccess } from "@/lib/data/optimized-parse";
-import { NewHeader } from "@/components/navigation/new-header";
+import { Header } from "@/components/navigation/header";
 import { Breadcrumbs } from "@/components/occupation/breadcrumbs";
 import { CountryHeroSection } from "@/components/country/hero-section";
 import { OccupationList } from "@/components/ui/occupation-list";
 import { StatesGrid } from "@/components/country/states-grid";
 import { CountryCTASection } from "@/components/country/cta-section";
 
+export const revalidate = 0;
+export const dynamicParams = true;
 
-
-
-
-
-
-
-export const revalidate = 31536000;
-export const dynamicParams = false;
-
-// Shorter revalidation for testing (can be increased later)
-// 1 minute for testing
 interface CountryPageProps {
   params: Promise<{ country: string }>;
 }
@@ -68,13 +59,12 @@ export default async function CountryPage({ params }: CountryPageProps) {
   const { countryName, totalJobs, avgSalary, states, occupationItems, headerOccupations } = countryData;
 
   return (
-    <div className="min-h-screen bg-muted">
-      <NewHeader allOccupations={headerOccupations} />
+    <div className="page-container">
+      <Header allOccupations={headerOccupations} />
       
-      <main>
+      <main className="page-main">
         {/* Breadcrumbs */}
-        <div className="bg-background">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <div className="breadcrumbs-wrapper">
             <Breadcrumbs
               breadcrumbs={[
                 { name: "Home", href: "/" },
@@ -82,14 +72,10 @@ export default async function CountryPage({ params }: CountryPageProps) {
               ]}
             />
           </div>
-        </div>
         
         <CountryHeroSection
           countryName={countryName}
           totalJobs={totalJobs}
-          avgSalary={avgSalary}
-          statesCount={states.length}
-          countrySlug={country}
         />
 
         <OccupationList
@@ -105,7 +91,7 @@ export default async function CountryPage({ params }: CountryPageProps) {
             countrySlug={country}
             title="Explore by State/Region"
             description={`Find salary data specific to different regions within ${countryName}.`}
-            className="bg-background"
+            className="bg-white"
           />
         )}
 

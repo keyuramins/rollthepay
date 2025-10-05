@@ -1,18 +1,17 @@
-import { NewHeader } from "@/components/navigation/new-header";
+import { Header } from "@/components/navigation/header";
 import { Breadcrumbs } from "./breadcrumbs";
 import { OccupationHeroSection } from "./hero-section";
-import { ComprehensiveStats } from "@/components/ui/comprehensive-stats";
-import { SalaryDistributionChart } from "@/components/ui/salary-distribution-chart";
-import { SkillsChart } from "@/components/ui/skills-chart";
-import { ExperienceTimelineChart } from "@/components/ui/experience-timeline-chart";
+import { CompensationAnalysis } from "./compensation-analysis";
+import { SalaryPercentilesChart } from "./salary-percentiles-chart";
+import { ExperienceLevelSalariesChart } from "./experience-level-salaries-chart";
+import { TopSkillsMarketDemand } from "./top-skills-market-demand";
+import { RelatedOpportunitiesSmart } from "./related-opportunities-smart";
+import { GenderComparison } from "./gender-comparison";
 import { OccupationCTASection } from "./cta-section";
 import { DataOverviewSection } from "./data-overview-section";
 import { ContentSections } from "./content-sections";
-import { CareerProgressionSection } from "./career-progression-section";
-import { formatCurrency, formatHourlyRate } from "@/lib/format/currency";
 import { findRecordByPath, getDataset } from "@/lib/data/parse";
-import { generateOccupationContent } from "@/lib/ai/content-generator";
-import type { OccupationRecord } from "@/lib/data/types";
+import { RelatedOpportunitiesSimple } from "./related-opportunities-simple";
 
 interface OccupationPageProps {
   country: string;
@@ -25,17 +24,13 @@ export async function OccupationPage({ country, state, location, slug }: Occupat
   const record = await findRecordByPath({ country, state, location, slug });
   
   if (!record) {
-    return null; // This should be handled by the parent component
+    return null;
   }
-  
-  // Generate AI content for the occupation
-  // const aiContent = await generateOccupationContent(record);
   
   const countryName = record.country;
   const stateName = record.state;
   const locationName = record.location;
   const title = record.title || record.h1Title || record.occupation || record.slug_url;
-  const occupation = record.occupation;
   
   // Breadcrumb navigation
   const breadcrumbs = [
@@ -63,8 +58,6 @@ export async function OccupationPage({ country, state, location, slug }: Occupat
     `${locationName ? locationName + ', ' : ''}${stateName}, ${countryName}` : 
     `${locationName ? locationName + ', ' : ''}${countryName}`;
 
-  // Salary breakdown moved to ComprehensiveStats component
-
   // Chart data preparation
   const salaryDistributionData = [
     { name: 'Low', value: record.lowSalary || 0, color: '#EF4444' },
@@ -88,8 +81,8 @@ export async function OccupationPage({ country, state, location, slug }: Occupat
   }));
   
   return (
-    <div className="min-h-screen bg-muted">
-      <NewHeader allOccupations={(await getDataset()).all.map(rec => ({
+    <div className="page-container">
+      <Header allOccupations={(await getDataset()).all.map(rec => ({
         country: rec.country.toLowerCase(),
         title: rec.title || rec.h1Title || "",
         slug: rec.slug_url,
@@ -97,36 +90,16 @@ export async function OccupationPage({ country, state, location, slug }: Occupat
         location: rec.location ? rec.location : null,
       }))} />
       
-      <main>
-        {/* Breadcrumbs */}
-        <div className="bg-background">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-            <Breadcrumbs breadcrumbs={breadcrumbs} />
-          </div>
-        </div>
-        
-        <OccupationHeroSection 
-          title={title}
-          subtitle={`Comprehensive salary information for ${occupation || 'this position'} in ${locationText}`}
-          avgSalary={record.avgAnnualSalary ? formatCurrency(record.avgAnnualSalary, country, record) : undefined}
-          occupation={record.occupation || undefined}
-        />
-
-        {/* Comprehensive Statistics */}
-        <section className="py-16 pt-4 bg-background">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <ComprehensiveStats record={record} country={country} />
-          </div>
-        </section>
-
-        {/* Data Overview Section */}
-        {/* <DataOverviewSection record={record} country={country} /> */}
-
-        {/* AI-Generated Content Sections */}
-        {/* <ContentSections content={aiContent} /> */}
-
-        {/* Career Progression Section */}
-        <CareerProgressionSection 
+      <main className="page-main">
+        <OccupationHeroSection record={record} country={country} locationText={locationText} />
+        <Breadcrumbs breadcrumbs={breadcrumbs} />
+        <CompensationAnalysis record={record} country={country} />
+        <GenderComparison record={record} />
+        <SalaryPercentilesChart record={record} country={country} />
+        <ExperienceLevelSalariesChart record={record} country={country} />
+        <TopSkillsMarketDemand record={record} />
+        <RelatedOpportunitiesSmart record={record} allRecords={(await getDataset()).all} />
+        <RelatedOpportunitiesSimple 
           content={undefined} 
           record={record} 
           allOccupations={(await getDataset()).all.map(rec => ({
@@ -138,15 +111,11 @@ export async function OccupationPage({ country, state, location, slug }: Occupat
           }))} 
         />
 
-        {/* Total Pay Information */}
+        {/* Data Overview Section */}
+        {/* <DataOverviewSection record={record} country={country} /> */}
 
-        <OccupationCTASection 
-          countryName={countryName}
-          locationText={locationText}
-        />
+        <OccupationCTASection countryName={countryName} locationText={locationText} record={record} />
       </main>
     </div>
   );
 }
-
-

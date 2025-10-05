@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 interface OccupationItem {
   id: string;
@@ -62,31 +62,30 @@ export function AZFilter({ items, onFilteredItemsChange }: AZFilterProps) {
   };
 
   return (
-    <div className="mb-6">
+    <div className="az-filter">
       {/* Mobile & Tablet: Wrapped grid layout */}
-      <div className="block lg:hidden">
-        <div className="grid grid-cols-5 xs:grid-cols-6 sm:grid-cols-8 md:grid-cols-10 gap-1.5 sm:gap-2 px-1 sm:px-2">
+      <div className="az-filter__mobile">
+        <div className="az-filter__mobile-grid">
           {filters.map((filter) => {
             const isActive = selectedFilter === filter;
             const hasItems = hasItemsForFilter(filter);
             const isDisabled = !hasItems;
+            
+            let buttonClass = "az-filter__button";
+            if (isActive && hasItems) {
+              buttonClass += " az-filter__button--active";
+            } else if (hasItems) {
+              buttonClass += " az-filter__button--inactive";
+            } else {
+              buttonClass += " az-filter__button--disabled";
+            }
             
             return (
               <button
                 key={filter}
                 onClick={() => hasItems && applyFilter(filter)}
                 disabled={isDisabled}
-                className={`
-                  px-1.5 sm:px-2 py-2.5 sm:py-3 text-xs sm:text-sm font-medium transition-all duration-200 
-                  rounded-lg border border-input text-center min-h-[40px] sm:min-h-[44px] flex items-center justify-center
-                  ${isActive && hasItems 
-                    ? 'bg-primary text-primary-foreground border-primary shadow-sm' 
-                    : hasItems 
-                      ? 'bg-card text-foreground hover:bg-muted hover:text-foreground cursor-pointer hover:shadow-sm active:bg-muted' 
-                      : 'bg-muted text-muted-foreground cursor-not-allowed'
-                  }
-                  ${isDisabled ? 'opacity-25' : ''}
-                `}
+                className={buttonClass}
               >
                 {filter}
               </button>
@@ -96,8 +95,8 @@ export function AZFilter({ items, onFilteredItemsChange }: AZFilterProps) {
       </div>
 
       {/* Desktop: Horizontal connected layout - no wrapping */}
-      <div className="hidden lg:flex justify-center">
-        <div className="inline-flex rounded-lg overflow-hidden border border-input shadow-sm flex-shrink-0">
+      <div className="az-filter__desktop">
+        <div className="az-filter__desktop-container">
           {filters.map((filter, index) => {
             const isFirst = index === 0;
             const isLast = index === filters.length - 1;
@@ -105,24 +104,25 @@ export function AZFilter({ items, onFilteredItemsChange }: AZFilterProps) {
             const hasItems = hasItemsForFilter(filter);
             const isDisabled = !hasItems;
             
+            let buttonClass = "az-filter__button--desktop";
+            if (isFirst) buttonClass += " az-filter__button--desktop-first";
+            if (isLast) buttonClass += " az-filter__button--desktop-last";
+            if (!isFirst) buttonClass += " az-filter__button--desktop-middle";
+            
+            if (isActive && hasItems) {
+              buttonClass += " az-filter__button--active";
+            } else if (hasItems) {
+              buttonClass += " az-filter__button--inactive";
+            } else {
+              buttonClass += " az-filter__button--disabled";
+            }
+            
             return (
               <button
                 key={filter}
                 onClick={() => hasItems && applyFilter(filter)}
                 disabled={isDisabled}
-                className={`
-                  px-2.5 py-2 text-sm font-medium transition-all duration-200 min-w-[36px] text-center
-                  ${isFirst ? 'rounded-l-lg' : ''}
-                  ${isLast ? 'rounded-r-lg' : ''}
-                  ${!isFirst ? 'border-l border-input' : ''}
-                  ${isActive && hasItems 
-                    ? 'bg-primary text-primary-foreground border-primary shadow-sm' 
-                    : hasItems 
-                      ? 'bg-card text-foreground hover:bg-muted hover:text-foreground cursor-pointer hover:shadow-sm' 
-                      : 'bg-muted text-muted-foreground cursor-not-allowed'
-                  }
-                  ${isDisabled ? 'opacity-25' : ''}
-                `}
+                className={buttonClass}
               >
                 {filter}
               </button>

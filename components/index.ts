@@ -1,7 +1,6 @@
 // Navigation
-export { NewHeader } from "./navigation/new-header";
+export { Header } from "./navigation/header";
 export { Logo } from "./navigation/logo";
-export { NavLinks } from "./navigation/nav-links";
 
 // Enhanced Links with Aggressive Prefetching
 export { EnhancedLink, InstantLink, LazyLink, HoverPrefetchLink } from "./ui/enhanced-link";
@@ -25,17 +24,20 @@ export { LocationPage } from "./location/location-page";
 // Occupation Components
 export { OccupationPage } from "./occupation/occupation-page";
 export { Breadcrumbs } from "./occupation/breadcrumbs";
-export { SalaryCard } from "./occupation/salary-card";
-export { ExperienceLevelsSection } from "./occupation/experience-levels-section";
+export { CompensationAnalysis } from "./occupation/compensation-analysis";
+export { SalaryPercentilesChart } from "./occupation/salary-percentiles-chart";
+export { ExperienceLevelSalariesChart } from "./occupation/experience-level-salaries-chart";
+export { GenderComparison } from "./occupation/gender-comparison";
 export { OccupationCTASection } from "./occupation/cta-section";
 export { DataOverviewSection } from "./occupation/data-overview-section";
 export { ContentSections } from "./occupation/content-sections";
-export { CareerProgressionSection } from "./occupation/career-progression-section";
 export { OccupationHeroSection } from "./occupation/hero-section";
+export { RelatedOpportunitiesSmart } from "./occupation/related-opportunities-smart";
+export { RelatedOpportunitiesSimple } from "./occupation/related-opportunities-simple";
 
 // UI Components
 export { OccupationList } from "./ui/occupation-list";
-export { SearchableDropdown } from "./ui/searchable-dropdown";
+export { SearchableDropdown } from "./navigation/searchable-dropdown";
 
 // Prefetch and Optimization Utilities
 export { prefetchAllRoutes, prefetchRoute, getPrefetchedData, clearPrefetchCache, getPrefetchStats } from "../lib/prefetch";

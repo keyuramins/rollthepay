@@ -1,6 +1,5 @@
 import { Metadata } from "next";
-import { getDataset } from "@/lib/data/parse";
-import { NewHeader } from "@/components/navigation/new-header";
+import { getDataset, extractUniqueCountries, extractDatasetStats } from "@/lib/data/parse";
 import { HeroSection } from "@/components/home/hero-section";
 import { StatsSection } from "@/components/home/stats-section";
 import { MissionSection } from "@/components/home/mission-section";
@@ -8,15 +7,8 @@ import { FeaturesSection } from "@/components/home/features-section";
 import { CTASection } from "@/components/home/cta-section";
 import { Footer } from "@/components/ui/footer";
 
-
-
-
-
-
-
-
-export const revalidate = 31536000;
-export const dynamicParams = false;
+export const revalidate = 0;
+export const dynamicParams = true;
 
 // Force dynamic rendering to ensure fresh data on each request
 export const dynamic = 'force-dynamic';
@@ -26,7 +18,7 @@ export const dynamic = 'force-dynamic';
 export async function generateMetadata(): Promise<Metadata> {
   const { all } = await getDataset();
   const totalSalaries = all.length;
-  const countries = new Set(all.map(rec => rec.country)).size;
+  const countries = extractUniqueCountries(all).length;
 
   return {
     title: "RollThePay - Accurate Salary Data & Career Insights",
@@ -71,22 +63,38 @@ export default async function Home() {
     
     all = dataset.all;
     byCountry = dataset.byCountry;
-    totalSalaries = all.length;
-    countries = new Set(all.map(rec => rec.country)).size;
     
-    // Log the data that was loaded and cached
+    // Use safe extraction functions to get statistics
+    const stats = extractDatasetStats(all);
+    totalSalaries = stats.totalRecords;
+    countries = stats.uniqueCountries;
+    
+    // Log the data that was loaded and cached using safe extraction
     console.log(`🏠 Homepage: Successfully loaded and cached ${totalSalaries} salary records`);
     console.log(`🏠 Homepage: Data covers ${countries} countries`);
-    console.log(`🏠 Homepage: Countries available: ${Array.from(byCountry.keys()).join(', ')}`);
+    console.log(`🏠 Homepage: Countries available: ${stats.countriesWithData.join(', ')}`);
+    console.log(`🏠 Homepage: Records with salary data: ${stats.recordsWithSalaryData}`);
     
-    // Force cache warmup for all continents and countries
-    const continents = new Set<string>();
-    for (const record of all) {
-      if (record.country) {
-        continents.add(record.country);
-      }
+    // Log validation results
+    console.log(`🏠 Homepage: Data validation - Valid: ${stats.validation.validRecords}, Invalid: ${stats.validation.invalidRecords}`);
+    if (stats.validation.invalidRecords > 0) {
+      console.log(`🏠 Homepage: Sample validation errors: ${stats.validation.sampleErrors.join('; ')}`);
     }
-    console.log(`🏠 Homepage: Cached data for continents: ${Array.from(continents).join(', ')}`);
+    
+    // Log sample record for debugging (safely extracted)
+    if (stats.sampleRecord) {
+      console.log('🏠 Homepage: Sample record:', {
+        title: stats.sampleRecord.title,
+        country: stats.sampleRecord.country,
+        state: stats.sampleRecord.state,
+        location: stats.sampleRecord.location,
+        hasSalaryData: stats.sampleRecord.hasSalaryData
+      });
+    }
+    
+    // Force cache warmup for all continents and countries using safe extraction
+    const continents = extractUniqueCountries(all);
+    console.log(`🏠 Homepage: Cached data for continents: ${continents.join(', ')}`);
   } catch (err) {
     error = err instanceof Error ? err : new Error(String(err));
     console.error('🏠 Homepage: Failed to load dataset:', err);
@@ -99,7 +107,7 @@ export default async function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/5 to-primary/10 overflow-x-hidden">
+    <div className="page-main--home">
       {/* <NewHeader /> */}
       <HeroSection />
       <StatsSection totalSalaries={totalSalaries} countries={countries} />
@@ -110,14 +118,14 @@ export default async function Home() {
       
       {/* Show error message if dataset loading failed */}
       {error && (
-        <div className="fixed bottom-4 right-4 bg-destructive/10 border border-destructive/20 text-destructive px-4 py-3 rounded shadow-lg max-w-md">
-          <strong className="font-bold">Data Loading Error:</strong>
+        <div className="error-message">
+          <strong className="error-message__title">Data Loading Error:</strong>
           <br />
-          <span className="text-sm">
+          <span className="error-message__content">
             {error instanceof Error ? error.message : String(error)}
           </span>
           <br />
-          <span className="text-xs mt-2 block">
+          <span className="error-message__help">
             Please check your Filebrowser configuration and environment variables.
           </span>
         </div>

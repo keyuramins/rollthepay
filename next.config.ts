@@ -9,7 +9,14 @@ const nextConfig: NextConfig = {
     // Enable package optimization for better tree shaking
     optimizePackageImports: ['@/components', '@/lib'],
   },
-  
+  webpack(config) {
+    config.module.rules.push({
+      test: /\.svg$/i,
+      issuer: /\.[jt]sx?$/,
+      use: ['@svgr/webpack'],
+    });
+    return config;
+  },
   // Asset optimization
   images: {
     formats: ['image/webp', 'image/avif'],

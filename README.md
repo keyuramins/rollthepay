@@ -69,7 +69,6 @@ rollthepay/
 │   ├── navigation/               # Navigation components
 │   │   ├── header.tsx            # Main header (composed of sub-components)
 │   │   ├── logo.tsx              # Logo and title component
-│   │   ├── nav-links.tsx         # Navigation links component
 │   │   └── search-dropdown.tsx   # Search and country dropdown component
 │   ├── home/                     # Home page components
 │   │   ├── hero-section.tsx      # Hero section component
@@ -184,10 +183,9 @@ Each page has been broken down into logical, reusable components:
 #### Occupation Pages
 - **OccupationHeroSection**: Occupation-specific hero with salary info
 - **Breadcrumbs**: Navigation breadcrumbs
-- **SalaryCard**: Individual salary amount display
 - **SalaryRangeCard**: Annual salary range information
 - **HourlyRateCard**: Hourly rate information
-- **ExperienceLevelsSection**: Experience-based compensation
+- **ExperienceLevelsSalariesSection**: Experience-based compensation
 - **OccupationCTASection**: Occupation page call-to-action
 
 #### State Pages

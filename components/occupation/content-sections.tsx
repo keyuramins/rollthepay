@@ -1,4 +1,4 @@
-import type { AIGeneratedContent } from "@/lib/ai/content-generator";
+import type { PuterAIGeneratedContent } from "@/lib/ai/puter-ai";
 
 interface ContentSectionProps {
   title: string;
@@ -66,7 +66,7 @@ function ContentSection({ title, content, type }: ContentSectionProps) {
 }
 
 interface ContentSectionsProps {
-  content: AIGeneratedContent;
+  content: PuterAIGeneratedContent;
 }
 
 export function ContentSections({ content }: ContentSectionsProps) {
