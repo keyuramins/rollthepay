@@ -10,11 +10,7 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default: "button--default",
-        destructive: "button--destructive",
-        outline: "button--outline",
         secondary: "button--secondary",
-        ghost: "button--ghost",
-        link: "button--link",
         rtp: "button--rtp",
         mobilertp: "button--mobilertp",
       },

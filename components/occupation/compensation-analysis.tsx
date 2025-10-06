@@ -352,7 +352,7 @@ export function CompensationAnalysis({ record, country }: CompensationAnalysisPr
                 <div className="ai-insight__content">
                   <div className="ai-insight__header">
                     <h4>Market Trend Analysis</h4>
-                    <Badge variant="green" className="ai-insight__badge">High Confidence</Badge>
+                    <Badge variant="green">High Confidence</Badge>
                   </div>
                   <p>{aiContent.marketTrends}</p>
                 </div>
@@ -366,7 +366,7 @@ export function CompensationAnalysis({ record, country }: CompensationAnalysisPr
                 <div className="ai-insight__content">
                   <div className="ai-insight__header">
                     <h4>Positioning Recommendation</h4>
-                    <Badge className="ai-insight__badge ai-insight__badge--secondary">Medium Confidence</Badge>
+                    <Badge variant="yellow">Medium Confidence</Badge>
                   </div>
                   <p>{aiContent.salaryInsights}</p>
                 </div>
@@ -380,7 +380,7 @@ export function CompensationAnalysis({ record, country }: CompensationAnalysisPr
                 <div className="ai-insight__content">
                   <div className="ai-insight__header">
                     <h4>Growth Forecast</h4>
-                    <Badge variant="green" className="ai-insight__badge">High Confidence</Badge>
+                    <Badge variant="green">High Confidence</Badge>
                   </div>
                   <p>{aiContent.careerProgression}</p>
                 </div>
@@ -599,7 +599,7 @@ export function CompensationAnalysis({ record, country }: CompensationAnalysisPr
                 {/* Growth Factor and Performance Insight cards below the horizontal cards */}
                 <div className="grid grid-cols-12 gap-4">
                   {/* Growth Factor Card */}
-                  <div className="col-span-4 bg-white rounded-xl p-4 border border-gray-200 shadow-sm">
+                  <div className="col-span-4 bg-white rounded-xl p-4 shadow-sm">
                     <div className="text-center">
                       <h4>Growth Factor</h4>
                       <p className="additional-value">{metrics.growthFactor.toFixed(1)}x</p>
@@ -614,7 +614,7 @@ export function CompensationAnalysis({ record, country }: CompensationAnalysisPr
                   </div>
 
                   {/* Performance Insight Card */}
-                  <div className="col-span-8 bg-white rounded-xl p-4 border border-gray-200 shadow-sm">
+                  <div className="col-span-8 bg-white rounded-xl p-4 shadow-sm">
                     <div className="flex items-start space-x-3">
                       <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center mb-2">
                         <TrendingUp className="w-4 h-4 text-white" />
@@ -633,7 +633,7 @@ export function CompensationAnalysis({ record, country }: CompensationAnalysisPr
               </div>
 
               <div className="col-span-4">
-                <div className="bg-chart-1/5 rounded-xl p-8 border border-border">
+                <div className="bg-chart-1/5 rounded-xl p-8">
                 <div className="space-y-4">
                   <h4>Growth Potential Analysis</h4>
                     <div className="bg-white rounded-lg p-4">
@@ -720,7 +720,7 @@ export function CompensationAnalysis({ record, country }: CompensationAnalysisPr
                 {/* Growth Factor and Performance Insight cards below the horizontal cards */}
                 <div className="grid grid-cols-12 gap-4">
                   {/* Growth Factor Card */}
-                  <div className="col-span-4 bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
+                  <div className="col-span-4 bg-white rounded-xl p-6 shadow-sm">
                     <div className="text-center">
                       <h4>Growth Factor</h4>
                       <p className="additional-value">{metrics.growthFactor.toFixed(1)}x</p>
@@ -735,7 +735,7 @@ export function CompensationAnalysis({ record, country }: CompensationAnalysisPr
                   </div>
 
                   {/* Performance Insight Card */}
-                  <div className="col-span-8 bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
+                  <div className="col-span-8 bg-white rounded-xl p-6 shadow-sm">
                     <div className="flex items-start space-x-3">
                       <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
                         <TrendingUp className="w-4 h-4 text-white" />
@@ -754,7 +754,7 @@ export function CompensationAnalysis({ record, country }: CompensationAnalysisPr
               </div>
 
               <div className="col-span-4">
-                <div className="bg-chart-1/5 rounded-xl p-8 border border-border">
+                <div className="bg-chart-1/5 rounded-xl p-8">
                   <div className="space-y-4">
                   <h4>Growth Potential Analysis</h4>
                     <div className="bg-white rounded-lg p-4">
@@ -841,7 +841,7 @@ export function CompensationAnalysis({ record, country }: CompensationAnalysisPr
                 {/* Growth Factor and Performance Insight cards below the horizontal cards */}
                 <div className="grid grid-cols-12 gap-4">
                   {/* Growth Factor Card */}
-                  <div className="col-span-4 bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
+                  <div className="col-span-4 bg-white rounded-xl p-6 shadow-sm">
                     <div className="text-center">
                       <p className="metric-label">Growth Factor</p>
                       <p className="additional-value">{metrics.growthFactor.toFixed(1)}x</p>
@@ -856,7 +856,7 @@ export function CompensationAnalysis({ record, country }: CompensationAnalysisPr
                   </div>
 
                   {/* Performance Insight Card */}
-                  <div className="col-span-8 bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
+                  <div className="col-span-8 bg-white rounded-xl p-6 shadow-sm">
                     <div className="flex items-start space-x-3">
                       <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
                         <TrendingUp className="w-4 h-4 text-white" />
@@ -875,7 +875,7 @@ export function CompensationAnalysis({ record, country }: CompensationAnalysisPr
               </div>
 
               <div className="col-span-4">
-                <div className="bg-chart-1/5 rounded-xl p-8 border border-border">
+                <div className="bg-chart-1/5 rounded-xl p-8">
                   <div className="space-y-4">
                   <h4>Growth Potential Analysis</h4>
                     <div className="bg-white rounded-lg p-4">

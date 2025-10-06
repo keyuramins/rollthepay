@@ -7,6 +7,7 @@ import { FeaturesSection } from "@/components/home/features-section";
 import { CTASection } from "@/components/home/cta-section";
 import { Footer } from "@/components/ui/footer";
 
+
 export const revalidate = 0;
 export const dynamicParams = true;
 

@@ -53,7 +53,7 @@ function ContentSection({ title, content, type }: ContentSectionProps) {
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow duration-200">
+    <div className="bg-white rounded-lg shadow-sm border border-primary/20 p-6 hover:shadow-md transition-shadow duration-200">
       <div className="flex items-start space-x-4">
         {getIcon(type)}
         <div className="flex-1">

@@ -198,10 +198,10 @@ export function TopSkillsMarketDemand({ record }: TopSkillsMarketDemandProps) {
 
                 <div className="top-skills-market-demand__skill-metrics">
                   <div className="top-skills-market-demand__skill-metrics-content">
-                    <div className="top-skills-market-demand__skill-metrics-value">
+                    <div className="metric-value">
                       {skill.marketShare}%
                     </div>
-                    <div className="top-skills-market-demand__skill-metrics-label">
+                    <div className="metric-label">
                       Market Share
                     </div>
                   </div>

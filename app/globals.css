@@ -1,56 +1,35 @@
 @import "tailwindcss";
 
-@custom-variant dark (&:is(.dark *));
-
 :root {
+  --white: oklch(1 0 0);
+  --black: oklch(0 0 0);
+  --green-100: oklch(0.7918 0.1899 120.99);
   /* --primary: oklch(0.5234 0.1347 144.1672); */
   --primary: oklch(0.5296 0.107784 167.5683);
   /* --secondary: oklch(0.8987 0.1853 97.8301); */
   --secondary: oklch(0.9696 0.1954 109.55);
-  --primary-foreground: oklch(1 0 0);
-  --secondary-foreground: oklch(0.258 0.092 26.042);
+  --primary-foreground: var(--white); /* Not using */
+  --secondary-foreground: oklch(0.258 0.092 26.042);/*red-950*/
   --secondary-30: oklch(0.8987 0.1853 97.8301 / 0.7);
-  --card: oklch(1 0 0);
-  --green-100: oklch(0.7918 0.1899 120.99);
+  --background: oklch(0.9818 0.0054 95.1);/*almost yellow-50*/
+  --foreground: oklch(0.1473 0.0358 30.2042);/* darker brownish red */
+  --card: var(--white);
   --chart-1: oklch(0.6731 0.1624 144.2083);
   --chart-2: oklch(0.5752 0.1446 144.1813);
   --chart-3: oklch(0.5234 0.1347 144.1672);
   --chart-4: oklch(0.4254 0.1159 144.3078);
   --chart-5: oklch(0.2157 0.0453 145.7256);
   --chart-6: oklch(0.8987 0.1853 97.8301);
-  --black: oklch(0 0 0);
-  --white: oklch(1 0 0);
 
-  --background: oklch(0.9818 0.0054 95.1);
-  --foreground: oklch(0.1473 0.0358 30.2042);
-
-  --card-foreground: oklch(0.2580 0.0920 26.0420);
-  --popover: oklch(0.9711 0.0074 80.7211);
-  --popover-foreground: oklch(0.3000 0.0358 30.2042);
-
-
+  --destructive: oklch(0.5386 0.1937 26.7249);/* Used to show red dots */
 
   --muted: oklch(0.9370 0.0142 74.4218);
-  --muted-foreground: oklch(0.442 0.017 285.786);
-  --accent: oklch(0.962 0.044 156.7430);
-  --accent-foreground: oklch(0.4254 0.1159 144.3078);
-  --destructive: oklch(0.5386 0.1937 26.7249);
-  --destructive-foreground: oklch(1 0 0);
-
-  --input: oklch(0.8805 0.0208 74.6428);
-  --ring: oklch(0.5234 0.1347 144.1672);
-  
+  --muted-foreground: oklch(0.442 0.017 285.786);/* Used for metric labels text color*/
 
 
+  --input: oklch(0.8805 0.0208 74.6428); /* Used for borders only */
+  --ring: var(--primary);
 
-  --sidebar: oklch(0.9370 0.0142 74.4218);
-  --sidebar-foreground: oklch(0.3000 0.0358 30.2042);
-  --sidebar-primary: oklch(0.5234 0.1347 144.1672);
-  --sidebar-primary-foreground: oklch(1 0 0);
-  --sidebar-accent: oklch(0.8952 0.0504 146.0366);
-  --sidebar-accent-foreground: oklch(0.4254 0.1159 144.3078);
-  --sidebar-border: oklch(0.8805 0.0208 74.6428);
-  --sidebar-ring: oklch(0.5234 0.1347 144.1672);
 
   --font-body: Roboto;
   --font-heading: "Roboto Condensed";
@@ -78,9 +57,7 @@
   --line-height-relaxed: 1.75;
 }
 
-.dark { --background: oklch(0.2775 0.0314 156.8361); --foreground: oklch(0.9668 0.0095 93.5686); --card: oklch(0.3439 0.0324 153.1129); --card-foreground: oklch(0.9668 0.0095 93.5686); --popover: oklch(0.3439 0.0324 153.1129); --popover-foreground: oklch(0.9668 0.0095 93.5686); --primary: oklch(0.7182 0.1801 147.2225); --primary-foreground: oklch(0.2535 0.0598 148.3817); --secondary: oklch(0.4042 0.0341 146.4552); --secondary-foreground: oklch(0.258 0.092 26.042); --muted: oklch(0.3439 0.0324 153.1129); --muted-foreground: oklch(0.8849 0.0222 92.5255); --accent: oklch(0.6195 0.1635 146.7872); --accent-foreground: oklch(0.9668 0.0095 93.5686); --destructive: oklch(0.6007 0.2149 32.5683); --destructive-foreground: oklch(0.9668 0.0095 93.5686); --border: oklch(0.4042 0.0341 146.4552); --input: oklch(0.4042 0.0341 146.4552); --ring: oklch(0.7182 0.1801 147.2225); --chart-1: oklch(0.7979 0.1276 149.4985); --chart-2: oklch(0.7556 0.1538 148.6873); --chart-3: oklch(0.7182 0.1801 147.2225); --chart-4: oklch(0.6773 0.1753 146.9396); --chart-5: oklch(0.6195 0.1635 146.7872); --sidebar: oklch(0.2775 0.0314 156.8361); --sidebar-foreground: oklch(0.9668 0.0095 93.5686); --sidebar-primary: oklch(0.7182 0.1801 147.2225); --sidebar-primary-foreground: oklch(0.2535 0.0598 148.3817); --sidebar-accent: oklch(0.6195 0.1635 146.7872); --sidebar-accent-foreground: oklch(0.9668 0.0095 93.5686); --sidebar-border: oklch(0.4042 0.0341 146.4552); --sidebar-ring: oklch(0.7182 0.1801 147.2225); --font-sans: Montserrat, sans-serif; --font-serif: Merriweather, serif; --font-mono: Source Code Pro, monospace; --radius: 0.5rem; --shadow-2xs: 0 1px 3px 0px hsl(0 0% 0% / 0.05); --shadow-xs: 0 1px 3px 0px hsl(0 0% 0% / 0.05); --shadow-sm: 0 1px 3px 0px hsl(0 0% 0% / 0.10), 0 1px 2px -1px hsl(0 0% 0% / 0.10); --shadow: 0 1px 3px 0px hsl(0 0% 0% / 0.10), 0 1px 2px -1px hsl(0 0% 0% / 0.10); --shadow-md: 0 1px 3px 0px hsl(0 0% 0% / 0.10), 0 2px 4px -1px hsl(0 0% 0% / 0.10); --shadow-lg: 0 1px 3px 0px hsl(0 0% 0% / 0.10), 0 4px 6px -1px hsl(0 0% 0% / 0.10); --shadow-xl: 0 1px 3px 0px hsl(0 0% 0% / 0.10), 0 8px 10px -1px hsl(0 0% 0% / 0.10); --shadow-2xl: 0 1px 3px 0px hsl(0 0% 0% / 0.25); }
-
-@theme { --color-background: var(--background); --color-foreground: var(--foreground); --color-card: var(--card); --color-card-foreground: var(--card-foreground); --color-popover: var(--popover); --color-popover-foreground: var(--popover-foreground); --color-primary: var(--primary); --color-primary-foreground: var(--primary-foreground); --color-secondary: var(--secondary); --color-secondary-foreground: var(--secondary-foreground); --color-muted: var(--muted); --color-muted-foreground: var(--muted-foreground); --color-accent: var(--accent); --color-accent-foreground: var(--accent-foreground); --color-destructive: var(--destructive); --color-destructive-foreground: var(--destructive-foreground); --color-border: var(--border); --color-input: var(--input); --color-ring: var(--ring); --color-chart-1: var(--chart-1); --color-chart-2: var(--chart-2); --color-chart-3: var(--chart-3); --color-chart-4: var(--chart-4); --color-chart-5: var(--chart-5); --color-sidebar: var(--sidebar); --color-sidebar-foreground: var(--sidebar-foreground); --color-sidebar-primary: var(--sidebar-primary); --color-sidebar-primary-foreground: var(--sidebar-primary-foreground); --color-sidebar-accent: var(--sidebar-accent); --color-sidebar-accent-foreground: var(--sidebar-accent-foreground); --color-sidebar-border: var(--sidebar-border); --color-sidebar-ring: var(--sidebar-ring); --font-sans: var(--font-sans); --font-mono: var(--font-mono); --font-serif: var(--font-serif); --radius-sm: calc(var(--radius) - 4px); --radius-md: calc(var(--radius) - 2px); --radius-lg: var(--radius); --radius-xl: calc(var(--radius) + 4px); --shadow-2xs: var(--shadow-2xs); --shadow-xs: var(--shadow-xs); --shadow-sm: var(--shadow-sm); --shadow: var(--shadow); --shadow-md: var(--shadow-md); --shadow-lg: var(--shadow-lg); --shadow-xl: var(--shadow-xl); --shadow-2xl: var(--shadow-2xl); }
+@theme { --color-background: var(--background); --color-foreground: var(--foreground); --color-card: var(--card); --color-primary: var(--primary); --color-primary-foreground: var(--primary-foreground); --color-secondary: var(--secondary); --color-secondary-foreground: var(--secondary-foreground); --color-muted: var(--muted); --color-muted-foreground: var(--muted-foreground); --color-accent: var(--white); --color-accent-foreground: var(--foreground); --color-destructive: var(--destructive); --color-border: var(--input); --color-input: var(--input); --color-ring: var(--ring); --color-chart-1: var(--chart-1); --color-chart-2: var(--chart-2); --color-chart-3: var(--chart-3); --color-chart-4: var(--chart-4); --color-chart-5: var(--chart-5); --radius-sm: calc(var(--radius) - 4px); --radius-md: calc(var(--radius) - 2px); --radius-lg: var(--radius); --radius-xl: calc(var(--radius) + 4px); --shadow-2xs: var(--shadow-2xs); --shadow-xs: var(--shadow-xs); --shadow-sm: var(--shadow-sm); --shadow: var(--shadow); --shadow-md: var(--shadow-md); --shadow-lg: var(--shadow-lg); --shadow-xl: var(--shadow-xl); --shadow-2xl: var(--shadow-2xl); }
 
 /* === BASE STYLES ==*/
 @layer base {
@@ -88,6 +65,7 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    @apply border-input;
   }
 
   body {
@@ -125,7 +103,7 @@
 
 .occupation-hero-section { @apply w-full py-16 sm:py-20 lg:py-24 bg-card shadow-sm; }
 .hero-badges { @apply flex flex-wrap gap-2; }
-.hero-badge { @apply px-4 py-1 rounded-full text-sm font-medium bg-green-100 border-gray-200 text-black; }
+.hero-badge { @apply px-4 py-1 rounded-full text-sm font-medium bg-green-100 text-black shadow-xs; }
 .hero-badge--location { @apply bg-primary text-white; }
 .salary-value { @apply text-3xl font-semibold text-primary; }
 .metric-value { @apply text-lg font-semibold text-primary; }
@@ -133,14 +111,14 @@
 .metric-label { @apply text-sm text-muted-foreground mb-0; }
 .additional-value { @apply text-2xl font-extrabold text-primary tracking-tight; }
 /* ===SALARY CARD ==*/
-.salary-card { @apply bg-chart-1/5 rounded-xl p-6 border shadow-sm mt-4; }
+.salary-card { @apply bg-primary/5 rounded-xl p-6 shadow-md mt-4; }
 .salary-card__header { @apply text-center mb-6 space-y-1; }
 
 .salary-meta { @apply space-y-3 mb-6; }
 .salary-meta__row { @apply flex justify-between text-sm sm:text-base items-center; }
 .salary-actions { @apply flex gap-3 flex-wrap sm:flex-nowrap; }
 .btn-secondary { @apply bg-secondary hover:bg-primary hover:text-card text-black font-semibold py-3 px-4 rounded-lg transition-colors text-base cursor-pointer; }
-.btn-icon { @apply bg-accent hover:bg-accent/80 text-accent-foreground font-semibold p-3 rounded-lg transition-colors text-sm; }
+.btn-icon { @apply bg-primary hover:bg-secondary text-white hover:text-foreground font-semibold p-3 rounded-lg transition-colors text-sm cursor-pointer; }
 
 /* Breadcrumbs styles */
 .breadcrumbs-section { @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8; }
@@ -151,18 +129,18 @@
 .breadcrumb-separator { @apply ml-2 text-muted-foreground/80 text-xs sm:text-sm; }
 
 /* ===CARD COMPONENTS ==*/
-.card { @apply bg-card flex flex-col gap-6 rounded-xl border py-8 shadow-sm; }
+.card { @apply bg-card flex flex-col gap-6 rounded-xl border py-8 shadow-xs; }
 .card-header { @apply grid auto-rows-min grid-rows-[auto_auto] items-start gap-1.5 px-6; }
 .card-title { @apply text-xl sm:text-2xl md:text-3xl font-bold leading-none; }
 .card-content { @apply px-6; }
 .card-footer { @apply flex items-center px-6 pt-6 border-t; }
 .card-section { @apply pt-8 space-y-8 relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8; }
 .compensation-analysis-section { @apply space-y-8 pt-4 bg-background max-w-7xl mx-auto px-4 sm:px-6 lg:px-8; }
-.compensation-bpc-section { @apply bg-card rounded-2xl p-8 border border-border; }
+.compensation-bpc-section { @apply bg-card rounded-2xl p-8 border border-input shadow-xs; }
 /* ===COMPENSATION ANALYSIS === */
 .compensation-analysis { @apply space-y-8; }
 .section-cards-grid { @apply grid grid-cols-1 lg:grid-cols-2 gap-8; }
-.compensation-card { @apply relative; }
+.compensation-card { @apply relative border border-input; }
 .compensation-card__content { @apply space-y-6; }
 
 .salary-display { @apply flex justify-between items-center; }
@@ -184,14 +162,12 @@
 .ai-insight__icon-svg { @apply w-5 h-5 text-primary; }
 .ai-insight__content { @apply flex-1; }
 .ai-insight__header { @apply flex items-center justify-between mb-2; }
-.ai-insight__badge { @apply bg-accent text-black; }
-.ai-insight__badge--secondary { @apply bg-secondary/50 text-black; }
 .ai-insight__text { @apply text-muted-foreground; }
 
 /* ===ADDITIONAL COMPENSATION (Bonus/Commission/Profit Sharing) === */
 .additional-comp { @apply space-y-4; }
 .additional-comp__grid { @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4; }
-.inner-card { @apply relative rounded-xl border border-border bg-card p-5; }
+.inner-card { @apply relative rounded-xl border border-primary/20 bg-card p-5; }
 .light-green-card { @apply border-primary/20 bg-primary/5; }
 .inner-card-top { @apply flex items-start justify-between; }
 .inner-card-icon { @apply p-2.5 rounded-lg bg-primary text-accent shadow; }
@@ -217,7 +193,7 @@
 /* ===SALARY PERCENTILES CHART === */
 .salary-percentiles-header { @apply text-left;}
 .percentile-insights { @apply grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6; }
-.percentile-insight { @apply text-center p-4 rounded-lg border border-border bg-card; }
+.percentile-insight { @apply text-center p-4 rounded-lg border border-input bg-card; }
 
 /* ===EXPERIENCE LEVEL SALARIES CHART === */
 .experience-level-salaries-card { @apply relative; }
@@ -238,7 +214,7 @@
 .top-skills-market-demand__header { @apply flex items-center gap-2 mb-6; }
 .top-skills-market-demand__header-icon { @apply w-4 h-4 text-primary; }
 .top-skills-market-demand__skills-list { @apply space-y-2; }
-.top-skills-market-demand__skill-item { @apply flex items-center justify-between p-4 bg-muted/30 rounded-lg border border-border; }
+.top-skills-market-demand__skill-item { @apply flex items-center justify-between p-4 bg-card rounded-lg border border-input; }
 .top-skills-market-demand__skill-icon { @apply flex items-center justify-center p-2 text-lg text-primary bg-primary/10 rounded-md mr-4; }
 .top-skills-market-demand__skill-icon-svg { @apply w-4 h-4 text-primary; }
 .top-skills-market-demand__skill-content { @apply flex-1; }
@@ -257,7 +233,7 @@
 .top-skills-market-demand__skill-progress-bar { @apply bg-primary h-2 rounded-full transition-all duration-300; }
 .top-skills-market-demand__skill-metrics { @apply w-auto; }
 .top-skills-market-demand__skill-metrics-content { @apply block text-center; }
-.top-skills-market-demand__skill-metrics-value { @apply text-sm font-semibold text-chart-1; }
+.top-skills-market-demand__skill-metrics-value { @apply text-lg font-bold text-primary; }
 .top-skills-market-demand__skill-metrics-label { @apply text-xs font-light text-foreground; }
 
 /* ===RELATED OPPORTUNITIES === */
@@ -280,7 +256,7 @@
 .cta-section__description { @apply text-xl text-white mb-8 max-w-3xl mx-auto; }
 /* We need below 2 buttons css */
 .cta-section__buttons { @apply flex flex-col sm:flex-row gap-4 justify-center; }
-.cta-section__button { @apply text-base bg-secondary text-primary px-8 py-3 sm:text-lg sm:px-8 sm:py-4 rounded-md font-semibold hover:bg-card transition-colors cursor-pointer; }
+.cta-section__button { @apply inline-flex items-center justify-center text-base bg-secondary text-primary px-8 py-3 sm:text-lg sm:px-8 sm:py-4 rounded-md font-semibold hover:bg-card transition-colors cursor-pointer min-h-[44px] min-w-[44px]; }
 
 /* ===RELATED OPPORTUNITIES ENHANCED === */
 .related-opportunities-enhanced { @apply space-y-8; }
@@ -291,8 +267,8 @@
 .related-opportunities-enhanced__locations-grid { @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4; }
 
 /* ===RELATED OCCUPATION CARD === */
-.related-occupation-card { @apply bg-primary/5 rounded-xl p-6 border border-primary/20 transition-all duration-200; }
-.related-occupation-card--link { @apply hover:border-primary/40 hover:shadow-lg hover:bg-primary/10 cursor-pointer; }
+.related-occupation-card { @apply bg-card rounded-xl p-6 border border-input; }
+.related-occupation-card--link { @apply hover:border-primary hover:shadow-md hover:bg-green-100 cursor-pointer; }
 .related-occupation-card__header { @apply mb-4; }
 .related-occupation-card__location-industry { @apply flex items-center justify-between; }
 .related-occupation-card__location { @apply flex items-center gap-2 text-sm text-muted-foreground; }
@@ -313,7 +289,7 @@
 .related-occupation-card__skill-badge { @apply text-xs bg-primary/10 text-primary border-primary/20; }
 
 /* ===LOCATION OPPORTUNITY CARD === */
-.location-opportunity-card { @apply bg-secondary/5 rounded-lg p-4 border border-secondary/20 transition-all duration-200; }
+.location-opportunity-card { @apply bg-secondary/5 rounded-lg p-4 border border-input; }
 .location-opportunity-card--link { @apply hover:border-secondary/40 hover:shadow-md hover:bg-secondary/10 cursor-pointer; }
 .location-opportunity-card__header { @apply flex items-center justify-between mb-3; }
 .location-opportunity-card__title-section { @apply flex items-center gap-2; }
@@ -413,10 +389,8 @@
 /* ===BADGE COMPONENT === */
 .badge { @apply inline-flex items-center font-medium rounded-full; }
 .badge--default { @apply bg-muted text-foreground; }
-.badge--blue { @apply bg-primary/10 text-primary; }
+.badge--yellow { @apply bg-secondary/30 text-primary; }
 .badge--green { @apply bg-green-100 text-primary; }
-.badge--purple { @apply bg-purple-100 text-purple-600; }
-.badge--red { @apply bg-destructive/10 text-destructive; }
 .badge--sm { @apply px-2.5 py-0.5 text-xs; }
 .badge--md { @apply px-3 py-1 text-sm; }
 .badge--lg { @apply px-4 py-2 text-base; }
@@ -609,7 +583,7 @@
 .occupation-list__search-container { @apply w-full lg:w-80 flex-shrink-0; }
 .occupation-list__search-input { @apply block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-white; }
 .occupation-list__results { @apply grid grid-cols-1 gap-4; }
-.occupation-list__item { @apply block bg-white rounded-lg border border-blue-200 py-2 px-6 hover:shadow-md transition-shadow hover:border-blue-300; }
+.occupation-list__item { @apply block bg-white rounded-lg border border-input py-2 px-6 hover:shadow-md transition-shadow hover:border-blue-300; }
 .occupation-list__item-content { @apply flex items-center justify-between; }
 .occupation-list__item-info { @apply flex-1; }
 .occupation-list__item-title { @apply text-lg font-semibold text-foreground mb-2; }
@@ -628,13 +602,13 @@
 .occupation-list__pagination-ellipsis { @apply px-2; }
 
 /* ===PERCENTILES CHART === */
-.percentiles-chart { @apply bg-card rounded-lg shadow-md p-6 border; }
+.percentiles-chart { @apply bg-card rounded-lg shadow-xs p-6 border; }
 .percentiles-chart__header { @apply mb-6; }
 .percentiles-chart__title { @apply text-xl font-bold text-foreground; }
 .percentiles-chart__subtitle { @apply text-sm text-muted-foreground mt-1; }
 .percentiles-chart__container { @apply h-72; }
 .percentiles-chart__legend { @apply mt-4 flex flex-col items-center gap-1; }
-.percentiles-chart__legend-item { @apply flex items-center space-x-2 rounded-full px-4 py-1 bg-secondary/30 border border-border mt-2; }
+.percentiles-chart__legend-item { @apply flex items-center space-x-2 rounded-full px-4 py-1 bg-secondary/30 border border-input mt-2; }
 .percentiles-chart__legend-dot { @apply w-3 h-3 rounded-full bg-chart-1; }
 .percentiles-chart__legend-text { @apply text-sm font-bold text-black; }
 
@@ -667,15 +641,11 @@
 
 
 /* ===BUTTON === */
-.button { @apply inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive cursor-pointer; }
+.button { @apply inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 shrink-0 outline-none focus-visible:border-primary focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive cursor-pointer; }
 .button svg { @apply pointer-events-none shrink-0; }
 .button svg:not([class*='size-']) { @apply size-4; }
 .button--default { @apply bg-primary text-white shadow-xs hover:bg-primary/90; }
-.button--destructive { @apply bg-destructive text-white shadow-xs hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60; }
-.button--outline { @apply border bg-background shadow-xs hover:bg-accent hover:text-accent-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50; }
 .button--secondary { @apply bg-secondary text-secondary-foreground shadow-xs hover:bg-secondary/80; }
-.button--ghost { @apply hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50; }
-.button--link { @apply text-primary underline-offset-4 hover:underline; }
 .button--rtp { @apply text-card hover:bg-secondary hover:text-secondary-foreground; }
 .button--mobilertp { @apply text-primary bg-secondary hover:bg-secondary/80; }
 .button--size-default { @apply h-9 px-4 py-2; }

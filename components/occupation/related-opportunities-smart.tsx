@@ -69,7 +69,7 @@ function RelatedOccupationCard({ occupation, currentRecord, showSalaryComparison
             <MapPin className="related-occupation-card__location-icon" />
             <span>{occupation.location || occupation.state || occupation.country}</span>
           </div>
-          <Badge variant="default" className="related-occupation-card__industry-badge">
+          <Badge variant="green" className="related-occupation-card__industry-badge">
             {industry}
           </Badge>
         </div>
@@ -101,7 +101,7 @@ function RelatedOccupationCard({ occupation, currentRecord, showSalaryComparison
           <div className="related-occupation-card__skills-label">Common Skills:</div>
           <div className="related-occupation-card__skills-list">
             {commonSkills.slice(0, 3).map(skill => (
-              <Badge key={skill} variant="blue" className="related-occupation-card__skill-badge">
+              <Badge key={skill} variant="green">
                 {skill}
               </Badge>
             ))}
@@ -132,7 +132,7 @@ function LocationOpportunityCard({ location, type, salary, currentSalary, countr
           <IconComponent className="location-opportunity-card__icon" />
           <h4>{location}</h4>
         </div>
-        <Badge variant="default" className="location-opportunity-card__type">
+        <Badge variant="green" className="location-opportunity-card__type">
           {type}
         </Badge>
       </div>

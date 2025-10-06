@@ -267,7 +267,7 @@ export function ExperienceLevelSalariesChart({ record, country }: ExperienceLeve
             </ResponsiveContainer>
           </div>
           <div className="mt-4 flex flex-col items-center gap-1">
-              <div className="flex items-center space-x-2 rounded-full px-2 py-1 bg-secondary/30 border border-border mt-2">
+              <div className="flex items-center space-x-2 rounded-full px-2 py-1 bg-secondary/30 border border-input   mt-2">
                 <div className="w-3 h-3 rounded-full bg-chart-1" />
                 <span className="text-sm text-black font-bold">Hourly salary by experience level</span>
               </div>
@@ -314,7 +314,7 @@ export function ExperienceLevelSalariesChart({ record, country }: ExperienceLeve
                         </div>
                       </div>
                       {!isBaseline && (
-                        <Badge variant="default" className="experience-level-insight__badge">{percent > 0 ? `+${percent.toFixed(0)}%` : `${percent.toFixed(0)}%`}</Badge>
+                        <Badge variant="secondary" className="experience-level-insight__badge">{percent > 0 ? `+${percent.toFixed(0)}%` : `${percent.toFixed(0)}%`}</Badge>
                       )}
                     </div>
                     <div className="experience-level-insight__growth">

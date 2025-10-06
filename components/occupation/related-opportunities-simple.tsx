@@ -128,7 +128,7 @@ export function RelatedOpportunitiesSimple({ content, record, allOccupations }: 
         </CardHeader>
         <CardContent>
               {relatedOccupations.length > 0 && (
-                <div className="bg-background rounded-lg p-4 border border-border">
+                <div className="bg-background rounded-lg p-4 border border-input">
                   <div className="grid grid-cols-1 gap-2">
                     {relatedOccupations.map((occupation, index) => {
                       const industry = getIndustryCategory(occupation.title);
@@ -141,7 +141,7 @@ export function RelatedOpportunitiesSimple({ content, record, allOccupations }: 
                           prefetchDelay={120}
                           key={index}
                           href={`/${occupation.country.toLowerCase()}${occupation.state ? `/${occupation.state.toLowerCase().replace(/\s+/g, '-')}` : ''}${occupation.location ? `/${occupation.location.toLowerCase().replace(/\s+/g, '-')}` : ''}/${normalizeSlugForURL(occupation.slug)}`}
-                          className="flex items-center justify-between p-3 rounded-lg border border-border hover:border-chart-1 hover:bg-chart-1/10 transition-colors duration-200"
+                          className="flex items-center justify-between bg-card p-3 rounded-lg border border-input hover:border-primary hover:bg-green-100"
                         >
                           <div className="flex-1">
                             <span className="text-sm font-medium text-foreground truncate block">

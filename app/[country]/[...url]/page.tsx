@@ -5,6 +5,7 @@ import { StatePage } from "@/components/state/state-page";
 import { LocationPage } from "@/components/location/location-page";
 import { OccupationPage } from "@/components/occupation/occupation-page";
 
+
 export const revalidate = 0;
 export const dynamicParams = true;
 

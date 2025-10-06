@@ -8,6 +8,7 @@ import { OccupationList } from "@/components/ui/occupation-list";
 import { StatesGrid } from "@/components/country/states-grid";
 import { CountryCTASection } from "@/components/country/cta-section";
 
+
 export const revalidate = 0;
 export const dynamicParams = true;
 
