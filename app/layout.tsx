@@ -2,23 +2,27 @@ import type { Metadata, Viewport } from "next";
 import { Roboto, Roboto_Condensed, Inter } from "next/font/google";
 import "./globals.css";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import Script from "next/script";
 
 const robotoCondensed = Roboto_Condensed({
-  weight: ["400","700"],
+  weight: ["400","500", "600", "700", "800"],
   subsets: ["latin"],
   variable: "--font-roboto-condensed",
+  style: ["normal"],
   display: "swap",
 });
 const roboto = Roboto({
   variable: "--font-roboto",
   subsets: ["latin"],
-  weight: ["400", "700"],
+  weight: ["400", "500", "600", "700", "800"],
+  style: ["normal"],
   display: "swap",
 });
 const inter = Inter({
   variable: "--font-inter",
-  subsets: ["latin"],
-  weight: ["400", "700"],
+  subsets: ["latin", "latin-ext"],
+  weight: ["400", "500", "600", "700", "800"],
+  style: ["normal"],
   display: "swap",
 });
 
@@ -53,13 +57,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" className={`${roboto.variable} ${robotoCondensed.variable} ${inter.variable}`}>
       <head>
-        <script src="https://js.puter.com/v2/"></script>
+        <Script src="https://js.puter.com/v2/" strategy="afterInteractive" />
       </head>
-      <body
-        className={`${roboto.variable} ${robotoCondensed.variable} ${inter.variable}`}
-      >
+      <body>
         <TooltipProvider>
           {children}
         </TooltipProvider>

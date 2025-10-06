@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Button } from "../ui/button";
 
 export function AboutCTASection() {
   return (
@@ -11,12 +12,11 @@ export function AboutCTASection() {
           Start your journey to better compensation insights today. 
           Explore our comprehensive salary database and make informed career decisions.
         </p>
-        <div className="about-cta-section__buttons">
-          
-          <Link href="/" className="about-cta-section__button">
+        <Link prefetch={true} href={`/`}>
+          <button className="cta-section__button">
             Back to Home
-          </Link>
-        </div>
+          </button>
+        </Link>
       </div>
     </section>
   );

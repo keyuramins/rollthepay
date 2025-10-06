@@ -11,14 +11,11 @@ export function CountryCTASection() {
           Discover salary information for specific jobs, compare compensation across regions, 
           and get the insights you need to advance your career.
         </p>
-        <div className="country-cta-section__buttons">
-
-          <Link href="/" prefetch={true}>
-            <button className="country-cta-section__button">
-              Back to Home
-            </button>
-          </Link>
-        </div>
+        <Link prefetch={true} href={`/`}>
+          <button className="cta-section__button">
+            Back to Home
+          </button>
+        </Link>
       </div>
     </section>
   );

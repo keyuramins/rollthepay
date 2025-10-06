@@ -157,19 +157,11 @@ export function OccupationList({ items, title, description, className = "", curr
                     <AZFilter items={sortedItems} onFilteredItemsChange={setAzFilteredItems} />
                 </div>
 
-
-
-
-
-
-
-
                 {/* Results */}
                 <div className="occupation-list__results">
                     {paginatedItems.map((item) => {
                         // Compute route based on current page context
                         let href: string;
-                        
                         const normalizedSlug = normalizeSlugForURL(item.slug_url);
                         
                         if (currentLocation && currentState) {

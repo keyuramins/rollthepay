@@ -36,18 +36,15 @@ export default function AboutPage() {
   return (
     <div className="page-container">
       <Header />
-      
       <main>
         {/* Breadcrumbs */}
-        <div className="breadcrumbs-container">
-          <div className="breadcrumbs-wrapper">
-            <Breadcrumbs
-              breadcrumbs={[
-                { name: "Home", href: "/" },
-                { name: "About", href: "#", current: true },
-              ]}
-            />
-          </div>
+        <div className="bg-background max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <Breadcrumbs
+            breadcrumbs={[
+              { name: "Home", href: "/" },
+              { name: "About", href: "#", current: true },
+            ]}
+          />
         </div>
         
         <AboutHeroSection />

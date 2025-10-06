@@ -1,7 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
-import { Button } from "@/components/ui/button";
+import { useMemo } from "react";
 import {
   AwardIcon,
   MessageCircleIcon,
@@ -17,106 +16,8 @@ interface TopSkillsMarketDemandProps {
   record: any;
 }
 
-// Skills Filter Component
-interface SkillsFilterProps {
-  skills: Array<{
-    name: string;
-    value: number;
-    percentage: number;
-    color: string;
-    marketShare: number;
-    salaryImpact: number;
-    demandLevel: string;
-    demandColor: string;
-    category: string;
-  }>;
-  onFilterChange: (filter: string) => void;
-  onSortChange: (sort: string) => void;
-  activeFilter: string;
-  activeSort: string;
-}
-
-function SkillsFilter({ skills, onFilterChange, onSortChange, activeFilter, activeSort }: SkillsFilterProps) {
-  // Extract unique categories from skills data
-  const categories = useMemo(() => {
-    const categoryCounts = skills.reduce((acc, skill) => {
-      acc[skill.category] = (acc[skill.category] || 0) + 1;
-      return acc;
-    }, {} as Record<string, number>);
-
-    // Sort by count and take top 4-5 categories
-    const sortedCategories = Object.entries(categoryCounts)
-      .sort(([, a], [, b]) => b - a)
-      .slice(0, 5)
-      .map(([category]) => category);
-    return sortedCategories.length > 0 ? sortedCategories : ['Technical'];
-  }, [skills]);
-
-  const categoryIcons: Record<string, string> = {
-    'Software': '<>',
-    'Management': '👤',
-    'Accounting': '📊',
-    'Analysis': '📈',
-    'Technical': '⚙️',
-    'Process': '🔄',
-    'Communication': '💬'
-  };
-
-  return (
-    <div className="top-skills-filter">
-      <h3 className="top-skills-filter__title">Top Skills & Market Demand</h3>
-      <p className="top-skills-filter__description">Most in-demand skills with proficiency levels and salary impact analysis</p>
-
-      {/* Skill Category Filters */}
-      <div className="top-skills-filter__categories">
-        <Button
-          onClick={() => onFilterChange('All')}
-          variant={activeFilter === 'All' ? 'default' : 'outline'}
-          size="sm"
-        >
-          All
-        </Button>
-        {categories.map((category) => (
-          <Button
-            key={category}
-            onClick={() => onFilterChange(category)}
-            variant={activeFilter === category ? 'default' : 'outline'}
-            size="sm"
-            className="top-skills-filter__category-button"
-          >
-            <span dangerouslySetInnerHTML={{ __html: categoryIcons[category] || '📋' }} />
-            {category}
-          </Button>
-        ))}
-      </div>
-
-      {/* Sorting Options */}
-      <div className="top-skills-filter__sorting">
-        <Button
-          onClick={() => onSortChange('proficiency')}
-          variant={activeSort === 'proficiency' ? 'secondary' : 'outline'}
-          size="sm"
-          className="top-skills-filter__sort-button"
-        >
-          <span>🔽</span> By Proficiency
-        </Button>
-        <Button
-          onClick={() => onSortChange('demand')}
-          variant={activeSort === 'demand' ? 'secondary' : 'outline'}
-          size="sm"
-          className="top-skills-filter__sort-button"
-        >
-          <span>📊</span> By Demand
-        </Button>
-      </div>
-    </div>
-  );
-}
 
 export function TopSkillsMarketDemand({ record }: TopSkillsMarketDemandProps) {
-  // State for skills filtering and sorting
-  const [activeFilter, setActiveFilter] = useState('All');
-  const [activeSort, setActiveSort] = useState('proficiency');
 
   // Helper function to check if value exists and is not #REF! or invalid
   const isValidValue = (value: any) => {
@@ -234,21 +135,10 @@ export function TopSkillsMarketDemand({ record }: TopSkillsMarketDemandProps) {
     };
   });
 
-  // Filter skills based on active filter
-  const filteredSkills = activeFilter === 'All'
-    ? enhancedSkills
-    : enhancedSkills.filter(skill => skill.category === activeFilter);
-
-  // Sort skills based on active sort
+  // Sort skills by proficiency (highest first)
   const sortedSkills = useMemo(() => {
-    const skillsToSort = [...filteredSkills];
-    if (activeSort === 'proficiency') {
-      return skillsToSort.sort((a, b) => b.percentage - a.percentage);
-    } else if (activeSort === 'demand') {
-      return skillsToSort.sort((a, b) => b.marketShare - a.marketShare);
-    }
-    return skillsToSort;
-  }, [filteredSkills, activeSort]);
+    return [...enhancedSkills].sort((a, b) => b.percentage - a.percentage);
+  }, [enhancedSkills]);
 
   return (
     <section className="card-section">

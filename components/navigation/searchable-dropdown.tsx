@@ -386,7 +386,7 @@ export function SearchableDropdown({
       placeholderElement.style.top = '50%';
       placeholderElement.style.transform = 'translateY(-50%)';
       placeholderElement.style.fontSize = '16px';
-      placeholderElement.style.color = 'rgb(156, 163, 175)'; // muted-foreground color
+      placeholderElement.style.color = 'oklch(0 0 0)';
       placeholderElement.style.pointerEvents = 'none';
       placeholderElement.style.zIndex = '1';
       placeholderElement.style.whiteSpace = 'nowrap';
@@ -630,7 +630,7 @@ export function SearchableDropdown({
         {/* Inline tag area inside input */}
         {isInSearchMode && selectedCountry && (
           <div className="absolute inset-y-0 left-12 flex items-center z-10">
-            <span ref={chipRef} className="inline-flex items-center px-2 py-1 rounded-full bg-primary/10 text-primary text-xs">
+            <span ref={chipRef} className="inline-flex items-center px-2 py-1 rounded-full bg-green-100 text-primary text-sm">
               {selectedCountry.name}
               <button
                 aria-label="Remove selected country"
@@ -698,7 +698,7 @@ export function SearchableDropdown({
             }
           }}
           disabled={isLoading || isOccupationLoading}
-          className={`block ${fullWidth ? 'w-full' : 'w-full sm:w-80 lg:w-96'} pr-10 py-3 border rounded-lg text-base leading-5 focus:outline-none shadow-md transition-all duration-200 ${inputBorderClass} ${inputBgClass} ${inputTextClass} disabled:cursor-not-allowed`}
+          className={`block ${fullWidth ? 'w-full' : 'w-full sm:w-80 lg:w-96'} pr-10 py-3 border rounded-lg text-black leading-5 focus:outline-none shadow-md transition-all duration-200 ${inputBorderClass} ${inputBgClass} ${inputTextClass} disabled:cursor-not-allowed`}
           style={{ 
             paddingLeft: (isInSearchMode && selectedCountry) ? 48 + chipWidth + 16 : 48,
             paddingRight: (isInSearchMode && selectedCountry) ? 80 : undefined
