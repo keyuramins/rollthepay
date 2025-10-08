@@ -1,5 +1,5 @@
 import { SearchableDropdown } from "@/components/navigation/searchable-dropdown";
-import { TrendingUp } from "lucide-react";
+import { TrendingUp, Users, Globe, Shield, ArrowRight } from "lucide-react";
 import { getDataset } from "@/lib/data/parse";
 
 export async function HeroSection() {
@@ -11,35 +11,72 @@ export async function HeroSection() {
     state: rec.state ? rec.state : null,
     location: rec.location ? rec.location : null,
   }));
+  
   return (
     <section className="hero-section">
       <div className="hero-section__background"></div>
       <div className="hero-section__content">
         <div className="hero-section__inner">
-          {/* Logo and Brand */}
-          <div className="hero-section__logo">
-            <TrendingUp className="hero-section__logo-icon" />
+          {/* Trust Indicators */}
+          <div className="hero-section__trust-indicators">
+            <div className="hero-section__trust-item">
+              <Shield className="hero-section__trust-icon" />
+              <span>Trusted Data</span>
+            </div>
+            <div className="hero-section__trust-item">
+              <Globe className="hero-section__trust-icon" />
+              <span>Global Coverage</span>
+            </div>
+            <div className="hero-section__trust-item">
+              <Users className="hero-section__trust-icon" />
+              <span>Real Salaries</span>
+            </div>
           </div>
-          
+
+          {/* Main Headline */}
           <h1 className="hero-section__title">
-            RollThePay
+            Discover What Jobs Really Pay
+            <span className="hero-section__title-accent"> Worldwide</span>
           </h1>
           
           <p className="hero-section__subtitle">
-            Get accurate salary insights from thousands of employers worldwide 
+            Get accurate, up-to-date salary data from thousands of employers. 
+            Find your worth, negotiate better, and make informed career decisions.
           </p>
         
-          {/* Search Section - Prominent and Centered */}
+          {/* Enhanced Search Section */}
           <div className="hero-section__search">
             <div className="hero-section__search-wrapper">
+              <div className="hero-section__search-label">
+                Select a country, then search by job title or a location
+              </div>
               <SearchableDropdown 
                 variant="light" 
-                placeholder="Search countries..." 
+                placeholder="Select a country..." 
                 fullWidth={true}
                 centered={true}
                 className="hero-section__search-input"
                 allOccupations={occupations}
               />
+              <div className="hero-section__search-hint">
+                <span>Start your salary research in seconds</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Quick Stats */}
+          <div className="hero-section__quick-stats">
+            <div className="hero-section__stat">
+              <span className="hero-section__stat-number">1M+</span>
+              <span className="hero-section__stat-label">Salary Records</span>
+            </div>
+            <div className="hero-section__stat">
+              <span className="hero-section__stat-number">100+</span>
+              <span className="hero-section__stat-label">Countries</span>
+            </div>
+            <div className="hero-section__stat">
+              <span className="hero-section__stat-number">100%</span>
+              <span className="hero-section__stat-label">Free Access</span>
             </div>
           </div>
         </div>

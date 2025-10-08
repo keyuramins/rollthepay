@@ -9,6 +9,7 @@ import { DataQualitySection } from "@/components/about/data-quality-section";
 import { AboutCTASection } from "@/components/about/cta-section";
 
 
+
 export const revalidate = 0;
 export const dynamicParams = true;
 

@@ -1,38 +1,56 @@
+import { Target, Users, Globe } from "lucide-react";
+
 export function MissionSection() {
   return (
     <section className="home-mission-section">
       <div className="home-mission-section__container">
         <div className="home-mission-section__header">
           <h2 className="home-mission-section__title">
-            Our Mission
+            Empowering Career Decisions Through Transparency
           </h2>
           <p className="home-mission-section__description">
-            We make it easier to find information on salaries of specific jobs, providing reliable access to accurate data so everyone can get more out of their career.
+            We believe everyone deserves access to accurate salary information to make informed career decisions. 
+            Our mission is to break down barriers and create a more transparent job market.
           </p>
         </div>
         
         <div className="home-mission-section__grid">
           <div className="home-mission-section__column">
+            <div className="home-mission-section__icon">
+              <Target className="home-mission-section__icon-svg" />
+            </div>
             <h3 className="home-mission-section__column-title">
-              How Much Should You Earn?
+              Know Your Worth
             </h3>
             <p className="home-mission-section__column-description">
-              Many people are interested in knowing how much they should be paid for their job. Because this varies so widely depending on many factors, simply asking can be difficult.
-            </p>
-            <p className="home-mission-section__column-description">
-              RollThePay offers you a way to find this information without asking. All of this is available by simply browsing our website, with data specific to particular countries and salary ranges.
+              Stop guessing what you should earn. Get precise salary data for your role, 
+              experience level, and location. Make confident decisions about your career and compensation.
             </p>
           </div>
           
           <div className="home-mission-section__column">
+            <div className="home-mission-section__icon">
+              <Users className="home-mission-section__icon-svg" />
+            </div>
             <h3 className="home-mission-section__column-title">
-              Find Your Average Salary
+              Community Driven
             </h3>
             <p className="home-mission-section__column-description">
-              We have already published over a million salaries from thousands of employers around the globe. Data isn't always easy to find, so we have made it our mission to compile as much information as possible.
+              Join millions of professionals sharing real salary data. Together, we're building 
+              a more transparent job market where everyone has access to the information they need to succeed.
             </p>
+          </div>
+          
+          <div className="home-mission-section__column">
+            <div className="home-mission-section__icon">
+              <Globe className="home-mission-section__icon-svg" />
+            </div>
+            <h3 className="home-mission-section__column-title">
+              Global Perspective
+            </h3>
             <p className="home-mission-section__column-description">
-              This is an excellent opportunity for people who want to learn about the average salary of a particular profession but aren't sure how to do so.
+              Compare salaries across countries and understand how location impacts compensation. 
+              Whether you're planning a move or exploring remote opportunities, we've got the data you need.
             </p>
           </div>
         </div>

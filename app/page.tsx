@@ -2,8 +2,9 @@ import { Metadata } from "next";
 import { getDataset, extractUniqueCountries, extractDatasetStats } from "@/lib/data/parse";
 import { HeroSection } from "@/components/home/hero-section";
 import { StatsSection } from "@/components/home/stats-section";
-import { MissionSection } from "@/components/home/mission-section";
 import { FeaturesSection } from "@/components/home/features-section";
+import { TrustSection } from "@/components/home/trust-section";
+import { MissionSection } from "@/components/home/mission-section";
 import { CTASection } from "@/components/home/cta-section";
 import { Footer } from "@/components/ui/footer";
 
@@ -22,21 +23,21 @@ export async function generateMetadata(): Promise<Metadata> {
   const countries = extractUniqueCountries(all).length;
 
   return {
-    title: "RollThePay - Accurate Salary Data & Career Insights",
-    description: `Discover comprehensive salary information for ${totalSalaries}+ jobs across ${countries} countries. Get accurate compensation data, salary ranges, experience levels, and career insights to advance your career.`,
+    title: "RollThePay - Discover What Jobs Really Pay Worldwide",
+    description: `Get accurate, up-to-date salary data from ${totalSalaries}+ records across ${countries}+ countries. Find your worth, negotiate better, and make informed career decisions with our comprehensive salary database.`,
     alternates: {
       canonical: "/",
     },
     openGraph: {
-      title: "RollThePay - Accurate Salary Data & Career Insights",
-      description: `Discover comprehensive salary information for ${totalSalaries}+ jobs across ${countries} countries. Get accurate compensation data, salary ranges, experience levels, and career insights to advance your career.`,
+      title: "RollThePay - Discover What Jobs Really Pay Worldwide",
+      description: `Get accurate, up-to-date salary data from ${totalSalaries}+ records across ${countries}+ countries. Find your worth, negotiate better, and make informed career decisions with our comprehensive salary database.`,
       type: "website",
       url: "/",
     },
     twitter: {
       card: "summary_large_image",
-      title: "RollThePay - Accurate Salary Data & Career Insights",
-      description: `Discover comprehensive salary information for ${totalSalaries}+ jobs across ${countries} countries. Get accurate compensation data, salary ranges, experience levels, and career insights to advance your career.`,
+      title: "RollThePay - Discover What Jobs Really Pay Worldwide",
+      description: `Get accurate, up-to-date salary data from ${totalSalaries}+ records across ${countries}+ countries. Find your worth, negotiate better, and make informed career decisions with our comprehensive salary database.`,
     },
   };
 }
@@ -112,8 +113,9 @@ export default async function Home() {
       {/* <NewHeader /> */}
       <HeroSection />
       <StatsSection totalSalaries={totalSalaries} countries={countries} />
-      <MissionSection />
       <FeaturesSection />
+      <TrustSection />
+      <MissionSection />
       <CTASection />
       <Footer />
       
