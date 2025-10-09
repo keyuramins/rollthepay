@@ -12,6 +12,7 @@ import { CountryCTASection } from "@/components/country/cta-section";
 import { OccupationListSkeleton } from "@/components/ui/occupation-list-skeleton";
 
 
+
 export const revalidate = 31536000;
 export const dynamicParams = false;
 
