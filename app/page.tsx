@@ -3,8 +3,11 @@ import { getDataset, extractUniqueCountries, extractDatasetStats } from "@/lib/d
 import dynamicImport from "next/dynamic";
 import { HeroSectionWrapper } from "@/components/home/HeroSectionWrapper";
 import { StatsSectionWrapper } from "@/components/home/StatsSectionWrapper";
-export const revalidate = 0;
-export const dynamicParams = true;
+
+
+export const revalidate = 31536000;
+export const dynamicParams = false;
+
 // Force dynamic rendering to ensure fresh data on each request
 export const dynamic = 'force-dynamic';
 
@@ -60,8 +63,8 @@ export default async function Home() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/5 to-primary/10 overflow-x-hidden">
       {/* <NewHeader /> */}
-      <HeroSectionWrapper />
-      <StatsSectionWrapper />
+      <HeroSectionWrapper occupations={all} />
+      <StatsSectionWrapper countries={countries} totalSalaries={totalSalaries} />
       <FeaturesSectionDynamic />
       <TrustSectionDynamic />
       <MissionSectionDynamic />

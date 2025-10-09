@@ -7,8 +7,10 @@ import { OccupationPage } from "@/components/occupation/occupation-page";
 
 
 
-export const revalidate = 0;
-export const dynamicParams = true;
+
+
+export const revalidate = 31536000;
+export const dynamicParams = false;
 
 interface UnifiedPageProps {
   params: Promise<{ country: string; url: string[] }>;

@@ -15,7 +15,7 @@ export function StatsSection({ totalSalaries, countries }: StatsSectionProps) {
     },
     {
       icon: Globe,
-      value: `${countries}+`,
+      value: countries,
       title: "Countries",
       desc: "Global salary insights across markets",
     },

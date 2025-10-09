@@ -1,39 +1,15 @@
-"use client";
-
-import { useEffect, useState } from "react";
 import { SearchableDropdown } from "@/components/navigation/searchable-dropdown";
-import { getDataset } from "@/lib/data/parse";
 import { Globe, Shield, Users } from "lucide-react";
 
-export function HeroSectionWrapper() {
-  const [occupations, setOccupations] = useState<any[] | null>(null);
+export function HeroSectionWrapper({ occupations }: { occupations: any[] }) {
   const trustItems = [
     { icon: Shield, label: "Trusted Data" },
     { icon: Globe, label: "Global Coverage" },
     { icon: Users, label: "Real Salaries" },
   ];
-  useEffect(() => {
-    async function fetchOccupations() {
-      try {
-        const { all } = await getDataset();
-        const mapped = all.map(rec => ({
-          country: rec.country.toLowerCase(),
-          title: rec.title,
-          slug: rec.slug_url,
-          state: rec.state || null,
-          location: rec.location || null,
-        }));
-        setOccupations(mapped);
-      } catch (err) {
-        console.error("Failed to fetch occupations:", err);
-      }
-    }
-
-    fetchOccupations();
-  }, []);
 
   return (
-    <section className="relative bg-primary min-h-[70vh] sm:h-[80vh] flex items-center py-16 sm:py-20 overflow-hidden">
+    <section className="relative bg-primary min-h-[80vh] sm:h-[85vh] flex items-center py-16 sm:py-20 overflow-hidden">
       <div className="absolute inset-0 before:absolute before:inset-0 before:bg-gradient-to-br before:from-primary before:via-secondary before:to-primary before:opacity-50 before:brightness-20 before:backdrop-blur-xl" />
       <div className="relative z-10 w-full max-w-6xl text-center px-4 sm:px-6 lg:px-8 mx-auto">
       <ul className="flex flex-wrap justify-center gap-6 mb-8">
@@ -59,7 +35,7 @@ export function HeroSectionWrapper() {
           <p className="text-white text-sm font-medium text-center">
             Select a country, then search by job title or a location
           </p>
-          <div className={`relative ${!occupations ? "pointer-events-none opacity-60" : ""}`}>
+          <div className="relative">
             <SearchableDropdown
                 variant="light"
                 placeholder="Select a country..."

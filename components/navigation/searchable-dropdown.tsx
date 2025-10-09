@@ -762,7 +762,7 @@ export function SearchableDropdown({
 
       {isDropdownOpen && (!isInSearchMode || !selectedCountry) && (
         <div 
-          className={`absolute ${dropdownPosition === 'top' ? 'bottom-full mb-2' : 'top-full mt-2'} left-0 ${fullWidth ? 'w-full' : 'w-full sm:w-80 lg:w-96'} ${dropdownBgClass} rounded-lg shadow-xl ring-1 ring-black ring-opacity-5 z-50 border`}
+          className={`absolute ${dropdownPosition === 'top' ? 'bottom-full' : 'top-full'} left-0 ${fullWidth ? 'w-full' : 'w-full sm:w-80 lg:w-96'} ${dropdownBgClass} rounded-lg shadow-xl ring-1 ring-black ring-opacity-5 z-50 border`}
         >
           <div className="py-1 max-h-[300px] overflow-y-auto">
             {groupedCountries.length > 0 ? (
@@ -800,7 +800,7 @@ export function SearchableDropdown({
       {/* Occupation suggestions dropdown (search mode after country selection) */}
       {isInSearchMode && selectedCountry && isOccupationDropdownOpen && (
         <div 
-          className={`absolute ${dropdownPosition === 'top' ? 'bottom-full mb-2' : 'top-full mt-2'} left-0 ${fullWidth ? 'w-full' : 'w-full sm:w-80 lg:w-96'} ${dropdownBgClass} rounded-lg shadow-xl ring-1 ring-black ring-opacity-5 z-50 border`} 
+          className={`absolute ${dropdownPosition === 'top' ? 'bottom-full' : 'top-full'} left-0 ${fullWidth ? 'w-full' : 'w-full sm:w-80 lg:w-96'} ${dropdownBgClass} rounded-lg shadow-xl ring-1 ring-black ring-opacity-5 z-50 border`} 
           onMouseDown={(e) => e.preventDefault()}
         >
           <div

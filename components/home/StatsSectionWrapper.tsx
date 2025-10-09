@@ -1,33 +1,10 @@
-"use client";
-
-import { useEffect, useState } from "react";
 import { StatsSection } from "./stats-section";
 
-import { getDataset, extractDatasetStats } from "@/lib/data/parse";
 
-export function StatsSectionWrapper() {
-  const [stats, setStats] = useState<{ totalSalaries: number; countries: number } | null>(null);
-  const [loaded, setLoaded] = useState(false);
-
-  useEffect(() => {
-    async function fetchStats() {
-      try {
-        const dataset = await getDataset();
-        const { totalRecords, uniqueCountries } = extractDatasetStats(dataset.all);
-        setStats({ totalSalaries: totalRecords, countries: uniqueCountries });
-
-        // small delay to allow fade-in effect
-        setTimeout(() => setLoaded(true), 50);
-      } catch (err) {
-        console.error("Failed to fetch stats:", err);
-      }
-    }
-
-    fetchStats();
-  }, []);
+export function StatsSectionWrapper({ countries, totalSalaries }: { countries: number; totalSalaries: number }) {
 
   // Skeleton while loading
-  if (!stats) {
+  if (!countries || !totalSalaries) {
     return (
       <section className="py-16 sm:py-20 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12 sm:mb-16">
@@ -55,10 +32,7 @@ export function StatsSectionWrapper() {
     );
   }
 
-  // Fade-in real stats
   return (
-    <div className={`transition-opacity duration-500 ${loaded ? "opacity-100" : "opacity-0"}`}>
-      <StatsSection totalSalaries={stats.totalSalaries} countries={stats.countries} />
-    </div>
+    <StatsSection totalSalaries={totalSalaries} countries={countries} />
   );
 }
