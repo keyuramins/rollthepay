@@ -4,16 +4,26 @@ import { optimizedDataAccess } from "@/lib/data/optimized-parse";
 import { Header } from "@/components/navigation/header";
 import { Breadcrumbs } from "@/components/occupation/breadcrumbs";
 import { CountryHeroSection } from "@/components/country/hero-section";
-import { OccupationList } from "@/components/ui/occupation-list";
+import dynamicImport from "next/dynamic";
+
+// import { OccupationList } from "@/components/ui/occupation-list";
 import { StatesGrid } from "@/components/country/states-grid";
 import { CountryCTASection } from "@/components/country/cta-section";
-
-
-
+import { OccupationListSkeleton } from "@/components/ui/occupation-list-skeleton";
 
 
 export const revalidate = 31536000;
 export const dynamicParams = false;
+
+const OccupationList = dynamicImport(() => import("@/components/ui/occupation-list").then(mod => mod.OccupationList), { ssr: true, loading: () => (
+  <OccupationListSkeleton
+    title="Explore Salaries by Occupation"
+    description="Browse salary information organized by job categories and specializations."
+  />
+) });
+
+
+
 
 interface CountryPageProps {
   params: Promise<{ country: string }>;

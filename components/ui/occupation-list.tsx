@@ -3,7 +3,8 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { AZFilter } from "./az-filter";
-import { MapPin, ChevronLeft, ChevronRight } from "lucide-react";
+import { Pagination } from "./pagination";
+import { MapPin } from "lucide-react";
 
 // Helper function to normalize slugs for URLs (handles special characters)
 function normalizeSlugForURL(slug: string): string {
@@ -34,13 +35,11 @@ interface OccupationListProps {
 }
 
 export function OccupationList({ items, title, description, className = "", currentState, currentLocation, states }: OccupationListProps) {
-    const [mounted, setMounted] = useState(false);
     const [azFilteredItems, setAzFilteredItems] = useState<OccupationItem[]>([]);
     const [searchQuery, setSearchQuery] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
-
+    const [loading, setLoading] = useState(true);
     const PAGE_SIZE = 50;
-    const loading = !items || items.length === 0; // Suspense flag
     // Prepare items for filtering (strip leading "Average ")
     const preparedItems = useMemo(() => items.map(item => ({
         ...item,
@@ -57,11 +56,6 @@ export function OccupationList({ items, title, description, className = "", curr
     useEffect(() => {
         setAzFilteredItems(sortedItems);
     }, [sortedItems]);
-
-    // Avoid hydration mismatch
-    useEffect(() => {
-        setMounted(true);
-    }, []);
 
     // Apply search on top of A–Z filtered items
     const searchFilteredItems = useMemo(() => {
@@ -87,44 +81,6 @@ export function OccupationList({ items, title, description, className = "", curr
     useEffect(() => {
         setCurrentPage(1);
     }, [searchQuery, azFilteredItems]);
-
-    if (!mounted) {
-        return (
-            <section className={`py-16 ${className}`}>
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="mb-12">
-                        <h2 className="text-3xl font-bold text-foreground mb-2">{title}</h2>
-                        <p className="text-muted-foreground">{description}</p>
-                    </div>
-                    <div className="grid grid-cols-1 gap-4">
-                        {sortedItems.slice(0, PAGE_SIZE).map((item) => (
-                            <div key={item.id} className="block bg-white rounded-lg border border-input py-2 px-6 hover:shadow-xs transition-shadow hover:bg-green-100 hover:border-primary">
-                                <div className="flex items-center justify-between">
-                                    <div className="flex-1">
-                                        <h3 className="text-lg font-semibold text-foreground mb-1">{item.displayName}</h3>
-                                        {item.location && (
-                                            <div className="flex items-center text-muted-foreground mt-1">
-                                                <MapPin className="w-4 h-4 text-primary mr-2" />
-                                                <span>
-                                                    {item.location}
-                                                    {item.state && `, ${item.state}`}
-                                                </span>
-                                            </div>
-                                        )}
-                                    </div>
-                                    {item.avgAnnualSalary && (
-                                    <div className="mt-2 sm:mt-0 sm:ml-6 text-right metric-value">
-                                        ${item.avgAnnualSalary.toLocaleString()}
-                                    </div>
-                                    )}
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            </section>
-        );
-    }
       
     return (
         <section className={`py-16 ${className}`}>
@@ -133,14 +89,13 @@ export function OccupationList({ items, title, description, className = "", curr
                     <div className="flex-1">
                         <h2 className="text-3xl font-bold text-foreground mb-2">{title}</h2>
                         <p className="text-muted-foreground">{description}</p>
-                    </div>
+                    </div> 
                     <input
                         type="text"
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                         placeholder="Search jobs or states..."
                         aria-label="Search jobs or states..."
-                        disabled={!mounted}
                         className="w-full lg:w-80 rounded-lg border border-input px-3 py-2 shadow-sm focus:border-green-100 focus:ring-primary bg-white"
                     />
                 </div>
@@ -203,46 +158,15 @@ export function OccupationList({ items, title, description, className = "", curr
                         )
                     })}
                 </div>
-
+                
                 {/* Footer: pagination only */}
                 {totalItems > PAGE_SIZE && (
-                <div className="mt-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-end">
-                    <nav className="flex items-center gap-2" aria-label="Pagination">
-                    <button
-                        onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                        disabled={currentPageSafe === 1}
-                        className="inline-flex items-center rounded-md border border-input bg-white px-3 py-2 text-sm text-black hover:bg-green-100 disabled:opacity-50"
-                    >
-                        <ChevronLeft className="h-4 w-4" />
-                        <span className="ml-1">Prev</span>
-                    </button>
-                    <div className="hidden md:flex items-center gap-1">
-                        {Array.from({ length: totalPages }).map((_, i) => {
-                        const page = i + 1;
-                        const isEdge = page === 1 || page === totalPages;
-                        const isNear = Math.abs(page - currentPageSafe) <= 1;
-                        if (!isEdge && !isNear) return (page === 2 || page === totalPages - 1) ? <span key={page} className="px-2">…</span> : null;
-                        return (
-                            <button
-                            key={page}
-                            onClick={() => setCurrentPage(page)}
-                            className={`inline-flex items-center rounded-md border border-input px-3 py-2 text-sm ${page === currentPageSafe ? "bg-primary text-white" : "bg-white text-black hover:bg-green-100"}`}
-                            >
-                            {page}
-                            </button>
-                        );
-                        })}
-                    </div>
-                    <button
-                        onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-                        disabled={currentPageSafe === totalPages}
-                        className="inline-flex items-center rounded-md border border-input bg-white px-3 py-2 text-sm text-black hover:bg-green-100 disabled:opacity-50"
-                    >
-                        <span className="mr-1">Next</span>
-                        <ChevronRight className="h-4 w-4" />
-                    </button>
-                    </nav>
-                </div>
+                    <Pagination
+                        currentPage={currentPage}
+                        totalPages={totalPages}
+                        onPageChange={setCurrentPage}
+                        className="mt-6"
+                    />
                 )}
             </div>
         </section>
