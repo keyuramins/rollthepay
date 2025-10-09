@@ -1,64 +1,36 @@
 import { Shield, CheckCircle, Award, Lock } from "lucide-react";
 
+const trustItems = [
+  { icon: Shield, title: "Data Integrity", description: "All salary data is verified through multiple sources and regularly updated to ensure accuracy and reliability." },
+  { icon: CheckCircle, title: "Transparent Process", description: "Our methodology is open and transparent. We show you exactly how we collect, verify, and present salary information." },
+  { icon: Award, title: "Industry Recognition", description: "Trusted by HR professionals, recruiters, and job seekers worldwide for reliable compensation insights and market intelligence." },
+  { icon: Lock, title: "Privacy Protected", description: "Your privacy is our priority. All data is anonymized and aggregated to protect individual confidentiality while providing valuable insights." },
+];
+
 export function TrustSection() {
   return (
-    <section className="trust-section">
-      <div className="trust-section__container">
-        <div className="trust-section__header">
-          <h2 className="trust-section__title">
-            Why Professionals Trust RollThePay
-          </h2>
-          <p className="trust-section__description">
-            We're committed to providing the most accurate and up-to-date salary information 
-            to help you make informed career decisions.
-          </p>
-        </div>
-        
-        <div className="trust-section__grid">
-          <div className="trust-section__item">
-            <div className="trust-section__icon">
-              <Shield className="trust-section__icon-svg" />
+    <section className="bg-muted py-16 sm:py-20">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 text-center mb-12 sm:mb-16">
+        <h2 className="text-3xl sm:text-4xl font-bold text-foreground">Why Professionals Trust RollThePay</h2>
+        <p className="max-w-3xl mx-auto text-muted-foreground pt-4">
+          We're committed to providing the most accurate and up-to-date salary information 
+          to help you make informed career decisions.
+        </p>
+      </div>
+
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 grid grid-cols-1 gap-6 sm:gap-8 md:grid-cols-2 lg:grid-cols-4">
+        {trustItems.map((item, idx) => {
+          const IconComponent = item.icon;
+          return (
+            <div key={idx} className="text-center p-6 rounded-xl border border-border bg-card hover:shadow-lg transition-all duration-300 hover:border-primary/20 hover:-translate-y-1">
+              <div className="w-16 h-16 sm:w-18 sm:h-18 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6">
+                <IconComponent className="w-8 h-8 sm:w-9 sm:h-9 text-primary" />
+              </div>
+              <h3 className="text-foreground mb-4">{item.title}</h3>
+              <p className="max-w-3xl mx-auto text-muted-foreground">{item.description}</p>
             </div>
-            <h3 className="trust-section__item-title">Data Integrity</h3>
-            <p className="trust-section__item-description">
-              All salary data is verified through multiple sources and regularly updated 
-              to ensure accuracy and reliability.
-            </p>
-          </div>
-          
-          <div className="trust-section__item">
-            <div className="trust-section__icon">
-              <CheckCircle className="trust-section__icon-svg" />
-            </div>
-            <h3 className="trust-section__item-title">Transparent Process</h3>
-            <p className="trust-section__item-description">
-              Our methodology is open and transparent. We show you exactly how we collect, 
-              verify, and present salary information.
-            </p>
-          </div>
-          
-          <div className="trust-section__item">
-            <div className="trust-section__icon">
-              <Award className="trust-section__icon-svg" />
-            </div>
-            <h3 className="trust-section__item-title">Industry Recognition</h3>
-            <p className="trust-section__item-description">
-              Trusted by HR professionals, recruiters, and job seekers worldwide for 
-              reliable compensation insights and market intelligence.
-            </p>
-          </div>
-          
-          <div className="trust-section__item">
-            <div className="trust-section__icon">
-              <Lock className="trust-section__icon-svg" />
-            </div>
-            <h3 className="trust-section__item-title">Privacy Protected</h3>
-            <p className="trust-section__item-description">
-              Your privacy is our priority. All data is anonymized and aggregated to protect 
-              individual confidentiality while providing valuable insights.
-            </p>
-          </div>
-        </div>
+          );
+        })}
       </div>
     </section>
   );

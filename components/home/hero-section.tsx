@@ -1,5 +1,5 @@
 import { SearchableDropdown } from "@/components/navigation/searchable-dropdown";
-import { TrendingUp, Users, Globe, Shield, ArrowRight } from "lucide-react";
+import { Users, Globe, Shield } from "lucide-react";
 import { getDataset } from "@/lib/data/parse";
 
 export async function HeroSection() {
@@ -8,78 +8,72 @@ export async function HeroSection() {
     country: rec.country.toLowerCase(),
     title: rec.title,
     slug: rec.slug_url,
-    state: rec.state ? rec.state : null,
-    location: rec.location ? rec.location : null,
+    state: rec.state || null,
+    location: rec.location || null,
   }));
+
+  const trustItems = [
+    { icon: Shield, label: "Trusted Data" },
+    { icon: Globe, label: "Global Coverage" },
+    { icon: Users, label: "Real Salaries" },
+  ];
+
+  const stats = [
+    { number: "1M+", label: "Salary Records" },
+    { number: "100+", label: "Countries" },
+    { number: "100%", label: "Free Access" },
+  ];
   
   return (
-    <section className="hero-section">
-      <div className="hero-section__background"></div>
-      <div className="hero-section__content">
-        <div className="hero-section__inner">
+    <section className="relative bg-primary min-h-[70vh] sm:h-[80vh] flex items-center py-16 sm:py-20 overflow-hidden">
+      <div className="absolute inset-0 before:absolute before:inset-0 before:bg-gradient-to-br before:from-primary before:via-secondary before:to-primary before:opacity-50 before:brightness-20 before:backdrop-blur-xl" />
+      <div className="relative z-10 w-full max-w-6xl text-center px-4 sm:px-6 lg:px-8 mx-auto">
           {/* Trust Indicators */}
-          <div className="hero-section__trust-indicators">
-            <div className="hero-section__trust-item">
-              <Shield className="hero-section__trust-icon" />
-              <span>Trusted Data</span>
-            </div>
-            <div className="hero-section__trust-item">
-              <Globe className="hero-section__trust-icon" />
-              <span>Global Coverage</span>
-            </div>
-            <div className="hero-section__trust-item">
-              <Users className="hero-section__trust-icon" />
-              <span>Real Salaries</span>
-            </div>
-          </div>
+        <ul className="flex flex-wrap justify-center gap-6 mb-8">
+          {trustItems.map(({ icon: Icon, label }) => (
+            <li key={label} className="flex items-center gap-2 text-background/80 text-sm font-medium">
+              <Icon className="w-4 h-4 text-background/80" />
+              {label}
+            </li>
+          ))}
+        </ul>
 
           {/* Main Headline */}
-          <h1 className="hero-section__title">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl text-background mt-4 mb-1">
             Discover What Jobs Really Pay
-            <span className="hero-section__title-accent"> Worldwide</span>
           </h1>
           
-          <p className="hero-section__subtitle">
-            Get accurate, up-to-date salary data from thousands of employers. 
-            Find your worth, negotiate better, and make informed career decisions.
+          <p className="text-base sm:text-lg md:text-xl text-background max-w-3xl mx-auto leading-relaxed mb-12">
+            Get accurate, up-to-date salary data from thousands of employers.<span className="text-secondary"> Worldwide.</span>
           </p>
         
           {/* Enhanced Search Section */}
-          <div className="hero-section__search">
-            <div className="hero-section__search-wrapper">
-              <div className="hero-section__search-label">
+            <div className="max-w-2xl mx-auto space-y-4 mb-12">
+              <p className="text-background/80 text-sm font-medium text-center">
                 Select a country, then search by job title or a location
-              </div>
+              </p>
               <SearchableDropdown 
                 variant="light" 
                 placeholder="Select a country..." 
                 fullWidth={true}
                 centered={true}
-                className="hero-section__search-input"
+                className="transform transition-all duration-300 hover:scale-[1.05] shadow-2xl"
                 allOccupations={occupations}
               />
-              <div className="hero-section__search-hint">
-                <span>Start your salary research in seconds</span>
-              </div>
+              <p className="text-center text-background/80 text-sm">
+                <span>Find your worth, negotiate better, and make informed career decisions.</span>
+              </p>
             </div>
-          </div>
 
           {/* Quick Stats */}
-          <div className="hero-section__quick-stats">
-            <div className="hero-section__stat">
-              <span className="hero-section__stat-number">1M+</span>
-              <span className="hero-section__stat-label">Salary Records</span>
-            </div>
-            <div className="hero-section__stat">
-              <span className="hero-section__stat-number">100+</span>
-              <span className="hero-section__stat-label">Countries</span>
-            </div>
-            <div className="hero-section__stat">
-              <span className="hero-section__stat-number">100%</span>
-              <span className="hero-section__stat-label">Free Access</span>
-            </div>
-          </div>
-        </div>
+          <ul className="flex flex-wrap justify-center gap-6 sm:gap-8 text-background">
+          {stats.map(({ number, label }) => (
+            <li key={label} className="text-center flex flex-col items-center">
+              <span className="text-2xl sm:text-3xl md:text-4xl font-bold">{number}</span>
+              <span className="text-sm sm:text-base opacity-80">{label}</span>
+            </li>
+          ))}
+        </ul>
       </div>
     </section>
   );
