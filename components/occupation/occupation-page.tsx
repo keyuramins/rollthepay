@@ -81,7 +81,7 @@ export async function OccupationPage({ country, state, location, slug }: Occupat
   }));
   
   return (
-    <div className="page-container">
+    <section>
       <Header allOccupations={(await getDataset()).all.map(rec => ({
         country: rec.country.toLowerCase(),
         title: rec.title || rec.h1Title || "",
@@ -90,7 +90,7 @@ export async function OccupationPage({ country, state, location, slug }: Occupat
         location: rec.location ? rec.location : null,
       }))} />
       
-      <main className="page-main">
+      <main>
         <OccupationHeroSection record={record} country={country} locationText={locationText} />
         <Breadcrumbs breadcrumbs={breadcrumbs} />
         <CompensationAnalysis record={record} country={country} />
@@ -116,6 +116,6 @@ export async function OccupationPage({ country, state, location, slug }: Occupat
 
         <OccupationCTASection countryName={countryName} locationText={locationText} record={record} />
       </main>
-    </div>
+    </section>
   );
 }

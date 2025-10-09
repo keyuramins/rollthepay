@@ -3,10 +3,15 @@
 import { useEffect, useState } from "react";
 import { SearchableDropdown } from "@/components/navigation/searchable-dropdown";
 import { getDataset } from "@/lib/data/parse";
+import { Globe, Shield, Users } from "lucide-react";
 
 export function HeroSectionWrapper() {
   const [occupations, setOccupations] = useState<any[] | null>(null);
-
+  const trustItems = [
+    { icon: Shield, label: "Trusted Data" },
+    { icon: Globe, label: "Global Coverage" },
+    { icon: Users, label: "Real Salaries" },
+  ];
   useEffect(() => {
     async function fetchOccupations() {
       try {
@@ -31,17 +36,13 @@ export function HeroSectionWrapper() {
     <section className="relative bg-primary min-h-[70vh] sm:h-[80vh] flex items-center py-16 sm:py-20 overflow-hidden">
       <div className="absolute inset-0 before:absolute before:inset-0 before:bg-gradient-to-br before:from-primary before:via-secondary before:to-primary before:opacity-50 before:brightness-20 before:backdrop-blur-xl" />
       <div className="relative z-10 w-full max-w-6xl text-center px-4 sm:px-6 lg:px-8 mx-auto">
-        {/* Trust Indicators */}
-        <ul className="flex flex-wrap justify-center gap-6 mb-8">
-          <li className="flex items-center gap-2 text-white text-sm font-medium">
-            {/* Shield icon */} Trusted Data
-          </li>
-          <li className="flex items-center gap-2 text-white text-sm font-medium">
-            {/* Globe icon */} Global Coverage
-          </li>
-          <li className="flex items-center gap-2 text-white text-sm font-medium">
-            {/* Users icon */} Real Salaries
-          </li>
+      <ul className="flex flex-wrap justify-center gap-6 mb-8">
+          {trustItems.map(({ icon: Icon, label }) => (
+            <li key={label} className="flex items-center gap-2 text-white text-sm font-medium">
+              <Icon className="w-4 h-4 text-white" />
+              {label}
+            </li>
+          ))}
         </ul>
 
         {/* Main Headline */}
@@ -77,15 +78,15 @@ export function HeroSectionWrapper() {
         <ul className="flex flex-wrap justify-center gap-6 sm:gap-8 text-background">
           <li className="text-center flex flex-col items-center">
             <span className="text-2xl sm:text-3xl md:text-4xl font-bold">1M+</span>
-            <span className="text-sm sm:text-base opacity-80">Salary Records</span>
+            <p>Salary Records</p>
           </li>
           <li className="text-center flex flex-col items-center">
             <span className="text-2xl sm:text-3xl md:text-4xl font-bold">100+</span>
-            <span className="text-sm sm:text-base opacity-80">Countries</span>
+            <p>Countries</p>
           </li>
           <li className="text-center flex flex-col items-center">
             <span className="text-2xl sm:text-3xl md:text-4xl font-bold">100%</span>
-            <span className="text-sm sm:text-base opacity-80">Free Access</span>
+            <p>Free Access</p>
           </li>
         </ul>
       </div>

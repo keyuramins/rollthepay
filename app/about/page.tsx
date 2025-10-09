@@ -36,7 +36,7 @@ export const metadata: Metadata = {
 
 export default function AboutPage() {
   return (
-    <div className="page-container">
+    <section>
       <Header />
       <main>
         {/* Breadcrumbs */}
@@ -56,6 +56,6 @@ export default function AboutPage() {
         <DataQualitySection />
         <AboutCTASection />
       </main>
-    </div>
+    </section>
   );
 }

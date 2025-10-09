@@ -54,7 +54,7 @@ export async function StatePage({ country, state }: StatePageProps) {
   ];
   
   return (
-    <div className="page-container">
+    <section>
       <Header allOccupations={all.map(rec => ({
         country: rec.country.toLowerCase(),
         title: rec.title || rec.h1Title || "",
@@ -63,11 +63,8 @@ export async function StatePage({ country, state }: StatePageProps) {
         location: rec.location ? rec.location : null,
       }))} />
       
-      <main className="page-main">
-        {/* Breadcrumbs */}
-          <div className="breadcrumbs-wrapper">
-            <Breadcrumbs breadcrumbs={breadcrumbs} />
-          </div>
+      <main>
+        <Breadcrumbs breadcrumbs={breadcrumbs} />
         
         <StateHeroSection 
           stateName={stateName}
@@ -77,7 +74,7 @@ export async function StatePage({ country, state }: StatePageProps) {
 
         <OccupationList 
           items={occupationItems}
-          title="Explore Jobs by Category"
+          title="Explore Salaries by Occupation"
           description={`Browse salary information organized by job categories and specializations in ${stateName}.`}
           states={[stateName]}
           currentState={state.toLowerCase().replace(/\s+/g, '-')}
@@ -87,7 +84,7 @@ export async function StatePage({ country, state }: StatePageProps) {
           <LocationsGrid
             country={country}
             state={stateName}
-            title="Explore by Location"
+            title="Explore Salaries by Location"
             description={`Find salary data specific to different cities and locations within ${stateName}.`}
             className="bg-white"
           />
@@ -100,6 +97,6 @@ export async function StatePage({ country, state }: StatePageProps) {
           stateName={stateName}
         />
       </main>
-    </div>
+    </section>
   );
 }

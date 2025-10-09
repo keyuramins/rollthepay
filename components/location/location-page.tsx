@@ -76,7 +76,7 @@ export async function LocationPage({ country, state, location }: LocationPagePro
 
         <OccupationList 
           items={occupationItems}
-          title="Explore Jobs by Category"
+          title="Explore Salaries by Occupation"
           description={`Browse salary information organized by job categories and specializations in ${locationName}, ${stateName}.`}
           states={[stateName]}
           currentState={stateName.toLowerCase().replace(/\s+/g, '-')}

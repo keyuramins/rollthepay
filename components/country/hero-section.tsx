@@ -8,18 +8,12 @@ export function CountryHeroSection({
   totalJobs
 }: CountryHeroSectionProps) {
   return (
-    <section className="country-hero-section">
-      <div className="country-hero-section__container">
-        <div className="country-hero-section__content">
-          <h1 className="country-hero-section__title">
-            Salary Information in {countryName}
-          </h1>
-          <p className="country-hero-section__description">
-            Discover accurate salary data for {totalJobs}+ jobs across {countryName}. 
-            Get the compensation insights you need to advance your career.
-          </p>
-        </div>
-      </div>
+    <section className="max-w-7xl mx-auto px-4 py-16 sm:px-6 lg:px-8 text-center">
+      <h1>Salary Information in {countryName}</h1>
+      <p className="mt-4 leading-8 max-w-3xl mx-auto">
+        Discover accurate salary data for {totalJobs}+ jobs across {countryName}. 
+        Get the compensation insights you need to advance your career.
+      </p>
     </section>
   );
 }

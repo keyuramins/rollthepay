@@ -39,8 +39,8 @@ export function OccupationList({ items, title, description, className = "", curr
     const [searchQuery, setSearchQuery] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
 
-    const PAGE_SIZE = 100;
-
+    const PAGE_SIZE = 50;
+    const loading = !items || items.length === 0; // Suspense flag
     // Prepare items for filtering (strip leading "Average ")
     const preparedItems = useMemo(() => items.map(item => ({
         ...item,
@@ -90,21 +90,21 @@ export function OccupationList({ items, title, description, className = "", curr
 
     if (!mounted) {
         return (
-            <section className={`occupation-list ${className}`}>
-                <div className="occupation-list__container">
-                    <div className="occupation-list__header">
-                        <h2 className="occupation-list__title">{title}</h2>
-                        <p className="occupation-list__description">{description}</p>
+            <section className={`py-16 ${className}`}>
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="mb-12">
+                        <h2 className="text-3xl font-bold text-foreground mb-2">{title}</h2>
+                        <p className="text-muted-foreground">{description}</p>
                     </div>
-                    <div className="occupation-list__results">
+                    <div className="grid grid-cols-1 gap-4">
                         {sortedItems.slice(0, PAGE_SIZE).map((item) => (
-                            <div key={item.id} className="occupation-list__item">
-                                <div className="occupation-list__item-content">
-                                    <div className="occupation-list__item-info">
-                                        <h3 className="occupation-list__item-title">{item.displayName}</h3>
+                            <div key={item.id} className="block bg-white rounded-lg border border-input py-2 px-6 hover:shadow-xs transition-shadow hover:bg-green-100 hover:border-primary">
+                                <div className="flex items-center justify-between">
+                                    <div className="flex-1">
+                                        <h3 className="text-lg font-semibold text-foreground mb-1">{item.displayName}</h3>
                                         {item.location && (
-                                            <div className="occupation-list__item-location">
-                                                <MapPin className="occupation-list__item-location-icon" />
+                                            <div className="flex items-center text-muted-foreground mt-1">
+                                                <MapPin className="w-4 h-4 text-primary mr-2" />
                                                 <span>
                                                     {item.location}
                                                     {item.state && `, ${item.state}`}
@@ -112,13 +112,11 @@ export function OccupationList({ items, title, description, className = "", curr
                                             </div>
                                         )}
                                     </div>
-                                    <div className="occupation-list__item-salary">
-                                        {item.avgAnnualSalary && (
-                                            <div className="occupation-list__item-salary-value">
-                                                ${item.avgAnnualSalary.toLocaleString()}
-                                            </div>
-                                        )}
+                                    {item.avgAnnualSalary && (
+                                    <div className="mt-2 sm:mt-0 sm:ml-6 text-right metric-value">
+                                        ${item.avgAnnualSalary.toLocaleString()}
                                     </div>
+                                    )}
                                 </div>
                             </div>
                         ))}
@@ -127,40 +125,32 @@ export function OccupationList({ items, title, description, className = "", curr
             </section>
         );
     }
-
+      
     return (
-        <section className={`occupation-list ${className}`}>
-            <div className="occupation-list__container">
-                <div className="occupation-list__header">
-                    <div className="occupation-list__header-content">
-                        <div className="occupation-list__header-text">
-                            <h2 className="occupation-list__title">{title}</h2>
-                            <p className="occupation-list__description">{description}</p>
-                        </div>
-                        
-                        {/* Search bar - positioned beside title on larger screens */}
-                        <div className="occupation-list__search-container">
-                            <input
-                                id="search"
-                                type="text"
-                                value={searchQuery}
-                                onChange={(e) => setSearchQuery(e.target.value)}
-                                placeholder="Search jobs or states..."
-                                className="occupation-list__search-input"
-                            />
-                        </div>
+        <section className={`py-16 ${className}`}>
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div className="mb-12 flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6">
+                    <div className="flex-1">
+                        <h2 className="text-3xl font-bold text-foreground mb-2">{title}</h2>
+                        <p className="text-muted-foreground">{description}</p>
                     </div>
+                    <input
+                        type="text"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        placeholder="Search jobs or states..."
+                        aria-label="Search jobs or states..."
+                        disabled={!mounted}
+                        className="w-full lg:w-80 rounded-lg border border-input px-3 py-2 shadow-sm focus:border-green-100 focus:ring-primary bg-white"
+                    />
                 </div>
 
-                {/* A–Z filter - always below */}
-                <div className="az-filter">
+                <div className="mb-8">
                     <AZFilter items={sortedItems} onFilteredItemsChange={setAzFilteredItems} />
                 </div>
 
-                {/* Results */}
-                <div className="occupation-list__results">
+                <div className="grid grid-cols-1 gap-4">
                     {paginatedItems.map((item) => {
-                        // Compute route based on current page context
                         let href: string;
                         const normalizedSlug = normalizeSlugForURL(item.slug_url);
                         
@@ -188,85 +178,72 @@ export function OccupationList({ items, title, description, className = "", curr
                         }
 
                         return (
-                            <Link
-                            prefetch={true}
-                            key={item.id} href={href} className="occupation-list__item">
-                                <div className="occupation-list__item-content">
-                                    <div className="occupation-list__item-info">
-                                        <h3 className="occupation-list__item-title">{item.displayName}</h3>
-                                        {item.location && (
-                                            <div className="occupation-list__item-location">
-                                                <MapPin className="occupation-list__item-location-icon" />
-                                                <span>
-                                                    {item.location}
-                                                    {item.state && `, ${item.state}`}
-                                                </span>
-                                            </div>
-                                        )}
+
+                            <Link key={item.id} href={href} prefetch className="block bg-white rounded-lg border border-input py-2 px-6 hover:shadow-md transition-shadow hover:border-green-100">
+                                <div className="flex flex-col sm:flex-row sm:items-center justify-between">
+                                    <div className="flex-1">
+                                    <h3 className="text-lg font-semibold text-foreground mb-1">{item.displayName}</h3>
+                                    {item.location && (
+                                        <div className="flex items-center text-muted-foreground mt-1">
+                                        <MapPin className="w-4 h-4 text-primary mr-2" />
+                                        <span>
+                                            {item.location}
+                                            {item.state && `, ${item.state}`}
+                                        </span>
+                                        </div>
+                                    )}
                                     </div>
-                                    <div className="occupation-list__item-salary">
-                                        {item.avgAnnualSalary && (
-                                            <div className="occupation-list__item-salary-value">
-                                                ${item.avgAnnualSalary.toLocaleString()}
-                                            </div>
-                                        )}
+                                    {item.avgAnnualSalary && (
+                                    <div className="mt-2 sm:mt-0 sm:ml-6 text-right metric-value">
+                                        ${item.avgAnnualSalary.toLocaleString()}
                                     </div>
+                                    )}
                                 </div>
                             </Link>
-                        );
+                        )
                     })}
                 </div>
 
                 {/* Footer: pagination only */}
-                <div className="occupation-list__pagination">
-                    <div className="occupation-list__pagination-info">
-                        {totalItems === 0 && (
-                            <span>No results found.</span>
-                        )}
+                {totalItems > PAGE_SIZE && (
+                <div className="mt-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-end">
+                    <nav className="flex items-center gap-2" aria-label="Pagination">
+                    <button
+                        onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                        disabled={currentPageSafe === 1}
+                        className="inline-flex items-center rounded-md border border-input bg-white px-3 py-2 text-sm text-black hover:bg-green-100 disabled:opacity-50"
+                    >
+                        <ChevronLeft className="h-4 w-4" />
+                        <span className="ml-1">Prev</span>
+                    </button>
+                    <div className="hidden md:flex items-center gap-1">
+                        {Array.from({ length: totalPages }).map((_, i) => {
+                        const page = i + 1;
+                        const isEdge = page === 1 || page === totalPages;
+                        const isNear = Math.abs(page - currentPageSafe) <= 1;
+                        if (!isEdge && !isNear) return (page === 2 || page === totalPages - 1) ? <span key={page} className="px-2">…</span> : null;
+                        return (
+                            <button
+                            key={page}
+                            onClick={() => setCurrentPage(page)}
+                            className={`inline-flex items-center rounded-md border border-input px-3 py-2 text-sm ${page === currentPageSafe ? "bg-primary text-white" : "bg-white text-black hover:bg-green-100"}`}
+                            >
+                            {page}
+                            </button>
+                        );
+                        })}
                     </div>
-                    {totalItems > PAGE_SIZE && (
-                        <nav className="occupation-list__pagination-nav" aria-label="Pagination">
-                            <button
-                                className="occupation-list__pagination-button"
-                                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                                disabled={currentPageSafe === 1}
-                            >
-                                <ChevronLeft className="h-4 w-4" />
-                                <span className="ml-1">Prev</span>
-                            </button>
-                            <div className="occupation-list__pagination-pages">
-                                {Array.from({ length: totalPages }).map((_, i) => {
-                                    const page = i + 1;
-                                    const isEdge = page === 1 || page === totalPages;
-                                    const isNear = Math.abs(page - currentPageSafe) <= 1;
-                                    if (!isEdge && !isNear) {
-                                        if (page === 2 || page === totalPages - 1) {
-                                            return <span key={page} className="occupation-list__pagination-ellipsis">…</span>;
-                                        }
-                                        return null;
-                                    }
-                                    return (
-                                        <button
-                                            key={page}
-                                            onClick={() => setCurrentPage(page)}
-                                            className={`${page === currentPageSafe ? "occupation-list__pagination-page--active" : "occupation-list__pagination-page--inactive"} occupation-list__pagination-page`}
-                                        >
-                                            {page}
-                                        </button>
-                                    );
-                                })}
-                            </div>
-                            <button
-                                className="occupation-list__pagination-button"
-                                onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-                                disabled={currentPageSafe === totalPages}
-                            >
-                                <span className="mr-1">Next</span>
-                                <ChevronRight className="h-4 w-4" />
-                            </button>
-                        </nav>
-                    )}
+                    <button
+                        onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                        disabled={currentPageSafe === totalPages}
+                        className="inline-flex items-center rounded-md border border-input bg-white px-3 py-2 text-sm text-black hover:bg-green-100 disabled:opacity-50"
+                    >
+                        <span className="mr-1">Next</span>
+                        <ChevronRight className="h-4 w-4" />
+                    </button>
+                    </nav>
                 </div>
+                )}
             </div>
         </section>
     );

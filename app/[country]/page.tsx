@@ -61,19 +61,16 @@ export default async function CountryPage({ params }: CountryPageProps) {
   const { countryName, totalJobs, avgSalary, states, occupationItems, headerOccupations } = countryData;
 
   return (
-    <div className="page-container">
+    <section>
       <Header allOccupations={headerOccupations} />
       
-      <main className="page-main">
-        {/* Breadcrumbs */}
-          <div className="breadcrumbs-wrapper">
-            <Breadcrumbs
-              breadcrumbs={[
-                { name: "Home", href: "/" },
-                { name: countryName, href: "#", current: true },
-              ]}
-            />
-          </div>
+      <main>
+        <Breadcrumbs
+          breadcrumbs={[
+            { name: "Home", href: "/" },
+            { name: countryName, href: "#", current: true },
+          ]}
+        />
         
         <CountryHeroSection
           countryName={countryName}
@@ -82,7 +79,7 @@ export default async function CountryPage({ params }: CountryPageProps) {
 
         <OccupationList
           items={occupationItems}
-          title="Explore Jobs by Category"
+          title="Explore Salaries by Occupation"
           description="Browse salary information organized by job categories and specializations."
           states={states}
         />
@@ -91,7 +88,7 @@ export default async function CountryPage({ params }: CountryPageProps) {
           <StatesGrid
             states={states}
             countrySlug={country}
-            title="Explore by State/Region"
+            title="Explore Salaries by State/Region"
             description={`Find salary data specific to different regions within ${countryName}.`}
             className="bg-white"
           />
@@ -99,6 +96,6 @@ export default async function CountryPage({ params }: CountryPageProps) {
 
         <CountryCTASection />
       </main>
-    </div>
+    </section>
   );
 }

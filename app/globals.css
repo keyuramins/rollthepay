@@ -302,17 +302,6 @@
 .location-opportunity-card__salary-difference--negative { @apply text-red-700 bg-red-100; }
 .location-opportunity-card__salary-difference--neutral { @apply text-muted-foreground bg-muted; }
 
-/* ===PAGE LAYOUTS === */
-.page-container { @apply min-h-screen bg-muted; }
-.page-main { @apply bg-background; }
-.page-main--home { @apply min-h-screen bg-gradient-to-br from-primary/5 to-primary/10 overflow-x-hidden; }
-
-/* Quick Stats */
-.hero-section__quick-stats { @apply flex flex-wrap justify-center gap-8 sm:gap-12; }
-.hero-section__stat { @apply text-center; }
-.hero-section__stat-number { @apply block text-2xl sm:text-3xl font-bold text-background mb-1; }
-.hero-section__stat-label { @apply text-sm text-background/80 font-medium; }
-
 /* ===ABOUT SECTIONS === */
 .about-section { @apply bg-background py-16; }
 .about-section__container { @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8; }
@@ -388,13 +377,6 @@
 .data-quality-section__icon { @apply text-2xl; }
 .data-quality-section__item-title { @apply text-lg font-semibold text-foreground mb-2; }
 .data-quality-section__item-description { @apply text-sm text-muted-foreground; }
-
-/* ===COUNTRY HERO SECTION === */
-.country-hero-section { @apply bg-background; }
-.country-hero-section__container { @apply max-w-7xl mx-auto px-4 py-16 sm:px-6 lg:px-8; }
-.country-hero-section__content { @apply text-center; }
-.country-hero-section__title { @apply text-4xl font-bold tracking-tight text-foreground sm:text-5xl; }
-.country-hero-section__description { @apply mt-6 text-xl leading-8 text-muted-foreground max-w-3xl mx-auto; }
 
 /* ===ABOUT CTA SECTION === */
 .about-cta-section { @apply bg-primary py-16; }
@@ -517,35 +499,6 @@
 .az-filter__button--desktop-first { @apply rounded-l-lg; }
 .az-filter__button--desktop-last { @apply rounded-r-lg; }
 .az-filter__button--desktop-middle { @apply border-l border-input; }
-
-/* ===OCCUPATION LIST === */
-.occupation-list { @apply py-16; }
-.occupation-list__container { @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8; }
-.occupation-list__header { @apply mb-12; }
-.occupation-list__header-content { @apply flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6; }
-.occupation-list__header-text { @apply flex-1; }
-.occupation-list__title { @apply text-3xl font-bold text-foreground mb-4; }
-.occupation-list__description { @apply text-lg text-muted-foreground; }
-.occupation-list__search-container { @apply w-full lg:w-80 flex-shrink-0; }
-.occupation-list__search-input { @apply block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-white; }
-.occupation-list__results { @apply grid grid-cols-1 gap-4; }
-.occupation-list__item { @apply block bg-white rounded-lg border border-input py-2 px-6 hover:shadow-md transition-shadow hover:border-blue-300; }
-.occupation-list__item-content { @apply flex items-center justify-between; }
-.occupation-list__item-info { @apply flex-1; }
-.occupation-list__item-title { @apply text-lg font-semibold text-foreground mb-2; }
-.occupation-list__item-location { @apply flex items-center text-muted-foreground; }
-.occupation-list__item-location-icon { @apply w-4 h-4 text-pink-500 mr-2; }
-.occupation-list__item-salary { @apply text-right; }
-.occupation-list__item-salary-value { @apply text-lg font-semibold text-foreground; }
-.occupation-list__pagination { @apply mt-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-end; }
-.occupation-list__pagination-info { @apply text-sm text-muted-foreground; }
-.occupation-list__pagination-nav { @apply flex items-center gap-2; }
-.occupation-list__pagination-button { @apply inline-flex items-center rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-foreground hover:bg-gray-50 disabled:opacity-50; }
-.occupation-list__pagination-pages { @apply hidden md:flex items-center gap-1; }
-.occupation-list__pagination-page { @apply inline-flex items-center rounded-md border border-gray-300 px-3 py-2 text-sm; }
-.occupation-list__pagination-page--active { @apply bg-blue-600 text-white; }
-.occupation-list__pagination-page--inactive { @apply bg-white text-foreground hover:bg-gray-50; }
-.occupation-list__pagination-ellipsis { @apply px-2; }
 
 /* ===PERCENTILES CHART === */
 .percentiles-chart { @apply bg-card rounded-lg shadow-xs p-6 border; }
