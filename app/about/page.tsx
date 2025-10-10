@@ -9,14 +9,6 @@ import { DataQualitySection } from "@/components/about/data-quality-section";
 import { AboutCTASection } from "@/components/about/cta-section";
 
 
-
-
-
-
-
-
-
-
 export const revalidate = 31536000;
 export const dynamicParams = false;
 
@@ -43,7 +35,7 @@ export const metadata: Metadata = {
 
 export default function AboutPage() {
   return (
-    <section>
+    <>
       <Header />
       <main>
         {/* Breadcrumbs */}
@@ -63,6 +55,6 @@ export default function AboutPage() {
         <DataQualitySection />
         <AboutCTASection />
       </main>
-    </section>
+    </>
   );
 }

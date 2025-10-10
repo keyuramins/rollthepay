@@ -46,9 +46,9 @@ export function StatsSection({ totalSalaries, countries }: StatsSectionProps) {
   ];
 
   return (
-    <section className="py-16 sm:py-20 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <section role="region" aria-labelledby="stats-heading" className="py-16 sm:py-20 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
       <div className="text-center mb-12 sm:mb-16">
-        <h2 className="text-3xl sm:text-4xl font-bold text-foreground">
+        <h2 id="stats-heading" className="text-3xl sm:text-4xl font-bold text-foreground">
           Trusted by Job Seekers Worldwide
         </h2>
         <p className="max-w-2xl mx-auto">

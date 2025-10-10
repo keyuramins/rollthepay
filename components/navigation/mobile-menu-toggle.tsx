@@ -28,10 +28,10 @@ export function MobileMenuToggle() {
           {
             x: 0,
             opacity: 1,
-            stagger: 0.08,
-            duration: 0.4,
+            stagger: 0.06,
+            duration: 0.35,
             ease: "power3.out",
-            delay: 0.1,
+            delay: 0.15,
           }
         );
       }
@@ -46,6 +46,14 @@ export function MobileMenuToggle() {
     }
   }, [mobileMenuOpen]);
 
+  useEffect(() => {
+    const handleEsc = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setMobileMenuOpen(false);
+    };
+    document.addEventListener("keydown", handleEsc);
+    return () => document.removeEventListener("keydown", handleEsc);
+  }, []);
+  
   return (
     <>
     <div className="fixed top-4 right-4 z-[60] lg:hidden">
@@ -68,7 +76,7 @@ export function MobileMenuToggle() {
 
       <div
         ref={menuRef}
-        className="fixed top-0 left-0 w-full z-50 bg-primary shadow-xl max-h-screen overflow-y-auto lg:hidden -translate-y-full opacity-0"
+        className="fixed top-0 left-0 w-full z-50 bg-primary shadow-xl max-h-screen overflow-y-auto lg:hidden"
       >
         <div ref={continentsRef} className="px-4 pt-24 pb-8 space-y-6">
           {continents.map((continent) => (

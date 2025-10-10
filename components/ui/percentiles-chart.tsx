@@ -25,13 +25,13 @@ export function PercentilesChart({ data, title, subtitle }: PercentilesChartProp
   };
 
   return (
-    <div className="percentiles-chart">
-      <div className="percentiles-chart__header">
-        <h3 className="percentiles-chart__title">{title}</h3>
-        {subtitle && <p className="percentiles-chart__subtitle">{subtitle}</p>}
+    <div className="bg-card rounded-lg shadow-xs p-6 border">
+      <div className="mb-6">
+        <h3 className="text-xl font-bold text-foreground">{title}</h3>
+        {subtitle && <p className="text-sm text-muted-foreground mt-1">{subtitle}</p>}
       </div>
 
-      <div className="percentiles-chart__container">
+      <div className="h-72">
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart data={data} margin={{ top: 20, right: 24, left: 56, bottom: 28 }}>
             <defs>
@@ -112,10 +112,10 @@ export function PercentilesChart({ data, title, subtitle }: PercentilesChartProp
       </div>
 
       {/* Legend and axis help */}
-      <div className="percentiles-chart__legend">
-        <div className="percentiles-chart__legend-item">
-          <div className="percentiles-chart__legend-dot" />
-          <span className="percentiles-chart__legend-text">Annual salary at each percentile</span>
+      <div className="mt-4 flex flex-col items-center gap-1">
+        <div className="flex items-center space-x-2 rounded-full px-4 py-1 bg-secondary/30 border border-input mt-2">
+          <div className="w-3 h-3 rounded-full bg-chart-1" />
+          <span className="text-sm font-bold text-black">Annual salary at each percentile</span>
         </div>
       </div>
     </div>

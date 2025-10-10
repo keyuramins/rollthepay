@@ -54,7 +54,7 @@ export async function StatePage({ country, state }: StatePageProps) {
   ];
   
   return (
-    <section>
+    <>
       <Header allOccupations={all.map(rec => ({
         country: rec.country.toLowerCase(),
         title: rec.title || rec.h1Title || "",
@@ -69,13 +69,12 @@ export async function StatePage({ country, state }: StatePageProps) {
         <StateHeroSection 
           stateName={stateName}
           countryName={countryName}
-          jobCount={jobs.length}
         />
 
         <OccupationList 
           items={occupationItems}
           title="Explore Salaries by Occupation"
-          description={`Browse salary information organized by job categories and specializations in ${stateName}.`}
+          description={`Browse salary information organized by respective categories and specializations in ${stateName}.`}
           states={[stateName]}
           currentState={state.toLowerCase().replace(/\s+/g, '-')}
         />
@@ -85,8 +84,7 @@ export async function StatePage({ country, state }: StatePageProps) {
             country={country}
             state={stateName}
             title="Explore Salaries by Location"
-            description={`Find salary data specific to different cities and locations within ${stateName}.`}
-            className="bg-white"
+            description={`Find salary data specific to different locations within ${stateName}.`}
           />
         )}
 
@@ -97,6 +95,6 @@ export async function StatePage({ country, state }: StatePageProps) {
           stateName={stateName}
         />
       </main>
-    </section>
+    </>
   );
 }

@@ -166,10 +166,6 @@ Each page has been broken down into logical, reusable components:
 
 #### Country Page
 - **CountryHeroSection**: Country-specific hero with stats
-- **OccupationCategoryCard**: Individual occupation category display
-- **OccupationCategoriesSection**: Grid of occupation categories
-- **StateCard**: Individual state/region display
-- **StatesSection**: States and regions grid
 - **CountryCTASection**: Country page call-to-action
 
 #### About Page
@@ -190,14 +186,10 @@ Each page has been broken down into logical, reusable components:
 
 #### State Pages
 - **StateHeroSection**: State-specific hero section
-- **JobCategoryCard**: Individual job category display
-- **JobCategoriesSection**: Grid of job categories
 - **LocationCard**: Individual location card display
 
 #### Location Pages
 - **LocationHeroSection**: Location-specific hero section
-- **JobCategoryCard**: Individual job category display
-- **JobCategoriesSection**: Grid of job categories
 
 ### UI Components
 - **Button**: Shadcn button component with variants

@@ -5,11 +5,6 @@ import { HeroSectionWrapper } from "@/components/home/HeroSectionWrapper";
 import { StatsSectionWrapper } from "@/components/home/StatsSectionWrapper";
 
 
-
-
-
-
-
 export const revalidate = 31536000;
 export const dynamicParams = false;
 

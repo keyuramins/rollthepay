@@ -12,25 +12,28 @@ interface BreadcrumbsProps {
 
 export function Breadcrumbs({ breadcrumbs }: BreadcrumbsProps) {
   return (
-    <section className="breadcrumbs-section">
-      <nav className="breadcrumb-nav" aria-label="Breadcrumb">
-        <ol className="breadcrumb-list">
-          {breadcrumbs.map((breadcrumb, index) => (
-            <li key={breadcrumb.name}>
-              {index === breadcrumbs.length - 1 ? (
-                <span className="breadcrumb-current">{breadcrumb.name}</span>
+    <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3" aria-label="Breadcrumb">
+      <ol className="flex flex-wrap gap-2">
+        {breadcrumbs.map((breadcrumb, index) => {
+          const isLast = index === breadcrumbs.length - 1;
+          return (
+            <li key={breadcrumb.name} className="flex items-center">
+              {isLast ? (
+                <span className="text-muted-foreground text-sm sm:text-base" aria-current="page">
+                  {breadcrumb.name}
+                </span>
               ) : (
-                <Link prefetch href={breadcrumb.href} className="breadcrumb-link">
+                <Link prefetch href={breadcrumb.href} className="text-sm sm:text-base text-primary hover:underline font-medium">
                   {breadcrumb.name}
                 </Link>
               )}
-              {index < breadcrumbs.length - 1 && (
-                <span className="breadcrumb-separator">&gt;</span>
+              {!isLast && (
+                <span className="ml-2 text-muted-foreground/80 text-xs sm:text-sm" aria-hidden="true">&gt;</span>
               )}
             </li>
-          ))}
-        </ol>
-      </nav>
-    </section>
+          );
+        })}
+      </ol>
+    </nav>
   );
 }

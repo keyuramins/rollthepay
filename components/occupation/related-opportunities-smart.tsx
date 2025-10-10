@@ -60,35 +60,35 @@ function RelatedOccupationCard({ occupation, currentRecord, showSalaryComparison
       prefetchOnMount={true}
       prefetchDelay={120}
       href={occupationURL}
-      className="related-occupation-card related-occupation-card--link"
+      className="bg-card rounded-xl p-6 border border-input hover:border-primary hover:shadow-md hover:bg-green-100 cursor-pointer"
     >
-      <div className="related-occupation-card__header">
+      <div className="mb-4">
         <h4>{occupation.title}</h4>
-        <div className="related-occupation-card__location-industry">
-          <div className="related-occupation-card__location">
-            <MapPin className="related-occupation-card__location-icon" />
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <MapPin className="w-4 h-4" />
             <span>{occupation.location || occupation.state || occupation.country}</span>
           </div>
-          <Badge variant="green" className="related-occupation-card__industry-badge">
+          <Badge variant="green" className="text-xs bg-primary/20 text-primary border-primary/30">
             {industry}
           </Badge>
         </div>
       </div>
       
       {showSalaryComparison && occupation.avgAnnualSalary && (
-        <div className="related-occupation-card__salary">
-          <div className="related-occupation-card__salary-row">
-            <span className="related-occupation-card__salary-current">
+        <div className="mb-4 p-4 bg-secondary/50 rounded-lg border border-secondary/30">
+          <div className="flex items-center justify-between gap-3 text-sm">
+            <span className="text-muted-foreground font-medium">
               {formatCurrency(currentRecord.avgAnnualSalary, currentRecord.country)}
             </span>
-            <span className="related-occupation-card__salary-arrow">→</span>
+            <span className="text-primary font-bold text-lg">→</span>
             <span className="metric-value">
               {formatCurrency(occupation.avgAnnualSalary, occupation.country)}
             </span>
-            <span className={`related-occupation-card__salary-difference ${
-              salaryDiff.startsWith('+') ? 'related-occupation-card__salary-difference--positive' : 
-              salaryDiff.startsWith('-') ? 'related-occupation-card__salary-difference--negative' : 
-              'related-occupation-card__salary-difference--neutral'
+            <span className={`text-sm font-semibold px-2 py-1 rounded-full ${
+              salaryDiff.startsWith('+') ? 'text-green-700 bg-green-100' : 
+              salaryDiff.startsWith('-') ? 'text-red-700 bg-red-100' : 
+              'text-muted-foreground bg-muted'
             }`}>
               {salaryDiff}
             </span>
@@ -97,11 +97,11 @@ function RelatedOccupationCard({ occupation, currentRecord, showSalaryComparison
       )}
       
       {commonSkills.length > 0 && (
-        <div className="related-occupation-card__skills">
-          <div className="related-occupation-card__skills-label">Common Skills:</div>
-          <div className="related-occupation-card__skills-list">
+        <div className="mb-4">
+          <div className="text-xs font-medium text-muted-foreground mb-2">Common Skills:</div>
+          <div className="flex flex-wrap gap-1">
             {commonSkills.slice(0, 3).map(skill => (
-              <Badge key={skill} variant="green">
+              <Badge key={skill} variant="green" className="text-xs bg-primary/10 text-primary border-primary/20">
                 {skill}
               </Badge>
             ))}
@@ -125,28 +125,28 @@ function LocationOpportunityCard({ location, type, salary, currentSalary, countr
       prefetchOnMount={true}
       prefetchDelay={120}
       href={occupationURL}
-      className="location-opportunity-card location-opportunity-card--link"
+      className="bg-secondary/5 rounded-lg p-4 border border-input hover:border-secondary/40 hover:shadow-md hover:bg-secondary/10 cursor-pointer"
     >
-      <div className="location-opportunity-card__header">
-        <div className="location-opportunity-card__title-section">
-          <IconComponent className="location-opportunity-card__icon" />
+      <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center gap-2">
+          <IconComponent className="w-4 h-4 text-secondary" />
           <h4>{location}</h4>
         </div>
-        <Badge variant="green" className="location-opportunity-card__type">
+        <Badge variant="green" className="text-xs bg-secondary/20 text-secondary border-secondary/30">
           {type}
         </Badge>
       </div>
       
       {salary && (
-        <div className="location-opportunity-card__salary">
-          <div className="location-opportunity-card__salary-row">
+        <div className="mt-2">
+          <div className="flex items-center justify-between gap-3">
             <div className="metric-value">
               {formatCurrency(salary, country)}
             </div>
-            <div className={`location-opportunity-card__salary-difference ${
-              salaryDiff.startsWith('+') ? 'location-opportunity-card__salary-difference--positive' : 
-              salaryDiff.startsWith('-') ? 'location-opportunity-card__salary-difference--negative' : 
-              'location-opportunity-card__salary-difference--neutral'
+            <div className={`text-sm font-semibold px-2 py-1 rounded-full ${
+              salaryDiff.startsWith('+') ? 'text-green-700 bg-green-100' : 
+              salaryDiff.startsWith('-') ? 'text-red-700 bg-red-100' : 
+              'text-muted-foreground bg-muted'
             }`}>
               {salaryDiff}
             </div>
@@ -309,7 +309,7 @@ export function RelatedOpportunitiesSmart({ record, allRecords }: RelatedOpportu
   }
 
   return (
-    <section className="card-section">
+    <section className="pt-8 space-y-8 relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <Card>
         <CardHeader>
           <h3>Career Progression Opportunities</h3>
@@ -317,8 +317,8 @@ export function RelatedOpportunitiesSmart({ record, allRecords }: RelatedOpportu
         </CardHeader>
         <CardContent>
         {relatedOccupations.length > 0 && (
-          <div className="related-opportunities-enhanced__section">
-            <div className="related-opportunities-enhanced__occupations-grid">
+          <div className="mb-8 last:mb-0">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {relatedOccupations.map(occ => (
                 <RelatedOccupationCard 
                   key={occ.slug_url}
@@ -332,12 +332,12 @@ export function RelatedOpportunitiesSmart({ record, allRecords }: RelatedOpportu
         )}
 
         {relatedLocations.length > 0 && (
-          <div className="related-opportunities-enhanced__section">
-            <div className="related-opportunities-enhanced__section-header">
-              <MapPin className="related-opportunities-enhanced__section-icon" />
+          <div className="mb-8 last:mb-0">
+            <div className="flex items-center gap-3 mb-6">
+              <MapPin className="w-5 h-5 text-primary" />
               <h4>Geographic Opportunities</h4>
             </div>
-            <div className="related-opportunities-enhanced__locations-grid">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {relatedLocations.map((loc, index) => (
                 <LocationOpportunityCard 
                   key={`${loc.location}-${loc.type}-${index}`}

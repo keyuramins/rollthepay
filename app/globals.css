@@ -120,14 +120,6 @@
 .btn-secondary { @apply bg-secondary hover:bg-primary hover:text-card text-black font-semibold py-3 px-4 rounded-lg transition-colors text-base cursor-pointer; }
 .btn-icon { @apply bg-primary hover:bg-secondary text-white hover:text-foreground font-semibold p-3 rounded-lg transition-colors text-sm cursor-pointer; }
 
-/* Breadcrumbs styles */
-.breadcrumbs-section { @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8; }
-.breadcrumb-nav { @apply flex py-3; } 
-.breadcrumb-list { @apply flex items-center space-x-2 flex-wrap; } 
-.breadcrumb-link { @apply text-sm sm:text-base text-primary hover:underline font-medium; } 
-.breadcrumb-current { @apply text-muted-foreground text-sm sm:text-base; } 
-.breadcrumb-separator { @apply ml-2 text-muted-foreground/80 text-xs sm:text-sm; }
-
 /* ===CARD COMPONENTS ==*/
 .card { @apply bg-card flex flex-col gap-6 rounded-xl border py-8 shadow-xs; }
 .card-header { @apply grid auto-rows-min grid-rows-[auto_auto] items-start gap-1.5 px-6; }
@@ -258,50 +250,6 @@
 .cta-section__buttons { @apply flex flex-col sm:flex-row gap-4 justify-center; }
 .cta-section__button { @apply inline-flex items-center justify-center text-base bg-secondary text-primary px-8 py-3 sm:text-lg sm:px-8 sm:py-4 rounded-md font-semibold hover:bg-card transition-colors cursor-pointer min-h-[44px] min-w-[44px]; }
 
-/* ===RELATED OPPORTUNITIES ENHANCED === */
-.related-opportunities-enhanced { @apply space-y-8; }
-.related-opportunities-enhanced__section { @apply mb-8 last:mb-0; }
-.related-opportunities-enhanced__section-header { @apply flex items-center gap-3 mb-6; }
-.related-opportunities-enhanced__section-icon { @apply w-5 h-5 text-primary; }
-.related-opportunities-enhanced__occupations-grid { @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6; }
-.related-opportunities-enhanced__locations-grid { @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4; }
-
-/* ===RELATED OCCUPATION CARD === */
-.related-occupation-card { @apply bg-card rounded-xl p-6 border border-input; }
-.related-occupation-card--link { @apply hover:border-primary hover:shadow-md hover:bg-green-100 cursor-pointer; }
-.related-occupation-card__header { @apply mb-4; }
-.related-occupation-card__location-industry { @apply flex items-center justify-between; }
-.related-occupation-card__location { @apply flex items-center gap-2 text-sm text-muted-foreground; }
-.related-occupation-card__location-icon { @apply w-4 h-4; }
-.related-occupation-card__industry-badge { @apply text-xs bg-primary/20 text-primary border-primary/30; }
-.related-occupation-card__salary { @apply mb-4 p-4 bg-secondary/50 rounded-lg border border-secondary/30; }
-.related-occupation-card__salary-row { @apply flex items-center justify-between gap-3 text-sm; }
-.related-occupation-card__salary-current { @apply text-muted-foreground font-medium; }
-.related-occupation-card__salary-arrow { @apply text-primary font-bold text-lg; }
-.related-occupation-card__salary-related { @apply font-semibold text-foreground; }
-.related-occupation-card__salary-difference { @apply text-sm font-semibold px-2 py-1 rounded-full; }
-.related-occupation-card__salary-difference--positive { @apply text-green-700 bg-green-100; }
-.related-occupation-card__salary-difference--negative { @apply text-red-700 bg-red-100; }
-.related-occupation-card__salary-difference--neutral { @apply text-muted-foreground bg-muted; }
-.related-occupation-card__skills { @apply mb-4; }
-.related-occupation-card__skills-label { @apply text-xs font-medium text-muted-foreground mb-2; }
-.related-occupation-card__skills-list { @apply flex flex-wrap gap-1; }
-.related-occupation-card__skill-badge { @apply text-xs bg-primary/10 text-primary border-primary/20; }
-
-/* ===LOCATION OPPORTUNITY CARD === */
-.location-opportunity-card { @apply bg-secondary/5 rounded-lg p-4 border border-input; }
-.location-opportunity-card--link { @apply hover:border-secondary/40 hover:shadow-md hover:bg-secondary/10 cursor-pointer; }
-.location-opportunity-card__header { @apply flex items-center justify-between mb-3; }
-.location-opportunity-card__title-section { @apply flex items-center gap-2; }
-.location-opportunity-card__icon { @apply w-4 h-4 text-secondary; }
-.location-opportunity-card__type { @apply text-xs bg-secondary/20 text-secondary border-secondary/30; }
-.location-opportunity-card__salary { @apply mt-2; }
-.location-opportunity-card__salary-row { @apply flex items-center justify-between gap-3; }
-.location-opportunity-card__salary-difference { @apply text-sm font-semibold px-2 py-1 rounded-full; }
-.location-opportunity-card__salary-difference--positive { @apply text-green-700 bg-green-100; }
-.location-opportunity-card__salary-difference--negative { @apply text-red-700 bg-red-100; }
-.location-opportunity-card__salary-difference--neutral { @apply text-muted-foreground bg-muted; }
-
 /* ===ABOUT SECTIONS === */
 .about-section { @apply bg-background py-16; }
 .about-section__container { @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8; }
@@ -329,15 +277,6 @@
 .mission-section__highlight-icon { @apply text-6xl mb-4; }
 .mission-section__highlight-title { @apply text-xl font-semibold text-foreground mb-2; }
 .mission-section__highlight-description { @apply text-muted-foreground; }
-
-/* ===BADGE COMPONENT === */
-.badge { @apply inline-flex items-center font-medium rounded-full; }
-.badge--default { @apply bg-muted text-foreground; }
-.badge--yellow { @apply bg-secondary/30 text-primary; }
-.badge--green { @apply bg-green-100 text-primary; }
-.badge--sm { @apply px-2.5 py-0.5 text-xs; }
-.badge--md { @apply px-3 py-1 text-sm; }
-.badge--lg { @apply px-4 py-2 text-base; }
 
 /* ===ABOUT HERO SECTION === */
 .about-hero-section { @apply bg-background; }
@@ -383,80 +322,7 @@
 .about-cta-section__container { @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center; }
 .about-cta-section__title { @apply text-3xl font-bold text-white mb-6; }
 .about-cta-section__description { @apply text-xl text-white mb-8 max-w-3xl mx-auto; }
-/* ===COUNTRY CTA SECTION === */
-.country-cta-section { @apply bg-primary py-16; }
-.country-cta-section__container { @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center; }
-.country-cta-section__title { @apply text-3xl font-bold text-white mb-6; }
-.country-cta-section__description { @apply text-xl text-white mb-8 max-w-3xl mx-auto; }
 
-/* ===LOCATION HERO SECTION === */
-.location-hero-section { @apply bg-background py-16; }
-.location-hero-section__container { @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8; }
-.location-hero-section__content { @apply text-center; }
-.location-hero-section__title { @apply text-4xl md:text-5xl font-bold text-foreground mb-6; }
-.location-hero-section__description { @apply text-xl text-muted-foreground mb-8 max-w-3xl mx-auto; }
-
-/* ===OCCUPATION CATEGORIES SECTION === */
-.occupation-categories-section { @apply py-16; }
-.occupation-categories-section__container { @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8; }
-.occupation-categories-section__header { @apply mb-12; }
-.occupation-categories-section__title { @apply text-3xl font-bold text-foreground mb-4; }
-.occupation-categories-section__description { @apply text-lg text-gray-600; }
-.occupation-categories-section__grid { @apply grid grid-cols-1 gap-8 lg:grid-cols-2; }
-
-/* ===OCCUPATION CATEGORY CARD === */
-.occupation-category-card { @apply bg-card rounded-lg shadow-sm border p-6; }
-.occupation-category-card__header { @apply flex items-center justify-between mb-4; }
-.occupation-category-card__title { @apply text-lg font-semibold text-foreground; }
-.occupation-category-card__salary { @apply text-right; }
-.occupation-category-card__salary-label { @apply text-sm text-muted-foreground; }
-.occupation-category-card__salary-value { @apply text-lg font-bold text-green-600; }
-.occupation-category-card__count { @apply mb-4; }
-.occupation-category-card__count-text { @apply text-sm text-muted-foreground; }
-.occupation-category-card__records { @apply pt-4 border-t; }
-.occupation-category-card__records-grid { @apply grid grid-cols-1 gap-3; }
-.occupation-category-card__record-link { @apply block p-3 rounded-md border hover:border-primary/50 hover:bg-primary/5 transition-colors; }
-.occupation-category-card__record-content { @apply flex items-center justify-between; }
-.occupation-category-card__record-info { @apply flex-1 min-w-0; }
-.occupation-category-card__record-title { @apply text-sm font-medium text-foreground truncate; }
-.occupation-category-card__record-location { @apply text-xs text-muted-foreground mt-1; }
-.occupation-category-card__record-salary { @apply text-sm font-medium text-foreground ml-4; }
-.occupation-category-card__view-all { @apply text-center pt-2; }
-.occupation-category-card__view-all-link { @apply text-primary hover:text-primary/80 text-sm font-medium; }
-
-/* ===STATE CARD === */
-.state-card { @apply block; }
-.state-card__container { @apply bg-muted rounded-lg border p-6 hover:shadow-md transition-shadow; }
-.state-card__title { @apply text-lg font-semibold text-foreground hover:text-primary transition-colors mb-2; }
-.state-card__details { @apply space-y-2 text-sm; }
-.state-card__detail-row { @apply flex justify-between; }
-.state-card__detail-label { @apply text-muted-foreground; }
-.state-card__detail-value { @apply font-medium text-foreground; }
-
-/* ===STATES GRID === */
-.states-grid { @apply py-16; }
-.states-grid__container { @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8; }
-.states-grid__header { @apply mb-12; }
-.states-grid__title { @apply text-3xl font-bold text-foreground mb-4; }
-.states-grid__description { @apply text-lg text-muted-foreground; }
-.states-grid__grid { @apply grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4; }
-.states-grid__state-link { @apply block bg-card rounded-lg border p-6 hover:shadow-md transition-all hover:border-primary/50 hover:scale-105 text-center shadow-sm; }
-.states-grid__state-title { @apply text-lg font-semibold text-foreground; }
-
-/* ===STATES SECTION === */
-.states-section { @apply bg-background py-16; }
-.states-section__container { @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8; }
-.states-section__header { @apply mb-12; }
-.states-section__title { @apply text-3xl font-bold text-foreground mb-4; }
-.states-section__description { @apply text-lg text-muted-foreground; }
-.states-section__grid { @apply grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3; }
-
-/* ===STATE HERO SECTION === */
-.state-hero-section { @apply bg-background; }
-.state-hero-section__container { @apply max-w-7xl mx-auto px-4 py-16 sm:px-6 lg:px-8; }
-.state-hero-section__content { @apply text-center; }
-.state-hero-section__title { @apply text-4xl font-bold tracking-tight text-foreground sm:text-5xl; }
-.state-hero-section__description { @apply mt-6 text-xl leading-8 text-muted-foreground max-w-3xl mx-auto; }
 
 /* ===JOB CATEGORIES SECTION === */
 .job-categories-section { @apply py-16; }
@@ -475,60 +341,6 @@
 .job-category-card__salary-value { @apply text-lg font-bold text-green-600; }
 .job-category-card__hourly-value { @apply text-sm font-medium text-primary; }
 
-/* ===LOCATIONS GRID === */
-.locations-grid { @apply py-16; }
-.locations-grid__container { @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8; }
-.locations-grid__header { @apply mb-12; }
-.locations-grid__title { @apply text-3xl font-bold text-foreground mb-4; }
-.locations-grid__description { @apply text-lg text-muted-foreground; }
-.locations-grid__grid { @apply grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4; }
-.locations-grid__location-link { @apply block bg-card rounded-lg border p-6 hover:shadow-md transition-all hover:border-primary/50 hover:scale-105 text-center shadow-sm; }
-.locations-grid__location-title { @apply text-lg font-semibold text-foreground; }
-
-/* ===AZ FILTER === */
-.az-filter { @apply mb-6; }
-.az-filter__mobile { @apply block lg:hidden; }
-.az-filter__mobile-grid { @apply grid grid-cols-5 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10 gap-1.5 sm:gap-2 px-1 sm:px-2; }
-.az-filter__desktop { @apply hidden lg:flex justify-center; }
-.az-filter__desktop-container { @apply inline-flex rounded-lg overflow-hidden border border-input shadow-sm flex-shrink-0; }
-.az-filter__button { @apply px-1.5 sm:px-2 py-2.5 sm:py-3 text-xs sm:text-sm font-medium transition-all duration-200 rounded-lg border border-input text-center min-h-[40px] sm:min-h-[44px] flex items-center justify-center; }
-.az-filter__button--active { @apply bg-primary text-white border-primary shadow-sm; }
-.az-filter__button--inactive { @apply bg-card text-foreground hover:bg-muted hover:text-foreground cursor-pointer hover:shadow-sm active:bg-muted; }
-.az-filter__button--disabled { @apply bg-muted text-muted-foreground cursor-not-allowed opacity-25; }
-.az-filter__button--desktop { @apply px-2.5 py-2 text-sm font-medium transition-all duration-200 min-w-[36px] text-center; }
-.az-filter__button--desktop-first { @apply rounded-l-lg; }
-.az-filter__button--desktop-last { @apply rounded-r-lg; }
-.az-filter__button--desktop-middle { @apply border-l border-input; }
-
-/* ===PERCENTILES CHART === */
-.percentiles-chart { @apply bg-card rounded-lg shadow-xs p-6 border; }
-.percentiles-chart__header { @apply mb-6; }
-.percentiles-chart__title { @apply text-xl font-bold text-foreground; }
-.percentiles-chart__subtitle { @apply text-sm text-muted-foreground mt-1; }
-.percentiles-chart__container { @apply h-72; }
-.percentiles-chart__legend { @apply mt-4 flex flex-col items-center gap-1; }
-.percentiles-chart__legend-item { @apply flex items-center space-x-2 rounded-full px-4 py-1 bg-secondary/30 border border-input mt-2; }
-.percentiles-chart__legend-dot { @apply w-3 h-3 rounded-full bg-chart-1; }
-.percentiles-chart__legend-text { @apply text-sm font-bold text-black; }
-
-/* ===SALARY BREAKDOWN TABLE === */
-.salary-breakdown-table { @apply bg-card rounded-lg shadow-md p-6 border; }
-.salary-breakdown-table__header { @apply mb-6; }
-.salary-breakdown-table__title { @apply text-xl font-bold text-foreground mb-2; }
-.salary-breakdown-table__subtitle { @apply text-sm text-muted-foreground; }
-.salary-breakdown-table__container { @apply overflow-x-auto; }
-.salary-breakdown-table__table { @apply w-full; }
-.salary-breakdown-table__thead { @apply border-b; }
-.salary-breakdown-table__th { @apply text-left py-3 px-4 font-medium text-foreground; }
-.salary-breakdown-table__th--right { @apply text-right py-3 px-4 font-medium text-foreground; }
-.salary-breakdown-table__tbody { @apply border-b; }
-.salary-breakdown-table__tr--highlight { @apply bg-primary/10; }
-.salary-breakdown-table__td { @apply py-3 px-4; }
-.salary-breakdown-table__td--right { @apply py-3 px-4 text-right; }
-.salary-breakdown-table__period { @apply font-medium text-foreground; }
-.salary-breakdown-table__amount { @apply font-bold text-foreground; }
-.salary-breakdown-table__amount--highlight { @apply font-bold text-primary; }
-.salary-breakdown-table__description { @apply text-sm text-muted-foreground; }
 
 /* ===FOOTER === */
 .footer { @apply bg-muted py-12; }
@@ -537,26 +349,3 @@
 .footer__title { @apply text-2xl font-bold text-foreground mb-4; }
 .footer__description { @apply text-muted-foreground mb-6; }
 .footer__copyright { @apply text-sm text-muted-foreground; }
-
-
-/* ===BUTTON === */
-.button { @apply inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 shrink-0 outline-none focus-visible:border-primary focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive cursor-pointer; }
-.button svg { @apply pointer-events-none shrink-0; }
-.button svg:not([class*='size-']) { @apply size-4; }
-.button--default { @apply bg-primary text-white shadow-xs hover:bg-primary/90; }
-.button--secondary { @apply bg-secondary text-secondary-foreground shadow-xs hover:bg-secondary/80; }
-.button--rtp { @apply text-card hover:bg-secondary hover:text-secondary-foreground; }
-.button--mobilertp { @apply text-primary bg-secondary hover:bg-secondary/80; }
-.button--size-default { @apply h-9 px-4 py-2; }
-.button--size-default:has(> svg) { @apply px-3; }
-.button--size-sm { @apply h-8 rounded-md gap-1.5 px-3; }
-.button--size-sm:has(> svg) { @apply px-2.5; }
-.button--size-lg { @apply h-10 rounded-md px-6; }
-.button--size-lg:has(> svg) { @apply px-4; }
-.button--size-icon { @apply size-9; }
-.button--size-rtp { @apply h-8 rounded-md gap-1 px-2; }
-.button--size-rtp:has(> svg) { @apply px-2; }
-
-/* ===TOOLTIP === */
-.tooltip__content { @apply bg-primary text-white z-50 w-fit rounded-md px-3 py-1.5 text-xs text-balance; }
-.tooltip__arrow { @apply bg-primary fill-primary z-50 size-2.5 translate-y-[calc(-50%_-_2px)] rotate-45 rounded-[2px]; }

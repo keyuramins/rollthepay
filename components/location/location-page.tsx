@@ -53,7 +53,7 @@ export async function LocationPage({ country, state, location }: LocationPagePro
   ];
   
   return (
-    <div className="min-h-screen bg-muted">
+    <>
       <Header allOccupations={all.map(rec => ({
         country: rec.country.toLowerCase(),
         title: rec.title || rec.h1Title || "",
@@ -62,11 +62,8 @@ export async function LocationPage({ country, state, location }: LocationPagePro
         location: rec.location ? rec.location : null,
       }))} />
       
-      <main className="bg-background">
-        {/* Breadcrumbs */}
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-            <Breadcrumbs breadcrumbs={breadcrumbs} />
-          </div>
+      <main>
+        <Breadcrumbs breadcrumbs={breadcrumbs} />
         
         <LocationHeroSection 
           locationName={locationName}
@@ -92,6 +89,6 @@ export async function LocationPage({ country, state, location }: LocationPagePro
           locationName={locationName}
         />
       </main>
-    </div>
+    </>
   );
 }

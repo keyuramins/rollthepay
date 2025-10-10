@@ -5,31 +5,36 @@ interface StatesGridProps {
   countrySlug: string;
   title: string;
   description: string;
-  className?: string;
 }
 
-export function StatesGrid({ states, countrySlug, title, description, className = "" }: StatesGridProps) {
+export function StatesGrid({ states, countrySlug, title, description }: StatesGridProps) {
   return (
-    <section className={`states-grid ${className}`}>
-      <div className="states-grid__container">
-        <div className="states-grid__header">
-          <h2 className="states-grid__title">{title}</h2>
-          <p className="states-grid__description">{description}</p>
-        </div>
+    <section 
+      className="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" 
+      aria-labelledby="states-grid-heading"
+      role="region"
+    >
+      <header id="states-grid-heading" className="mb-12 text-center">
+        <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-2">{title}</h2>
+        <p className="text-sm sm:text-base text-muted-foreground">{description}</p>
+      </header>
 
-        {/* States Grid */}
-        <div className="states-grid__grid">
-          {states.map((state) => (
-            <InstantLink
-              key={state}
-              href={`/${countrySlug}/${state.toLowerCase().replace(/\s+/g, "-")}`}
-              className="states-grid__state-link"
-            >
-              <h3 className="states-grid__state-title">{state}</h3>
-            </InstantLink>
-          ))}
-        </div>
-      </div>
+      <ul className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+        {states.map((state) => {
+          const slug = state.toLowerCase().replace(/\s+/g, "-");
+          return (
+            <li key={state}>
+              <InstantLink
+                href={`/${countrySlug}/${slug}`}
+                title={`Learn more about ${state} salaries and jobs`}
+                className="block bg-card rounded-lg border p-4 sm:p-6 hover:shadow-md transition-shadow hover:border-green-100 text-center shadow-sm text-sm sm:text-base font-medium text-foreground"
+              >
+                {state}
+              </InstantLink>
+            </li>
+          );
+        })}
+      </ul>
     </section>
   );
 }

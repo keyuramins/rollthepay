@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { InstantLink } from "@/components/ui/enhanced-link";
 
 interface LocationCTASectionProps {
   country: string;
@@ -17,31 +17,42 @@ export function LocationCTASection({
   stateName, 
   locationName 
 }: LocationCTASectionProps) {
+  const destinationText = locationName
+    ? `${locationName}, ${stateName}, ${countryName}`
+    : stateName
+    ? `${stateName}, ${countryName}`
+    : countryName;
+
   return (
-    <section className="cta-section">
-      <div className="cta-section__container">
-        <h2 className="cta-section__title">
+    <section
+      className="bg-primary py-16"
+      role="region"
+      aria-labelledby="location-cta-heading"
+    >
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <h2 id="location-cta-heading" className="text-3xl font-bold text-white mb-6">
           Explore More Salary Data
         </h2>
-        <p className="cta-section__description">
-          Compare salaries across different locations and discover career opportunities 
-          in {locationName ? `${locationName}, ${stateName}, ${countryName}` : stateName ? `${stateName}, ${countryName}` : countryName}.
+        <p className="text-xl text-white mb-8 max-w-3xl mx-auto">
+          Compare salaries across different locations and discover career opportunities in {destinationText}.
         </p>
-        <div className="cta-section__buttons">
-          {/* Always show country button */}
-          <Link prefetch={true} href={`/${country}`}>
-            <button className="cta-section__button">
-              View All Salary Data in {countryName}
-            </button>
-          </Link>
-          
-          {/* Show state button only if we're on a location page (have both state and location) */}
+        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <InstantLink
+            href={`/${country}`}
+            className="inline-flex items-center justify-center text-base bg-secondary text-primary px-8 py-3 sm:text-lg sm:px-8 sm:py-4 rounded-md font-semibold hover:bg-card transition-colors min-h-[44px] min-w-[44px]"
+            title={`View all salary data in ${countryName}`}
+          >
+            View All Salary Data in {countryName}
+          </InstantLink>
+
           {state && location && stateName && (
-            <Link prefetch={true} href={`/${country}/${stateName.toLowerCase().replace(/\s+/g, '-')}`}>
-              <button className="cta-section__button">
-                View All Salary Data in {stateName}
-              </button>
-            </Link>
+            <InstantLink
+              href={`/${country}/${stateName.toLowerCase().replace(/\s+/g, '-')}`}
+              className="inline-flex items-center justify-center text-base bg-secondary text-primary px-8 py-3 sm:text-lg sm:px-8 sm:py-4 rounded-md font-semibold hover:bg-card transition-colors min-h-[44px] min-w-[44px]"
+              title={`View all salary data in ${stateName}`}
+            >
+              View All Salary Data in {stateName}
+            </InstantLink>
           )}
         </div>
       </div>

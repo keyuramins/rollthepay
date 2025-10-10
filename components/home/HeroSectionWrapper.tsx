@@ -9,7 +9,7 @@ export function HeroSectionWrapper({ occupations }: { occupations: any[] }) {
   ];
 
   return (
-    <section className="relative bg-primary min-h-[80vh] sm:h-[85vh] flex items-center py-16 sm:py-20 overflow-hidden">
+    <section role="region" aria-labelledby="hero-heading" className="relative bg-primary min-h-[80vh] sm:h-[85vh] flex items-center py-16 sm:py-20 overflow-hidden">
       <div className="absolute inset-0 before:absolute before:inset-0 before:bg-gradient-to-br before:from-primary before:via-secondary before:to-primary before:opacity-50 before:brightness-20 before:backdrop-blur-xl" />
       <div className="relative z-10 w-full max-w-6xl text-center px-4 sm:px-6 lg:px-8 mx-auto">
       <ul className="flex flex-wrap justify-center gap-6 mb-8">
@@ -22,7 +22,7 @@ export function HeroSectionWrapper({ occupations }: { occupations: any[] }) {
         </ul>
 
         {/* Main Headline */}
-        <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl text-background mt-4 mb-1">
+        <h1 id="hero-heading" className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl text-background mt-4 mb-1">
           Discover What Jobs Really Pay
         </h1>
 

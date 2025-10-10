@@ -2,19 +2,28 @@ import Link from "next/link";
 
 export function CountryCTASection() {
   return (
-    <section className="country-cta-section">
-      <div className="country-cta-section__container">
-        <h2 className="country-cta-section__title">
+    <section 
+      className="bg-primary py-16" 
+      aria-labelledby="cta-heading"
+      role="region"
+    >
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <h2 
+          id="cta-heading" 
+          className="text-3xl font-bold text-white mb-6"
+        >
           Ready to Explore More Salary Data?
         </h2>
-        <p className="country-cta-section__description">
+        <p className="text-xl text-white mb-8 max-w-3xl mx-auto">
           Discover salary information for specific jobs, compare compensation across regions, 
           and get the insights you need to advance your career.
         </p>
-        <Link prefetch={true} href={`/`}>
-          <button className="cta-section__button">
-            Back to Home
-          </button>
+        <Link 
+          href={`/`} 
+          className="inline-flex items-center justify-center text-base bg-secondary text-primary px-8 py-3 sm:text-lg sm:px-8 sm:py-4 rounded-md font-semibold hover:bg-card transition-colors min-h-[44px] min-w-[44px]" 
+          aria-label="Back to Home"
+        >
+          Back to Home
         </Link>
       </div>
     </section>

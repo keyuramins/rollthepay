@@ -16,7 +16,6 @@ export async function LocationsGrid({
   description, 
   className = "" 
 }: LocationsGridProps) {
-  // Get locations from the dataset
   const { all } = await getDataset();
   const locations = Array.from(new Set(
     all
@@ -25,30 +24,34 @@ export async function LocationsGrid({
       .filter(Boolean)
   )) as string[];
   
-  if (locations.length === 0) {
-    return null; // Don't render if no locations
-  }
-  
-  return (
-    <section className={`locations-grid ${className}`}>
-      <div className="locations-grid__container">
-        <div className="locations-grid__header">
-          <h2 className="locations-grid__title">{title}</h2>
-          <p className="locations-grid__description">{description}</p>
-        </div>
+  if (locations.length === 0) return null;
 
-        {/* Locations Grid */}
-        <div className="locations-grid__grid">
+  return (
+    <section 
+      className={`py-16 ${className}`} 
+      aria-labelledby="locations-grid-heading" 
+      role="region"
+    >
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <header id="locations-grid-heading" className="mb-12 text-center">
+          <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-2">{title}</h2>
+          <p className="text-lg sm:text-base text-muted-foreground">{description}</p>
+        </header>
+
+        <ul className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
           {locations.map((location) => (
-            <InstantLink
-              key={location}
-              href={`/${country}/${state.toLowerCase().replace(/\s+/g, "-")}/${location.toLowerCase().replace(/\s+/g, "-")}`}
-              className="locations-grid__location-link"
-            >
-              <h3 className="locations-grid__location-title">{location}</h3>
-            </InstantLink>
+            <li key={location}>
+              <InstantLink
+                href={`/${country}/${state.toLowerCase().replace(/\s+/g, "-")}/${location.toLowerCase().replace(/\s+/g, "-")}`}
+                title={`Explore salaries in ${location}, ${state}`}
+                aria-label={`Explore salaries in ${location}, ${state}`}
+                className="block bg-card rounded-lg border p-6 hover:shadow-md transition-all hover:border-primary/50 hover:scale-105 text-center shadow-sm"
+              >
+                <h3 className="text-lg font-semibold text-foreground">{location}</h3>
+              </InstantLink>
+            </li>
           ))}
-        </div>
+        </ul>
       </div>
     </section>
   );

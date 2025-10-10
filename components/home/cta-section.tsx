@@ -3,9 +3,9 @@ import { ArrowRight, Search, Users } from "lucide-react";
 
 export function CTASection() {
   return (
-    <section className="bg-primary py-16 sm:py-20">
+    <section role="region" aria-labelledby="cta-heading" className="bg-primary py-16 sm:py-20">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 text-center">
-        <h2 className="text-3xl font-bold text-white sm:text-4xl mb-6">
+        <h2 id="cta-heading" className="text-3xl font-bold text-white sm:text-4xl mb-6">
           Ready to Discover Your Market Value?
         </h2>
         <p className="text-lg sm:text-xl text-white/90 mb-8 max-w-3xl mx-auto leading-relaxed">

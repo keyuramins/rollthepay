@@ -741,20 +741,6 @@ export function SearchableDropdown({
               )}
             </button>
           )}
-          {/* <button
-            type="button"
-            onClick={() => {
-              if (isHome && selectedCountry) {
-                setIsOccupationDropdownOpen(!isOccupationDropdownOpen);
-              } else {
-                setIsDropdownOpen(!isDropdownOpen);
-              }
-            }}
-          >
-            <ChevronDown 
-              className={`h-5 w-5 ${iconColor} ${(isHome && selectedCountry ? isOccupationDropdownOpen : isDropdownOpen) ? 'transform rotate-180' : ''} transition-transform duration-200`}
-            />
-          </button> */}
         </div>
       </div>
 

@@ -9,7 +9,6 @@ import { StatesGrid } from "@/components/country/states-grid";
 import { CountryCTASection } from "@/components/country/cta-section";
 
 
-
 export const revalidate = 31536000;
 export const dynamicParams = false;
 
@@ -61,7 +60,7 @@ export default async function CountryPage({ params }: CountryPageProps) {
   const { countryName, totalJobs, avgSalary, states, occupationItems, headerOccupations } = countryData;
 
   return (
-    <section>
+    <>
       <Header allOccupations={headerOccupations} />
       
       <main>
@@ -80,7 +79,7 @@ export default async function CountryPage({ params }: CountryPageProps) {
         <OccupationList
           items={occupationItems}
           title="Explore Salaries by Occupation"
-          description="Browse salary information organized by job categories and specializations."
+          description="Browse salary information organized by respective categories and specializations."
           states={states}
         />
 
@@ -90,12 +89,11 @@ export default async function CountryPage({ params }: CountryPageProps) {
             countrySlug={country}
             title="Explore Salaries by State/Region"
             description={`Find salary data specific to different regions within ${countryName}.`}
-            className="bg-white"
           />
         )}
 
         <CountryCTASection />
       </main>
-    </section>
+    </>
   );
 }

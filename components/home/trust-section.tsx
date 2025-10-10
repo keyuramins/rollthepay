@@ -9,9 +9,9 @@ const trustItems = [
 
 export function TrustSection() {
   return (
-    <section className="bg-muted py-16 sm:py-20">
+    <section role="region" aria-labelledby="trust-heading" className="bg-muted py-16 sm:py-20">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 text-center mb-12 sm:mb-16">
-        <h2 className="text-3xl sm:text-4xl font-bold text-foreground">Why Professionals Trust RollThePay</h2>
+        <h2 id="trust-heading" className="text-3xl sm:text-4xl font-bold text-foreground">Why Professionals Trust RollThePay</h2>
         <p className="max-w-3xl mx-auto text-muted-foreground pt-4">
           We're committed to providing the most accurate and up-to-date salary information 
           to help you make informed career decisions.

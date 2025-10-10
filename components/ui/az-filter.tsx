@@ -22,49 +22,36 @@ export function AZFilter({ items, onFilteredItemsChange }: AZFilterProps) {
   const [selectedFilter, setSelectedFilter] = useState<string>("All");
   const loading = !items || items.length === 0;
 
-  const generateFilters = () => {
-    const filters = ["All"];
-    for (let i = 65; i <= 90; i++) {
-      const letter = String.fromCharCode(i);
-      filters.push(letter);
-    }
-    return filters;
-  };
+  const generateFilters = () => ["All", ...Array.from({ length: 26 }, (_, i) => String.fromCharCode(65 + i))];
 
   const filters: string[] = loading
-  ? Array.from({ length: 26 }, (_, i) => `skeleton-${i}`)
-  : generateFilters();
-
+    ? Array.from({ length: 27 }, (_, i) => `skeleton-${i}`)
+    : generateFilters();
 
   const applyFilter = (filter: string) => {
     setSelectedFilter(filter);
     if (filter === "All") {
       onFilteredItemsChange(items);
     } else {
-      const filtered = items.filter((item) =>
-        item.displayName.toUpperCase().startsWith(filter)
+      onFilteredItemsChange(
+        items.filter((item) => item.displayName.toUpperCase().startsWith(filter))
       );
-      onFilteredItemsChange(filtered);
     }
   };
 
-  const hasItemsForFilter = (filter: string) => {
-    if (filter === "All") return true;
-    return items.some((item) =>
-      item.displayName.toUpperCase().startsWith(filter)
-    );
-  };
+  const hasItemsForFilter = (filter: string) => filter === "All" || items.some((item) => item.displayName.toUpperCase().startsWith(filter));
 
   return (
-    <div className="az-filter">
+    <div className="mb-6" role="region" aria-label="Alphabetical filter">
       {/* Mobile & Tablet */}
-      <div className="az-filter__mobile">
-        <div className="az-filter__mobile-grid">
+      <div className="block lg:hidden">
+        <div className="grid grid-cols-5 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10 gap-1.5 sm:gap-2 px-1 sm:px-2">
           {filters.map((filter, index) =>
             loading ? (
               <div
                 key={index}
-                className="h-10 sm:h-11 rounded-lg bg-muted/30 animate-pulse"
+                className="px-1.5 sm:px-2 py-2.5 sm:py-3 text-xs sm:text-sm font-medium transition-all duration-200 rounded-lg border border-input text-center h-[40px] sm:h-[44px] flex items-center justify-center bg-muted text-muted-foreground cursor-not-allowed opacity-25 animate-pulse"
+                aria-hidden="true"
               />
             ) : (
               (() => {
@@ -72,12 +59,12 @@ export function AZFilter({ items, onFilteredItemsChange }: AZFilterProps) {
                 const hasItems = hasItemsForFilter(filter);
                 const isDisabled = !hasItems;
 
-                let buttonClass = "az-filter__button";
-                if (isActive && hasItems)
-                  buttonClass += " az-filter__button--active";
+                let buttonClass =
+                  "px-1.5 sm:px-2 py-2.5 sm:py-3 text-xs sm:text-sm font-medium transition-all duration-200 rounded-lg border border-input text-center min-h-[40px] sm:min-h-[44px] flex items-center justify-center";
+                if (isActive && hasItems) buttonClass += " bg-primary text-white border-primary shadow-sm";
                 else if (hasItems)
-                  buttonClass += " az-filter__button--inactive";
-                else buttonClass += " az-filter__button--disabled";
+                  buttonClass += " bg-card text-foreground hover:bg-muted hover:text-foreground cursor-pointer hover:shadow-sm active:bg-muted";
+                else buttonClass += " bg-muted text-muted-foreground cursor-not-allowed opacity-25";
 
                 return (
                   <button
@@ -85,6 +72,8 @@ export function AZFilter({ items, onFilteredItemsChange }: AZFilterProps) {
                     onClick={() => hasItems && applyFilter(filter)}
                     disabled={isDisabled}
                     className={buttonClass}
+                    aria-pressed={isActive}
+                    aria-label={`Filter by ${filter}`}
                   >
                     {filter}
                   </button>
@@ -96,13 +85,14 @@ export function AZFilter({ items, onFilteredItemsChange }: AZFilterProps) {
       </div>
 
       {/* Desktop */}
-      <div className="az-filter__desktop">
-        <div className="az-filter__desktop-container">
+      <div className="hidden lg:flex justify-center">
+        <div className="inline-flex rounded-lg overflow-hidden border border-input shadow-sm flex-shrink-0" role="group" aria-label="Alphabetical filter">
           {filters.map((filter, index) =>
             loading ? (
               <div
                 key={index}
-                className="h-10 sm:h-11 w-10 rounded-lg bg-muted/30 animate-pulse"
+                className="px-2.5 py-2 text-sm font-medium transition-all duration-200 min-w-[36px] h-[36px] text-center bg-muted text-muted-foreground cursor-not-allowed opacity-25 animate-pulse flex items-center justify-center"
+                aria-hidden="true"
               />
             ) : (
               (() => {
@@ -112,17 +102,15 @@ export function AZFilter({ items, onFilteredItemsChange }: AZFilterProps) {
                 const hasItems = hasItemsForFilter(filter);
                 const isDisabled = !hasItems;
 
-                let buttonClass = "az-filter__button--desktop";
-                if (isFirst) buttonClass += " az-filter__button--desktop-first";
-                if (isLast) buttonClass += " az-filter__button--desktop-last";
-                if (!isFirst)
-                  buttonClass += " az-filter__button--desktop-middle";
+                let buttonClass = "px-2.5 py-2 text-sm font-medium transition-all duration-200 min-w-[36px] text-center";
+                if (isFirst) buttonClass += " rounded-l-lg";
+                if (isLast) buttonClass += " rounded-r-lg";
+                if (!isFirst) buttonClass += " border-l border-input";
 
-                if (isActive && hasItems)
-                  buttonClass += " az-filter__button--active";
+                if (isActive && hasItems) buttonClass += " bg-primary text-white border-primary shadow-sm";
                 else if (hasItems)
-                  buttonClass += " az-filter__button--inactive";
-                else buttonClass += " az-filter__button--disabled";
+                  buttonClass += " bg-card text-foreground hover:bg-muted hover:text-foreground cursor-pointer hover:shadow-sm active:bg-muted";
+                else buttonClass += " bg-muted text-muted-foreground cursor-not-allowed opacity-25";
 
                 return (
                   <button
@@ -130,6 +118,8 @@ export function AZFilter({ items, onFilteredItemsChange }: AZFilterProps) {
                     onClick={() => hasItems && applyFilter(filter)}
                     disabled={isDisabled}
                     className={buttonClass}
+                    aria-pressed={isActive}
+                    aria-label={`Filter by ${filter}`}
                   >
                     {filter}
                   </button>

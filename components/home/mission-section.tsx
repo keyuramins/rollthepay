@@ -20,9 +20,9 @@ const missionItems = [
 
 export function MissionSection() {
   return (
-    <section className="bg-background py-16 sm:py-20">
+    <section role="region" aria-labelledby="mission-heading" className="bg-background py-16 sm:py-20">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 text-center mb-12 sm:mb-16">
-        <h2 className="text-3xl font-bold text-foreground sm:text-4xl mb-4">
+        <h2 id="mission-heading" className="text-3xl font-bold text-foreground sm:text-4xl mb-4">
           Empowering Career Decisions Through Transparency
         </h2>
         <p className="text-lg text-muted-foreground max-w-3xl mx-auto leading-relaxed">

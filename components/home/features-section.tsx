@@ -11,9 +11,9 @@ const features = [
 
 export function FeaturesSection() {
   return (
-    <section className="bg-background py-16 sm:py-20">
+    <section role="region" aria-labelledby="features-heading" className="bg-background py-16 sm:py-20">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 text-center mb-12 sm:mb-16">
-        <h2 className="text-3xl sm:text-4xl font-bold text-foreground">
+        <h2 id="features-heading" className="text-3xl sm:text-4xl font-bold text-foreground">
           Everything You Need to Research Salaries
         </h2>
         <p className="text-base sm:text-lg max-w-3xl mx-auto text-muted-foreground pt-4">
@@ -25,13 +25,13 @@ export function FeaturesSection() {
         {features.map((feature, index) => {
           const IconComponent = feature.icon;
           return (
-            <div key={index} className="text-center p-6 sm:p-8 rounded-xl border border-border bg-card hover:shadow-lg transition-all duration-300 hover:border-primary/20 hover:-translate-y-1">
+            <article key={index} className="text-center p-6 sm:p-8 rounded-xl border border-border bg-card hover:shadow-lg transition-all duration-300 hover:border-primary/20 hover:-translate-y-1">
               <div className="w-16 h-16 sm:w-18 sm:h-18 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6">
                 <IconComponent className="w-8 h-8 sm:w-9 sm:h-9 text-primary" />
               </div>
               <h3 className="text-foreground mb-4">{feature.title}</h3>
               <p className="text-base sm:text-lg max-w-3xl mx-auto text-muted-foreground">{feature.description}</p>
-            </div>
+            </article>
           );
         })}
       </div>
