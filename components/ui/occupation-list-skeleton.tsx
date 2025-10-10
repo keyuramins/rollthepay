@@ -15,8 +15,8 @@ export function OccupationListSkeleton({ title, description, className = "" }: {
                 </div>
 
                 <div className="mb-8">
-                    <div className="flex flex-wrap gap-2">
-                        {Array.from({ length: 8 }).map((_, i) => (
+                    <div className="flex flex-wrap gap-2 justify-center items-center">
+                        {Array.from({ length: 10 }).map((_, i) => (
                             <div key={i} className="h-8 w-16 bg-gray-200 animate-pulse rounded-md" />
                         ))}
                     </div>

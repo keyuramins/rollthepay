@@ -12,6 +12,8 @@ import { OccupationPage } from "@/components/occupation/occupation-page";
 
 
 
+
+
 export const revalidate = 31536000;
 export const dynamicParams = false;
 

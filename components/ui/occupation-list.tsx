@@ -5,6 +5,7 @@ import Link from "next/link";
 import { AZFilter } from "./az-filter";
 import { Pagination } from "./pagination";
 import { MapPin } from "lucide-react";
+import { OccupationListSkeleton } from "./occupation-list-skeleton";
 
 // Helper function to normalize slugs for URLs (handles special characters)
 function normalizeSlugForURL(slug: string): string {
@@ -38,7 +39,10 @@ export function OccupationList({ items, title, description, className = "", curr
     const [azFilteredItems, setAzFilteredItems] = useState<OccupationItem[]>([]);
     const [searchQuery, setSearchQuery] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
-    const [loading, setLoading] = useState(true);
+    const [mounted, setMounted] = useState(false);
+    useEffect(() => {
+        setMounted(true);
+    }, []);
     const PAGE_SIZE = 50;
     // Prepare items for filtering (strip leading "Average ")
     const preparedItems = useMemo(() => items.map(item => ({
@@ -81,7 +85,14 @@ export function OccupationList({ items, title, description, className = "", curr
     useEffect(() => {
         setCurrentPage(1);
     }, [searchQuery, azFilteredItems]);
-      
+    if (!mounted) {
+        return (
+            <OccupationListSkeleton
+                title={title}
+                description={description}
+            />
+        );
+    }
     return (
         <section className={`py-16 ${className}`}>
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
