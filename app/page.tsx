@@ -5,6 +5,10 @@ import { HeroSectionWrapper } from "@/components/home/HeroSectionWrapper";
 import { StatsSectionWrapper } from "@/components/home/StatsSectionWrapper";
 
 
+
+
+
+
 export const revalidate = 31536000;
 export const dynamicParams = false;
 
@@ -16,7 +20,6 @@ const FeaturesSectionDynamic = dynamicImport(() => import("@/components/home/fea
 const TrustSectionDynamic = dynamicImport(() => import("@/components/home/trust-section").then(mod => mod.TrustSection), { ssr: true, loading: () => <div>Loading Trust...</div> });
 const MissionSectionDynamic = dynamicImport(() => import("@/components/home/mission-section").then(mod => mod.MissionSection), { ssr: true, loading: () => <div>Loading Mission...</div> });
 const CTASectionDynamic = dynamicImport(() => import("@/components/home/cta-section").then(mod => mod.CTASection), { ssr: true, loading: () => <div>Loading CTA...</div> });
-//const FooterDynamic = dynamicImport(() => import("@/components/ui/footer").then(mod => mod.Footer), { ssr: true, loading: () => <div>Loading Footer...</div> });
 
 // Shorter revalidation for testing (can be increased later)
 // 1 minute for testing
@@ -62,14 +65,12 @@ export default async function Home() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/5 to-primary/10 overflow-x-hidden">
-      {/* <NewHeader /> */}
       <HeroSectionWrapper occupations={all} />
       <StatsSectionWrapper countries={countries} totalSalaries={totalSalaries} />
       <FeaturesSectionDynamic />
       <TrustSectionDynamic />
       <MissionSectionDynamic />
       <CTASectionDynamic />
-      {/* <FooterDynamic /> */}
     </div>
   );
 }

@@ -4,6 +4,9 @@ import { optimizedDataAccess } from "@/lib/data/optimized-parse";
 import { StatePage } from "@/components/state/state-page";
 import { LocationPage } from "@/components/location/location-page";
 import { OccupationPage } from "@/components/occupation/occupation-page";
+import { cleanTitle } from "@/lib/utils/title-cleaner";
+
+
 
 
 export const revalidate = 31536000;
@@ -37,11 +40,6 @@ function denormalizeLocationName(normalizedLocation: string): string {
   return normalizedLocation
     .replace(/-/g, ' ') // Replace hyphens with spaces
     .replace(/\b\w/g, (char) => char.toUpperCase()); // Capitalize first letter of each word
-}
-
-// Helper function to remove "Average" from titles
-function cleanTitle(title: string): string {
-  return title.replace(/^Average\s+/i, '').replace(/\s+Salary\s+in\s+Australia$/i, '');
 }
 
 // Helper function to normalize slugs for comparison (handles special characters)

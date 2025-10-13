@@ -1,4 +1,3 @@
-import { Header } from "@/components/navigation/header";
 import { Breadcrumbs } from "@/components/occupation/breadcrumbs";
 import { StateHeroSection } from "./state-hero-section";
 import { LocationCTASection } from "@/components/location/location-cta-section";
@@ -55,14 +54,6 @@ export async function StatePage({ country, state }: StatePageProps) {
   
   return (
     <>
-      <Header allOccupations={all.map(rec => ({
-        country: rec.country.toLowerCase(),
-        title: rec.title || rec.h1Title || "",
-        slug: rec.slug_url,
-        state: rec.state ? rec.state : null,
-        location: rec.location ? rec.location : null,
-      }))} />
-      
       <main>
         <Breadcrumbs breadcrumbs={breadcrumbs} />
         
@@ -77,6 +68,7 @@ export async function StatePage({ country, state }: StatePageProps) {
           description={`Browse salary information organized by respective categories and specializations in ${stateName}.`}
           states={[stateName]}
           currentState={state.toLowerCase().replace(/\s+/g, '-')}
+          countrySlug={country}
         />
 
         {locations.length > 0 && (

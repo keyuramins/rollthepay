@@ -105,13 +105,9 @@ rollthepay/
 │   │   └── cta-section.tsx       # Occupation page CTA component
 │   ├── state/                    # State page components
 │   │   ├── state-hero-section.tsx # State hero component
-│   │   ├── job-category-card.tsx # Job category display component
-│   │   ├── job-categories-section.tsx # Job categories grid component
 │   │   └── location-card.tsx     # Individual location card component
 │   ├── location/                 # Location page components
 │   │   ├── location-hero-section.tsx # Location hero component
-│   │   ├── job-category-card.tsx # Job category display component
-│   │   └── job-categories-section.tsx # Job categories grid component
 │   ├── ui/                       # Shared UI components
 │   │   ├── button.tsx            # Button component (Shadcn)
 │   │   ├── badge.tsx             # Badge component for counts/statistics
@@ -340,13 +336,9 @@ This project follows strict architectural principles:
 - Follow established naming conventions
 - Ensure type safety throughout
 
-## AI Content Generation
-
-RollThePay now includes AI-generated content for occupation pages using Together AI's Llama-3.3-70B-Instruct-Turbo-Free model. This feature provides comprehensive, professional content that enhances user understanding of roles, requirements, and career opportunities.
-
 ### Features
 
-- **AI-Generated Content Sections**: 8 comprehensive sections per occupation page
+
 - **Career Opportunities**: Interlinked job suggestions representing career scope and progression
 - **Data Overview**: Comprehensive textual summary of occupation data
 - **1-Year Caching**: Intelligent caching strategy for optimal performance
@@ -385,15 +377,6 @@ The Career Opportunities section provides:
 - **Context Window**: 8k tokens (model limitation)
 - **Section Limit**: 150 words per section
 - **Cache Duration**: 1 year (31536000 milliseconds)
-
-### Rate Limiting
-
-The AI content generation system includes comprehensive rate limiting to prevent hitting Together AI's API limits:
-
-#### Rate Limits
-- **Requests per minute**: 0.6 (1 request every 100 seconds)
-- **Tokens per minute**: 45,000
-- **Model**: meta-llama/Llama-3.3-70B-Instruct-Turbo-Free
 
 #### Features
 

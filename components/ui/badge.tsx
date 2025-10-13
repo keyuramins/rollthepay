@@ -12,7 +12,7 @@ export function Badge({ children, variant = 'default', size = 'md', className = 
   
   const variantClasses = {
     default: "bg-muted text-foreground",
-    yellow: "bg-secondary/30 text-primary",
+    yellow: "bg-secondary/50 text-primary",
     green: "bg-green-100 text-primary",
     secondary: "bg-secondary text-secondary-foreground"
   };

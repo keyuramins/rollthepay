@@ -1,18 +1,15 @@
-"use client";
-
-import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { formatCurrency } from "@/lib/format/currency";
-import { generateCompensationInsights, generateCompensationInsightContent, type PuterAIGeneratedContent } from "@/lib/ai/puter-ai";
 import type { OccupationRecord } from "@/lib/data/types";
+import { InsightsSection } from "./ai-insights-section";
+import { cleanTitle, formatLocationString } from "@/lib/utils/title-cleaner";
+import { calculateBonusCompensation, type BonusCompensationData } from "@/lib/calculations/insights-calculator";
 import {
   DollarSign,
   Target,
   TrendingUp,
-  Brain,
-  ArrowUp,
   Award,
   BadgeCent
 } from "lucide-react";
@@ -20,82 +17,66 @@ import {
 interface CompensationAnalysisProps {
   record: OccupationRecord;
   country: string;
+  location?: string;
 }
 
-export function CompensationAnalysis({ record, country }: CompensationAnalysisProps) {
-  const [aiContent, setAiContent] = useState<PuterAIGeneratedContent | null>(null);
-  const [compensationInsights, setCompensationInsights] = useState<{
-    bonus: string | null;
-    commission: string | null;
-    profitSharing: string | null;
-  }>({
-    bonus: null,
-    commission: null,
-    profitSharing: null
-  });
-  const [isLoading, setIsLoading] = useState(true);
+export function CompensationAnalysis({ record, country, location }: CompensationAnalysisProps) {
 
-  useEffect(() => {
-    const loadAIContent = async () => {
-      try {
-        setIsLoading(true);
-        const content = await generateCompensationInsights(record);
-        setAiContent(content);
 
-        // Load compensation insights for each type
-        const insights: {
-          bonus: string | null;
-          commission: string | null;
-          profitSharing: string | null;
-        } = {
-          bonus: null,
-          commission: null,
-          profitSharing: null
-        };
+  // Calculate real bonus compensation data
+  const bonusData = calculateBonusCompensation(record, country, location);
 
-        // Check if we have valid data for each compensation type
-        const hasValidBonus = isValidMinMax(record.bonusRangeMin as unknown, record.bonusRangeMax as unknown);
-        const hasValidCommission = isValidMinMax(record.commissionMin as unknown, record.commissionMax as unknown);
-        const hasValidProfitSharing = isValidMinMax(record.profitSharingMin as unknown, record.profitSharingMax as unknown);
-
-        // Load insights for available compensation types
-        if (hasValidBonus) {
-          try {
-            const bonusInsight = await generateCompensationInsightContent(record, 'bonus');
-            insights.bonus = bonusInsight;
-          } catch (error) {
-            console.error('Error loading bonus insight:', error);
-          }
+  // Generate unique insights based on real calculations
+  const generateCompensationInsight = (type: 'bonus' | 'commission' | 'profitSharing') => {
+    const occupationTitle = cleanTitle(record.title || record.h1Title || record.occupation || 'this role');
+    const fullLocation = formatLocationString(record.location || undefined, record.state || undefined, record.country || undefined);
+    
+    switch (type) {
+      case 'bonus':
+        const bonusGrowthFactor = bonusData.growthFactor;
+        const bonusRange = bonusData.totalRange;
+        const avgToMaxPercent = bonusData.avgToMaxPercent;
+        
+        if (bonusGrowthFactor > 0) {
+          return `Performance-based bonuses for ${occupationTitle} in ${fullLocation} show a ${bonusGrowthFactor}x growth factor from minimum to maximum. High achievers can earn ${avgToMaxPercent}% more than average performers, with a total bonus range of ${formatCurrency(bonusRange, country, record)}. This demonstrates significant rewards for excellence and consistent high performance in this market.`;
+        } else {
+          return `Performance-based bonuses for ${occupationTitle} in ${fullLocation} provide variable compensation opportunities based on individual and company performance metrics. Bonus structures typically reward high achievers with competitive rates that align with market standards and performance expectations.`;
         }
-
-        if (hasValidCommission) {
-          try {
-            const commissionInsight = await generateCompensationInsightContent(record, 'commission');
-            insights.commission = commissionInsight;
-          } catch (error) {
-            console.error('Error loading commission insight:', error);
-          }
+        
+      case 'commission':
+        const commissionMin = Number(record.commissionMin) || 0;
+        const commissionMax = Number(record.commissionMax) || 0;
+        const commissionRange = commissionMax - commissionMin;
+        const commissionGrowthFactor = commissionMin > 0 ? commissionMax / commissionMin : 0;
+        
+        if (commissionGrowthFactor > 0) {
+          return `Commission structures for ${occupationTitle} in ${fullLocation} offer a ${commissionGrowthFactor.toFixed(1)}x growth potential from minimum to maximum earnings. The total commission range of ${formatCurrency(commissionRange, country, record)} provides significant opportunities for high-performing sales professionals to maximize their earning potential.`;
+        } else {
+          return `Commission structures for ${occupationTitle} in ${fullLocation} provide variable compensation opportunities based on sales performance and market metrics. Sales professionals can expect competitive commission rates that align with industry standards and performance expectations.`;
         }
-
-        if (hasValidProfitSharing) {
-          try {
-            const profitSharingInsight = await generateCompensationInsightContent(record, 'profitSharing');
-            insights.profitSharing = profitSharingInsight;
-          } catch (error) {
-            console.error('Error loading profit sharing insight:', error);
-          }
+        
+      case 'profitSharing':
+        const profitMin = Number(record.profitSharingMin) || 0;
+        const profitMax = Number(record.profitSharingMax) || 0;
+        const profitRange = profitMax - profitMin;
+        const profitGrowthFactor = profitMin > 0 ? profitMax / profitMin : 0;
+        
+        if (profitGrowthFactor > 0) {
+          return `Profit sharing programs for ${occupationTitle} in ${fullLocation} offer employees a ${profitGrowthFactor.toFixed(1)}x growth potential from minimum to maximum distributions. With a total range of ${formatCurrency(profitRange, country, record)}, these programs provide substantial opportunities for employees to benefit from company success and organizational performance.`;
+        } else {
+          return `Profit sharing programs for ${occupationTitle} in ${fullLocation} offer employees the opportunity to benefit from company success. These programs typically provide additional compensation based on organizational performance, individual contributions, and company profitability.`;
         }
+        
+      default:
+        return '';
+    }
+  };
 
-        setCompensationInsights(insights);
-      } catch (error) {
-        console.error('Error loading AI content:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    loadAIContent();
-  }, [record]);
+  const compensationInsights = {
+    bonus: generateCompensationInsight('bonus'),
+    commission: generateCompensationInsight('commission'),
+    profitSharing: generateCompensationInsight('profitSharing')
+  };
 
   // Calculate salary metrics
   const low = record.totalPayMin;
@@ -176,7 +157,7 @@ export function CompensationAnalysis({ record, country }: CompensationAnalysisPr
     <section className="compensation-analysis-section">
       <div className="compensation-analysis-header">
         <h2>Compensation Analysis</h2>
-        <p>Comprehensive salary insights powered by market data and AI analysis</p>
+        <p>Comprehensive salary insights powered by market data and detailed analysis</p>
       </div>
 
       {/* Top Row - Annual and Hourly Compensation Range Cards */}
@@ -268,19 +249,19 @@ export function CompensationAnalysis({ record, country }: CompensationAnalysisPr
                 <div className="salary-display">
                   <div className="salary-display__item">
                     <div className="metric-value">
-                      ${Number(hourlyLow).toFixed(2)}
+                      {formatCurrency(Number(hourlyLow), country, record, true)}
                     </div>
                     <div className="metric-label">Entry Level</div>
                   </div>
                   <div className="salary-display__item">
                     <div className="metric-value">
-                      ${Number(hourlyAvg).toFixed(2)}
+                      {formatCurrency(Number(hourlyAvg), country, record, true)}
                     </div>
                     <div className="metric-label">Market Average</div>
                   </div>
                   <div className="salary-display__item">
                     <div className="metric-value">
-                      ${Number(hourlyHigh).toFixed(2)}
+                      {formatCurrency(Number(hourlyHigh), country, record, true)}
                     </div>
                     <div className="metric-label">Senior Level</div>
                   </div>
@@ -297,7 +278,7 @@ export function CompensationAnalysis({ record, country }: CompensationAnalysisPr
                       />
                     </TooltipTrigger>
                     <TooltipContent>
-                      <p>${Number(hourlyAvg).toFixed(2)}/hr</p>
+                      <p>{formatCurrency(Number(hourlyAvg), country, record, true)}/hr</p>
                     </TooltipContent>
                   </Tooltip>
                 </div>
@@ -307,7 +288,7 @@ export function CompensationAnalysis({ record, country }: CompensationAnalysisPr
                   <div className="salary-metric salary-metric--secondary">
                     <DollarSign className="salary-metric__icon" />
                     <div className="metric-value">
-                      ${hourlyTotalRange.toFixed(2)}
+                      {formatCurrency(hourlyTotalRange, country, record, true)}
                     </div>
                     <div className="metric-label">Total range (per hour)</div>
                   </div>
@@ -331,82 +312,7 @@ export function CompensationAnalysis({ record, country }: CompensationAnalysisPr
           </Card>
         )}
       </div>
-
-      {/* AI-Powered Insights */}
-      {aiContent && (
-        <Card>
-          <CardHeader>
-            <div className="ai-insights__header">
-              <Brain className="ai-insights__icon" />
-              <h3>AI-Powered Insights</h3>
-            </div>
-            <p>Intelligent analysis of your compensation data and market trends</p>
-          </CardHeader>
-          <CardContent>
-            <div className="ai-insights__content">
-              {/* Market Trend Analysis */}
-              <div className="ai-insight">
-                <div className="ai-insight__icon">
-                  <TrendingUp className="ai-insight__icon-svg" />
-                </div>
-                <div className="ai-insight__content">
-                  <div className="ai-insight__header">
-                    <h4>Market Trend Analysis</h4>
-                    <Badge variant="green">High Confidence</Badge>
-                  </div>
-                  <p>{aiContent.marketTrends}</p>
-                </div>
-              </div>
-
-              {/* Positioning Recommendation */}
-              <div className="ai-insight">
-                <div className="ai-insight__icon">
-                  <Target className="ai-insight__icon-svg" />
-                </div>
-                <div className="ai-insight__content">
-                  <div className="ai-insight__header">
-                    <h4>Positioning Recommendation</h4>
-                    <Badge variant="yellow">Medium Confidence</Badge>
-                  </div>
-                  <p>{aiContent.salaryInsights}</p>
-                </div>
-              </div>
-
-              {/* Growth Forecast */}
-              <div className="ai-insight">
-                <div className="ai-insight__icon">
-                  <ArrowUp className="ai-insight__icon-svg" />
-                </div>
-                <div className="ai-insight__content">
-                  <div className="ai-insight__header">
-                    <h4>Growth Forecast</h4>
-                    <Badge variant="green">High Confidence</Badge>
-                  </div>
-                  <p>{aiContent.careerProgression}</p>
-                </div>
-              </div>
-            </div>
-            <div className="additional-metrics">
-                <div className="salary-metric salary-metric--secondary">
-                  <div className="metric-value">{marketPercentile}th</div>
-                  <div className="metric-label">Above {marketPercentile}% of similar roles</div>
-                </div>
-                <div className="salary-metric salary-metric--secondary">
-                  <div className="metric-value">+{experiencePremium}%</div>
-                  <div className="metric-label">Above entry level baseline</div>
-                </div>
-                <div className="salary-metric salary-metric--secondary">
-                  <div className="metric-value">+{regionalAdjustment}%</div>
-                  <div className="metric-label">Cost of living factor</div>
-                </div>
-                <div className="salary-metric salary-metric--secondary">
-                  <div className="metric-value">Q2</div>
-                  <div className="metric-label">Projected increase: 8-12%</div>
-                </div>
-            </div>
-          </CardContent>
-        </Card>
-      )}
+      <InsightsSection record={record} country={country} location={location} />      
 
       {(() => {
         const isValidRange = (min: unknown, max: unknown): boolean => {
@@ -546,10 +452,16 @@ export function CompensationAnalysis({ record, country }: CompensationAnalysisPr
         const hasValidBonus = isValidMinMax(record.bonusRangeMin as unknown, record.bonusRangeMax as unknown);
         if (!hasValidBonus) return null;
 
-        const minBonus = Number(record.bonusRangeMin) || 0;
-        const maxBonus = Number(record.bonusRangeMax) || 0;
-        const avgBonus = (minBonus + maxBonus) / 2;
-        const metrics = computeGrowthMetrics(minBonus, avgBonus, maxBonus);
+        // Use real calculations from bonusData
+        const minBonus = bonusData.minBonus;
+        const maxBonus = bonusData.maxBonus;
+        const avgBonus = bonusData.avgBonus;
+        const metrics = {
+          growthFactor: bonusData.growthFactor,
+          minToAvgGrowth: bonusData.minToAvgPercent,
+          avgToMaxGrowth: bonusData.avgToMaxPercent,
+          totalRange: bonusData.totalRange
+        };
 
         return (
           <div className="compensation-bpc-section">
@@ -622,9 +534,7 @@ export function CompensationAnalysis({ record, country }: CompensationAnalysisPr
                       <div className="flex-1">
                         <h4>Performance Insight</h4>
                         <p className="additional-comp__subtext">
-                          {compensationInsights.bonus || 
-                            `Performance-based bonuses in ${record.title || record.occupation} roles typically reward high achievers with ${Math.round(metrics.minToAvgGrowth)}% more than baseline performers. `
-                          }
+                          {compensationInsights.bonus}
                         </p>
                       </div>
                     </div>
@@ -670,7 +580,17 @@ export function CompensationAnalysis({ record, country }: CompensationAnalysisPr
         const minCommission = Number(record.commissionMin) || 0;
         const maxCommission = Number(record.commissionMax) || 0;
         const avgCommission = (minCommission + maxCommission) / 2;
-        const metrics = computeGrowthMetrics(minCommission, avgCommission, maxCommission);
+        const commissionGrowthFactor = minCommission > 0 ? maxCommission / minCommission : 0;
+        const minToAvgGrowth = minCommission > 0 ? ((avgCommission - minCommission) / minCommission) * 100 : 0;
+        const avgToMaxGrowth = avgCommission > 0 ? ((maxCommission - avgCommission) / avgCommission) * 100 : 0;
+        const totalRange = maxCommission - minCommission;
+        
+        const metrics = {
+          growthFactor: commissionGrowthFactor,
+          minToAvgGrowth: minToAvgGrowth,
+          avgToMaxGrowth: avgToMaxGrowth,
+          totalRange: totalRange
+        };
 
         return (
           <div className="compensation-bpc-section">
@@ -743,9 +663,7 @@ export function CompensationAnalysis({ record, country }: CompensationAnalysisPr
                       <div className="flex-1">
                         <h4>Performance Insight</h4>
                         <p className="additional-comp__subtext">
-                          {compensationInsights.commission || 
-                            `Commission structures in ${record.title || record.occupation} roles typically reward high achievers with ${Math.round(metrics.minToAvgGrowth)}% more than baseline performers. Top performers can achieve additional ${Math.round(metrics.avgToMaxGrowth)}% increases, demonstrating significant rewards for excellence and consistent high performance.`
-                          }
+                          {compensationInsights.commission}
                         </p>
                       </div>
                     </div>
@@ -791,7 +709,17 @@ export function CompensationAnalysis({ record, country }: CompensationAnalysisPr
         const minProfit = Number(record.profitSharingMin) || 0;
         const maxProfit = Number(record.profitSharingMax) || 0;
         const avgProfit = (minProfit + maxProfit) / 2;
-        const metrics = computeGrowthMetrics(minProfit, avgProfit, maxProfit);
+        const profitGrowthFactor = minProfit > 0 ? maxProfit / minProfit : 0;
+        const minToAvgGrowth = minProfit > 0 ? ((avgProfit - minProfit) / minProfit) * 100 : 0;
+        const avgToMaxGrowth = avgProfit > 0 ? ((maxProfit - avgProfit) / avgProfit) * 100 : 0;
+        const totalRange = maxProfit - minProfit;
+        
+        const metrics = {
+          growthFactor: profitGrowthFactor,
+          minToAvgGrowth: minToAvgGrowth,
+          avgToMaxGrowth: avgToMaxGrowth,
+          totalRange: totalRange
+        };
 
         return (
           <div className="compensation-bpc-section">
@@ -864,9 +792,7 @@ export function CompensationAnalysis({ record, country }: CompensationAnalysisPr
                       <div className="flex-1">
                         <h4>Performance Insight</h4>
                         <p className="additional-comp__subtext">
-                          {compensationInsights.profitSharing || 
-                            `Profit sharing in ${record.title || record.occupation} roles typically rewards high achievers with ${Math.round(metrics.minToAvgGrowth)}% more than baseline performers. Top performers can achieve additional ${Math.round(metrics.avgToMaxGrowth)}% increases, demonstrating significant rewards for excellence and consistent high performance.`
-                          }
+                          {compensationInsights.profitSharing}
                         </p>
                       </div>
                     </div>

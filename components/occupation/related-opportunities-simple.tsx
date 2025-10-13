@@ -1,6 +1,5 @@
 import { InstantLink as Link } from "@/components/ui/enhanced-link";
 import type { OccupationRecord } from "@/lib/data/types";
-import type { PuterAIGeneratedContent } from "@/lib/ai/puter-ai";
 import { getIndustryCategory, calculateTitleSimilarity } from "@/lib/utils/similarity";
 import { Card, CardContent, CardHeader } from "../ui/card";
 
@@ -12,7 +11,6 @@ function normalizeSlugForURL(slug: string): string {
 }
 
 interface CareerProgressionSectionProps {
-  content: PuterAIGeneratedContent | undefined;
   record: OccupationRecord;
   allOccupations: Array<{
     country: string;
@@ -23,7 +21,7 @@ interface CareerProgressionSectionProps {
   }>;
 }
 
-export function RelatedOpportunitiesSimple({ content, record, allOccupations }: CareerProgressionSectionProps) {
+export function RelatedOpportunitiesSimple({ record, allOccupations }: CareerProgressionSectionProps) {
   // Find related occupations using a hybrid approach
   const findRelatedOccupations = () => {
     const currentTitle = record.title?.toLowerCase() || '';

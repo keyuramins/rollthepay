@@ -1,6 +1,7 @@
 "use client";
 
 import { ResponsiveContainer, AreaChart, Area, CartesianGrid, XAxis, YAxis, Tooltip, LabelList, Label } from "recharts";
+import { formatCurrency } from "@/lib/format/currency";
 
 interface PercentilesChartDatum {
   name: string;
@@ -11,12 +12,18 @@ interface PercentilesChartProps {
   data: PercentilesChartDatum[];
   title: string;
   subtitle?: string;
+  country?: string; // Add country for currency formatting
 }
 
-export function PercentilesChart({ data, title, subtitle }: PercentilesChartProps) {
+export function PercentilesChart({ data, title, subtitle, country }: PercentilesChartProps) {
   const gradientId = "percentilesGradient";
-  const formatDollarsK = (v: number) => {
+  const formatCurrencyValue = (v: number) => {
     const n = Number(v) || 0;
+    if (country) {
+      // Use proper currency formatting with country-specific symbols
+      return formatCurrency(n, country);
+    }
+    // Fallback to simple formatting if no country provided
     if (Math.abs(n) >= 1000) {
       const k = Math.round(n / 1000);
       return `$${k}k`;
@@ -63,7 +70,7 @@ export function PercentilesChart({ data, title, subtitle }: PercentilesChartProp
               axisLine={false}
               tick={(props: any) => {
                 const { x, y, payload } = props;
-                const text = formatDollarsK(payload?.value);
+                const text = formatCurrencyValue(payload?.value);
                 return (
                   <text x={x} y={y} textAnchor="end" fill="var(--primary)" fontSize={14} fontWeight={600}>
                     {text}
@@ -72,7 +79,7 @@ export function PercentilesChart({ data, title, subtitle }: PercentilesChartProp
               }}
             >
               <Label
-                value="Annual Salary ($)"
+                value={country ? `Annual Salary (${formatCurrency(0, country).replace(/\d/g, '')})` : "Annual Salary ($)"}
                 angle={-90}
                 position="insideLeft"
                 offset={-10}
@@ -80,7 +87,7 @@ export function PercentilesChart({ data, title, subtitle }: PercentilesChartProp
               />
             </YAxis>
             <Tooltip
-              formatter={(value: number) => [`$${value.toLocaleString()}`, 'Annual Salary']}
+              formatter={(value: number) => [formatCurrencyValue(value), 'Annual Salary']}
               labelFormatter={(label: string) => `${label} percentile`}
               labelStyle={{ color: "var(--primary)" }}
             />
@@ -98,7 +105,7 @@ export function PercentilesChart({ data, title, subtitle }: PercentilesChartProp
                 content={(props: any) => {
                   const { x, y, value, index } = props;
                   if (index === 0) return null; // avoid overlapping the y-axis at the first point
-                  const text = `$${Number(value).toLocaleString()}`;
+                  const text = formatCurrencyValue(Number(value));
                   return (
                     <text x={x} y={(y ?? 0) - 8} textAnchor="middle" fill="var(--primary)" fontSize={14} fontWeight={600}>
                       {text}

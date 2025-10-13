@@ -2,10 +2,11 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { AZFilter } from "./az-filter";
+import { AZFilter } from "../occupation/az-filter";
 import { Pagination } from "./pagination";
 import { MapPin } from "lucide-react";
 import { OccupationListSkeleton } from "./occupation-list-skeleton";
+import { formatCurrency } from "@/lib/format/currency";
 
 function normalizeSlugForURL(slug: string): string {
   return slug.replace(/#/g, '-sharp').replace(/\+/g, '-plus');
@@ -30,6 +31,7 @@ interface OccupationListProps {
   currentState?: string;
   currentLocation?: string;
   states?: string[];
+  countrySlug?: string; // Add country slug for currency formatting
 }
 
 export function OccupationList({
@@ -40,6 +42,7 @@ export function OccupationList({
   currentState,
   currentLocation,
   states,
+  countrySlug,
 }: OccupationListProps) {
   const [azFilteredItems, setAzFilteredItems] = useState<OccupationItem[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -164,7 +167,7 @@ export function OccupationList({
                     </div>
                     {item.avgAnnualSalary && (
                       <div className="mt-2 sm:mt-0 sm:ml-6 text-right metric-value">
-                        ${item.avgAnnualSalary.toLocaleString()}
+                        {formatCurrency(item.avgAnnualSalary, countrySlug || item.countrySlug)}
                       </div>
                     )}
                   </div>

@@ -1,4 +1,4 @@
-import { AZFilter } from "./az-filter";
+import { AZFilter } from "../occupation/az-filter";
 
 export function OccupationListSkeleton({
   title,

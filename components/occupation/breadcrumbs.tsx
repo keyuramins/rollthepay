@@ -1,4 +1,5 @@
-import Link from "next/link";
+import { removeAveragePrefix } from "@/lib/utils/remove-average-cleaner";
+import { HoverPrefetchLink } from "@/components/ui/enhanced-link";
 
 interface Breadcrumb {
   name: string;
@@ -20,12 +21,12 @@ export function Breadcrumbs({ breadcrumbs }: BreadcrumbsProps) {
             <li key={breadcrumb.name} className="flex items-center">
               {isLast ? (
                 <span className="text-muted-foreground text-sm sm:text-base" aria-current="page">
-                  {breadcrumb.name}
+                  {removeAveragePrefix(breadcrumb.name)}
                 </span>
               ) : (
-                <Link prefetch href={breadcrumb.href} className="text-sm sm:text-base text-primary hover:underline font-medium">
+                <HoverPrefetchLink href={breadcrumb.href} className="text-sm sm:text-base text-primary hover:underline font-medium">
                   {breadcrumb.name}
-                </Link>
+                </HoverPrefetchLink>
               )}
               {!isLast && (
                 <span className="ml-2 text-muted-foreground/80 text-xs sm:text-sm" aria-hidden="true">&gt;</span>

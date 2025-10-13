@@ -5,6 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { Search, X, Check, ArrowRight, Loader2 } from "lucide-react";
 import { prefetchRoute } from "@/lib/prefetch";
 import { continents, CONTINENTS } from "@/app/constants/continents";
+import { formatCurrency } from "@/lib/format/currency";
 import { gsap } from "gsap";
 
 interface Country {
@@ -296,12 +297,20 @@ export function SearchableDropdown({
 
   // Initialize selected country from URL on non-home pages or in header mode
   useEffect(() => {
-    if ((!isHome || headerMode) && !selectedCountry && !userRemovedCountry) {
+    if ((!isHome || headerMode) && !userRemovedCountry) {
       const seg = pathname.split('/').filter(Boolean)[0];
       if (seg) {
         const found = COUNTRIES.find(c => c.slug === seg.toLowerCase());
-        if (found) setSelectedCountry(found);
+        if (found && (!selectedCountry || selectedCountry.slug !== found.slug)) {
+          setSelectedCountry(found);
+        }
+      } else if (selectedCountry) {
+        // If we're on home page or no country segment, clear the selected country
+        setSelectedCountry(null);
       }
+    } else if (isHome && !headerMode && selectedCountry) {
+      // Clear selected country when on home page (unless in header mode)
+      setSelectedCountry(null);
     }
   }, [isHome, headerMode, pathname, selectedCountry, userRemovedCountry]);
 
@@ -816,21 +825,15 @@ export function SearchableDropdown({
               if (s.state) subtitleParts.push(s.state);
               if (s.location) subtitleParts.push(s.location);
               const region = subtitleParts.join(' • ');
-              const formatCurrency = (amount?: number | null, currencyCode?: string | null) => {
+              const formatSalary = (amount?: number | null, currencyCode?: string | null) => {
                 if (typeof amount !== 'number' || !isFinite(amount)) return null;
                 const countrySlug = selectedCountry?.slug;
-                const defaultLocale = countrySlug === 'australia' ? 'en-AU' : countrySlug === 'india' ? 'en-IN' : undefined;
-                const code = currencyCode || (countrySlug === 'australia' ? 'AUD' : countrySlug === 'india' ? 'INR' : undefined);
-                try {
-                  if (code) {
-                    return new Intl.NumberFormat(defaultLocale, { style: 'currency', currency: code, maximumFractionDigits: 0 }).format(amount);
-                  }
-                  return new Intl.NumberFormat(defaultLocale, { maximumFractionDigits: 0 }).format(amount);
-                } catch {
-                  return `${code ?? ''} ${Math.round(amount)}`.trim();
-                }
+                if (!countrySlug) return null;
+                
+                // Use the imported formatCurrency function
+                return formatCurrency(amount, countrySlug);
               };
-              const salary = formatCurrency(s.averageSalary ?? null, s.currencyCode ?? null);
+              const salary = formatSalary(s.averageSalary ?? null, s.currencyCode ?? null);
               return (
                 <button
                   key={`${s.slug}-${s.state ?? 'na'}-${s.location ?? 'na'}`}

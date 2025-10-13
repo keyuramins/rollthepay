@@ -1,5 +1,7 @@
 import { formatCurrency } from "@/lib/format/currency";
 import type { OccupationRecord } from "@/lib/data/types";
+import { removeAveragePrefix } from "@/lib/utils/remove-average-cleaner";
+import { getJobCategoryInfo, getJobCategory } from "./job-category-detector";
 
 interface OccupationHeroSectionProps {
   record: OccupationRecord;
@@ -8,33 +10,12 @@ interface OccupationHeroSectionProps {
 }
 
 export function OccupationHeroSection({ record, country, locationText }: OccupationHeroSectionProps) {
-  // Use original title as-is (e.g., starting with 'Average...')
-  const occupationName = record.title || record.h1Title || record.occupation || '';
+  // Remove "Average" prefix but keep location information
+  const occupationName = removeAveragePrefix(record.title || record.h1Title || record.occupation || '');
   
-  // Determine job category based on occupation name
-  const getJobCategory = (name: string): string => {
-    const lowerName = name.toLowerCase();
-    if (lowerName.includes('software') || lowerName.includes('developer') || lowerName.includes('programmer')) {
-      return 'Technology';
-    } else if (lowerName.includes('engineer')) {
-      return 'Engineering';
-    } else if (lowerName.includes('manager') || lowerName.includes('director')) {
-      return 'Management';
-    } else if (lowerName.includes('analyst')) {
-      return 'Analytics';
-    } else if (lowerName.includes('designer')) {
-      return 'Design';
-    } else if (lowerName.includes('sales') || lowerName.includes('marketing')) {
-      return 'Sales & Marketing';
-    } else if (lowerName.includes('finance') || lowerName.includes('accounting')) {
-      return 'Finance';
-    } else if (lowerName.includes('health') || lowerName.includes('medical') || lowerName.includes('nurse')) {
-      return 'Healthcare';
-    } else if (lowerName.includes('teacher') || lowerName.includes('education')) {
-      return 'Education';
-    }
-    return 'Professional';
-  };
+  // Get detailed job category information
+  const jobCategoryInfo = getJobCategoryInfo(occupationName);
+  const jobCategory = jobCategoryInfo.category;
 
   // Generate job description based on available data
   const getJobDescription = (): string => {
@@ -44,13 +25,34 @@ export function OccupationHeroSection({ record, country, locationText }: Occupat
       record.skillsNameThree,
       record.skillsNameFour,
       record.skillsNameFive
-    ].filter(Boolean).slice(0, 3);
-
+    ].filter((skill): skill is string => Boolean(skill)).slice(0, 3);
+    
+    // Use the detailed category description from the new system
     if (skills.length > 0) {
-      return `Design, develop, and maintain software applications and systems using ${skills.join(', ')} and related technologies.`;
+      // Handle different skill count scenarios for better readability
+      let skillText = '';
+      if (skills.length === 1) {
+        skillText = ` using ${skills[0]}`;
+      } else if (skills.length === 2) {
+        skillText = ` using ${skills[0]} and ${skills[1]}`;
+      } else {
+        // 3 or more skills
+        const lastSkill = skills[skills.length - 1];
+        const otherSkills = skills.slice(0, -1);
+        skillText = ` using ${otherSkills.join(', ')}, and ${lastSkill}`;
+      }
+      
+      // Ensure proper sentence structure
+      const baseDescription = jobCategoryInfo.description;
+      if (baseDescription.endsWith('.')) {
+        return `${baseDescription.slice(0, -1)}${skillText}.`;
+      } else {
+        return `${baseDescription}${skillText}.`;
+      }
     }
     
-    return `Professional role in ${occupationName.toLowerCase()} with opportunities for career growth and competitive compensation.`;
+    // Fallback to the detailed category description
+    return jobCategoryInfo.description;
   };
 
   // Get primary metrics (first row)
@@ -125,7 +127,6 @@ export function OccupationHeroSection({ record, country, locationText }: Occupat
     return metrics;
   };
 
-  const jobCategory = getJobCategory(occupationName);
   const jobDescription = getJobDescription();
   const primaryMetrics = getPrimaryMetrics();
 
@@ -148,7 +149,9 @@ export function OccupationHeroSection({ record, country, locationText }: Occupat
               </span>
               {record.location && (
                 <span className="hero-badge hero-badge--location">
-                  {record.location}
+                  {record.location.split(' ').map(word => 
+                    word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+                  ).join(' ')}
                 </span>
               )}
             </div>

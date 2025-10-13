@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { InstantLink as Link } from "@/components/ui/enhanced-link";
 import { MapPin, Building, Users } from "lucide-react";
 import { Card, CardContent, CardHeader } from "../ui/card";
+import { removeAveragePrefix } from "@/lib/utils/remove-average-cleaner";
 
 // Helper function to normalize slugs for URLs (handles special characters)
 function normalizeSlugForURL(slug: string): string {
@@ -63,20 +64,20 @@ function RelatedOccupationCard({ occupation, currentRecord, showSalaryComparison
       className="bg-card rounded-xl p-6 border border-input hover:border-primary hover:shadow-md hover:bg-green-100 cursor-pointer"
     >
       <div className="mb-4">
-        <h4>{occupation.title}</h4>
-        <div className="flex items-center justify-between">
+        <h4>{removeAveragePrefix(occupation.title)}</h4>
+        <div className="flex items-center justify-between pt-2">
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <MapPin className="w-4 h-4" />
             <span>{occupation.location || occupation.state || occupation.country}</span>
           </div>
-          <Badge variant="green" className="text-xs bg-primary/20 text-primary border-primary/30">
+          <Badge variant="green" className="text-sm">
             {industry}
           </Badge>
         </div>
       </div>
       
       {showSalaryComparison && occupation.avgAnnualSalary && (
-        <div className="mb-4 p-4 bg-secondary/50 rounded-lg border border-secondary/30">
+        <div className="mb-4 p-4 bg-secondary/50 rounded-lg border border-secondary/30 pt-2">
           <div className="flex items-center justify-between gap-3 text-sm">
             <span className="text-muted-foreground font-medium">
               {formatCurrency(currentRecord.avgAnnualSalary, currentRecord.country)}
@@ -96,18 +97,18 @@ function RelatedOccupationCard({ occupation, currentRecord, showSalaryComparison
         </div>
       )}
       
-      {commonSkills.length > 0 && (
-        <div className="mb-4">
-          <div className="text-xs font-medium text-muted-foreground mb-2">Common Skills:</div>
+      {/* {commonSkills.length > 0 && (
+        <div className="mb-2">
+          <div className="text-sm font-medium text-muted-foreground mb-2">Common Skills:</div>
           <div className="flex flex-wrap gap-1">
             {commonSkills.slice(0, 3).map(skill => (
-              <Badge key={skill} variant="green" className="text-xs bg-primary/10 text-primary border-primary/20">
+              <Badge key={skill} variant="green" className="text-sm">
                 {skill}
               </Badge>
             ))}
           </div>
         </div>
-      )}
+      )} */}
       
     </Link>
   );
@@ -130,9 +131,9 @@ function LocationOpportunityCard({ location, type, salary, currentSalary, countr
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
           <IconComponent className="w-4 h-4 text-secondary" />
-          <h4>{location}</h4>
+          <h4>{removeAveragePrefix(location)}</h4>
         </div>
-        <Badge variant="green" className="text-xs bg-secondary/20 text-secondary border-secondary/30">
+        <Badge variant="green" className="text-sm">
           {type}
         </Badge>
       </div>

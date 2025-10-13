@@ -1,12 +1,15 @@
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { optimizedDataAccess } from "@/lib/data/optimized-parse";
-import { Header } from "@/components/navigation/header";
 import { Breadcrumbs } from "@/components/occupation/breadcrumbs";
 import { CountryHeroSection } from "@/components/country/hero-section";
 import { OccupationList } from "@/components/ui/occupation-list";
 import { StatesGrid } from "@/components/country/states-grid";
 import { CountryCTASection } from "@/components/country/cta-section";
+
+
+
+
 
 
 export const revalidate = 31536000;
@@ -57,12 +60,10 @@ export default async function CountryPage({ params }: CountryPageProps) {
     notFound();
   }
 
-  const { countryName, totalJobs, avgSalary, states, occupationItems, headerOccupations } = countryData;
+  const { countryName, totalJobs, states, occupationItems, headerOccupations } = countryData;
 
   return (
     <>
-      <Header allOccupations={headerOccupations} />
-      
       <main>
         <Breadcrumbs
           breadcrumbs={[
@@ -81,6 +82,7 @@ export default async function CountryPage({ params }: CountryPageProps) {
           title="Explore Salaries by Occupation"
           description="Browse salary information organized by respective categories and specializations."
           states={states}
+          countrySlug={country}
         />
 
         {states.length > 0 && (

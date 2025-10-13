@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
 import MaleIcon from '../../app/assets/male.svg';
 import FemaleIcon from '../../app/assets/female.svg';
+import { removeAveragePrefix } from "@/lib/utils/remove-average-cleaner";
 
 interface GenderComparisonProps {
   record: any;
@@ -15,9 +16,8 @@ export function GenderComparison({ record }: GenderComparisonProps) {
   const m = Number(record.genderMale || 0);
   const f = Number(record.genderFemale || 0);
   const total = m + f;
-  // const center = total > 0 ? `${Math.max(m, f).toFixed(0)}%` : '—';
   const dominant = f > m ? 'female' : m > f ? 'male' : 'equal';
-  const role = record.title || record.occupation || 'this role';
+  const role = removeAveragePrefix(record.title || record.occupation || 'this role');
 
 
   if (total === 0) {
@@ -28,14 +28,14 @@ export function GenderComparison({ record }: GenderComparisonProps) {
     <section className="card-section">
     <Card>
       <CardHeader>
-        <h3>Gender Comparison</h3>
-        <p>As indicated, the accent colour represents the percentage share for women and the primary colour represents the percentage share for men.</p>
+        <h3>Gender Distribution</h3>
+        <p>Examining gender representation to understand diversity within the workforce..</p>
       </CardHeader>
       <CardContent>
         {(() => {
             const chartData = [
-            { name: 'Male', value: m, color: 'var(--chart-6)' },
-            { name: 'Female', value: f, color: 'var(--chart-1)' },
+            { name: 'Male', value: m, color: 'var(--accent)' },
+            { name: 'Female', value: f, color: 'var(--primary/50)' },
           ];
 
           const renderSegmentLabel = (props: any) => {
@@ -54,15 +54,15 @@ export function GenderComparison({ record }: GenderComparisonProps) {
           };
 
           return (
-            <div className="section-cards-grid">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
               {/* Visual side */}
-              <div className="gender-comparison-visual">
-              <div className="gender-icon-container">
-                  <MaleIcon className="fill-secondary rounded-lg w-16 h-16" />
+              <div className="grid grid-cols-3 gap-6 items-center">
+              <div className="flex flex-col items-center gap-2">
+                  <MaleIcon className="fill-accent rounded-lg w-16 h-16" />
                   <span className="metric-label">Male</span>
                 </div>
 
-                <div className="gender-chart-container">
+                <div className="flex flex-col items-center">
                   <div className="gender-chart-wrapper">
                     <ResponsiveContainer width="100%" height={192}>
                       <PieChart>
@@ -78,32 +78,27 @@ export function GenderComparison({ record }: GenderComparisonProps) {
                           labelLine={false}
                           label={renderSegmentLabel}
                         >
-                          <Cell fill={"var(--secondary-30)"} />
-                          <Cell fill={"var(--primary)"} />
+                          <Cell fill={"var(--accent)"} />
+                          <Cell fill={"var(--primary-50)"} />
                         </Pie>
                       </PieChart>
                     </ResponsiveContainer>
-                    {/*
-                    <span className={`gender-chart-center ${dominant === 'female' ? 'gender-chart-center--female' : dominant === 'male' ? 'gender-chart-center--male' : 'gender-chart-center--equal'}`}>
-                      {center}
-                    </span>
-                    */}
                   </div>
-                  <div className="gender-legend">
-                    <div className="gender-legend-item">
-                      <span className="gender-legend-color-block gender-color-female" />
+                  <div className="mt-4 flex items-center gap-6">
+                    <div className="flex items-center gap-2">
+                      <span className="inline-block w-4 h-3 rounded-sm bg-primary/50" />
                       <span className="metric-label">Female</span>
                     </div>
-                    <div className="gender-legend-item">
-                      <span className="gender-legend-color-block gender-color-male" />
+                    <div className="flex items-center gap-2">
+                      <span className="inline-block w-4 h-3 rounded-sm bg-accent" />
                       <span className="metric-label">Male</span>
                     </div>
                   </div>
                 </div>
 
                 
-                <div className="gender-icon-container">
-                    <FemaleIcon className="fill-primary rounded-lg w-16 h-16" />
+                <div className="flex flex-col items-center gap-2">
+                    <FemaleIcon className="fill-primary/50 rounded-lg w-16 h-16" />
                     <span className="metric-label">Female</span>
                 </div>
               </div>
@@ -111,14 +106,16 @@ export function GenderComparison({ record }: GenderComparisonProps) {
               {/* Text side */}
               <div className="space-y-4">
                 <p>
-                  This pie chart demonstrates the gender share for {role}. As indicated, the golden colour represents the percentage share
-                  for women and the green represents the percentage share for men.
+                  This visualization shows the current gender distribution in {role}. The data reflects real workforce composition and highlights opportunities for greater diversity and inclusion.
                 </p>
                 <p>
-                  {total === 0 && 'No gender distribution data is available for this profession.'}
-                  {total > 0 && dominant === 'female' && `As shown via chart, female employees are involved ${f}% in contrast with male at ${m}%.`}
-                  {total > 0 && dominant === 'male' && `As shown via chart, male employees are involved ${m}% in contrast with female at ${f}%.`}
-                  {total > 0 && dominant === 'equal' && 'As shown via chart, the shares are evenly balanced between male and female.'}
+                  {total === 0 && 'Gender distribution data is not available for this role.'}
+                  {total > 0 && dominant === 'female' && `Women represent ${f}% of the workforce in this field, while men comprise ${m}%.`}
+                  {total > 0 && dominant === 'male' && `Men represent ${m}% of the workforce in this field, while women comprise ${f}%.`}
+                  {total > 0 && dominant === 'equal' && 'The workforce shows balanced representation with equal participation from both genders.'}
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  Understanding these patterns helps identify areas where diversity initiatives can create more inclusive workplaces.
                 </p>
               </div>
             </div>

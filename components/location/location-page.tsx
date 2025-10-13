@@ -1,5 +1,3 @@
-import Link from "next/link";
-import { Header } from "@/components/navigation/header";
 import { Breadcrumbs } from "@/components/occupation/breadcrumbs";
 import { LocationHeroSection } from "@/components/location/location-hero-section";
 import { LocationCTASection } from "@/components/location/location-cta-section";
@@ -54,14 +52,6 @@ export async function LocationPage({ country, state, location }: LocationPagePro
   
   return (
     <>
-      <Header allOccupations={all.map(rec => ({
-        country: rec.country.toLowerCase(),
-        title: rec.title || rec.h1Title || "",
-        slug: rec.slug_url,
-        state: rec.state ? rec.state : null,
-        location: rec.location ? rec.location : null,
-      }))} />
-      
       <main>
         <Breadcrumbs breadcrumbs={breadcrumbs} />
         
@@ -78,6 +68,7 @@ export async function LocationPage({ country, state, location }: LocationPagePro
           states={[stateName]}
           currentState={stateName.toLowerCase().replace(/\s+/g, '-')}
           currentLocation={locationName.toLowerCase().replace(/\s+/g, '-')}
+          countrySlug={country}
         />
 
         <LocationCTASection 

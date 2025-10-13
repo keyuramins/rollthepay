@@ -26,14 +26,13 @@ export { SalaryPercentilesChart } from "./occupation/salary-percentiles-chart";
 export { ExperienceLevelSalariesChart } from "./occupation/experience-level-salaries-chart";
 export { GenderComparison } from "./occupation/gender-comparison";
 export { OccupationCTASection } from "./occupation/cta-section";
-export { DataOverviewSection } from "./occupation/data-overview-section";
-export { ContentSections } from "./occupation/content-sections";
+export { InsightsSection } from "./occupation/ai-insights-section";
 export { OccupationHeroSection } from "./occupation/hero-section";
 export { RelatedOpportunitiesSmart } from "./occupation/related-opportunities-smart";
 export { RelatedOpportunitiesSimple } from "./occupation/related-opportunities-simple";
 
 // UI Components
-export { AZFilter } from "./ui/az-filter";
+export { AZFilter } from "./occupation/az-filter";
 export { OccupationList } from "./ui/occupation-list";
 export { OccupationListSkeleton } from "./ui/occupation-list-skeleton";
 

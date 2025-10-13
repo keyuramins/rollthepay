@@ -3,6 +3,8 @@ import { Roboto, Roboto_Condensed, Inter } from "next/font/google";
 import "./globals.css";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import Script from "next/script";
+import { Header } from "@/components/navigation/header";
+import { Footer } from "@/components/navigation/footer";
 
 const robotoCondensed = Roboto_Condensed({
   weight: ["400","500", "600", "700", "800"],
@@ -58,13 +60,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${roboto.variable} ${robotoCondensed.variable} ${inter.variable}`}>
-      <head>
-        <Script src="https://js.puter.com/v2/" strategy="afterInteractive" />
-      </head>
       <body>
+        <Header />
         <TooltipProvider>
           {children}
         </TooltipProvider>
+        <Footer />
       </body>
     </html>
   );

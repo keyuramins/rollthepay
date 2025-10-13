@@ -5,11 +5,21 @@ interface StatsSectionProps {
   countries: number;
 }
 
+// Function to format numbers with K, M suffixes
+function formatNumber(num: number): string {
+  if (num >= 1000000) {
+    return (num / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
+  } else if (num >= 1000) {
+    return (num / 1000).toFixed(1).replace(/\.0$/, '') + 'K';
+  }
+  return num.toString();
+}
+
 export function StatsSection({ totalSalaries, countries }: StatsSectionProps) {
   const stats = [
     {
       icon: DollarSign,
-      value: `${totalSalaries.toLocaleString()}+`,
+      value: `${formatNumber(totalSalaries)}+`,
       title: "Salary Records",
       desc: "Real compensation data from verified sources",
     },

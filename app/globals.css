@@ -6,6 +6,7 @@
   --green-100: oklch(0.7918 0.1899 120.99);
   /* --primary: oklch(0.5234 0.1347 144.1672); */
   --primary: oklch(0.5296 0.107784 167.5683);
+  --primary-50: oklch(0.5296 0.107784 167.5683 / 0.5);
   /* --secondary: oklch(0.8987 0.1853 97.8301); */
   --secondary: oklch(0.9696 0.1954 109.55);
   --primary-foreground: var(--white); /* Not using */
@@ -13,6 +14,7 @@
   --secondary-30: oklch(0.8987 0.1853 97.8301 / 0.7);
   --background: oklch(0.9818 0.0054 95.1);/*almost yellow-50*/
   --foreground: oklch(0.1473 0.0358 30.2042);/* darker brownish red */
+  --accent: oklch(0.8729 0.1814 100.81);
   --card: var(--white);
   --chart-1: oklch(0.6731 0.1624 144.2083);
   --chart-2: oklch(0.5752 0.1446 144.1813);
@@ -20,6 +22,7 @@
   --chart-4: oklch(0.4254 0.1159 144.3078);
   --chart-5: oklch(0.2157 0.0453 145.7256);
   --chart-6: oklch(0.8987 0.1853 97.8301);
+ 
 
   --destructive: oklch(0.5386 0.1937 26.7249);/* Used to show red dots */
 
@@ -57,7 +60,7 @@
   --line-height-relaxed: 1.75;
 }
 
-@theme { --color-background: var(--background); --color-foreground: var(--foreground); --color-card: var(--card); --color-primary: var(--primary); --color-primary-foreground: var(--primary-foreground); --color-secondary: var(--secondary); --color-secondary-foreground: var(--secondary-foreground); --color-muted: var(--muted); --color-muted-foreground: var(--muted-foreground); --color-accent: var(--white); --color-accent-foreground: var(--foreground); --color-destructive: var(--destructive); --color-border: var(--input); --color-input: var(--input); --color-ring: var(--ring); --color-chart-1: var(--chart-1); --color-chart-2: var(--chart-2); --color-chart-3: var(--chart-3); --color-chart-4: var(--chart-4); --color-chart-5: var(--chart-5); --radius-sm: calc(var(--radius) - 4px); --radius-md: calc(var(--radius) - 2px); --radius-lg: var(--radius); --radius-xl: calc(var(--radius) + 4px); --shadow-2xs: var(--shadow-2xs); --shadow-xs: var(--shadow-xs); --shadow-sm: var(--shadow-sm); --shadow: var(--shadow); --shadow-md: var(--shadow-md); --shadow-lg: var(--shadow-lg); --shadow-xl: var(--shadow-xl); --shadow-2xl: var(--shadow-2xl); }
+@theme { --color-background: var(--background); --color-foreground: var(--foreground); --color-card: var(--card); --color-primary: var(--primary); --color-primary-foreground: var(--primary-foreground); --color-secondary: var(--secondary); --color-secondary-foreground: var(--secondary-foreground); --color-muted: var(--muted); --color-muted-foreground: var(--muted-foreground); --color-accent: var(--accent); --color-accent-foreground: var(--foreground); --color-destructive: var(--destructive); --color-border: var(--input); --color-input: var(--input); --color-ring: var(--ring); --color-chart-1: var(--chart-1); --color-chart-2: var(--chart-2); --color-chart-3: var(--chart-3); --color-chart-4: var(--chart-4); --color-chart-5: var(--chart-5); --radius-sm: calc(var(--radius) - 4px); --radius-md: calc(var(--radius) - 2px); --radius-lg: var(--radius); --radius-xl: calc(var(--radius) + 4px); --shadow-2xs: var(--shadow-2xs); --shadow-xs: var(--shadow-xs); --shadow-sm: var(--shadow-sm); --shadow: var(--shadow); --shadow-md: var(--shadow-md); --shadow-lg: var(--shadow-lg); --shadow-xl: var(--shadow-xl); --shadow-2xl: var(--shadow-2xl); }
 
 /* === BASE STYLES ==*/
 @layer base {
@@ -127,7 +130,7 @@
 .card-content { @apply px-6; }
 .card-footer { @apply flex items-center px-6 pt-6 border-t; }
 .card-section { @apply pt-8 space-y-8 relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8; }
-.compensation-analysis-section { @apply space-y-8 pt-4 bg-background max-w-7xl mx-auto px-4 sm:px-6 lg:px-8; }
+.compensation-analysis-section { @apply space-y-8 pt-4 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8; }
 .compensation-bpc-section { @apply bg-card rounded-2xl p-8 border border-input shadow-xs; }
 /* ===COMPENSATION ANALYSIS === */
 .compensation-analysis { @apply space-y-8; }
@@ -162,7 +165,7 @@
 .inner-card { @apply relative rounded-xl border border-primary/20 bg-card p-5; }
 .light-green-card { @apply border-primary/20 bg-primary/5; }
 .inner-card-top { @apply flex items-start justify-between; }
-.inner-card-icon { @apply p-2.5 rounded-lg bg-primary text-accent shadow; }
+.inner-card-icon { @apply p-2.5 rounded-lg bg-primary text-white shadow; }
 .inner-card-icon-svg { @apply w-5 h-5; }
 .inner-card-badge { @apply text-xs bg-secondary/30 text-black font-semibold border border-secondary/20 rounded-md px-2 py-0.5; }
 .inner-card-subtext { @apply mt-4; }
@@ -171,16 +174,8 @@
 
 /* ===GENDER COMPARISON === */
 .gender-section { @apply py-8 bg-background max-w-7xl mx-auto px-4 sm:px-6 lg:px-8}
-.gender-color-male { @apply bg-secondary/30; }
-.gender-color-female { @apply bg-primary; }
-.gender-comparison-visual { @apply grid grid-cols-3 gap-6 items-center; }
-.gender-icon-container { @apply flex flex-col items-center gap-2; }
-.gender-chart-container { @apply flex flex-col items-center; }
 .gender-chart-wrapper { @apply relative bg-card rounded-full border w-48 h-48 flex items-center justify-center; }
 .gender-chart-center { @apply absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 px-2 py-0.5 rounded-md text-xl font-extrabold; }
-.gender-legend { @apply mt-4 flex items-center gap-6; }
-.gender-legend-item { @apply flex items-center gap-2; }
-.gender-legend-color-block { @apply inline-block w-4 h-3 rounded-sm; }
 
 /* ===SALARY PERCENTILES CHART === */
 .salary-percentiles-header { @apply text-left;}
@@ -193,7 +188,7 @@
 .experience-level-insight { @apply relative rounded-xl border border-primary/20 bg-primary/5 p-5; }
 .experience-level-insight-flex { @apply flex items-center justify-between }
 .experience-level-insight__header { @apply flex items-center gap-3 mb-3; }
-.experience-level-insight__icon { @apply p-2.5 rounded-lg bg-primary text-accent shadow; }
+.experience-level-insight__icon { @apply p-2.5 rounded-lg bg-primary text-white shadow; }
 .experience-level-insight__badge { @apply text-xs bg-secondary/30 text-black font-semibold border border-secondary/20 rounded-md px-2 py-0.5; }
 .experience-level-insight__growth { @apply flex justify-between items-center text-xs; }
 .experience-level-insight__growth-label { @apply mt-2 h-2.5 w-full rounded-full bg-chart-1/50; }
@@ -240,112 +235,3 @@
 .related-opportunities__badge--location { @apply bg-green-50 text-green-600 border-green-200; }
 .related-opportunities__badge--state { @apply bg-purple-50 text-purple-600 border-purple-200; }
 .related-opportunities__badge-icon { @apply w-3 h-3 mr-1; }
-
-/* ===CTA SECTIONS === */
-.cta-section { @apply bg-primary py-16; }
-.cta-section__container { @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center; }
-.cta-section__title { @apply text-3xl font-bold text-white mb-6; }
-.cta-section__description { @apply text-xl text-white mb-8 max-w-3xl mx-auto; }
-/* We need below 2 buttons css */
-.cta-section__buttons { @apply flex flex-col sm:flex-row gap-4 justify-center; }
-.cta-section__button { @apply inline-flex items-center justify-center text-base bg-secondary text-primary px-8 py-3 sm:text-lg sm:px-8 sm:py-4 rounded-md font-semibold hover:bg-card transition-colors cursor-pointer min-h-[44px] min-w-[44px]; }
-
-/* ===ABOUT SECTIONS === */
-.about-section { @apply bg-background py-16; }
-.about-section__container { @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8; }
-.about-section__header { @apply text-center mb-12; }
-.about-section__title { @apply text-3xl font-bold text-foreground mb-4; }
-.about-section__description { @apply text-lg text-muted-foreground max-w-2xl mx-auto; }
-.about-section__grid { @apply grid grid-cols-1 gap-8 md:grid-cols-3; }
-.about-section__item { @apply text-center; }
-.about-section__icon-container { @apply w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4; }
-.about-section__icon-container--green { @apply bg-green-100; }
-.about-section__icon-container--purple { @apply bg-purple-100; }
-.about-section__icon { @apply text-2xl; }
-.about-section__item-title { @apply text-xl font-semibold text-foreground mb-2; }
-.about-section__item-description { @apply text-muted-foreground; }
-
-/* ===MISSION SECTIONS === */
-.mission-section { @apply py-16; }
-.mission-section__container { @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8; }
-.mission-section__grid { @apply grid grid-cols-1 gap-12 lg:grid-cols-2 items-center; }
-.mission-section__title { @apply text-3xl font-bold text-foreground mb-6; }
-.mission-section__description { @apply text-lg text-muted-foreground mb-6; }
-.mission-section__description--last { @apply text-lg text-muted-foreground; }
-.mission-section__highlight { @apply bg-primary/10 rounded-lg p-8; }
-.mission-section__highlight-content { @apply text-center; }
-.mission-section__highlight-icon { @apply text-6xl mb-4; }
-.mission-section__highlight-title { @apply text-xl font-semibold text-foreground mb-2; }
-.mission-section__highlight-description { @apply text-muted-foreground; }
-
-/* ===ABOUT HERO SECTION === */
-.about-hero-section { @apply bg-background; }
-.about-hero-section__container { @apply max-w-7xl mx-auto px-4 py-16 sm:px-6 lg:px-8; }
-.about-hero-section__content { @apply text-center; }
-.about-hero-section__title { @apply text-4xl font-bold tracking-tight text-foreground sm:text-5xl; }
-.about-hero-section__description { @apply mt-6 text-xl leading-8 text-muted-foreground max-w-3xl mx-auto; }
-
-/* ===WHY IT MATTERS SECTION === */
-.why-it-matters-section { @apply py-16; }
-.why-it-matters-section__container { @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8; }
-.why-it-matters-section__header { @apply text-center mb-12; }
-.why-it-matters-section__title { @apply text-3xl font-bold text-foreground mb-4; }
-.why-it-matters-section__description { @apply text-lg text-muted-foreground max-w-3xl mx-auto; }
-.why-it-matters-section__grid { @apply grid grid-cols-1 gap-8 lg:grid-cols-2; }
-.why-it-matters-section__column { @apply space-y-6; }
-.why-it-matters-section__column-title { @apply text-2xl font-semibold text-foreground; }
-.why-it-matters-section__list { @apply space-y-3 text-muted-foreground; }
-.why-it-matters-section__list-item { @apply flex items-start; }
-.why-it-matters-section__checkmark { @apply mr-2; }
-.why-it-matters-section__checkmark--green { @apply text-green-500; }
-.why-it-matters-section__checkmark--blue { @apply text-blue-500; }
-
-/* ===DATA QUALITY SECTION === */
-.data-quality-section { @apply bg-background py-16; }
-.data-quality-section__container { @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8; }
-.data-quality-section__header { @apply text-center mb-12; }
-.data-quality-section__title { @apply text-3xl font-bold text-foreground mb-4; }
-.data-quality-section__description { @apply text-lg text-muted-foreground max-w-2xl mx-auto; }
-.data-quality-section__grid { @apply grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4; }
-.data-quality-section__item { @apply text-center; }
-.data-quality-section__icon-container { @apply w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4; }
-.data-quality-section__icon-container--red { @apply bg-red-100; }
-.data-quality-section__icon-container--yellow { @apply bg-yellow-100; }
-.data-quality-section__icon-container--green { @apply bg-green-100; }
-.data-quality-section__icon-container--primary { @apply bg-primary/10; }
-.data-quality-section__icon { @apply text-2xl; }
-.data-quality-section__item-title { @apply text-lg font-semibold text-foreground mb-2; }
-.data-quality-section__item-description { @apply text-sm text-muted-foreground; }
-
-/* ===ABOUT CTA SECTION === */
-.about-cta-section { @apply bg-primary py-16; }
-.about-cta-section__container { @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center; }
-.about-cta-section__title { @apply text-3xl font-bold text-white mb-6; }
-.about-cta-section__description { @apply text-xl text-white mb-8 max-w-3xl mx-auto; }
-
-
-/* ===JOB CATEGORIES SECTION === */
-.job-categories-section { @apply py-16; }
-.job-categories-section__container { @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8; }
-.job-categories-section__title { @apply text-3xl font-bold text-foreground mb-8 text-center; }
-.job-categories-section__grid { @apply grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3; }
-
-/* ===JOB CATEGORY CARD === */
-.job-category-card { @apply block; }
-.job-category-card__container { @apply bg-card rounded-lg shadow-sm border p-6 hover:shadow-md transition-shadow; }
-.job-category-card__title { @apply text-lg font-semibold text-foreground hover:text-primary mb-2; }
-.job-category-card__occupation { @apply text-muted-foreground text-sm mb-4; }
-.job-category-card__salary-row { @apply flex justify-between items-center; }
-.job-category-card__salary-row--hourly { @apply flex justify-between items-center mt-2; }
-.job-category-card__salary-label { @apply text-sm text-muted-foreground; }
-.job-category-card__salary-value { @apply text-lg font-bold text-green-600; }
-.job-category-card__hourly-value { @apply text-sm font-medium text-primary; }
-
-
-/* ===FOOTER === */
-.footer { @apply bg-muted py-12; }
-.footer__container { @apply mx-auto max-w-7xl px-4 sm:px-6 lg:px-8; }
-.footer__content { @apply text-center; }
-.footer__title { @apply text-2xl font-bold text-foreground mb-4; }
-.footer__description { @apply text-muted-foreground mb-6; }
-.footer__copyright { @apply text-sm text-muted-foreground; }

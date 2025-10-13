@@ -9,7 +9,7 @@ import Link from "next/link";
 
 export function Header({ allOccupations = [] as Array<{ country: string; title: string; slug: string; state: string | null; location: string | null; }> }: { allOccupations?: Array<{ country: string; title: string; slug: string; state: string | null; location: string | null; }> }) {
   return (
-    <header className="bg-primary shadow-sm border-b sticky top-0 z-50">
+    <header className="bg-primary shadow-lg sticky top-0 z-50">
       <div className="max-w-7xl lg:max-w-full mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center h-16">
           {/* Logo - Left Side */}
@@ -61,7 +61,7 @@ export function Header({ allOccupations = [] as Array<{ country: string; title: 
               <SearchableDropdown 
                 allOccupations={allOccupations} 
                 headerMode={true}
-                placeholder="Search occupations..."
+                placeholder="Select a country..."
                 fullWidth={true}
               />
             </div>

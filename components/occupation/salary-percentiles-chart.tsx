@@ -2,7 +2,7 @@
 
 import { useMemo } from "react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { PercentilesChart } from "@/components/ui/percentiles-chart";
+import { PercentilesChart } from "./percentiles-chart";
 import { formatCurrency } from "@/lib/format/currency";
 import type { OccupationRecord } from "@/lib/data/types";
 
@@ -56,6 +56,7 @@ export function SalaryPercentilesChart({ record, country }: SalaryPercentilesCha
               title="Salary Percentiles"
               subtitle="Distribution from 10th to 90th percentile"
               data={percentilesData}
+              country={country}
             />
             
             {/* Additional percentile insights */}
