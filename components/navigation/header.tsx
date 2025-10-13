@@ -6,8 +6,17 @@ import { SearchableDropdown } from "@/components/navigation/searchable-dropdown"
 import { MobileMenuToggle } from "./mobile-menu-toggle";
 import { continents } from "@/app/constants/continents";
 import Link from "next/link";
+import { getDataset } from "@/lib/data/parse";
 
-export function Header({ allOccupations = [] as Array<{ country: string; title: string; slug: string; state: string | null; location: string | null; }> }: { allOccupations?: Array<{ country: string; title: string; slug: string; state: string | null; location: string | null; }> }) {
+export async function Header() {
+  const dataset = await getDataset();
+  const allOccupations = dataset.all.map(record => ({
+    country: record.country?.toLowerCase() || '',
+    title: record.title || '',
+    slug: record.slug_url || '',
+    state: record.state || null,
+    location: record.location || null
+  })) as Array<{ country: string; title: string; slug: string; state: string | null; location: string | null; }>;
   return (
     <header className="bg-primary shadow-lg sticky top-0 z-50">
       <div className="max-w-7xl lg:max-w-full mx-auto px-4 sm:px-6 lg:px-8">

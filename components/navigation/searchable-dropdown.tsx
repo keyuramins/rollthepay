@@ -5,7 +5,6 @@ import { usePathname, useRouter } from "next/navigation";
 import { Search, X, Check, ArrowRight, Loader2 } from "lucide-react";
 import { prefetchRoute } from "@/lib/prefetch";
 import { continents, CONTINENTS } from "@/app/constants/continents";
-import { formatCurrency } from "@/lib/format/currency";
 import { gsap } from "gsap";
 
 interface Country {
@@ -173,7 +172,7 @@ export function SearchableDropdown({
       return;
     }
     
-    // Fuzzy + strict ranking
+    // Strict ranking only (removed fuzzy logic)
     const pool: OccupationSuggestion[] = allOccupations
       .filter(o => o.country === selectedCountry.slug)
       .map(o => ({ ...o, display: o.title.replace(/^Average\s+/i, "").trim() }))
@@ -181,86 +180,57 @@ export function SearchableDropdown({
 
     const normalize = (s: string) => s.toLowerCase().normalize('NFKD').replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, ' ').trim();
     const singularize = (s: string) => s.endsWith('s') ? s.slice(0, -1) : s;
-    const generateVariants = (token: string): string[] => {
-      const base = singularize(token);
-      const v = new Set<string>([token, base]);
-      // common forms
-      v.add(base + 's');
-      v.add(base + 'er');
-      v.add(base + 'ers');
-      v.add(base + 'or');
-      v.add(base + 'ors');
-      v.add(base + 'ing');
-      v.add(base + 'al');
-      v.add(base + 'als');
-      if (!base.endsWith('ion')) v.add(base + 'ion');
-      if (!base.endsWith('ions')) v.add(base + 'ions');
-      // short prefix variant to support partial typing like "applica"
-      if (base.length > 4) v.add(base.slice(0, Math.max(4, Math.floor(base.length * 0.6))));
-      return Array.from(v);
-    };
 
     const queryNorm = normalize(term);
     const queryTokens = queryNorm.split(' ').filter(Boolean).map(singularize);
-    const queryVariants = queryTokens.map(generateVariants);
-
-    function isSubsequence(q: string, t: string) {
-      let i = 0, j = 0; // q in t
-      while (i < q.length && j < t.length) {
-        if (q[i] === t[j]) i++;
-        j++;
-      }
-      return i === q.length;
-    }
 
     function scoreMatch(queryTokens: string[], title: string): number {
       const tNorm = normalize(title);
       const tTokens = tNorm.split(' ').filter(Boolean).map(singularize);
       const tJoined = tTokens.join(' ');
-
+    
       // Exact equal
       if (tJoined === queryTokens.join(' ')) return 1000;
+    
       let score = 0;
-
+    
       // Starts with full query
-      if (tJoined.startsWith(queryTokens.join(' '))) score += 800;
-
-      // All tokens prefix some title tokens (e.g., "application te" -> "applications tester")
-      const allPrefix = queryTokens.every((qt, i) => {
-        const variants = queryVariants[i] || [qt];
-        return tTokens.some(tt => variants.some(v => tt.startsWith(v)));
-      });
+      const startsWithFull = tJoined.startsWith(queryTokens.join(' '));
+      if (startsWithFull) score += 800;
+    
+      // All tokens prefix some title tokens (strict)
+      const allPrefix = queryTokens.every(qt =>
+        tTokens.some(tt => tt.startsWith(qt))
+      );
       if (allPrefix) score += 700;
-
+    
       // Word-start matches and order bonus
       let orderIdx = -1;
       let orderMatches = 0;
       for (let i = 0; i < queryTokens.length; i++) {
         const qt = queryTokens[i];
-        const variants = queryVariants[i] || [qt];
-        const idx = tTokens.findIndex(tt => variants.some(v => tt.startsWith(v) || tt === v));
+        const idx = tTokens.findIndex(tt => tt.startsWith(qt) || tt === qt);
         if (idx >= 0) {
           if (idx > orderIdx) orderMatches++;
           orderIdx = idx;
           score += 40; // per-token prefix bonus
         }
       }
-      if (orderMatches >= 2) score += 60; // sequential order bonus
-
-      // Substring includes
-      if (tJoined.includes(queryTokens.join(' '))) score += 300;
-
-      // Fuzzy subsequence for each token
-      for (let i = 0; i < queryTokens.length; i++) {
-        const qt = queryTokens[i];
-        const variants = queryVariants[i] || [qt];
-        if (variants.some(v => isSubsequence(v, tJoined))) score += 30;
-      }
-
-      // Shorter titles with earlier matches rank a bit higher
-      score += Math.max(0, 50 - Math.max(0, tJoined.indexOf(queryTokens[0] || '')));
+      if (orderMatches >= 2) score += 60;
+    
+      // Substring includes (strict)
+      const includesFull = tJoined.includes(queryTokens.join(' '));
+      if (includesFull) score += 300;
+    
+      // If no strict match at all, return 0 to exclude this item
+      const matched = startsWithFull || allPrefix || orderMatches > 0 || includesFull;
+      if (!matched) return 0;
+    
+      // Bonuses only if matched
+      const firstIdx = tJoined.indexOf(queryTokens[0] || '');
+      score += Math.max(0, 50 - Math.max(0, firstIdx));
       score += Math.max(0, 80 - tJoined.length);
-
+    
       return score;
     }
 
@@ -297,20 +267,12 @@ export function SearchableDropdown({
 
   // Initialize selected country from URL on non-home pages or in header mode
   useEffect(() => {
-    if ((!isHome || headerMode) && !userRemovedCountry) {
+    if ((!isHome || headerMode) && !selectedCountry && !userRemovedCountry) {
       const seg = pathname.split('/').filter(Boolean)[0];
       if (seg) {
         const found = COUNTRIES.find(c => c.slug === seg.toLowerCase());
-        if (found && (!selectedCountry || selectedCountry.slug !== found.slug)) {
-          setSelectedCountry(found);
-        }
-      } else if (selectedCountry) {
-        // If we're on home page or no country segment, clear the selected country
-        setSelectedCountry(null);
+        if (found) setSelectedCountry(found);
       }
-    } else if (isHome && !headerMode && selectedCountry) {
-      // Clear selected country when on home page (unless in header mode)
-      setSelectedCountry(null);
     }
   }, [isHome, headerMode, pathname, selectedCountry, userRemovedCountry]);
 
@@ -750,6 +712,20 @@ export function SearchableDropdown({
               )}
             </button>
           )}
+          {/* <button
+            type="button"
+            onClick={() => {
+              if (isHome && selectedCountry) {
+                setIsOccupationDropdownOpen(!isOccupationDropdownOpen);
+              } else {
+                setIsDropdownOpen(!isDropdownOpen);
+              }
+            }}
+          >
+            <ChevronDown 
+              className={`h-5 w-5 ${iconColor} ${(isHome && selectedCountry ? isOccupationDropdownOpen : isDropdownOpen) ? 'transform rotate-180' : ''} transition-transform duration-200`}
+            />
+          </button> */}
         </div>
       </div>
 
@@ -757,7 +733,7 @@ export function SearchableDropdown({
 
       {isDropdownOpen && (!isInSearchMode || !selectedCountry) && (
         <div 
-          className={`absolute ${dropdownPosition === 'top' ? 'bottom-full' : 'top-full'} left-0 ${fullWidth ? 'w-full' : 'w-full sm:w-80 lg:w-96'} ${dropdownBgClass} rounded-lg shadow-xl ring-1 ring-black ring-opacity-5 z-50 border`}
+          className={`absolute ${dropdownPosition === 'top' ? 'bottom-full mb-2' : 'top-full'} left-0 ${fullWidth ? 'w-full' : 'w-full sm:w-80 lg:w-96'} ${dropdownBgClass} rounded-lg shadow-xl ring-1 ring-black ring-opacity-5 z-50 border`}
         >
           <div className="py-1 max-h-[300px] overflow-y-auto">
             {groupedCountries.length > 0 ? (
@@ -795,7 +771,7 @@ export function SearchableDropdown({
       {/* Occupation suggestions dropdown (search mode after country selection) */}
       {isInSearchMode && selectedCountry && isOccupationDropdownOpen && (
         <div 
-          className={`absolute ${dropdownPosition === 'top' ? 'bottom-full' : 'top-full'} left-0 ${fullWidth ? 'w-full' : 'w-full sm:w-80 lg:w-96'} ${dropdownBgClass} rounded-lg shadow-xl ring-1 ring-black ring-opacity-5 z-50 border`} 
+          className={`absolute ${dropdownPosition === 'top' ? 'bottom-full mb-2' : 'top-full'} left-0 ${fullWidth ? 'w-full' : 'w-full sm:w-80 lg:w-96'} ${dropdownBgClass} rounded-lg shadow-xl ring-1 ring-black ring-opacity-5 z-50 border`} 
           onMouseDown={(e) => e.preventDefault()}
         >
           <div
@@ -825,15 +801,21 @@ export function SearchableDropdown({
               if (s.state) subtitleParts.push(s.state);
               if (s.location) subtitleParts.push(s.location);
               const region = subtitleParts.join(' • ');
-              const formatSalary = (amount?: number | null, currencyCode?: string | null) => {
+              const formatCurrency = (amount?: number | null, currencyCode?: string | null) => {
                 if (typeof amount !== 'number' || !isFinite(amount)) return null;
                 const countrySlug = selectedCountry?.slug;
-                if (!countrySlug) return null;
-                
-                // Use the imported formatCurrency function
-                return formatCurrency(amount, countrySlug);
+                const defaultLocale = countrySlug === 'australia' ? 'en-AU' : countrySlug === 'india' ? 'en-IN' : undefined;
+                const code = currencyCode || (countrySlug === 'australia' ? 'AUD' : countrySlug === 'india' ? 'INR' : undefined);
+                try {
+                  if (code) {
+                    return new Intl.NumberFormat(defaultLocale, { style: 'currency', currency: code, maximumFractionDigits: 0 }).format(amount);
+                  }
+                  return new Intl.NumberFormat(defaultLocale, { maximumFractionDigits: 0 }).format(amount);
+                } catch {
+                  return `${code ?? ''} ${Math.round(amount)}`.trim();
+                }
               };
-              const salary = formatSalary(s.averageSalary ?? null, s.currencyCode ?? null);
+              const salary = formatCurrency(s.averageSalary ?? null, s.currencyCode ?? null);
               return (
                 <button
                   key={`${s.slug}-${s.state ?? 'na'}-${s.location ?? 'na'}`}

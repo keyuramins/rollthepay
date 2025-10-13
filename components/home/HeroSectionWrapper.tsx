@@ -41,7 +41,7 @@ export function HeroSectionWrapper({ occupations }: { occupations: any[] }) {
                 placeholder="Select a country..."
                 fullWidth
                 centered
-                allOccupations={occupations || []}
+                allOccupations={occupations}
                 className="transform transition-all duration-300 hover:scale-[1.05] shadow-2xl"
             />
             </div>

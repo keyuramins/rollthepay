@@ -9,6 +9,8 @@ import { StatsSectionWrapper } from "@/components/home/StatsSectionWrapper";
 
 
 
+
+
 export const revalidate = 31536000;
 export const dynamicParams = false;
 
@@ -43,6 +45,7 @@ export default async function Home() {
   let byCountry = new Map<string, any[]>();
   let totalSalaries = 0;
   let countries = 0;
+  let allOccupations: any[] = [];
   
   try {
     console.log('🏠 Homepage: About to call getDataset()...');
@@ -51,7 +54,13 @@ export default async function Home() {
     
     all = dataset.all;
     byCountry = dataset.byCountry;
-    
+    allOccupations = dataset.all.map(record => ({
+      country: record.country?.toLowerCase() || '',
+      title: record.title || '',
+      slug: record.slug_url || '',
+      state: record.state || null,
+      location: record.location || null,
+    }));
     // Use safe extraction functions to get statistics
     const stats = extractDatasetStats(all);
     totalSalaries = stats.totalRecords;
@@ -65,7 +74,7 @@ export default async function Home() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/5 to-primary/10 overflow-x-hidden">
-      <HeroSectionWrapper occupations={all} />
+      <HeroSectionWrapper occupations={allOccupations} />
       <StatsSectionWrapper countries={countries} totalSalaries={totalSalaries} />
       <FeaturesSectionDynamic />
       <TrustSectionDynamic />
