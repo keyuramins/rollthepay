@@ -14,7 +14,7 @@ export type Continent = {
         { name: "Angola", slug: "angola", code: "AO", continent: "africa", currencySymbol: "Kz" },
         { name: "Algeria", slug: "algeria", code: "DZ", continent: "africa", currencySymbol: "دج" },
         { name: "Botswana", slug: "botswana", code: "BW", continent: "africa", currencySymbol: "P" },
-        { name: "Cameroon", slug: "cameroon", code: "CM", continent: "africa", currencySymbol: "FCFA" },
+        { name: "Cameroon", slug: "cameroon", code: "CM", continent: "africa", currencySymbol: "XAF" },
         { name: "Egypt", slug: "egypt", code: "EG", continent: "africa", currencySymbol: "£" },
         { name: "Ghana", slug: "ghana", code: "GH", continent: "africa", currencySymbol: "₵" },
         { name: "Kenya", slug: "kenya", code: "KE", continent: "africa", currencySymbol: "KSh" },

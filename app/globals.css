@@ -185,7 +185,7 @@
 /* ===EXPERIENCE LEVEL SALARIES CHART === */
 .experience-level-salaries-card { @apply relative; }
 .experience-level-salaries-header { @apply text-left; }
-.experience-level-insight { @apply relative rounded-xl border border-primary/20 bg-primary/5 p-5; }
+.experience-level-insight { @apply relative rounded-xl border border-primary/20 bg-primary/5 p-3; }
 .experience-level-insight-flex { @apply flex items-center justify-between }
 .experience-level-insight__header { @apply flex items-center gap-3 mb-3; }
 .experience-level-insight__icon { @apply p-2.5 rounded-lg bg-primary text-white shadow; }

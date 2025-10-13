@@ -40,6 +40,15 @@ export function ExperienceLevelSalariesChart({ record, country }: ExperienceLeve
     return null;
   }
 
+  const formatHourly = (v: number) => {
+    const n = Number(v) || 0;
+    const symbol = formatCurrency(0, country).replace(/[0-9.,\s]/g, '');
+    if (Math.abs(n) >= 1000) {
+      return `${symbol}${Math.round(n / 1000)}k/hr`;
+    }
+    return `${formatCurrency(n, country)}/hr`;
+  };
+
   return (
     <section className="card-section">
       {/* Experience Levels Line Chart */}
@@ -120,7 +129,7 @@ export function ExperienceLevelSalariesChart({ record, country }: ExperienceLeve
                   tick={(props: any) => {
                     const { x, y, payload } = props;
                     const v = Number(payload?.value ?? 0);
-                    const text = v >= 1000 ? `$${Math.round(v / 1000)}k/hr` : `$${v.toLocaleString()}/hr`;
+                    const text = formatHourly(v);
                     const padX = 1; // horizontal padding inside pill
                     const height = 28; // fixed pill height
                     const fontSize = 12;
@@ -160,7 +169,7 @@ export function ExperienceLevelSalariesChart({ record, country }: ExperienceLeve
                 </YAxis>
 
                 <RechartsTooltip
-                  formatter={(value: number) => [`$${value.toLocaleString()}/hr`, 'Hourly rate']}
+                  formatter={(value: number) => [formatHourly(value), 'Hourly rate']}
                   labelStyle={{ color: 'var(--foreground)', fontWeight: '600' }}
                   contentStyle={{
                     backgroundColor: 'var(--card)',
@@ -181,7 +190,7 @@ export function ExperienceLevelSalariesChart({ record, country }: ExperienceLeve
                     const value = payload?.value;
                     if (!value) return (<g></g>);
                     
-                    const text = `$${Number(value).toLocaleString()}/hr`;
+                    const text = formatHourly(Number(value));
                     const textWidth = Math.max(text.length * 8, 55);
                     const pillWidth = textWidth;
                     const pillHeight = 32;
@@ -224,7 +233,7 @@ export function ExperienceLevelSalariesChart({ record, country }: ExperienceLeve
                     const value = payload?.value;
                     if (!value) return (<g></g>);
                     
-                    const text = `$${Number(value).toLocaleString()}/hr`;
+                    const text = formatHourly(Number(value));
                     const textWidth = Math.max(text.length * 8, 55);
                     const pillWidth = textWidth + 2;
                     const pillHeight = 36;
@@ -300,22 +309,26 @@ export function ExperienceLevelSalariesChart({ record, country }: ExperienceLeve
                 const isBaseline = index === 0;
 
                 return (
-                  <div key={item.name} className="experience-level-insight">
-                    <div className="experience-level-insight-flex">
-                      <div className="experience-level-insight__header">
-                        <div className="experience-level-insight__icon">
+                  <div key={item.name} className="relative rounded-xl border border-primary/20 bg-primary/5 p-3">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3 mb-3">
+                        <div className="p-2.5 rounded-lg bg-primary text-white shadow">
                           {getIcon(index)}
                         </div>
                         <div>
-                          <p className="metric-label">{item.name}</p>
+                          <p className="metric-label flex items-center gap-2 whitespace-nowrap w-full overflow-hidden">
+                            {item.name}
+                            {!isBaseline && (
+                              <Badge className="truncate flex-1 min-w-0 bg-secondary/30 text-black font-semibold rounded-md px-1 py-0.5 ml-auto shrink-0">
+                                {percent > 0 ? `+${percent.toFixed(0)}%` : `${percent.toFixed(0)}%`}
+                              </Badge>
+                            )}
+                          </p>
                           <p className="additional-value">
                             {formatCurrency(value, country)}
                           </p>
                         </div>
                       </div>
-                      {!isBaseline && (
-                        <Badge variant="secondary" className="experience-level-insight__badge">{percent > 0 ? `+${percent.toFixed(0)}%` : `${percent.toFixed(0)}%`}</Badge>
-                      )}
                     </div>
                     <div className="experience-level-insight__growth">
                       {isBaseline ? (

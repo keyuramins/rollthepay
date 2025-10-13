@@ -29,7 +29,6 @@ export { OccupationCTASection } from "./occupation/cta-section";
 export { InsightsSection } from "./occupation/ai-insights-section";
 export { OccupationHeroSection } from "./occupation/hero-section";
 export { RelatedOpportunitiesSmart } from "./occupation/related-opportunities-smart";
-export { RelatedOpportunitiesSimple } from "./occupation/related-opportunities-simple";
 
 // UI Components
 export { AZFilter } from "./occupation/az-filter";

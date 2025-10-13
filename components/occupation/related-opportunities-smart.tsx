@@ -54,62 +54,54 @@ function RelatedOccupationCard({ occupation, currentRecord, showSalaryComparison
   const salaryDiff = calculateSalaryDifference(currentRecord.avgAnnualSalary, occupation.avgAnnualSalary);
   const industry = getIndustryCategory(occupation.title);
   const occupationURL = generateOccupationURL(occupation);
-  
+
   return (
-    <Link 
-      prefetch={true}
-      prefetchOnMount={true}
+    <Link
+      prefetch
+      prefetchOnMount
       prefetchDelay={120}
       href={occupationURL}
-      className="bg-card rounded-xl p-6 border border-input hover:border-primary hover:shadow-md hover:bg-green-100 cursor-pointer"
+      className="bg-card rounded-xl p-6 border border-input hover:border-primary hover:shadow-md hover:bg-green-100 cursor-pointer flex flex-col h-full"
     >
-      <div className="mb-4">
-        <h4>{removeAveragePrefix(occupation.title)}</h4>
-        <div className="flex items-center justify-between pt-2">
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <MapPin className="w-4 h-4" />
-            <span>{occupation.location || occupation.state || occupation.country}</span>
+      <div className="flex-1 flex flex-col justify-between">
+        <div className="mb-4">
+          <h4 className="line-clamp-2">{removeAveragePrefix(occupation.title)}</h4>
+          <div className="flex items-center justify-between py-2">
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <MapPin className="w-4 h-4" />
+              <span className="truncate">{occupation.location || occupation.state || occupation.country}</span>
+            </div>
+            <Badge variant="green" className="text-sm">
+              {industry}
+            </Badge>
           </div>
-          <Badge variant="green" className="text-sm">
-            {industry}
-          </Badge>
         </div>
+
+        {showSalaryComparison && occupation.avgAnnualSalary && (
+          <div className="mb-0 px-4 py-2 bg-secondary/50 rounded-lg border border-secondary/30 relative mt-auto">
+            <div className="text-sm">
+              <div className="flex items-center gap-1.5 overflow-hidden pt-2">
+                <span className="text-muted-foreground font-medium whitespace-nowrap leading-tight tracking-tight min-w-0 text-[13px] sm:text-[14px] md:text-[15px]">
+                  {formatCurrency(currentRecord.avgAnnualSalary, currentRecord.country)}
+                </span>
+                <span className="text-primary font-bold shrink-0 text-base sm:text-lg">→</span>
+                <span className="text-muted-foreground font-medium whitespace-nowrap leading-tight tracking-tight min-w-0 text-[13px] sm:text-[14px] md:text-[15px]">
+                  {formatCurrency(occupation.avgAnnualSalary, occupation.country)}
+                </span>
+              </div>
+              <span
+                className={`text-xs sm:text-sm font-semibold px-2 py-0.5 rounded-full shrink-0 absolute top-0 right-2 -translate-y-1/2 shadow ring-1 ring-black/5 ${
+                  salaryDiff.startsWith('+') ? 'text-green-700 bg-green-100' : 
+                  salaryDiff.startsWith('-') ? 'text-red-700 bg-red-100' : 
+                  'text-muted-foreground bg-muted'
+                }`}
+              >
+                {salaryDiff}
+              </span>
+            </div>
+          </div>
+        )}
       </div>
-      
-      {showSalaryComparison && occupation.avgAnnualSalary && (
-        <div className="mb-4 p-4 bg-secondary/50 rounded-lg border border-secondary/30 pt-2">
-          <div className="flex items-center justify-between gap-3 text-sm">
-            <span className="text-muted-foreground font-medium">
-              {formatCurrency(currentRecord.avgAnnualSalary, currentRecord.country)}
-            </span>
-            <span className="text-primary font-bold text-lg">→</span>
-            <span className="metric-value">
-              {formatCurrency(occupation.avgAnnualSalary, occupation.country)}
-            </span>
-            <span className={`text-sm font-semibold px-2 py-1 rounded-full ${
-              salaryDiff.startsWith('+') ? 'text-green-700 bg-green-100' : 
-              salaryDiff.startsWith('-') ? 'text-red-700 bg-red-100' : 
-              'text-muted-foreground bg-muted'
-            }`}>
-              {salaryDiff}
-            </span>
-          </div>
-        </div>
-      )}
-      
-      {/* {commonSkills.length > 0 && (
-        <div className="mb-2">
-          <div className="text-sm font-medium text-muted-foreground mb-2">Common Skills:</div>
-          <div className="flex flex-wrap gap-1">
-            {commonSkills.slice(0, 3).map(skill => (
-              <Badge key={skill} variant="green" className="text-sm">
-                {skill}
-              </Badge>
-            ))}
-          </div>
-        </div>
-      )} */}
-      
     </Link>
   );
 }
@@ -119,44 +111,47 @@ function LocationOpportunityCard({ location, type, salary, currentSalary, countr
   const icon = type === 'city' ? MapPin : type === 'state' ? Building : Users;
   const IconComponent = icon;
   const occupationURL = generateOccupationURL(occupation);
-  
+
   return (
-    <Link 
-      prefetch={true}
-      prefetchOnMount={true}
+    <Link
+      prefetch
+      prefetchOnMount
       prefetchDelay={120}
       href={occupationURL}
-      className="bg-secondary/5 rounded-lg p-4 border border-input hover:border-secondary/40 hover:shadow-md hover:bg-secondary/10 cursor-pointer"
+      className="bg-secondary/5 rounded-lg p-4 border border-input hover:border-secondary/40 hover:shadow-md hover:bg-secondary/10 cursor-pointer flex flex-col h-full"
     >
-      <div className="flex items-center justify-between mb-3">
-        <div className="flex items-center gap-2">
-          <IconComponent className="w-4 h-4 text-secondary" />
-          <h4>{removeAveragePrefix(location)}</h4>
+      <div className="flex-1 flex flex-col justify-between">
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-2">
+            <IconComponent className="w-4 h-4 text-secondary" />
+            <h4 className="line-clamp-2">{removeAveragePrefix(location)}</h4>
+          </div>
+          <Badge variant="green" className="text-sm">
+            {type}
+          </Badge>
         </div>
-        <Badge variant="green" className="text-sm">
-          {type}
-        </Badge>
-      </div>
-      
-      {salary && (
-        <div className="mt-2">
-          <div className="flex items-center justify-between gap-3">
-            <div className="metric-value">
+
+        {salary && (
+          <div className="mt-auto relative">
+            <div className="metric-value whitespace-nowrap leading-tight tracking-tight min-w-0 pr-16 sm:pr-20 text-[13px] sm:text-[14px] md:text-[15px]">
               {formatCurrency(salary, country)}
             </div>
-            <div className={`text-sm font-semibold px-2 py-1 rounded-full ${
-              salaryDiff.startsWith('+') ? 'text-green-700 bg-green-100' : 
-              salaryDiff.startsWith('-') ? 'text-red-700 bg-red-100' : 
-              'text-muted-foreground bg-muted'
-            }`}>
+            <div
+              className={`text-xs sm:text-sm font-semibold px-2 py-0.5 rounded-full shrink-0 absolute top-0 right-2 -translate-y-1/2 shadow ring-1 ring-black/5 ${
+                salaryDiff.startsWith('+') ? 'text-green-700 bg-green-100' : 
+                salaryDiff.startsWith('-') ? 'text-red-700 bg-red-100' : 
+                'text-muted-foreground bg-muted'
+              }`}
+            >
               {salaryDiff}
             </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </Link>
   );
 }
+
 
 export function RelatedOpportunitiesSmart({ record, allRecords }: RelatedOpportunitiesEnhancedProps) {
   // Find intelligent related occupations
@@ -319,7 +314,7 @@ export function RelatedOpportunitiesSmart({ record, allRecords }: RelatedOpportu
         <CardContent>
         {relatedOccupations.length > 0 && (
           <div className="mb-8 last:mb-0">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 auto-rows-fr">
               {relatedOccupations.map(occ => (
                 <RelatedOccupationCard 
                   key={occ.slug_url}
@@ -338,7 +333,7 @@ export function RelatedOpportunitiesSmart({ record, allRecords }: RelatedOpportu
               <MapPin className="w-5 h-5 text-primary" />
               <h4>Geographic Opportunities</h4>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 auto-rows-fr">
               {relatedLocations.map((loc, index) => (
                 <LocationOpportunityCard 
                   key={`${loc.location}-${loc.type}-${index}`}

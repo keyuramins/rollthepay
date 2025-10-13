@@ -8,7 +8,6 @@ import { RelatedOpportunitiesSmart } from "./related-opportunities-smart";
 import { GenderComparison } from "./gender-comparison";
 import { OccupationCTASection } from "./cta-section";
 import { findRecordByPath, getDataset } from "@/lib/data/parse";
-import { RelatedOpportunitiesSimple } from "./related-opportunities-simple";
 import { formatLocationString } from "@/lib/utils/title-cleaner";
 
 interface OccupationPageProps {
@@ -52,17 +51,6 @@ export async function OccupationPage({ country, state, location, slug }: Occupat
         <ExperienceLevelSalariesChart record={record} country={country} />
         <TopSkillsMarketDemand record={record} />
         <RelatedOpportunitiesSmart record={record} allRecords={(await getDataset()).all} />
-        <RelatedOpportunitiesSimple 
-          record={record} 
-          allOccupations={(await getDataset()).all.map(rec => ({
-            country: rec.country.toLowerCase(),
-            title: rec.title || rec.h1Title || "",
-            slug: rec.slug_url,
-            state: rec.state ? rec.state : null,
-            location: rec.location ? rec.location : null,
-          }))} 
-        />
-
         <OccupationCTASection countryName={countryName} locationText={locationText} record={record} />
       </main>
     </>

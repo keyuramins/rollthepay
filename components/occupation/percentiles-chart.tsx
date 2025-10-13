@@ -1,6 +1,6 @@
 "use client";
 
-import { ResponsiveContainer, AreaChart, Area, CartesianGrid, XAxis, YAxis, Tooltip, LabelList, Label } from "recharts";
+import { ResponsiveContainer, AreaChart, Area, CartesianGrid, XAxis, YAxis, Tooltip, LabelList, Label, ReferenceLine } from "recharts";
 import { formatCurrency } from "@/lib/format/currency";
 
 interface PercentilesChartDatum {
@@ -40,7 +40,7 @@ export function PercentilesChart({ data, title, subtitle, country }: Percentiles
 
       <div className="h-72">
         <ResponsiveContainer width="100%" height="100%">
-          <AreaChart data={data} margin={{ top: 20, right: 24, left: 56, bottom: 28 }}>
+          <AreaChart data={data} margin={{ top: 20, right: 56, left: 56, bottom: 28 }}>
             <defs>
               <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
                 <stop offset="5%" stopColor="var(--primary)" stopOpacity={0.35} />
@@ -86,6 +86,20 @@ export function PercentilesChart({ data, title, subtitle, country }: Percentiles
                 style={{ fill: 'var(--muted-foreground)', fontSize: 14, textAnchor: 'middle', fontWeight: 500 }}
               />
             </YAxis>
+            {Array.isArray(data) && data.length > 0 ? (
+              <ReferenceLine
+                y={Number(data[0]?.value) || 0}
+                stroke="transparent"
+                ifOverflow="extendDomain"
+                label={{
+                  value: formatCurrencyValue(Number(data[0]?.value) || 0),
+                  position: 'left',
+                  fill: 'var(--primary)',
+                  fontSize: 14,
+                  fontWeight: 600,
+                }}
+              />
+            ) : null}
             <Tooltip
               formatter={(value: number) => [formatCurrencyValue(value), 'Annual Salary']}
               labelFormatter={(label: string) => `${label} percentile`}
@@ -106,8 +120,10 @@ export function PercentilesChart({ data, title, subtitle, country }: Percentiles
                   const { x, y, value, index } = props;
                   if (index === 0) return null; // avoid overlapping the y-axis at the first point
                   const text = formatCurrencyValue(Number(value));
+                  const isLast = index === (data?.length ? data.length - 1 : -1);
+                  const adjustedX = (x ?? 0) + (isLast ? -12 : 0);
                   return (
-                    <text x={x} y={(y ?? 0) - 8} textAnchor="middle" fill="var(--primary)" fontSize={14} fontWeight={600}>
+                    <text x={adjustedX} y={(y ?? 0) - 8} textAnchor={isLast ? "end" : "middle"} fill="var(--primary)" fontSize={14} fontWeight={600}>
                       {text}
                     </text>
                   );

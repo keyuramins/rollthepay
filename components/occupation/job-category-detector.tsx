@@ -318,7 +318,7 @@ export function getJobCategoryInfo(occupationName: string): JobCategoryInfo {
     lowerName.includes('customer success') || lowerName.includes('relationship manager') || lowerName.includes('customer') ||
     lowerName.includes('advertising') || lowerName.includes('seo') || lowerName.includes('brand') ||
     lowerName.includes('social media') || (lowerName.includes('lead') && !lowerName.includes('line')) || lowerName.includes('territory') ||
-    lowerName.includes('coordinator') || lowerName.includes('channel') || lowerName.includes('account') ||
+    lowerName.includes('coordinator') || lowerName.includes('channel') ||
     lowerName.includes('inside sales') || lowerName.includes('field sales') || lowerName.includes('retail') ||
     lowerName.includes('promotion') || lowerName.includes('campaign') || lowerName.includes('partnership') ||
     lowerName.includes('growth') || lowerName.includes('outreach') || lowerName.includes('ecommerce')
