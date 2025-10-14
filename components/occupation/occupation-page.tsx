@@ -41,8 +41,12 @@ export async function OccupationPage({ country, state, location, slug }: Occupat
   const locationText = formatLocationString(locationName || undefined, stateName || undefined, countryName || undefined);
   
   return (
-    <>
-      <main>
+    <main id="main-content" role="main" aria-label={`Salary information`}>
+      <article itemScope itemType="https://schema.org/JobPosting">
+        <meta itemProp="title" content={title} />
+        <meta itemProp="jobLocation" content={locationText} />
+        <meta itemProp="baseSalary" content={record.avgAnnualSalary?.toString()} />
+        
         <OccupationHeroSection record={record} country={country} locationText={locationText} />
         <Breadcrumbs breadcrumbs={breadcrumbs} />  
         <CompensationAnalysis record={record} country={country} location={location} />
@@ -52,7 +56,7 @@ export async function OccupationPage({ country, state, location, slug }: Occupat
         <TopSkillsMarketDemand record={record} />
         <RelatedOpportunitiesSmart record={record} allRecords={(await getDataset()).all} />
         <OccupationCTASection countryName={countryName} locationText={locationText} record={record} />
-      </main>
-    </>
+      </article>
+    </main>
   );
 }

@@ -12,6 +12,7 @@ import { cleanTitle } from "@/lib/utils/title-cleaner";
 
 
 
+
 export const revalidate = 31536000;
 export const dynamicParams = false;
 

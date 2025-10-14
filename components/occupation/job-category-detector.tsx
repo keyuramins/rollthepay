@@ -19,7 +19,7 @@ export function getJobCategoryInfo(occupationName: string): JobCategoryInfo {
     lowerName.includes('health') || lowerName.includes('medical') || lowerName.includes('nurse') ||
     lowerName.includes('doctor') || lowerName.includes('physician') || lowerName.includes('therapist') ||
     lowerName.includes('pharmacist') || lowerName.includes('dentist') || lowerName.includes('clinician') ||
-    lowerName.includes('surgeon') || lowerName.includes('technician') || lowerName.includes('caregiver') ||
+    lowerName.includes('surgeon') || lowerName.includes('caregiver') ||
     lowerName.includes('paramedic') || lowerName.includes('radiologist') || lowerName.includes('psychologist') ||
     lowerName.includes('psychiatrist') || lowerName.includes('laboratory') || lowerName.includes('lab') ||
     lowerName.includes('veterinarian')
@@ -169,7 +169,33 @@ export function getJobCategoryInfo(occupationName: string): JobCategoryInfo {
     };
   }
   
-  // 7. Finance & Accounting (Specific domain)
+  // 7. Banking & Financial Services (Very specific financial domain)
+  if (
+    lowerName.includes('bank') || lowerName.includes('banking') || lowerName.includes('banker') ||
+    lowerName.includes('loan') || lowerName.includes('lending') || lowerName.includes('credit') ||
+    lowerName.includes('mortgage') || lowerName.includes('investment banking') || lowerName.includes('wealth management') ||
+    lowerName.includes('private banking') || lowerName.includes('corporate banking') || lowerName.includes('retail banking') ||
+    lowerName.includes('commercial banking') || lowerName.includes('teller') || lowerName.includes('branch manager') ||
+    lowerName.includes('relationship manager') || lowerName.includes('portfolio manager') || lowerName.includes('financial advisor') ||
+    lowerName.includes('broker') || lowerName.includes('trader') || lowerName.includes('underwriter') ||
+    lowerName.includes('compliance officer') || lowerName.includes('risk analyst') || lowerName.includes('credit analyst')
+  ) {
+    return {
+      category: 'Banking',
+      description: 'Provide banking and financial services. Focus on client relationships, risk management, and regulatory compliance.',
+      keySkills: ['Financial Analysis', 'Risk Assessment', 'Client Relations', 'Regulatory Compliance', 'Market Knowledge'],
+      typicalResponsibilities: [
+        'Manage client relationships and portfolios',
+        'Assess credit and investment risks',
+        'Ensure regulatory compliance',
+        'Process loans and financial transactions',
+        'Provide financial advice and solutions'
+      ],
+      careerPath: ['Banking Associate', 'Banking Officer', 'Senior Banker', 'Banking Manager', 'Banking Director']
+    };
+  }
+  
+  // 8. Finance & Accounting (Specific domain)
   if (
     lowerName.includes('finance') || lowerName.includes('accounting') || lowerName.includes('financial') ||
     lowerName.includes('audit') || lowerName.includes('treasury') || lowerName.includes('controller') ||
@@ -194,7 +220,37 @@ export function getJobCategoryInfo(occupationName: string): JobCategoryInfo {
     };
   }
   
-  // 8. Design & Creative (Specific creative roles)
+  // 9. Telecommunications (Specific technical domain)
+  if (
+    lowerName.includes('telecom') || lowerName.includes('telecommunications') || lowerName.includes('network') ||
+    lowerName.includes('wireless') || lowerName.includes('cellular') || lowerName.includes('broadband') ||
+    lowerName.includes('fiber') || lowerName.includes('cable') || lowerName.includes('satellite') ||
+    lowerName.includes('voip') || lowerName.includes('telephony') || lowerName.includes('radio') ||
+    lowerName.includes('microwave') || lowerName.includes('transmission') || lowerName.includes('infrastructure') ||
+    lowerName.includes('tower') || lowerName.includes('antenna') || lowerName.includes('base station') ||
+    lowerName.includes('network engineer') || lowerName.includes('network technician') || lowerName.includes('field engineer') ||
+    lowerName.includes('installation') || lowerName.includes('maintenance') || lowerName.includes('troubleshooting') ||
+    lowerName.includes('5g') || lowerName.includes('4g') || lowerName.includes('lte') || lowerName.includes('gsm') ||
+    lowerName.includes('cdma') || lowerName.includes('wimax') || lowerName.includes('bluetooth') ||
+    lowerName.includes('wifi') || lowerName.includes('ethernet') || lowerName.includes('routing') ||
+    lowerName.includes('switching') || lowerName.includes('protocol') || lowerName.includes('connectivity')
+  ) {
+    return {
+      category: 'Telecommunications',
+      description: 'Design, install, and maintain telecommunications systems. Ensure reliable connectivity and network performance.',
+      keySkills: ['Network Engineering', 'System Installation', 'Troubleshooting', 'Technical Analysis', 'Project Management'],
+      typicalResponsibilities: [
+        'Design and implement network infrastructure',
+        'Install and configure telecommunications equipment',
+        'Monitor network performance and reliability',
+        'Troubleshoot connectivity issues',
+        'Maintain and upgrade systems'
+      ],
+      careerPath: ['Field Technician', 'Network Technician', 'Network Engineer', 'Senior Engineer', 'Network Manager']
+    };
+  }
+  
+  // 10. Design & Creative (Specific creative roles)
   if (
     lowerName.includes('designer') || lowerName.includes('design') || lowerName.includes('creative') ||
     lowerName.includes('art') || lowerName.includes('graphic') || lowerName.includes('ui') ||
@@ -218,7 +274,7 @@ export function getJobCategoryInfo(occupationName: string): JobCategoryInfo {
     };
   }
   
-  // 9. Analytics & Data (Specific analytical roles)
+  // 11. Analytics & Data (Specific analytical roles)
   if (
     lowerName.includes('analyst') || lowerName.includes('analytics') || lowerName.includes('data') ||
     lowerName.includes('research') || lowerName.includes('statistics') || lowerName.includes('insight') ||
@@ -237,11 +293,11 @@ export function getJobCategoryInfo(occupationName: string): JobCategoryInfo {
         'Provide actionable insights',
         'Support decision-making processes'
       ],
-      careerPath: ['Junior Analyst', 'Analyst', 'Senior Analyst', 'Lead Analyst', 'Analytics Manager']
+      careerPath: ['Junior Analyst', 'Analyst', 'Senior Analyst', 'Lead Analyst']
     };
   }
   
-  // 10. Human Resources (Specific HR domain)
+  // 12. Human Resources (Specific HR domain)
   if (
     lowerName.includes('hr') || lowerName.includes('human resources') || lowerName.includes('recruiter') ||
     lowerName.includes('talent') || lowerName.includes('people operations') || lowerName.includes('hr manager') ||
@@ -265,7 +321,7 @@ export function getJobCategoryInfo(occupationName: string): JobCategoryInfo {
     };
   }
   
-  // 11. Operations & Supply Chain (Specific operational roles)
+  // 13. Operations & Supply Chain (Specific operational roles)
   if (
     lowerName.includes('operations') || lowerName.includes('supply chain') || lowerName.includes('logistics') ||
     lowerName.includes('procurement') || lowerName.includes('warehouse') || lowerName.includes('inventory') ||
@@ -289,7 +345,7 @@ export function getJobCategoryInfo(occupationName: string): JobCategoryInfo {
     };
   }
   
-  // 12. Customer Service & Support (Specific service roles)
+  // 14. Customer Service & Support (Specific service roles)
   if (
     lowerName.includes('customer service') || lowerName.includes('support') || lowerName.includes('help desk') ||
     lowerName.includes('client service') || lowerName.includes('customer care') || lowerName.includes('call center') ||
@@ -312,7 +368,7 @@ export function getJobCategoryInfo(occupationName: string): JobCategoryInfo {
     };
   }
   
-  // 13. Sales & Marketing (Broader category, comes after more specific ones)
+  // 15. Sales & Marketing (Broader category, comes after more specific ones)
   if (
     lowerName.includes('sales') || lowerName.includes('marketing') || lowerName.includes('business development') ||
     lowerName.includes('customer success') || lowerName.includes('relationship manager') || lowerName.includes('customer') ||
@@ -338,7 +394,7 @@ export function getJobCategoryInfo(occupationName: string): JobCategoryInfo {
     };
   }
   
-  // 14. Management & Leadership (Broadest category, comes last)
+  // 16. Management & Leadership (Broadest category, comes last)
   if (
     lowerName.includes('manager') || lowerName.includes('director') || lowerName.includes('supervisor') ||
     lowerName.includes('lead') || lowerName.includes('head') || lowerName.includes('chief') ||

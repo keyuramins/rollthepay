@@ -154,9 +154,9 @@ export function CompensationAnalysis({ record, country, location }: Compensation
   };
 
   return (
-    <section className="compensation-analysis-section">
+    <section className="compensation-analysis-section" aria-labelledby="compensation-heading">
       <div className="compensation-analysis-header">
-        <h2>Compensation Analysis</h2>
+        <h2 id="compensation-heading">Compensation Analysis</h2>
         <p>Comprehensive salary insights powered by market data and detailed analysis</p>
       </div>
 
@@ -465,15 +465,15 @@ export function CompensationAnalysis({ record, country, location }: Compensation
 
         return (
           <div className="compensation-bpc-section">
-            <div className="mb-8">
+            <div className="mb-6 sm:mb-8">
               <h3>Bonus Compensation</h3>
               <p>Performance-based bonus ranges and distribution</p>
             </div>
 
-            <div className="grid grid-cols-12 gap-4">
-              <div className="col-span-8 space-y-4">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6">
+              <div className="lg:col-span-8 space-y-4 sm:space-y-6">
                 {/* Horizontal layout for bonus cards */}
-                <div className="grid grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
                   {/* Maximum Bonus Card */}
                   <div className="inner-card">
                     <div className="text-center">
@@ -509,31 +509,31 @@ export function CompensationAnalysis({ record, country, location }: Compensation
                 </div>
 
                 {/* Growth Factor and Performance Insight cards below the horizontal cards */}
-                <div className="grid grid-cols-12 gap-4">
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6">
                   {/* Growth Factor Card */}
-                  <div className="col-span-4 bg-white rounded-xl p-4 shadow-sm">
+                  <div className="lg:col-span-4 bg-white rounded-xl p-4 sm:p-6 shadow-sm">
                     <div className="text-center">
                       <h4>Growth Factor</h4>
-                      <p className="additional-value">{metrics.growthFactor.toFixed(1)}x</p>
+                      <p className="additional-value text-lg sm:text-xl">{metrics.growthFactor.toFixed(1)}x</p>
                       <div className="additional-comp__bar">
                         <div 
                           className="additional-comp__bar-fill" 
                           style={{ width: `${Math.min(100, (metrics.growthFactor / 10) * 100)}%` }}
                         ></div>
                       </div>
-                      <p className="additional-comp__subtext">Maximum potential from minimum baseline</p>
+                      <p>Maximum potential from minimum baseline</p>
                     </div>
                   </div>
 
                   {/* Performance Insight Card */}
-                  <div className="col-span-8 bg-white rounded-xl p-4 shadow-sm">
-                    <div className="flex items-start space-x-3">
-                      <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center mb-2">
+                  <div className="lg:col-span-8 bg-white rounded-xl p-4 sm:p-6 shadow-sm">
+                    <div className="flex flex-col sm:flex-row items-start space-y-3 sm:space-y-0 sm:space-x-3">
+                      <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center flex-shrink-0">
                         <TrendingUp className="w-4 h-4 text-white" />
                       </div>
                       <div className="flex-1">
                         <h4>Performance Insight</h4>
-                        <p className="additional-comp__subtext">
+                        <p>
                           {compensationInsights.bonus}
                         </p>
                       </div>
@@ -542,24 +542,24 @@ export function CompensationAnalysis({ record, country, location }: Compensation
                 </div>
               </div>
 
-              <div className="col-span-4">
-                <div className="bg-chart-1/5 rounded-xl p-8">
-                <div className="space-y-4">
-                  <h4>Growth Potential Analysis</h4>
-                    <div className="bg-white rounded-lg p-4">
-                      <div className="flex justify-between items-center">
+              <div className="lg:col-span-4">
+                <div className="bg-chart-1/5 rounded-xl p-4 sm:p-6 lg:p-8">
+                  <div className="space-y-3 sm:space-y-4">
+                    <h4>Growth Potential Analysis</h4>
+                    <div className="bg-white rounded-lg p-3 sm:p-4">
+                      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1 sm:gap-0">
                         <span className="metric-label">From Minimum to Average:</span>
                         <span className="metric-value">+{metrics.minToAvgGrowth.toFixed(0)}%</span>
                       </div>
                     </div>
-                    <div className="bg-white rounded-lg p-4">
-                      <div className="flex justify-between items-center">
+                    <div className="bg-white rounded-lg p-3 sm:p-4">
+                      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1 sm:gap-0">
                         <span className="metric-label">From Average to Maximum:</span>
                         <span className="metric-value">+{metrics.avgToMaxGrowth.toFixed(0)}%</span>
                       </div>
                     </div>
-                    <div className="bg-white rounded-lg p-4">
-                      <div className="flex justify-between items-center">
+                    <div className="bg-white rounded-lg p-3 sm:p-4">
+                      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1 sm:gap-0">
                         <span className="metric-label">Total Range:</span>
                         <span className="metric-value">{formatCurrency(metrics.totalRange, country, record)}</span>
                       </div>
@@ -594,15 +594,15 @@ export function CompensationAnalysis({ record, country, location }: Compensation
 
         return (
           <div className="compensation-bpc-section">
-            <div className="mb-8">
+            <div className="mb-6 sm:mb-8">
               <h3>Commission Compensation</h3>
               <p>Sales-based commission ranges and distribution</p>
             </div>
 
-            <div className="grid grid-cols-12 gap-4">
-              <div className="col-span-8 space-y-4">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6">
+              <div className="lg:col-span-8 space-y-4 sm:space-y-6">
                 {/* Horizontal layout for commission cards */}
-                <div className="grid grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
                   {/* Maximum Commission Card */}
                   <div className="inner-card">
                     <div className="text-center">
@@ -638,31 +638,31 @@ export function CompensationAnalysis({ record, country, location }: Compensation
                 </div>
 
                 {/* Growth Factor and Performance Insight cards below the horizontal cards */}
-                <div className="grid grid-cols-12 gap-4">
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6">
                   {/* Growth Factor Card */}
-                  <div className="col-span-4 bg-white rounded-xl p-6 shadow-sm">
+                  <div className="lg:col-span-4 bg-white rounded-xl p-4 sm:p-6 shadow-sm">
                     <div className="text-center">
                       <h4>Growth Factor</h4>
-                      <p className="additional-value">{metrics.growthFactor.toFixed(1)}x</p>
+                      <p className="additional-value text-lg sm:text-xl">{metrics.growthFactor.toFixed(1)}x</p>
                       <div className="additional-comp__bar">
                         <div 
                           className="additional-comp__bar-fill" 
                           style={{ width: `${Math.min(100, (metrics.growthFactor / 10) * 100)}%` }}
                         ></div>
                       </div>
-                      <p className="additional-comp__subtext">Maximum potential from minimum baseline</p>
+                      <p>Maximum potential from minimum baseline</p>
                     </div>
                   </div>
 
                   {/* Performance Insight Card */}
-                  <div className="col-span-8 bg-white rounded-xl p-6 shadow-sm">
-                    <div className="flex items-start space-x-3">
-                      <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+                  <div className="lg:col-span-8 bg-white rounded-xl p-4 sm:p-6 shadow-sm">
+                    <div className="flex flex-col sm:flex-row items-start space-y-3 sm:space-y-0 sm:space-x-3">
+                      <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center flex-shrink-0">
                         <TrendingUp className="w-4 h-4 text-white" />
                       </div>
                       <div className="flex-1">
                         <h4>Performance Insight</h4>
-                        <p className="additional-comp__subtext">
+                        <p>
                           {compensationInsights.commission}
                         </p>
                       </div>
@@ -671,24 +671,24 @@ export function CompensationAnalysis({ record, country, location }: Compensation
                 </div>
               </div>
 
-              <div className="col-span-4">
-                <div className="bg-chart-1/5 rounded-xl p-8">
-                  <div className="space-y-4">
-                  <h4>Growth Potential Analysis</h4>
-                    <div className="bg-white rounded-lg p-4">
-                      <div className="flex justify-between items-center">
+              <div className="lg:col-span-4">
+                <div className="bg-chart-1/5 rounded-xl p-4 sm:p-6 lg:p-8">
+                  <div className="space-y-3 sm:space-y-4">
+                    <h4>Growth Potential Analysis</h4>
+                    <div className="bg-white rounded-lg p-3 sm:p-4">
+                      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1 sm:gap-0">
                         <span className="metric-label">From Minimum to Average:</span>
                         <span className="metric-value">+{metrics.minToAvgGrowth.toFixed(0)}%</span>
                       </div>
                     </div>
-                    <div className="bg-white rounded-lg p-4">
-                      <div className="flex justify-between items-center">
+                    <div className="bg-white rounded-lg p-3 sm:p-4">
+                      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1 sm:gap-0">
                         <span className="metric-label">From Average to Maximum:</span>
                         <span className="metric-value">+{metrics.avgToMaxGrowth.toFixed(0)}%</span>
                       </div>
                     </div>
-                    <div className="bg-white rounded-lg p-4">
-                      <div className="flex justify-between items-center">
+                    <div className="bg-white rounded-lg p-3 sm:p-4">
+                      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1 sm:gap-0">
                         <span className="metric-label">Total Range:</span>
                         <span className="metric-value">{formatCurrency(metrics.totalRange, country, record)}</span>
                       </div>
@@ -723,15 +723,15 @@ export function CompensationAnalysis({ record, country, location }: Compensation
 
         return (
           <div className="compensation-bpc-section">
-            <div className="mb-8">
+            <div className="mb-6 sm:mb-8">
               <h3>Profit Sharing</h3>
               <p>Company profit distribution and ranges</p>
             </div>
 
-            <div className="grid grid-cols-12 gap-4">
-              <div className="col-span-8 space-y-4">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6">
+              <div className="lg:col-span-8 space-y-4 sm:space-y-6">
                 {/* Horizontal layout for profit sharing cards */}
-                <div className="grid grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
                   {/* Maximum Profit Share Card */}
                   <div className="inner-card">
                     <div className="text-center">
@@ -767,31 +767,31 @@ export function CompensationAnalysis({ record, country, location }: Compensation
                 </div>
 
                 {/* Growth Factor and Performance Insight cards below the horizontal cards */}
-                <div className="grid grid-cols-12 gap-4">
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6">
                   {/* Growth Factor Card */}
-                  <div className="col-span-4 bg-white rounded-xl p-6 shadow-sm">
+                  <div className="lg:col-span-4 bg-white rounded-xl p-4 sm:p-6 shadow-sm">
                     <div className="text-center">
-                      <p className="metric-label">Growth Factor</p>
-                      <p className="additional-value">{metrics.growthFactor.toFixed(1)}x</p>
+                      <h4>Growth Factor</h4>
+                      <p className="additional-value text-lg sm:text-xl">{metrics.growthFactor.toFixed(1)}x</p>
                       <div className="additional-comp__bar">
                         <div 
                           className="additional-comp__bar-fill" 
                           style={{ width: `${Math.min(100, (metrics.growthFactor / 10) * 100)}%` }}
                         ></div>
                       </div>
-                      <p className="additional-comp__subtext">Maximum potential from minimum baseline</p>
+                      <p>Maximum potential from minimum baseline</p>
                     </div>
                   </div>
 
                   {/* Performance Insight Card */}
-                  <div className="col-span-8 bg-white rounded-xl p-6 shadow-sm">
-                    <div className="flex items-start space-x-3">
-                      <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+                  <div className="lg:col-span-8 bg-white rounded-xl p-4 sm:p-6 shadow-sm">
+                    <div className="flex flex-col sm:flex-row items-start space-y-3 sm:space-y-0 sm:space-x-3">
+                      <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center flex-shrink-0">
                         <TrendingUp className="w-4 h-4 text-white" />
                       </div>
                       <div className="flex-1">
                         <h4>Performance Insight</h4>
-                        <p className="additional-comp__subtext">
+                        <p>
                           {compensationInsights.profitSharing}
                         </p>
                       </div>
@@ -800,24 +800,24 @@ export function CompensationAnalysis({ record, country, location }: Compensation
                 </div>
               </div>
 
-              <div className="col-span-4">
-                <div className="bg-chart-1/5 rounded-xl p-8">
-                  <div className="space-y-4">
-                  <h4>Growth Potential Analysis</h4>
-                    <div className="bg-white rounded-lg p-4">
-                      <div className="flex justify-between items-center">
+              <div className="lg:col-span-4">
+                <div className="bg-chart-1/5 rounded-xl p-4 sm:p-6 lg:p-8">
+                  <div className="space-y-3 sm:space-y-4">
+                    <h4>Growth Potential Analysis</h4>
+                    <div className="bg-white rounded-lg p-3 sm:p-4">
+                      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1 sm:gap-0">
                         <span className="metric-label">From Minimum to Average:</span>
                         <span className="metric-value">+{metrics.minToAvgGrowth.toFixed(0)}%</span>
                       </div>
                     </div>
-                    <div className="bg-white rounded-lg p-4">
-                      <div className="flex justify-between items-center">
+                    <div className="bg-white rounded-lg p-3 sm:p-4">
+                      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1 sm:gap-0">
                         <span className="metric-label">From Average to Maximum:</span>
                         <span className="metric-value">+{metrics.avgToMaxGrowth.toFixed(0)}%</span>
                       </div>
                     </div>
-                    <div className="bg-white rounded-lg p-4">
-                      <div className="flex justify-between items-center">
+                    <div className="bg-white rounded-lg p-3 sm:p-4">
+                      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1 sm:gap-0">
                         <span className="metric-label">Total Range:</span>
                         <span className="metric-value">{formatCurrency(metrics.totalRange, country, record)}</span>
                       </div>

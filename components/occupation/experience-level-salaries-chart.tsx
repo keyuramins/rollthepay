@@ -61,226 +61,244 @@ export function ExperienceLevelSalariesChart({ record, country }: ExperienceLeve
             </div>
           </CardHeader>
           <CardContent>
-          <div className="h-80">
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={experienceLevelsData.experienceLevels} margin={{ top: 50, right: 30, left: 56, bottom: 48 }}>
-                <defs>
-                  <linearGradient id="stepGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="var(--chart-1)" stopOpacity={0.3} />
-                    <stop offset="100%" stopColor="var(--chart-1)" stopOpacity={0.05} />
-                  </linearGradient>
-                </defs>
-                <CartesianGrid
-                  strokeDasharray="3 3"
-                  stroke="var(--foreground)"
-                  strokeOpacity={0.3}
-                  vertical={true}
-                  horizontal={true}
-                />
-                <XAxis
-                  dataKey="name"
-                  axisLine={false}
-                  tickLine={false}
-                  tickMargin={12}
-                  tick={(props: any) => {
-                    const { x, y, payload } = props;
-                    const text: string = String(payload?.value ?? '');
-                    const padX = 1; // horizontal padding inside pill
-                    const height = 28; // fixed pill height
-                    const fontSize = 12;
-                    const baseWidth = Math.max(42, text.length * 8); // approximate text width
-                    const width = (baseWidth + padX * 2) - 12;
-                    const rectX = x - width / 2;
-                    const rectY = y ; // place below axis line
-                    return (
-                      <g>
-                        <rect
-                          x={rectX}
-                          y={rectY}
-                          width={width}
-                          height={height}
-                          rx={14}
-                          ry={14}
-                          fill="var(--background)"
-                          stroke="var(--border)"
-                          strokeWidth={1}
-                          style={{ filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.08))' }}
-                        />
-                        <text
-                          x={x}
-                          y={rectY + height / 2 + 4}
-                          textAnchor="middle"
-                          fill="var(--primary)"
-                          fontSize={fontSize}
-                          fontWeight={700}
-                        >
-                          {text}
-                        </text>
-                      </g>
-                    );
-                  }}
-                >
-                  <Label value="Experience level" position="insideBottom" offset={-44} style={{ fill: 'var(--muted-foreground)', fontSize: 14, fontWeight: 500 }} />
-                </XAxis>
-                <YAxis
-                  width={80}
-                  axisLine={false}
-                  tickLine={false}
-                  tick={(props: any) => {
-                    const { x, y, payload } = props;
-                    const v = Number(payload?.value ?? 0);
-                    const text = formatHourly(v);
-                    const padX = 1; // horizontal padding inside pill
-                    const height = 28; // fixed pill height
-                    const fontSize = 12;
-                    const baseWidth = Math.max(48, text.length * 8); // approximate text width
-                    const width = (baseWidth + padX * 2);
-                    const rectX = x - width - 12; // place to the left of axis
-                    const rectY = y - height / 2; // center vertically on tick
-                    return (
-                      <g>
-                        <rect
-                          x={rectX}
-                          y={rectY}
-                          width={width}
-                          height={height}
-                          rx={14}
-                          ry={14}
-                          fill="var(--background)"
-                          stroke="var(--border)"
-                          strokeWidth={1}
-                          style={{ filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.08))' }}
-                        />
-                        <text
-                          x={rectX + width / 2}
-                          y={rectY + height / 2 + 4}
-                          textAnchor="middle"
-                          fill="var(--primary)"
-                          fontSize={fontSize}
-                          fontWeight={700}
-                        >
-                          {text}
-                        </text>
-                      </g>
-                    );
-                  }}
-                >
-                  <Label value="Hourly rate ($/hr)" angle={-90} position="insideLeft" offset={-20} style={{ fill: 'var(--muted-foreground)', fontSize: 14, fontWeight: 500, textAnchor: 'middle' }} />
-                </YAxis>
+            {/* Mobile message - shown only on screens below sm */}
+            <div className="sm:hidden">
+              <div className="h-80 flex flex-col items-center justify-center text-center p-6 bg-muted/30 rounded-lg border-2 border-dashed border-muted-foreground/30">
+                <div className="w-16 h-16 mx-auto mb-4 flex items-center justify-center rounded-full bg-primary/10">
+                  <svg className="w-8 h-8 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                  </svg>
+                </div>
+                <h4 className="text-lg font-semibold text-foreground mb-2">Chart Best Viewed on Desktop</h4>
+                <p className="text-sm mb-4">
+                  This interactive chart is optimized for larger screens. For the best experience, please view on desktop or rotate your device to landscape mode.
+                </p>
+              </div>
+            </div>
 
-                <RechartsTooltip
-                  formatter={(value: number) => [formatHourly(value), 'Hourly rate']}
-                  labelStyle={{ color: 'var(--foreground)', fontWeight: '600' }}
-                  contentStyle={{
-                    backgroundColor: 'var(--card)',
-                    border: '1px solid var(--border)',
-                    borderRadius: '8px',
-                    boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'
-                  }}
-                />
-                <Area
-                  type="monotone"
-                  dataKey="value"
-                  stroke="var(--primary)"
-                  strokeWidth={3}
-                  strokeDasharray="8 4"
-                  fill="url(#stepGradient)"
-                  dot={(props: any) => {
-                    const { cx, cy, payload } = props;
-                    const value = payload?.value;
-                    if (!value) return (<g></g>);
-                    
-                    const text = formatHourly(Number(value));
-                    const textWidth = Math.max(text.length * 8, 55);
-                    const pillWidth = textWidth;
-                    const pillHeight = 32;
-                    
-                    return (
-                      <g>
-                        <defs>
-                          <linearGradient id={`pillGradient-${cx}-${cy}`} x1="0%" y1="0%" x2="100%" y2="0%">
-                            <stop offset="0%" stopColor="var(--chart-1)" stopOpacity={0.9} />
-                            <stop offset="100%" stopColor="var(--primary)" stopOpacity={0.7} />
-                          </linearGradient>
-                        </defs>
-                        <rect
-                          x={cx - pillWidth / 2}
-                          y={cy - pillHeight / 2}
-                          width={pillWidth}
-                          height={pillHeight}
-                          rx={16}
-                          ry={16}
-                          fill={`url(#pillGradient-${cx}-${cy})`}
-                          // stroke="var(--background)"
-                          // strokeWidth={2}
-                          filter="drop-shadow(0 2px 4px rgba(0,0,0,0.15))"
-                        />
-                        <text
-                          x={cx}
-                          y={cy + 4}
-                          textAnchor="middle"
-                          fill="var(--background)"
-                          fontSize="12"
-                          fontWeight="700"
-                        >
-                          {text}
-                        </text>
-                      </g>
-                    );
-                  }}
-                  activeDot={(props: any) => {
-                    const { cx, cy, payload } = props;
-                    const value = payload?.value;
-                    if (!value) return (<g></g>);
-                    
-                    const text = formatHourly(Number(value));
-                    const textWidth = Math.max(text.length * 8, 55);
-                    const pillWidth = textWidth + 2;
-                    const pillHeight = 36;
-                    
-                    return (
-                      <g>
-                        <defs>
-                          <linearGradient id={`activePillGradient-${cx}-${cy}`} x1="0%" y1="0%" x2="100%" y2="0%">
-                            <stop offset="0%" stopColor="var(--primary)" stopOpacity={1} />
-                            <stop offset="100%" stopColor="var(--chart-1)" stopOpacity={0.8} />
-                          </linearGradient>
-                        </defs>
-                        <rect
-                          x={cx - pillWidth / 2}
-                          y={cy - pillHeight / 2}
-                          width={pillWidth}
-                          height={pillHeight}
-                          rx={18}
-                          ry={18}
-                          fill={`url(#activePillGradient-${cx}-${cy})`}
-                          // stroke="var(--background)"
-                          // strokeWidth={3}
-                          filter="drop-shadow(0 4px 8px rgba(0,0,0,0.2))"
-                        />
-                        <text
-                          x={cx}
-                          y={cy + 5}
-                          textAnchor="middle"
-                          fill="var(--background)"
-                          fontSize="13"
-                          fontWeight="700"
-                        >
-                          {text}
-                        </text>
-                      </g>
-                    );
-                  }}
-                />
-              </AreaChart>
-            </ResponsiveContainer>
-          </div>
-          <div className="mt-4 flex flex-col items-center gap-1">
-              <div className="flex items-center space-x-2 rounded-full px-2 py-1 bg-secondary/30 border border-input   mt-2">
+            {/* Desktop chart - shown only on sm and above */}
+            <div className="hidden sm:block h-80">
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={experienceLevelsData.experienceLevels} margin={{ top: 50, right: 30, left: 56, bottom: 48 }}>
+                  <defs>
+                    <linearGradient id="stepGradient" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="var(--chart-1)" stopOpacity={0.3} />
+                      <stop offset="100%" stopColor="var(--chart-1)" stopOpacity={0.05} />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid
+                    strokeDasharray="3 3"
+                    stroke="var(--foreground)"
+                    strokeOpacity={0.3}
+                    vertical={true}
+                    horizontal={true}
+                  />
+                  <XAxis
+                    dataKey="name"
+                    axisLine={false}
+                    tickLine={false}
+                    tickMargin={12}
+                    tick={(props: any) => {
+                      const { x, y, payload } = props;
+                      const text: string = String(payload?.value ?? '');
+                      const padX = 1; // horizontal padding inside pill
+                      const height = 28; // fixed pill height
+                      const fontSize = 12;
+                      const baseWidth = Math.max(42, text.length * 8); // approximate text width
+                      const width = (baseWidth + padX * 2) - 12;
+                      const rectX = x - width / 2;
+                      const rectY = y ; // place below axis line
+                      return (
+                        <g>
+                          <rect
+                            x={rectX}
+                            y={rectY}
+                            width={width}
+                            height={height}
+                            rx={14}
+                            ry={14}
+                            fill="var(--background)"
+                            stroke="var(--border)"
+                            strokeWidth={1}
+                            style={{ filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.08))' }}
+                          />
+                          <text
+                            x={x}
+                            y={rectY + height / 2 + 4}
+                            textAnchor="middle"
+                            fill="var(--primary)"
+                            fontSize={fontSize}
+                            fontWeight={700}
+                          >
+                            {text}
+                          </text>
+                        </g>
+                      );
+                    }}
+                  >
+                    <Label value="Experience level" position="insideBottom" offset={-44} style={{ fill: 'var(--muted-foreground)', fontSize: 14, fontWeight: 500 }} />
+                  </XAxis>
+                  <YAxis
+                    width={80}
+                    axisLine={false}
+                    tickLine={false}
+                    tick={(props: any) => {
+                      const { x, y, payload } = props;
+                      const v = Number(payload?.value ?? 0);
+                      const text = formatHourly(v);
+                      const padX = 1; // horizontal padding inside pill
+                      const height = 28; // fixed pill height
+                      const fontSize = 12;
+                      const baseWidth = Math.max(48, text.length * 8); // approximate text width
+                      const width = (baseWidth + padX * 2);
+                      const rectX = x - width - 12; // place to the left of axis
+                      const rectY = y - height / 2; // center vertically on tick
+                      return (
+                        <g>
+                          <rect
+                            x={rectX}
+                            y={rectY}
+                            width={width}
+                            height={height}
+                            rx={14}
+                            ry={14}
+                            fill="var(--background)"
+                            stroke="var(--border)"
+                            strokeWidth={1}
+                            style={{ filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.08))' }}
+                          />
+                          <text
+                            x={rectX + width / 2}
+                            y={rectY + height / 2 + 4}
+                            textAnchor="middle"
+                            fill="var(--primary)"
+                            fontSize={fontSize}
+                            fontWeight={700}
+                          >
+                            {text}
+                          </text>
+                        </g>
+                      );
+                    }}
+                  >
+                    <Label value="Hourly rate ($/hr)" angle={-90} position="insideLeft" offset={-20} style={{ fill: 'var(--muted-foreground)', fontSize: 14, fontWeight: 500, textAnchor: 'middle' }} />
+                  </YAxis>
+
+                  <RechartsTooltip
+                    formatter={(value: number) => [formatHourly(value), 'Hourly rate']}
+                    labelStyle={{ color: 'var(--foreground)', fontWeight: '600' }}
+                    contentStyle={{
+                      backgroundColor: 'var(--card)',
+                      border: '1px solid var(--border)',
+                      borderRadius: '8px',
+                      boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'
+                    }}
+                  />
+                  <Area
+                    type="monotone"
+                    dataKey="value"
+                    stroke="var(--primary)"
+                    strokeWidth={3}
+                    strokeDasharray="8 4"
+                    fill="url(#stepGradient)"
+                    dot={(props: any) => {
+                      const { cx, cy, payload } = props;
+                      const value = payload?.value;
+                      if (!value) return (<g></g>);
+                      
+                      const text = formatHourly(Number(value));
+                      const textWidth = Math.max(text.length * 8, 55);
+                      const pillWidth = textWidth;
+                      const pillHeight = 32;
+                      
+                      return (
+                        <g>
+                          <defs>
+                            <linearGradient id={`pillGradient-${cx}-${cy}`} x1="0%" y1="0%" x2="100%" y2="0%">
+                              <stop offset="0%" stopColor="var(--chart-1)" stopOpacity={0.9} />
+                              <stop offset="100%" stopColor="var(--primary)" stopOpacity={0.7} />
+                            </linearGradient>
+                          </defs>
+                          <rect
+                            x={cx - pillWidth / 2}
+                            y={cy - pillHeight / 2}
+                            width={pillWidth}
+                            height={pillHeight}
+                            rx={16}
+                            ry={16}
+                            fill={`url(#pillGradient-${cx}-${cy})`}
+                            // stroke="var(--background)"
+                            // strokeWidth={2}
+                            filter="drop-shadow(0 2px 4px rgba(0,0,0,0.15))"
+                          />
+                          <text
+                            x={cx}
+                            y={cy + 4}
+                            textAnchor="middle"
+                            fill="var(--background)"
+                            fontSize="12"
+                            fontWeight="700"
+                          >
+                            {text}
+                          </text>
+                        </g>
+                      );
+                    }}
+                    activeDot={(props: any) => {
+                      const { cx, cy, payload } = props;
+                      const value = payload?.value;
+                      if (!value) return (<g></g>);
+                      
+                      const text = formatHourly(Number(value));
+                      const textWidth = Math.max(text.length * 8, 55);
+                      const pillWidth = textWidth + 2;
+                      const pillHeight = 36;
+                      
+                      return (
+                        <g>
+                          <defs>
+                            <linearGradient id={`activePillGradient-${cx}-${cy}`} x1="0%" y1="0%" x2="100%" y2="0%">
+                              <stop offset="0%" stopColor="var(--primary)" stopOpacity={1} />
+                              <stop offset="100%" stopColor="var(--chart-1)" stopOpacity={0.8} />
+                            </linearGradient>
+                          </defs>
+                          <rect
+                            x={cx - pillWidth / 2}
+                            y={cy - pillHeight / 2}
+                            width={pillWidth}
+                            height={pillHeight}
+                            rx={18}
+                            ry={18}
+                            fill={`url(#activePillGradient-${cx}-${cy})`}
+                            // stroke="var(--background)"
+                            // strokeWidth={3}
+                            filter="drop-shadow(0 4px 8px rgba(0,0,0,0.2))"
+                          />
+                          <text
+                            x={cx}
+                            y={cy + 5}
+                            textAnchor="middle"
+                            fill="var(--background)"
+                            fontSize="13"
+                            fontWeight="700"
+                          >
+                            {text}
+                          </text>
+                        </g>
+                      );
+                    }}
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
+
+            {/* Legend and axis help - shown only on sm and above */}
+            <div className="hidden sm:flex mt-4 flex-col items-center gap-1">
+              <div className="flex items-center space-x-2 rounded-full px-2 py-1 bg-secondary/30 border border-input mt-2">
                 <div className="w-3 h-3 rounded-full bg-chart-1" />
                 <span className="text-sm text-black font-bold">Hourly salary by experience level</span>
               </div>
-          </div>
+            </div>
           </CardContent>
         </Card>
       )}

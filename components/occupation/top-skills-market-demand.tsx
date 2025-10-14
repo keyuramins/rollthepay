@@ -153,55 +153,54 @@ export function TopSkillsMarketDemand({ record }: TopSkillsMarketDemandProps) {
             <AwardIcon className="top-skills-market-demand__header-icon" />
             <h4>Skills Analysis ({sortedSkills.length} skills)</h4>
           </div>
-          <div className="top-skills-market-demand__skills-list">
+          <div className="top-skills-market-demand__skills-list grid grid-cols-1 gap-4">
             {sortedSkills.map((skill, index) => (
-              <div key={index} className="top-skills-market-demand__skill-item">
-                <div className="top-skills-market-demand__skill-icon">
+              <div key={index} className="top-skills-market-demand__skill-item flex flex-col sm:flex-row items-start gap-3 sm:gap-4 p-3 sm:p-4 bg-card rounded-xl border">
+                <div className="top-skills-market-demand__skill-icon flex-shrink-0">
                   {
                     /* Show icons based on the skill */
-                    skill.category === 'Software' ? <CodeIcon className="top-skills-market-demand__skill-icon-svg" /> :
-                      skill.category === 'Management' ? <UserIcon className="top-skills-market-demand__skill-icon-svg" /> :
-                        skill.category === 'Accounting' ? <CalculatorIcon className="top-skills-market-demand__skill-icon-svg" /> :
-                          skill.category === 'Analysis' ? <ChartAreaIcon className="top-skills-market-demand__skill-icon-svg" /> :
-                            skill.category === 'Technical' ? <CodeIcon className="top-skills-market-demand__skill-icon-svg" /> :
-                              skill.category === 'Process' ? <FlowerIcon className="top-skills-market-demand__skill-icon-svg" /> :
-                                skill.category === 'Communication' ? <MessageCircleIcon className="top-skills-market-demand__skill-icon-svg" /> : <CodeIcon className="top-skills-market-demand__skill-icon-svg" />
+                    skill.category === 'Software' ? <CodeIcon className="top-skills-market-demand__skill-icon-svg w-5 h-5 sm:w-6 sm:h-6" /> :
+                      skill.category === 'Management' ? <UserIcon className="top-skills-market-demand__skill-icon-svg w-5 h-5 sm:w-6 sm:h-6" /> :
+                        skill.category === 'Accounting' ? <CalculatorIcon className="top-skills-market-demand__skill-icon-svg w-5 h-5 sm:w-6 sm:h-6" /> :
+                          skill.category === 'Analysis' ? <ChartAreaIcon className="top-skills-market-demand__skill-icon-svg w-5 h-5 sm:w-6 sm:h-6" /> :
+                            skill.category === 'Technical' ? <CodeIcon className="top-skills-market-demand__skill-icon-svg w-5 h-5 sm:w-6 sm:h-6" /> :
+                              skill.category === 'Process' ? <FlowerIcon className="top-skills-market-demand__skill-icon-svg w-5 h-5 sm:w-6 sm:h-6" /> : <MessageCircleIcon className="top-skills-market-demand__skill-icon-svg w-5 h-5 sm:w-6 sm:h-6" />
                   }
                 </div>
-                <div className="top-skills-market-demand__skill-content">
-                  <div className="top-skills-market-demand__skill-header">
-                    <h5 className="top-skills-market-demand__skill-name">{skill.name}</h5>
-                    <span className="top-skills-market-demand__skill-category">
+                <div className="top-skills-market-demand__skill-content flex-1 w-full">
+                  <div className="top-skills-market-demand__skill-header flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1">
+                    <h5 className="top-skills-market-demand__skill-name text-sm sm:text-base font-semibold">{skill.name}</h5>
+                    <span className="top-skills-market-demand__skill-category text-xs sm:text-sm bg-secondary/30 text-black font-semibold rounded-md px-2 py-0.5">
                       {skill.category}
                     </span>
                   </div>
 
-                  <div className="top-skills-market-demand__skill-meta">
-                    <div className="top-skills-market-demand__skill-demand">
+                  <div className="top-skills-market-demand__skill-meta flex items-center justify-between gap-2 flex-wrap mt-2">
+                    <div className="top-skills-market-demand__skill-demand flex items-center gap-2">
                       <div className={`top-skills-market-demand__skill-demand-dot ${skill.demandColor === 'green' ? 'top-skills-market-demand__skill-demand-dot--green' :
                         skill.demandColor === 'orange' ? 'top-skills-market-demand__skill-demand-dot--orange' : 'top-skills-market-demand__skill-demand-dot--blue'
                         }`}></div>
-                      <span className="top-skills-market-demand__skill-demand-text">{skill.demandLevel}</span>
+                      <span className="top-skills-market-demand__skill-demand-text text-xs sm:text-sm">{skill.demandLevel}</span>
                     </div>
 
-                    <span className="top-skills-market-demand__skill-impact">
+                    <span className="top-skills-market-demand__skill-impact text-xs sm:text-sm shrink-0">
                       +{skill.salaryImpact}% salary impact
                     </span>
                   </div>
-                  <div className="top-skills-market-demand__skill-progress">
+                  <div className="top-skills-market-demand__skill-progress mt-2 h-2 sm:h-2.5 bg-muted rounded-full">
                     <div
-                      className="top-skills-market-demand__skill-progress-bar"
+                      className="top-skills-market-demand__skill-progress-bar h-full rounded-full bg-primary"
                       style={{ width: `${(skill.marketShare / 30) * 100}%` }}
                     ></div>
                   </div>
                 </div>
 
-                <div className="top-skills-market-demand__skill-metrics">
+                <div className="top-skills-market-demand__skill-metrics mt-3 sm:mt-0 sm:self-center sm:ml-auto text-right flex-shrink-0">
                   <div className="top-skills-market-demand__skill-metrics-content">
-                    <div className="metric-value">
+                    <div className="metric-value text-sm sm:text-base">
                       {skill.marketShare}%
                     </div>
-                    <div className="metric-label">
+                    <div className="metric-label text-xs sm:text-sm">
                       Market Share
                     </div>
                   </div>

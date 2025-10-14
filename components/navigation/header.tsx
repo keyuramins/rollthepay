@@ -18,25 +18,28 @@ export async function Header() {
     location: record.location || null
   })) as Array<{ country: string; title: string; slug: string; state: string | null; location: string | null; }>;
   return (
-    <header className="bg-primary shadow-lg sticky top-0 z-50">
+    <header className="bg-primary shadow-lg sticky top-0 z-50" role="banner">
       <div className="max-w-7xl lg:max-w-full mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center h-16">
+        <div className="flex items-center h-14 sm:h-16">
           {/* Logo - Left Side */}
           <div className="flex items-center pr-4">
             <Logo />
           </div>
 
           {/* md-only: desktop nav on the top row (right of logo) */}
-          <div className="hidden lg:flex xl:hidden space-x-2 pl-4 ml-auto">
+          <nav className="hidden lg:flex xl:hidden space-x-2 pl-4 ml-auto" role="navigation" aria-label="Main navigation">
             {continents.map((continent) => (
               <div key={continent.code} className="relative group">
                 <Button
                   variant="rtp"
                   size="rtp"
                   className="flex items-center"
+                  aria-expanded="false"
+                  aria-haspopup="true"
+                  aria-label={`${continent.name} countries menu`}
                 >
                   <span className="text-sm font-semibold">{continent.name}</span>
-                  <ChevronDown className="h-3 w-3" />
+                  <ChevronDown className="h-3 w-3" aria-hidden="true" />
                 </Button>
                 
                 {/* Dropdown Content - Shown on hover via CSS */}
@@ -62,7 +65,7 @@ export async function Header() {
                 </div>
               </div>
             ))}
-          </div>
+          </nav>
 
           {/* lg+: search in center */}
           <div className="hidden xl:flex flex-1 justify-center px-4 lg:px-8">
@@ -72,12 +75,13 @@ export async function Header() {
                 headerMode={true}
                 placeholder="Select a country..."
                 fullWidth={true}
+                aria-label="Search occupations by country"
               />
             </div>
           </div>
 
           {/* lg+: desktop nav on the right */}
-          <div className="hidden xl:flex space-x-2 pl-4">
+          <nav className="hidden xl:flex space-x-2 pl-4" role="navigation" aria-label="Main navigation">
             {continents.map((continent) => (
               <div key={continent.code} className="relative group">
                 <Button
@@ -112,11 +116,11 @@ export async function Header() {
                 </div>
               </div>
             ))}
-          </div>
+          </nav>
 
           {/* Mobile menu button and menu */}
           <div className="lg:hidden pl-4 ml-auto">
-            <MobileMenuToggle />
+            <MobileMenuToggle aria-label="Open mobile menu" />
           </div>
         </div>
 
@@ -129,6 +133,7 @@ export async function Header() {
                 headerMode={true}
                 placeholder="Search occupations..."
                 fullWidth={true}
+                aria-label="Search occupations"
               />
             </div>
           </div>

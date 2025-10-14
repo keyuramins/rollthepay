@@ -32,13 +32,29 @@ export function PercentilesChart({ data, title, subtitle, country }: Percentiles
   };
 
   return (
-    <div className="bg-card rounded-lg shadow-xs p-6 border">
+    <div className="bg-card rounded-lg shadow-xs p-4 sm:p-6 border">
       <div className="mb-6">
-        <h3 className="text-xl font-bold text-foreground">{title}</h3>
-        {subtitle && <p className="text-sm text-muted-foreground mt-1">{subtitle}</p>}
+        <h3>{title}</h3>
+        {subtitle && <p className="mt-1">{subtitle}</p>}
       </div>
 
-      <div className="h-72">
+      {/* Mobile message - shown only on screens below sm */}
+      <div className="sm:hidden">
+        <div className="h-72 flex flex-col items-center justify-center text-center p-6 bg-muted/30 rounded-lg border-2 border-dashed border-muted-foreground/30">
+          <div className="w-16 h-16 mx-auto mb-4 flex items-center justify-center rounded-full bg-primary/10">
+            <svg className="w-8 h-8 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+            </svg>
+          </div>
+          <h4 className="text-lg font-semibold text-foreground mb-2">Chart Best Viewed on Desktop</h4>
+          <p className="text-sm mb-4">
+            This interactive chart is optimized for larger screens. For the best experience, please view on desktop or rotate your device to landscape mode.
+          </p>
+        </div>
+      </div>
+
+      {/* Desktop chart - shown only on sm and above */}
+      <div className="hidden sm:block h-72">
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart data={data} margin={{ top: 20, right: 56, left: 56, bottom: 28 }}>
             <defs>
@@ -134,11 +150,11 @@ export function PercentilesChart({ data, title, subtitle, country }: Percentiles
         </ResponsiveContainer>
       </div>
 
-      {/* Legend and axis help */}
-      <div className="mt-4 flex flex-col items-center gap-1">
-        <div className="flex items-center space-x-2 rounded-full px-4 py-1 bg-secondary/30 border border-input mt-2">
+      {/* Legend and axis help - shown only on sm and above */}
+      <div className="hidden sm:flex mt-4 flex-col items-center gap-1">
+        <div className="flex items-center space-x-2 rounded-full px-2 sm:px-4 py-0.5 sm:py-1 bg-secondary/30 border border-input mt-2">
           <div className="w-3 h-3 rounded-full bg-chart-1" />
-          <span className="text-sm font-bold text-black">Annual salary at each percentile</span>
+          <span className="text-xs sm:text-sm font-bold text-black">Annual salary at each percentile</span>
         </div>
       </div>
     </div>

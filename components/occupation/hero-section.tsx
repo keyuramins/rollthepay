@@ -1,3 +1,4 @@
+"use client";
 import { formatCurrency } from "@/lib/format/currency";
 import type { OccupationRecord } from "@/lib/data/types";
 import { removeAveragePrefix } from "@/lib/utils/remove-average-cleaner";
@@ -137,34 +138,38 @@ export function OccupationHeroSection({ record, country, locationText }: Occupat
   const highSalary = record.totalPayMax ? formatCurrency(Number(record.totalPayMax), country, record) : null;
 
   return (
-    <section className="occupation-hero-section">
+    <section 
+      className="occupation-hero-section" 
+      aria-labelledby="hero-heading"
+      role="banner"
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 lg:gap-8 items-start">
           {/* Left Section - Job Details (75% width) */}
-          <div className="lg:col-span-3 space-y-6">
+          <div className="lg:col-span-3 space-y-4 sm:space-y-6">
             {/* Category Tags */}
-            <div className="hero-badges">
-              <span className="hero-badge">
+            <div className="hero-badges" role="list" aria-label="Job categories and location">
+              <span className="hero-badge" role="listitem">
                 {jobCategory}
               </span>
               {record.location && (
-                <span className="hero-badge hero-badge--location">
+                <span className="hero-badge hero-badge--location" role="listitem">
                   {record.location.split(' ').map(word => 
                     word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
                   ).join(' ')}
                 </span>
               )}
             </div>
-            <h1>{occupationName}</h1>
-            <p>{jobDescription}</p>
+            <h1 id="hero-heading" itemProp="title">{occupationName}</h1>
+            <p itemProp="description">{jobDescription}</p>
 
             {/* Primary Metrics Row */}
             {primaryMetrics.length > 0 && (
-              <div className="metrics-grid">
+              <div className="metrics-grid" role="list" aria-label="Key salary metrics">
                 {primaryMetrics.map((metric, index) => (
-                  <div key={index}>
+                  <div key={index} role="listitem" className="text-center sm:text-left">
                     <p className="metric-label">{metric.label}</p>
-                    <p className="metric-value">{metric.value}</p>
+                    <p className="metric-value" aria-label={`${metric.label}: ${metric.value}`}>{metric.value}</p>
                   </div>
                 ))}
               </div>
@@ -173,41 +178,64 @@ export function OccupationHeroSection({ record, country, locationText }: Occupat
 
           {/* Right Section - Salary Card (25% width) */}
           <div className="lg:col-span-1">
-            <div className="salary-card">
+            <aside className="salary-card" aria-labelledby="salary-card-heading">
               <div className="salary-card__header">
-                <div className="salary-value">
+                <div className="salary-value" itemProp="baseSalary" content={record.avgAnnualSalary?.toString()}>
                   {avgSalary || 'N/A'}
                 </div>
-                <p className="metric-label">Average Annual Salary</p>
+                <p className="metric-label" id="salary-card-heading">Average Annual Salary</p>
               </div>
 
-              <div className="salary-meta">
+              <div className="salary-meta" role="list" aria-label="Salary details">
                 {medianSalary && (
-                  <div className="salary-meta__row">
+                  <div className="salary-meta__row" role="listitem">
                     <span className="metric-label">Median:</span>
-                    <span className="metric-value">{medianSalary}</span>
+                    <span className="metric-value" aria-label={`Median salary: ${medianSalary}`}>{medianSalary}</span>
                   </div>
                 )}
                 {lowSalary && highSalary && (
-                  <div className="salary-meta__row">
+                  <div className="salary-meta__row" role="listitem">
                     <span className="metric-label">Range:</span>
-                    <span className="metric-value">{lowSalary} - {highSalary}</span>
+                    <span className="metric-value" aria-label={`Salary range: ${lowSalary} to ${highSalary}`}>{lowSalary} - {highSalary}</span>
                   </div>
                 )}
               </div>
 
               <div className="salary-actions">
-                <button className="btn-secondary">
+                <button 
+                  className="btn-secondary"
+                  onClick={() => {
+                    const compensationSection = document.querySelector('[aria-labelledby="compensation-heading"]');
+                    compensationSection?.scrollIntoView({ behavior: 'smooth' });
+                  }}
+                  aria-describedby="salary-card-heading"
+                >
                   View Salary Details
                 </button>
-                <button className="btn-icon" type="button" aria-label="Share this page" title="Share this page">
+                <button 
+                  className="btn-icon" 
+                  type="button" 
+                  aria-label="Share this salary information page" 
+                  title="Share this page"
+                  onClick={() => {
+                    if (navigator.share) {
+                      navigator.share({
+                        title: `${occupationName} Salary Information`,
+                        text: `Check out salary data for ${occupationName} in ${locationText}`,
+                        url: window.location.href
+                      });
+                    } else {
+                      navigator.clipboard.writeText(window.location.href);
+                    }
+                  }}
+                >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" />
                   </svg>
                   <span className="sr-only">Share this page</span>
                 </button>
               </div>
-            </div>
+            </aside>
           </div>
         </div>
       </div>

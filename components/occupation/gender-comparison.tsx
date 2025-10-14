@@ -56,7 +56,7 @@ export function GenderComparison({ record }: GenderComparisonProps) {
           return (
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
               {/* Visual side */}
-              <div className="grid grid-cols-3 gap-6 items-center">
+              <div className="grid grid-cols-3 gap-20 sm:gap-6 items-center">
               <div className="flex flex-col items-center gap-2">
                   <MaleIcon className="fill-accent rounded-lg w-16 h-16" />
                   <span className="metric-label">Male</span>

@@ -3,9 +3,9 @@ import { Search, Users, ArrowRight, Globe, Shield, FileText, Scale } from "lucid
 
 export function Footer() {
   return (
-    <footer className="bg-primary text-white">
+    <footer className="bg-primary text-white" role="contentinfo">
       {/* Main Footer Content */}
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
           
           {/* Brand Section */}
@@ -26,34 +26,34 @@ export function Footer() {
           {/* Quick Links */}
           <div>
             <h4 className="text-lg font-semibold text-white mb-4">Quick Links</h4>
-            <ul className="space-y-3">
-              <li>
-                <Link href="/" className="text-white/90 hover:text-white transition-colors duration-200 flex items-center gap-2">
-                  <Search className="w-4 h-4" />
+            <ul className="space-y-3" role="list">
+              <li role="listitem">
+                <Link href="/" className="text-white/90 hover:text-white transition-colors duration-200 flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-primary rounded-sm">
+                  <Search className="w-4 h-4" aria-hidden="true" />
                   Home
                 </Link>
               </li>
-              <li>
-                <Link href="/about" className="text-white/90 hover:text-white transition-colors duration-200 flex items-center gap-2">
-                  <Users className="w-4 h-4" />
+              <li role="listitem">
+                <Link href="/about" className="text-white/90 hover:text-white transition-colors duration-200 flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-primary rounded-sm">
+                  <Users className="w-4 h-4" aria-hidden="true" />
                   About
                 </Link>
               </li>
-              <li>
-                <Link href="/privacy-policy" className="text-white/90 hover:text-white transition-colors duration-200 flex items-center gap-2">
-                  <Shield className="w-4 h-4" />
+              <li role="listitem">
+                <Link href="/privacy-policy" className="text-white/90 hover:text-white transition-colors duration-200 flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-primary rounded-sm">
+                  <Shield className="w-4 h-4" aria-hidden="true" />
                   Privacy Policy
                 </Link>
               </li>
-              <li>
-                <Link href="/disclaimer" className="text-white/90 hover:text-white transition-colors duration-200 flex items-center gap-2">
-                  <FileText className="w-4 h-4" />
+              <li role="listitem">
+                <Link href="/disclaimer" className="text-white/90 hover:text-white transition-colors duration-200 flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-primary rounded-sm">
+                  <FileText className="w-4 h-4" aria-hidden="true" />
                   Disclaimer
                 </Link>
               </li>
-              <li>
-                <Link href="/terms-of-use" className="text-white/90 hover:text-white transition-colors duration-200 flex items-center gap-2">
-                  <Scale className="w-4 h-4" />
+              <li role="listitem">
+                <Link href="/terms-of-use" className="text-white/90 hover:text-white transition-colors duration-200 flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-primary rounded-sm">
+                  <Scale className="w-4 h-4" aria-hidden="true" />
                   Terms of Use
                 </Link>
               </li>
@@ -63,34 +63,34 @@ export function Footer() {
           {/* Global Coverage */}
           <div>
             <h4 className="text-lg font-semibold text-white mb-4">Global Coverage</h4>
-            <ul className="space-y-3">
-              <li>
-                <Link href="/australia" className="text-white/90 hover:text-white transition-colors duration-200 flex items-center gap-2">
-                  <Globe className="w-4 h-4" />
+            <ul className="space-y-3" role="list">
+              <li role="listitem">
+                <Link href="/australia" className="text-white/90 hover:text-white transition-colors duration-200 flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-primary rounded-sm">
+                  <Globe className="w-4 h-4" aria-hidden="true" />
                   Australia
                 </Link>
               </li>
-              <li>
-                <Link href="/switzerland" className="text-white/90 hover:text-white transition-colors duration-200 flex items-center gap-2">
-                  <Globe className="w-4 h-4" />
+              <li role="listitem">
+                <Link href="/switzerland" className="text-white/90 hover:text-white transition-colors duration-200 flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-primary rounded-sm">
+                  <Globe className="w-4 h-4" aria-hidden="true" />
                   Switzerland
                 </Link>
               </li>
-              <li>
-                <Link href="/singapore" className="text-white/90 hover:text-white transition-colors duration-200 flex items-center gap-2">
-                  <Globe className="w-4 h-4" />
+              <li role="listitem">
+                <Link href="/singapore" className="text-white/90 hover:text-white transition-colors duration-200 flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-primary rounded-sm">
+                  <Globe className="w-4 h-4" aria-hidden="true" />
                   Singapore
                 </Link>
               </li>
-              <li>
-                <Link href="/india" className="text-white/90 hover:text-white transition-colors duration-200 flex items-center gap-2">
-                  <Globe className="w-4 h-4" />
+              <li role="listitem">
+                <Link href="/india" className="text-white/90 hover:text-white transition-colors duration-200 flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-primary rounded-sm">
+                  <Globe className="w-4 h-4" aria-hidden="true" />
                   India
                 </Link>
               </li>
-              <li>
-                <Link href="/canada" className="text-white/90 hover:text-white transition-colors duration-200 flex items-center gap-2">
-                  <Globe className="w-4 h-4" />
+              <li role="listitem">
+                <Link href="/canada" className="text-white/90 hover:text-white transition-colors duration-200 flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-primary rounded-sm">
+                  <Globe className="w-4 h-4" aria-hidden="true" />
                   Canada
                 </Link>
               </li>
@@ -100,25 +100,25 @@ export function Footer() {
           {/* Features */}
           <div>
             <h4 className="text-lg font-semibold text-white mb-4">Features</h4>
-            <ul className="space-y-3">
-              <li className="text-white/90 flex items-center gap-2">
-                <Search className="w-4 h-4 text-white/80" />
+            <ul className="space-y-3" role="list">
+              <li role="listitem" className="text-white/90 flex items-center gap-2">
+                <Search className="w-4 h-4 text-white/80" aria-hidden="true" />
                 <span>Salary Search</span>
               </li>
-              <li className="text-white/90 flex items-center gap-2">
-                <Users className="w-4 h-4 text-white/80" />
+              <li role="listitem" className="text-white/90 flex items-center gap-2">
+                <Users className="w-4 h-4 text-white/80" aria-hidden="true" />
                 <span>Market Analysis</span>
               </li>
-              <li className="text-white/90 flex items-center gap-2">
-                <ArrowRight className="w-4 h-4 text-white/80" />
+              <li role="listitem" className="text-white/90 flex items-center gap-2">
+                <ArrowRight className="w-4 h-4 text-white/80" aria-hidden="true" />
                 <span>Career Insights</span>
               </li>
-              <li className="text-white/90 flex items-center gap-2">
-                <Globe className="w-4 h-4 text-white/80" />
+              <li role="listitem" className="text-white/90 flex items-center gap-2">
+                <Globe className="w-4 h-4 text-white/80" aria-hidden="true" />
                 <span>Global Data</span>
               </li>
-              <li className="text-white/90 flex items-center gap-2">
-                <ArrowRight className="w-4 h-4 text-white/80" />
+              <li role="listitem" className="text-white/90 flex items-center gap-2">
+                <ArrowRight className="w-4 h-4 text-white/80" aria-hidden="true" />
                 <span>No registration</span>
               </li>
             </ul>
@@ -135,8 +135,8 @@ export function Footer() {
               Join millions of professionals who use our platform to research salaries, 
               negotiate better offers, and advance their careers.
             </p>
-            <Link href="/" className="inline-flex items-center gap-2 bg-secondary text-primary px-8 py-3 rounded-md font-semibold hover:bg-card transition-colors duration-200">
-              <Search className="w-5 h-5" />
+            <Link href="/" className="inline-flex items-center gap-2 bg-secondary text-primary px-6 py-3 sm:px-8 sm:py-4 rounded-md font-semibold hover:bg-card focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-primary transition-colors duration-200 min-h-[44px]">
+              <Search className="w-5 h-5" aria-hidden="true" />
               Start Your Salary Research
             </Link>
           </div>
