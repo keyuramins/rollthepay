@@ -2,6 +2,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { formatCurrency } from "@/lib/format/currency";
+import { formatCurrencyWithMillion } from "@/lib/format/million-currency";
 import type { OccupationRecord } from "@/lib/data/types";
 import { InsightsSection } from "./ai-insights-section";
 import { cleanTitle, formatLocationString } from "@/lib/utils/title-cleaner";
@@ -38,7 +39,7 @@ export function CompensationAnalysis({ record, country, location }: Compensation
         const avgToMaxPercent = bonusData.avgToMaxPercent;
         
         if (bonusGrowthFactor > 0) {
-          return `Performance-based bonuses for ${occupationTitle} in ${fullLocation} show a ${bonusGrowthFactor}x growth factor from minimum to maximum. High achievers can earn ${avgToMaxPercent}% more than average performers, with a total bonus range of ${formatCurrency(bonusRange, country, record)}. This demonstrates significant rewards for excellence and consistent high performance in this market.`;
+          return `Performance-based bonuses for ${occupationTitle} in ${fullLocation} show a ${bonusGrowthFactor}x growth factor from minimum to maximum. High achievers can earn ${avgToMaxPercent}% more than average performers, with a total bonus range of ${formatCurrencyWithMillion(bonusRange, country, record)}. This demonstrates significant rewards for excellence and consistent high performance in this market.`;
         } else {
           return `Performance-based bonuses for ${occupationTitle} in ${fullLocation} provide variable compensation opportunities based on individual and company performance metrics. Bonus structures typically reward high achievers with competitive rates that align with market standards and performance expectations.`;
         }
@@ -50,7 +51,7 @@ export function CompensationAnalysis({ record, country, location }: Compensation
         const commissionGrowthFactor = commissionMin > 0 ? commissionMax / commissionMin : 0;
         
         if (commissionGrowthFactor > 0) {
-          return `Commission structures for ${occupationTitle} in ${fullLocation} offer a ${commissionGrowthFactor.toFixed(1)}x growth potential from minimum to maximum earnings. The total commission range of ${formatCurrency(commissionRange, country, record)} provides significant opportunities for high-performing sales professionals to maximize their earning potential.`;
+          return `Commission structures for ${occupationTitle} in ${fullLocation} offer a ${commissionGrowthFactor.toFixed(1)}x growth potential from minimum to maximum earnings. The total commission range of ${formatCurrencyWithMillion(commissionRange, country, record)} provides significant opportunities for high-performing sales professionals to maximize their earning potential.`;
         } else {
           return `Commission structures for ${occupationTitle} in ${fullLocation} provide variable compensation opportunities based on sales performance and market metrics. Sales professionals can expect competitive commission rates that align with industry standards and performance expectations.`;
         }
@@ -62,7 +63,7 @@ export function CompensationAnalysis({ record, country, location }: Compensation
         const profitGrowthFactor = profitMin > 0 ? profitMax / profitMin : 0;
         
         if (profitGrowthFactor > 0) {
-          return `Profit sharing programs for ${occupationTitle} in ${fullLocation} offer employees a ${profitGrowthFactor.toFixed(1)}x growth potential from minimum to maximum distributions. With a total range of ${formatCurrency(profitRange, country, record)}, these programs provide substantial opportunities for employees to benefit from company success and organizational performance.`;
+          return `Profit sharing programs for ${occupationTitle} in ${fullLocation} offer employees a ${profitGrowthFactor.toFixed(1)}x growth potential from minimum to maximum distributions. With a total range of ${formatCurrencyWithMillion(profitRange, country, record)}, these programs provide substantial opportunities for employees to benefit from company success and organizational performance.`;
         } else {
           return `Profit sharing programs for ${occupationTitle} in ${fullLocation} offer employees the opportunity to benefit from company success. These programs typically provide additional compensation based on organizational performance, individual contributions, and company profitability.`;
         }
@@ -95,10 +96,6 @@ export function CompensationAnalysis({ record, country, location }: Compensation
   const hourlyAvgPosition = hourlyLow && hourlyHigh && hourlyAvg ? ((hourlyAvg - hourlyLow) / (hourlyHigh - hourlyLow)) * 100 : 0;
   const hourlyGrowthPotential = hourlyAvg && hourlyHigh ? ((hourlyHigh - hourlyAvg) / hourlyAvg) * 100 : 0;
 
-  // Market percentile calculation (mock data for now)
-  const marketPercentile = Math.min(95, Math.max(5, Math.round(avgPosition + Math.random() * 20 - 10)));
-  const experiencePremium = Math.round((avg && low ? ((avg - low) / low) * 100 : 0) + Math.random() * 10);
-  const regionalAdjustment = Math.round(5 + Math.random() * 20);
 
   if (!low || !high || !avg) {
     return null;
@@ -478,7 +475,7 @@ export function CompensationAnalysis({ record, country, location }: Compensation
                   <div className="inner-card">
                     <div className="text-center">
                       <p className="metric-label">Maximum Bonus</p>
-                      <p className="additional-value">{formatCurrency(maxBonus, country, record)}</p>
+                      <p className="additional-value">{formatCurrencyWithMillion(maxBonus, country, record)}</p>
                       <div className="additional-comp__bar">
                         <div className="additional-comp__bar-fill"></div>
                       </div>
@@ -489,7 +486,7 @@ export function CompensationAnalysis({ record, country, location }: Compensation
                   <div className="inner-card">
                     <div className="text-center">
                       <p className="metric-label">Average Bonus</p>
-                      <p className="additional-value">{formatCurrency(avgBonus, country, record)}</p>
+                      <p className="additional-value">{formatCurrencyWithMillion(avgBonus, country, record)}</p>
                       <div className="additional-comp__bar">
                         <div className="additional-comp__bar-fill" style={{ width: '60%' }}></div>
                       </div>
@@ -500,7 +497,7 @@ export function CompensationAnalysis({ record, country, location }: Compensation
                   <div className="inner-card">
                     <div className="text-center">
                       <p className="metric-label">Minimum Bonus</p>
-                      <p className="additional-value">{formatCurrency(minBonus, country, record)}</p>
+                      <p className="additional-value">{formatCurrencyWithMillion(minBonus, country, record)}</p>
                       <div className="additional-comp__bar">
                         <div className="additional-comp__bar-fill" style={{ width: minBonus > 0 ? '15%' : '2%' }}></div>
                       </div>

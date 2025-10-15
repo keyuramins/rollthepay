@@ -1,8 +1,10 @@
-"use client";
+import Link from "next/link";
 import { formatCurrency } from "@/lib/format/currency";
+import { formatCurrencyWithMillion } from "@/lib/format/million-currency";
 import type { OccupationRecord } from "@/lib/data/types";
 import { removeAveragePrefix } from "@/lib/utils/remove-average-cleaner";
-import { getJobCategoryInfo, getJobCategory } from "./job-category-detector";
+import { getJobCategoryInfo } from "./job-category-detector";
+import { ShareOccupation } from "@/components/share/ShareOccupation";
 
 interface OccupationHeroSectionProps {
   record: OccupationRecord;
@@ -63,7 +65,7 @@ export function OccupationHeroSection({ record, country, locationText }: Occupat
     // Hourly rate (if available)
     if (record.avgHourlySalary && record.avgHourlySalary > 0) {
       metrics.push({
-        label: 'Hourly Rate',
+        label: 'Hourly Salary',
         value: (
           <span className="metric-value">
             {formatCurrency(record.avgHourlySalary, country, record)}/hr
@@ -75,7 +77,7 @@ export function OccupationHeroSection({ record, country, locationText }: Occupat
     // Fortnightly salary (if available)
     if (record.fortnightlySalary && record.fortnightlySalary > 0) {
       metrics.push({
-        label: 'Fortnightly Salary',
+        label: 'Biweekly Wage',
         value: formatCurrency(record.fortnightlySalary, country, record)
       });
     }
@@ -96,7 +98,7 @@ export function OccupationHeroSection({ record, country, locationText }: Occupat
       
       if (total > 0) {
         metrics.push({
-          label: 'Gender Split',
+          label: 'Gender Distribution',
           value: `${male}% M / ${female}% F`
         });
       }
@@ -115,11 +117,11 @@ export function OccupationHeroSection({ record, country, locationText }: Occupat
       if (hasMin || hasMax) {
         let value: string;
         if (hasMin && hasMax) {
-          value = `${formatCurrency(minBonus as number, country, record)} - ${formatCurrency(maxBonus as number, country, record)}`;
+          value = `${formatCurrencyWithMillion(minBonus as number, country, record)} - ${formatCurrencyWithMillion(maxBonus as number, country, record)}`;
         } else if (hasMax) {
-          value = `Up to ${formatCurrency(maxBonus as number, country, record)}`;
+          value = `Up to ${formatCurrencyWithMillion(maxBonus as number, country, record)}`;
         } else {
-          value = `From ${formatCurrency(minBonus as number, country, record)}`;
+          value = `From ${formatCurrencyWithMillion(minBonus as number, country, record)}`;
         }
         metrics.push({ label: 'Bonus Potential', value });
       }
@@ -131,11 +133,11 @@ export function OccupationHeroSection({ record, country, locationText }: Occupat
   const jobDescription = getJobDescription();
   const primaryMetrics = getPrimaryMetrics();
 
-  // Format salary data
-  const avgSalary = record.avgAnnualSalary ? formatCurrency(record.avgAnnualSalary, country, record) : null;
-  const medianSalary = record["50P"] ? formatCurrency(record["50P"], country, record) : null;
-  const lowSalary = record.totalPayMin ? formatCurrency(Number(record.totalPayMin), country, record) : null;
-  const highSalary = record.totalPayMax ? formatCurrency(Number(record.totalPayMax), country, record) : null;
+  // Format salary data with million denotation for amounts > 6 digits
+  const avgSalary = record.avgAnnualSalary ? formatCurrencyWithMillion(record.avgAnnualSalary, country, record) : null;
+  const medianSalary = record["50P"] ? formatCurrencyWithMillion(record["50P"], country, record) : null;
+  const lowSalary = record.totalPayMin ? formatCurrencyWithMillion(Number(record.totalPayMin), country, record) : null;
+  const highSalary = record.totalPayMax ? formatCurrencyWithMillion(Number(record.totalPayMax), country, record) : null;
 
   return (
     <section 
@@ -144,9 +146,9 @@ export function OccupationHeroSection({ record, country, locationText }: Occupat
       role="banner"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 lg:gap-8 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 xl:gap-8 items-start">
           {/* Left Section - Job Details (75% width) */}
-          <div className="lg:col-span-3 space-y-4 sm:space-y-6">
+          <div className="lg:col-span-9 space-y-4 sm:space-y-6">
             {/* Category Tags */}
             <div className="hero-badges" role="list" aria-label="Job categories and location">
               <span className="hero-badge" role="listitem">
@@ -165,19 +167,27 @@ export function OccupationHeroSection({ record, country, locationText }: Occupat
 
             {/* Primary Metrics Row */}
             {primaryMetrics.length > 0 && (
-              <div className="metrics-grid" role="list" aria-label="Key salary metrics">
-                {primaryMetrics.map((metric, index) => (
-                  <div key={index} role="listitem" className="text-center sm:text-left">
-                    <p className="metric-label">{metric.label}</p>
-                    <p className="metric-value" aria-label={`${metric.label}: ${metric.value}`}>{metric.value}</p>
+              <div className="grid grid-cols-12 lg:grid-cols-9 gap-2 sm:gap-2" role="list" aria-label="Key salary metrics">
+                <div className="col-span-12 lg:col-span-9">
+                  <div className="grid grid-cols-6 sm:grid-cols-12 gap-2">
+                  {primaryMetrics.map((metric, index) => {
+                    const base = "text-center sm:text-left";
+                    const span = metric.label === 'Bonus Potential' ? 'col-span-6 lg:col-span-3' : metric.label === 'Gender Distribution' ? 'col-span-3 sm:col-span-4 lg:col-span-3' : 'col-span-3 sm:col-span-4 lg:col-span-2';
+                    return (
+                      <div key={index} role="listitem" className={`${base} ${span}`}>
+                        <p className="metric-label">{metric.label}</p>
+                        <p className="metric-value" aria-label={`${metric.label}: ${metric.value}`}>{metric.value}</p>
+                      </div>
+                    );
+                  })}
                   </div>
-                ))}
+                </div>
               </div>
             )}
           </div>
 
           {/* Right Section - Salary Card (25% width) */}
-          <div className="lg:col-span-1">
+          <div className="lg:col-span-3">
             <aside className="salary-card" aria-labelledby="salary-card-heading">
               <div className="salary-card__header">
                 <div className="salary-value" itemProp="baseSalary" content={record.avgAnnualSalary?.toString()}>
@@ -190,50 +200,38 @@ export function OccupationHeroSection({ record, country, locationText }: Occupat
                 {medianSalary && (
                   <div className="salary-meta__row" role="listitem">
                     <span className="metric-label">Median:</span>
-                    <span className="metric-value" aria-label={`Median salary: ${medianSalary}`}>{medianSalary}</span>
+                    <span className="text-lg lg:text-sm xl:text-lg font-semibold text-primary" aria-label={`Median salary: ${medianSalary}`}>{medianSalary}</span>
                   </div>
                 )}
                 {lowSalary && highSalary && (
                   <div className="salary-meta__row" role="listitem">
                     <span className="metric-label">Range:</span>
-                    <span className="metric-value" aria-label={`Salary range: ${lowSalary} to ${highSalary}`}>{lowSalary} - {highSalary}</span>
+                    <span className="text-lg lg:text-sm xl:text-lg font-semibold text-primary" aria-label={`Salary range: ${lowSalary} to ${highSalary}`}>{lowSalary} - {highSalary}</span>
                   </div>
                 )}
               </div>
 
               <div className="salary-actions">
-                <button 
-                  className="btn-secondary"
-                  onClick={() => {
-                    const compensationSection = document.querySelector('[aria-labelledby="compensation-heading"]');
-                    compensationSection?.scrollIntoView({ behavior: 'smooth' });
-                  }}
+                <Link 
+                  href="#compensation-heading"
+                  className="btn-secondary align-middle"
+                  title="View Salary Details"
                   aria-describedby="salary-card-heading"
                 >
                   View Salary Details
-                </button>
-                <button 
+                </Link>
+                {/* <Link 
+                  href="#"
                   className="btn-icon" 
-                  type="button" 
                   aria-label="Share this salary information page" 
                   title="Share this page"
-                  onClick={() => {
-                    if (navigator.share) {
-                      navigator.share({
-                        title: `${occupationName} Salary Information`,
-                        text: `Check out salary data for ${occupationName} in ${locationText}`,
-                        url: window.location.href
-                      });
-                    } else {
-                      navigator.clipboard.writeText(window.location.href);
-                    }
-                  }}
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" />
                   </svg>
                   <span className="sr-only">Share this page</span>
-                </button>
+                </Link> */}
+                <ShareOccupation />
               </div>
             </aside>
           </div>

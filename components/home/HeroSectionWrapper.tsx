@@ -9,7 +9,7 @@ export function HeroSectionWrapper({ occupations }: { occupations: any[] }) {
   ];
 
   return (
-    <section role="region" aria-labelledby="hero-heading" className="relative bg-primary min-h-[80vh] sm:h-[85vh] flex items-center py-16 sm:py-20 overflow-hidden">
+    <section role="region" aria-labelledby="hero-heading" className="relative bg-primary min-h-[calc(100vh-4rem)] sm:min-h-[calc(100vh-5rem)] flex items-center pt-20 pb-16 sm:pt-24 sm:pb-20 overflow-hidden">
       <div className="absolute inset-0 before:absolute before:inset-0 before:bg-gradient-to-br before:from-primary before:via-secondary before:to-primary before:opacity-0 before:brightness-10 before:backdrop-blur-xl" />
       <div className="relative z-10 w-full max-w-6xl text-center px-4 sm:px-6 lg:px-8 mx-auto">
       <ul className="flex flex-wrap justify-center gap-6 mb-8">

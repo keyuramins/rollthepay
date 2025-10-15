@@ -155,9 +155,9 @@
 
 .salary-meta { @apply space-y-2 sm:space-y-3 mb-4 sm:mb-6; }
 .salary-meta__row { @apply flex justify-between text-xs sm:text-sm lg:text-base items-center; }
-.salary-actions { @apply flex flex-col sm:flex-row gap-2 sm:gap-3; }
-.btn-secondary { @apply bg-secondary hover:bg-primary hover:text-card text-black font-semibold py-2.5 px-4 sm:py-3 sm:px-4 rounded-lg transition-colors text-sm sm:text-base cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 min-h-[44px]; }
-.btn-icon { @apply bg-primary hover:bg-secondary text-white hover:text-foreground font-semibold p-2.5 sm:p-3 rounded-lg transition-colors text-sm cursor-pointer focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-offset-2 min-h-[44px] min-w-[44px]; }
+.salary-actions { @apply flex flex-nowrap items-center justify-center w-full gap-2 sm:gap-3; }
+.btn-secondary { @apply bg-secondary hover:bg-primary hover:text-card text-black font-semibold py-2.5 px-3 sm:py-3 sm:px-4 rounded-lg transition-colors text-xs sm:text-sm cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 min-h-[44px] flex-shrink-0; }
+.btn-icon { @apply bg-primary hover:bg-secondary text-white hover:text-foreground font-semibold p-2.5 sm:p-3 rounded-lg transition-colors text-sm cursor-pointer focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-offset-2 min-h-[44px] min-w-[44px] flex-shrink-0; }
 
 /* ===CARD COMPONENTS ==*/
 .card { @apply bg-card flex flex-col gap-4 sm:gap-6 rounded-xl border py-6 sm:py-8 shadow-xs; }

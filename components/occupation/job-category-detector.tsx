@@ -250,7 +250,39 @@ export function getJobCategoryInfo(occupationName: string): JobCategoryInfo {
     };
   }
   
-  // 10. Design & Creative (Specific creative roles)
+  // 10. Manufacturing & Skilled Trades (Specific technical trades)
+  if (
+    lowerName.includes('welder') || lowerName.includes('welding') || lowerName.includes('fabricator') ||
+    lowerName.includes('machinist') || lowerName.includes('machining') || lowerName.includes('toolmaker') ||
+    lowerName.includes('electrician') || lowerName.includes('plumber') || lowerName.includes('carpenter') ||
+    lowerName.includes('mechanic') || lowerName.includes('assembler') ||
+    lowerName.includes('operator') || lowerName.includes('production worker') || lowerName.includes('maintenance') ||
+    lowerName.includes('repair') || lowerName.includes('installation') ||
+    lowerName.includes('mason') || lowerName.includes('roofer') || lowerName.includes('painter') ||
+    lowerName.includes('ironworker') || lowerName.includes('steelworker') || lowerName.includes('sheet metal') ||
+    lowerName.includes('pipefitter') || lowerName.includes('hvac') || lowerName.includes('refrigeration') ||
+    lowerName.includes('millwright') || lowerName.includes('boilermaker') || lowerName.includes('insulator') ||
+    lowerName.includes('glazier') || lowerName.includes('flooring') || lowerName.includes('drywall') ||
+    lowerName.includes('concrete') || lowerName.includes('heavy equipment') || lowerName.includes('crane operator') ||
+    lowerName.includes('forklift') || lowerName.includes('inspector') ||
+    lowerName.includes('foreman')
+  ) {
+    return {
+      category: 'Trades',
+      description: 'Apply specialized skills in manufacturing and construction. Focus on precision, safety, and quality craftsmanship.',
+      keySkills: ['Technical Skills', 'Safety Protocols', 'Quality Control', 'Problem Solving', 'Equipment Operation'],
+      typicalResponsibilities: [
+        'Perform skilled trade work',
+        'Maintain safety standards',
+        'Ensure quality and precision',
+        'Operate specialized equipment',
+        'Follow technical specifications'
+      ],
+      careerPath: ['Apprentice', 'Journeyman', 'Senior Craftsman', 'Foreman', 'Supervisor']
+    };
+  }
+  
+  // 11. Design & Creative (Specific creative roles)
   if (
     lowerName.includes('designer') || lowerName.includes('design') || lowerName.includes('creative') ||
     lowerName.includes('art') || lowerName.includes('graphic') || lowerName.includes('ui') ||
@@ -274,7 +306,7 @@ export function getJobCategoryInfo(occupationName: string): JobCategoryInfo {
     };
   }
   
-  // 11. Analytics & Data (Specific analytical roles)
+  // 12. Analytics & Data (Specific analytical roles)
   if (
     lowerName.includes('analyst') || lowerName.includes('analytics') || lowerName.includes('data') ||
     lowerName.includes('research') || lowerName.includes('statistics') || lowerName.includes('insight') ||
@@ -297,7 +329,7 @@ export function getJobCategoryInfo(occupationName: string): JobCategoryInfo {
     };
   }
   
-  // 12. Human Resources (Specific HR domain)
+  // 13. Human Resources (Specific HR domain)
   if (
     lowerName.includes('hr') || lowerName.includes('human resources') || lowerName.includes('recruiter') ||
     lowerName.includes('talent') || lowerName.includes('people operations') || lowerName.includes('hr manager') ||
@@ -321,7 +353,7 @@ export function getJobCategoryInfo(occupationName: string): JobCategoryInfo {
     };
   }
   
-  // 13. Operations & Supply Chain (Specific operational roles)
+  // 14. Operations & Supply Chain (Specific operational roles)
   if (
     lowerName.includes('operations') || lowerName.includes('supply chain') || lowerName.includes('logistics') ||
     lowerName.includes('procurement') || lowerName.includes('warehouse') || lowerName.includes('inventory') ||
@@ -345,12 +377,12 @@ export function getJobCategoryInfo(occupationName: string): JobCategoryInfo {
     };
   }
   
-  // 14. Customer Service & Support (Specific service roles)
+  // 15. Customer Service & Support (Specific service roles)
   if (
     lowerName.includes('customer service') || lowerName.includes('support') || lowerName.includes('help desk') ||
     lowerName.includes('client service') || lowerName.includes('customer care') || lowerName.includes('call center') ||
     lowerName.includes('technical support') || lowerName.includes('tech support') || lowerName.includes('service desk') ||
-    lowerName.includes('customer success') || lowerName.includes('client support') || lowerName.includes('after-sales') ||
+    lowerName.includes('client support') || lowerName.includes('after-sales') ||
     lowerName.includes('retention')
   ) {
     return {
@@ -368,13 +400,13 @@ export function getJobCategoryInfo(occupationName: string): JobCategoryInfo {
     };
   }
   
-  // 15. Sales & Marketing (Broader category, comes after more specific ones)
+  // 16. Sales & Marketing (Broader category, comes after more specific ones)
   if (
     lowerName.includes('sales') || lowerName.includes('marketing') || lowerName.includes('business development') ||
-    lowerName.includes('customer success') || lowerName.includes('relationship manager') || lowerName.includes('customer') ||
+    lowerName.includes('relationship manager') ||
     lowerName.includes('advertising') || lowerName.includes('seo') || lowerName.includes('brand') ||
-    lowerName.includes('social media') || (lowerName.includes('lead') && !lowerName.includes('line')) || lowerName.includes('territory') ||
-    lowerName.includes('coordinator') || lowerName.includes('channel') ||
+    lowerName.includes('social media') || lowerName.includes('territory') ||
+    lowerName.includes('channel') ||
     lowerName.includes('inside sales') || lowerName.includes('field sales') || lowerName.includes('retail') ||
     lowerName.includes('promotion') || lowerName.includes('campaign') || lowerName.includes('partnership') ||
     lowerName.includes('growth') || lowerName.includes('outreach') || lowerName.includes('ecommerce')
@@ -394,12 +426,11 @@ export function getJobCategoryInfo(occupationName: string): JobCategoryInfo {
     };
   }
   
-  // 16. Management & Leadership (Broadest category, comes last)
+  // 17. Management & Leadership (Broadest category, comes last)
   if (
     lowerName.includes('manager') || lowerName.includes('director') || lowerName.includes('supervisor') ||
-    lowerName.includes('lead') || lowerName.includes('head') || lowerName.includes('chief') ||
-    lowerName.includes('principal') || lowerName.includes('coordinator') || lowerName.includes('executive') ||
-    lowerName.includes('officer') || lowerName.includes('administrator') || lowerName.includes('controller')
+    lowerName.includes('head') || lowerName.includes('chief') ||
+    lowerName.includes('principal') || lowerName.includes('executive') || lowerName.includes('controller')
   ) {
     return {
       category: 'Management',
