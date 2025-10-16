@@ -35,10 +35,10 @@ export const metadata: Metadata = {
     template: "%s | RollThePay",
   },
   description: "Accurate salary data by country and state.",
-  metadataBase: new URL("https://rollthepay.serveriko.com"),
+  metadataBase: new URL("https://rollthepay.com"),
   robots: {
-    index: false,
-    follow: false
+    index: true,
+    follow: true
   },
   other: {
     'mobile-web-app-capable': 'yes',
@@ -61,7 +61,6 @@ export default async function RootLayout({
   return (
     <html lang="en" className={`${roboto.variable} ${robotoCondensed.variable} ${inter.variable}`}>
       <head>
-        {/* Google Analytics */}
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-1KV83TTJVP"
           strategy="afterInteractive"

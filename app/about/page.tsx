@@ -26,6 +26,7 @@ import Link from "next/link";
 
 
 
+
 export const revalidate = 31536000;
 export const dynamicParams = false;
 
