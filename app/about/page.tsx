@@ -27,6 +27,7 @@ import Link from "next/link";
 
 
 
+
 export const revalidate = 31536000;
 export const dynamicParams = false;
 
@@ -48,17 +49,6 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "About RollThePay - Salary Transparency & Career Insights",
     description: "Learn about RollThePay's mission to provide accurate salary information and increase transparency in the labor market.",
-  },
-  robots: {
-    index: true,
-    follow: true,
-    googleBot: {
-      index: true,
-      follow: true,
-      "max-video-preview": -1,
-      "max-image-preview": "large",
-      "max-snippet": -1,
-    },
   },
 };
 

@@ -241,7 +241,11 @@ async function readCsvFromFilebrowser(objectName: string): Promise<OccupationRec
 }
 
 export async function getDataset(): Promise<DatasetIndex> {
-  console.log('🔍 getDataset() called at:', new Date().toISOString());
+  const requestUrl = typeof window !== 'undefined' ? window.location.href : 'server-side';
+  const timestamp = new Date().toISOString();
+  
+  console.log('🔍 getDataset() called at:', timestamp);
+  console.log('🌐 Request URL:', requestUrl);
   console.log('🔍 Current environment:');
   console.log('  NODE_ENV:', process.env.NODE_ENV);
   console.log('  NEXT_PHASE:', process.env.NEXT_PHASE || 'NOT SET');
@@ -273,9 +277,17 @@ export async function getDataset(): Promise<DatasetIndex> {
   const cacheKey = process.env.DEV_COUNTRY_FILTER ? `dataset-${process.env.DEV_COUNTRY_FILTER}` : 'dataset-all';
   
   if (cachedIndex && Date.now() - lastCacheTime < CACHE_DURATION) {
-    console.log(`📋 Returning cached dataset (still valid for 1 year)${process.env.DEV_COUNTRY_FILTER ? ` - filtered for ${process.env.DEV_COUNTRY_FILTER}` : ''}`);
+    const cacheAge = Math.round((Date.now() - lastCacheTime) / 1000 / 60); // minutes
+    console.log(`🎯 CACHE HIT for URL: ${requestUrl}`);
+    console.log(`📋 Returning cached dataset (age: ${cacheAge} minutes, still valid for 1 year)${process.env.DEV_COUNTRY_FILTER ? ` - filtered for ${process.env.DEV_COUNTRY_FILTER}` : ''}`);
+    console.log(`💾 Cache key: ${cacheKey}`);
     return cachedIndex;
   }
+
+  // Cache miss - need to fetch from Filebrowser
+  console.log(`❌ CACHE MISS for URL: ${requestUrl}`);
+  console.log(`💾 Cache key: ${cacheKey}`);
+  console.log(`⏰ Cache expired or not found - fetching fresh data from Filebrowser`);
 
   try {
     console.log('🚀 Starting dataset initialization...');
@@ -360,6 +372,12 @@ function normalizeSlugForComparison(slug: string): string {
 }
 
 export async function findRecordByPath(params: { country: string; state?: string; location?: string; slug: string }): Promise<OccupationRecord | null> {
+  const requestUrl = typeof window !== 'undefined' ? window.location.href : 'server-side';
+  const pathInfo = `/${params.country}${params.state ? `/${params.state}` : ''}${params.location ? `/${params.location}` : ''}/${params.slug}`;
+  
+  console.log('🔍 findRecordByPath() called for:', pathInfo);
+  console.log('🌐 Request URL:', requestUrl);
+  
   // Return null during build to prevent Filebrowser calls
   if (isBuildTime) {
     if (!isBuildTime) console.log('Build-time bypass: returning null for findRecordByPath');
@@ -389,17 +407,31 @@ export async function findRecordByPath(params: { country: string; state?: string
         
         if (location) {
           // Location-specific record
-          if (rec.location?.toLowerCase() === location) return rec;
+          if (rec.location?.toLowerCase() === location) {
+            console.log(`✅ RECORD FOUND for URL: ${requestUrl}`);
+            console.log(`📄 Found occupation: ${rec.title} in ${rec.country}/${rec.state}/${rec.location}`);
+            return rec;
+          }
         } else {
           // State-level record (no specific location)
-          if (!rec.location) return rec;
+          if (!rec.location) {
+            console.log(`✅ RECORD FOUND for URL: ${requestUrl}`);
+            console.log(`📄 Found occupation: ${rec.title} in ${rec.country}/${rec.state}`);
+            return rec;
+          }
         }
       } else {
         // Country-level record (no state)
-        if (!rec.state) return rec;
+        if (!rec.state) {
+          console.log(`✅ RECORD FOUND for URL: ${requestUrl}`);
+          console.log(`📄 Found occupation: ${rec.title} in ${rec.country}`);
+          return rec;
+        }
       }
     }
     
+    console.log(`❌ RECORD NOT FOUND for URL: ${requestUrl}`);
+    console.log(`🔍 Searched for: ${pathInfo}`);
     return null;
   } catch (error) {
     console.error('Failed to find record by path:', error);
@@ -409,6 +441,10 @@ export async function findRecordByPath(params: { country: string; state?: string
 
 // Helper function to group records by state
 export async function getStateData(country: string) {
+  const requestUrl = typeof window !== 'undefined' ? window.location.href : 'server-side';
+  console.log('🔍 getStateData() called for country:', country);
+  console.log('🌐 Request URL:', requestUrl);
+  
   // Return empty state groups during build to prevent Filebrowser calls
   if (isBuildTime) {
     if (!isBuildTime) console.log('Build-time bypass: returning empty state data');
@@ -484,6 +520,10 @@ export async function getStateData(country: string) {
 
 // Helper function to group records by location within a state
 export async function getLocationData(country: string, state: string) {
+  const requestUrl = typeof window !== 'undefined' ? window.location.href : 'server-side';
+  console.log('🔍 getLocationData() called for:', `${country}/${state}`);
+  console.log('🌐 Request URL:', requestUrl);
+  
   // Return empty location groups during build to prevent Filebrowser calls
   if (isBuildTime) {
     if (!isBuildTime) console.log('Build-time bypass: returning empty location data');
