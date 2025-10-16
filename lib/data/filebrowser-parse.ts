@@ -247,6 +247,7 @@ export async function getDataset(): Promise<DatasetIndex> {
   console.log('  NEXT_PHASE:', process.env.NEXT_PHASE || 'NOT SET');
   console.log('  isBuildTime:', isBuildTime);
   console.log('  isClientSide:', isClientSide);
+  console.log('  DEV_COUNTRY_FILTER:', process.env.DEV_COUNTRY_FILTER || 'NOT SET');
   
   // Return empty dataset during build to prevent Filebrowser calls
   if (isBuildTime) {
@@ -268,8 +269,11 @@ export async function getDataset(): Promise<DatasetIndex> {
 
   console.log('✅ Not in build time - proceeding with Filebrowser API calls');
 
+  // Use different cache keys for filtered vs unfiltered results
+  const cacheKey = process.env.DEV_COUNTRY_FILTER ? `dataset-${process.env.DEV_COUNTRY_FILTER}` : 'dataset-all';
+  
   if (cachedIndex && Date.now() - lastCacheTime < CACHE_DURATION) {
-    console.log('📋 Returning cached dataset (still valid for 1 year)');
+    console.log(`📋 Returning cached dataset (still valid for 1 year)${process.env.DEV_COUNTRY_FILTER ? ` - filtered for ${process.env.DEV_COUNTRY_FILTER}` : ''}`);
     return cachedIndex;
   }
 
@@ -286,14 +290,22 @@ export async function getDataset(): Promise<DatasetIndex> {
       console.log('✅ Filebrowser already initialized');
     }
 
-    console.log('🔍 Discovering all CSV files from rollthepay folder...');
+    if (process.env.DEV_COUNTRY_FILTER) {
+      console.log(`🔍 Discovering CSV files for country: ${process.env.DEV_COUNTRY_FILTER} (development mode)`);
+    } else {
+      console.log('🔍 Discovering all CSV files from rollthepay folder...');
+    }
+    
     const files = await getAllCsvFiles();
     
     if (files.length === 0) {
-      throw new Error('No CSV files found in Filebrowser. Please ensure data has been uploaded to the rollthepay folder.');
+      const errorMsg = process.env.DEV_COUNTRY_FILTER 
+        ? `No CSV files found for country '${process.env.DEV_COUNTRY_FILTER}' in Filebrowser. Please ensure data has been uploaded to the rollthepay folder.`
+        : 'No CSV files found in Filebrowser. Please ensure data has been uploaded to the rollthepay folder.';
+      throw new Error(errorMsg);
     }
 
-    console.log(`📁 Found ${files.length} CSV files: ${files.join(', ')}`);
+    console.log(`📁 Found ${files.length} CSV files${process.env.DEV_COUNTRY_FILTER ? ` for ${process.env.DEV_COUNTRY_FILTER}` : ''}: ${files.join(', ')}`);
 
     // Process files in parallel with error handling
     console.log('⚡ Processing CSV files in parallel...');
@@ -330,7 +342,7 @@ export async function getDataset(): Promise<DatasetIndex> {
 
     cachedIndex = { all, byCountry };
     lastCacheTime = Date.now();
-    console.log(`🎉 Successfully loaded ${all.length} records from ${files.length} files from Filebrowser`);
+    console.log(`🎉 Successfully loaded ${all.length} records from ${files.length} files from Filebrowser${process.env.DEV_COUNTRY_FILTER ? ` (filtered for ${process.env.DEV_COUNTRY_FILTER})` : ''}`);
     console.log(`🌍 Countries indexed: ${Array.from(byCountry.keys()).join(', ')}`);
     console.log(`💾 Dataset cached for 1 year - no more Filebrowser calls needed!`);
     return cachedIndex;

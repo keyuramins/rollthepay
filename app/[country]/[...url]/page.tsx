@@ -19,8 +19,17 @@ import { cleanTitle } from "@/lib/utils/title-cleaner";
 
 
 
-export const revalidate = 31536000;
-export const dynamicParams = false;
+
+
+
+
+
+
+
+
+
+export const revalidate = 0;
+export const dynamicParams = true;
 
 interface UnifiedPageProps {
   params: Promise<{ country: string; url: string[] }>;

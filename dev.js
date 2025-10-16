@@ -9,6 +9,7 @@
 // 2. Change the revalidate value from 0 to 31536000 in production
 // 3. Change the dynamicParams value from false to true in development
 // 4. Change the dynamicParams value from true to false in production
+// 5. Set development country filter for faster data loading
 
 const fs = require('fs');
 const path = require('path');
@@ -129,22 +130,62 @@ function toggleConfig(mode) {
   }
 }
 
+// Helper function to update environment file
+function updateEnvFile(country = null) {
+  const envPath = '.env.local';
+  const envContent = fs.existsSync(envPath) ? fs.readFileSync(envPath, 'utf8') : '';
+  
+  let newContent = envContent;
+  
+  // Remove existing DEV_COUNTRY_FILTER if present
+  newContent = newContent.replace(/^DEV_COUNTRY_FILTER=.*$/m, '');
+  
+  if (country) {
+    // Add or update DEV_COUNTRY_FILTER
+    const filterLine = `DEV_COUNTRY_FILTER=${country.toLowerCase()}`;
+    if (newContent.trim()) {
+      newContent += `\n${filterLine}`;
+    } else {
+      newContent = filterLine;
+    }
+    console.log(`✅ Set development country filter to: ${country}`);
+  } else {
+    console.log('✅ Cleared development country filter (will load all countries)');
+  }
+  
+  fs.writeFileSync(envPath, newContent);
+}
+
 // Command line interface
 const args = process.argv.slice(2);
 const mode = args[0];
+const country = args[1];
 
 if (!mode) {
-  console.log('Usage: node dev.js <mode>');
+  console.log('Usage: node dev.js <mode> [country]');
   console.log('');
   console.log('Modes:');
   console.log('  development  - Set revalidate=0, dynamicParams=true');
   console.log('  production   - Set revalidate=31536000, dynamicParams=false');
   console.log('');
+  console.log('Optional country parameter (development only):');
+  console.log('  Specify a country to load only that country\'s data for faster development');
+  console.log('  Examples: australia, india, singapore, etc.');
+  console.log('');
   console.log('Examples:');
   console.log('  node dev.js development');
+  console.log('  node dev.js development australia');
   console.log('  node dev.js production');
   process.exit(1);
 }
 
 toggleConfig(mode);
+
+// Handle country filter for development mode
+if (mode === 'development') {
+  updateEnvFile(country);
+} else if (mode === 'production') {
+  // Clear country filter for production
+  updateEnvFile(null);
+}
 

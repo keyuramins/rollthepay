@@ -31,6 +31,9 @@ const FILEBROWSER_API_KEY = process.env.FILEBROWSER_API_KEY;
 const SOURCE_NAME = 'folder'; // Based on server logs
 const ENTRY_FOLDER = '/rollthepay'; // Based on server logs
 
+// Development country filter for faster development
+const DEV_COUNTRY_FILTER = process.env.DEV_COUNTRY_FILTER;
+
 // Debug environment variable loading
 if (typeof process !== 'undefined' && process.env) {
   console.log('🔍 Environment variables check:');
@@ -38,6 +41,7 @@ if (typeof process !== 'undefined' && process.env) {
   console.log(`  NEXT_PHASE: ${process.env.NEXT_PHASE || 'NOT SET'}`);
   console.log(`  FILEBROWSER_BASE_URL: ${process.env.FILEBROWSER_BASE_URL || 'NOT SET'}`);
   console.log(`  FILEBROWSER_API_KEY: ${process.env.FILEBROWSER_API_KEY ? 'SET (length: ' + process.env.FILEBROWSER_API_KEY.length + ')' : 'NOT SET'}`);
+  console.log(`  DEV_COUNTRY_FILTER: ${process.env.DEV_COUNTRY_FILTER || 'NOT SET'}`);
   console.log(`  Current working directory: ${process.cwd()}`);
 }
 
@@ -176,6 +180,23 @@ async function listDirectory(path: string): Promise<string[]> {
   }
 }
 
+// Helper function to filter CSV files by country
+function filterCsvFilesByCountry(csvFiles: string[], countryFilter: string): string[] {
+  if (!countryFilter) {
+    return csvFiles;
+  }
+  
+  const normalizedFilter = countryFilter.toLowerCase();
+  const filteredFiles = csvFiles.filter(file => {
+    // Check if the file path contains the country name
+    const filePath = file.toLowerCase();
+    return filePath.includes(normalizedFilter);
+  });
+  
+  console.log(`🔍 Filtered ${csvFiles.length} files to ${filteredFiles.length} files for country: ${countryFilter}`);
+  return filteredFiles;
+}
+
 // Get all CSV files from the rollthepay folder
 export async function getAllCsvFiles(): Promise<string[]> {
   console.log('🔍 getAllCsvFiles() called at:', new Date().toISOString());
@@ -184,6 +205,7 @@ export async function getAllCsvFiles(): Promise<string[]> {
   console.log('  NEXT_PHASE:', process.env.NEXT_PHASE || 'NOT SET');
   console.log('  isBuildTime:', isBuildTime);
   console.log('  isClientSide:', isClientSide);
+  console.log('  DEV_COUNTRY_FILTER:', DEV_COUNTRY_FILTER || 'NOT SET');
   
   // Return empty list during build to prevent API calls
   if (isBuildTime) {
@@ -199,25 +221,31 @@ export async function getAllCsvFiles(): Promise<string[]> {
 
   console.log('✅ Not in build time - proceeding with Filebrowser API calls');
   
-  const cacheKey = 'all-csv-files';
+  // Use different cache keys for filtered vs unfiltered results
+  const cacheKey = DEV_COUNTRY_FILTER ? `csv-files-${DEV_COUNTRY_FILTER}` : 'all-csv-files';
   
   // Check cache first
   const cached = getCachedData<string[]>(cacheKey);
   if (cached) {
-    console.log('Cache hit for all CSV files list');
+    console.log(`Cache hit for CSV files list (${DEV_COUNTRY_FILTER ? `filtered by ${DEV_COUNTRY_FILTER}` : 'all files'})`);
     return cached;
   }
 
   try {
     validateConfig();
     
-    console.log('🔍 Discovering all CSV files from rollthepay folder...');
+    if (DEV_COUNTRY_FILTER) {
+      console.log(`🔍 Discovering CSV files for country: ${DEV_COUNTRY_FILTER} (development mode)`);
+    } else {
+      console.log('🔍 Discovering all CSV files from rollthepay folder...');
+    }
     
-    const csvFiles = await listDirectory(ENTRY_FOLDER);
+    const allCsvFiles = await listDirectory(ENTRY_FOLDER);
+    const csvFiles = filterCsvFilesByCountry(allCsvFiles, DEV_COUNTRY_FILTER || '');
     
     // Cache the result for 1 year
     setCachedData(cacheKey, csvFiles, CACHE_DURATION);
-    console.log(`🎯 Total CSV files discovered: ${csvFiles.length}`);
+    console.log(`🎯 Total CSV files discovered: ${csvFiles.length}${DEV_COUNTRY_FILTER ? ` (filtered for ${DEV_COUNTRY_FILTER})` : ''}`);
     console.log(`💾 CSV files list cached for 1 year`);
     
     return csvFiles;

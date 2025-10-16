@@ -15,8 +15,17 @@ import Link from "next/link";
 
 
 
-export const revalidate = 31536000;
-export const dynamicParams = false;
+
+
+
+
+
+
+
+
+
+export const revalidate = 0;
+export const dynamicParams = true;
 
 export const metadata: Metadata = {
   title: "About RollThePay - Salary Transparency & Career Insights",

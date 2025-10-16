@@ -327,6 +327,32 @@ This script validates the Filebrowser connection, discovers CSV files, tests fil
 3. Run development server: `npm run dev`
 4. Build for production: `npm run build`
 
+### Fast Development Mode
+
+For faster development, you can work with only specific countries' data:
+
+```bash
+# Work with Australia data only (fastest)
+npm run dev:australia
+
+# Work with India data only
+npm run dev:india
+
+# Work with Singapore data only
+npm run dev:singapore
+
+# Work with Germany data only
+npm run dev:germany
+
+# Work with UK data only
+npm run dev:uk
+
+# Work with ALL countries (slower)
+npm run dev:all
+```
+
+This significantly reduces loading time and API calls during development. See [DEVELOPMENT.md](DEVELOPMENT.md) for more details.
+
 ## Contributing
 
 This project follows strict architectural principles:

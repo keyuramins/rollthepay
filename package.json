@@ -4,10 +4,10 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "dev:algeria": "node dev.js development algeria && next dev",
+    "build": "node dev.js production && next build",
     "start": "next start",
     "lint": "next lint",
-    "test:ai": "node scripts/test-ai-content.js",
     "migrate-to-filebrowser": "node scripts/migrate-to-filebrowser.js"
   },
   "dependencies": {
