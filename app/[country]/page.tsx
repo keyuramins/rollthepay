@@ -31,8 +31,9 @@ import { CountryCTASection } from "@/components/country/cta-section";
 
 
 
-export const revalidate = 0;
-export const dynamicParams = true;
+
+export const revalidate = 31536000;
+export const dynamicParams = false;
 
 interface CountryPageProps {
   params: Promise<{ country: string }>;
