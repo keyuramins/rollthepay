@@ -8,33 +8,6 @@ import { StatesGrid } from "@/components/country/states-grid";
 import { CountryCTASection } from "@/components/country/cta-section";
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 export const revalidate = 31536000;
 export const dynamicParams = false;
 
@@ -55,20 +28,20 @@ export async function generateMetadata({ params }: CountryPageProps): Promise<Me
   const { countryName, totalJobs } = countryData;
 
   return {
-    title: `${countryName} Salary Information - RollThePay`,
+    title: `${countryName} Salary Information`,
     description: `Explore ${totalJobs}+ salary records for jobs in ${countryName}. Find accurate salary data, compensation trends, and career insights.`,
     alternates: {
       canonical: `/${country}`,
     },
     openGraph: {
-      title: `${countryName} Salary Information - RollThePay`,
+      title: `${countryName} Salary Information`,
       description: `Discover salary data for ${totalJobs}+ jobs in ${countryName}. Get accurate compensation information to advance your career.`,
       type: "website",
       url: `/${country}`,
     },
     twitter: {
       card: "summary_large_image",
-      title: `${countryName} Salary Information - RollThePay`,
+      title: `${countryName} Salary Information`,
       description: `Discover salary data for ${totalJobs}+ jobs in ${countryName}. Get accurate compensation information to advance your career.`,
     },
   };

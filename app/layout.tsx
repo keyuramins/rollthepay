@@ -82,6 +82,8 @@ export default async function RootLayout({
                 })(window, document, "clarity", "script", "tqvkhdpf8r");
                 `}
         </Script>
+        <Script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4388164731251182"
+          crossOrigin="anonymous" strategy="afterInteractive" id="adsbygoogle-script" />
       </head>
       <body>
         <a href="#main-content" className="skip-link">

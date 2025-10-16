@@ -5,27 +5,7 @@ import { StatePage } from "@/components/state/state-page";
 import { LocationPage } from "@/components/location/location-page";
 import { OccupationPage } from "@/components/occupation/occupation-page";
 import { cleanTitle } from "@/lib/utils/title-cleaner";
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+import { removeAveragePrefix } from "@/lib/utils/remove-average-cleaner";
 
 
 
@@ -93,7 +73,7 @@ async function generateOccupationMetadata(country: string, state?: string, locat
   const countryName = record.country;
   const stateName = record.state;
   const locationName = record.location;
-  const title = cleanTitle(record.title);
+  const occupationName = removeAveragePrefix(record.title || record.h1Title || record.occupation || "");
   
   // Build location string for metadata
   let locationString = "";
@@ -105,8 +85,9 @@ async function generateOccupationMetadata(country: string, state?: string, locat
     locationString = countryName;
   }
   
-  const metaTitle = `${title} in ${locationString} - RollThePay`;
-  const metaDescription = `Discover comprehensive salary information for ${title} in ${locationString}. Get detailed compensation data, salary ranges, experience levels, skills analysis, and career insights.`;
+  // Meta title must match the H1 exactly; layout template will append the site name
+  const metaTitle = occupationName;
+  const metaDescription = `Discover comprehensive salary information for ${cleanTitle(record.title)} in ${locationString}. Get detailed compensation data, salary ranges, experience levels, skills analysis, and career insights.`;
   
   return {
     title: metaTitle,
