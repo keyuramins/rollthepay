@@ -14,7 +14,7 @@ const poolConfig: PoolConfig = {
 };
 
 // Only initialize pool when needed (skip during build)
-const isBuildTime = process.env.NEXT_PHASE === 'phase-production-build' || process.env.NODE_ENV === 'production' && process.env.SKIP_DB_DURING_BUILD === 'true';
+const isBuildTime = process.env.NEXT_PHASE === 'phase-production-build';
 
 const isDev = process.env.NODE_ENV !== 'production';
 
