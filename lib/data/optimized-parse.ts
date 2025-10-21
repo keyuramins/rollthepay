@@ -1,13 +1,11 @@
-import { getDataset, findRecordByPath, getStateData, getLocationData } from './parse';
-import { getPrefetchedData, prefetchRoute } from '../prefetch';
-import type { DatasetIndex, OccupationRecord } from './types';
+// lib/data/optimized-parse.ts
+import { findRecordByPath } from './parse';
+import { getCountryData as dbGetCountryData, getAllStates, getAllLocations, getStateData as dbGetStateData, getLocationData as dbGetLocationData, searchOccupations } from '../db/queries';
+import type { OccupationRecord } from './types';
 
-// Optimized data access with prefetch cache
+// Optimized data access with PostgreSQL queries
 export class OptimizedDataAccess {
   private static instance: OptimizedDataAccess;
-  private datasetCache: DatasetIndex | null = null;
-  private lastDatasetFetch = 0;
-  private readonly CACHE_DURATION = 31536000 * 1000; // 1 year
 
   private constructor() {}
 
@@ -18,23 +16,9 @@ export class OptimizedDataAccess {
     return OptimizedDataAccess.instance;
   }
 
-  // Get dataset with aggressive caching
-  async getDataset(): Promise<DatasetIndex> {
-    const now = Date.now();
-    
-    // Return cached dataset if still valid
-    if (this.datasetCache && (now - this.lastDatasetFetch) < this.CACHE_DURATION) {
-      return this.datasetCache;
-    }
+  // Legacy getDataset method removed - using PostgreSQL queries instead
 
-    // Fetch and cache dataset
-    this.datasetCache = await getDataset();
-    this.lastDatasetFetch = now;
-    
-    return this.datasetCache;
-  }
-
-  // Get country data with prefetch optimization
+  // Get country data using PostgreSQL queries
   async getCountryData(countrySlug: string): Promise<{
     countryName: string;
     totalJobs: number;
@@ -43,65 +27,31 @@ export class OptimizedDataAccess {
     occupationItems: any[];
     headerOccupations: any[];
   } | null> {
-    const cacheKey = `country:${countrySlug}`;
+    // Use direct database query
+    const countryData = await dbGetCountryData(countrySlug);
     
-    // Try prefetch cache first
-    const prefetched = getPrefetchedData(cacheKey);
-    if (prefetched) {
-      return prefetched as {
-        countryName: string;
-        totalJobs: number;
-        avgSalary: number;
-        states: string[];
-        occupationItems: any[];
-        headerOccupations: any[];
-      };
+    if (!countryData) {
+      return null;
     }
 
-    // Fallback to regular fetch and cache
-    const dataset = await this.getDataset();
-    const records = dataset.byCountry.get(countrySlug) || [];
+    // Get states for this country
+    const states = await getAllStates(countrySlug);
     
-    if (records.length === 0) return null;
+    // Use occupations already computed by getCountryData() for this country
+    const occupationItems = countryData.occupationItems || [];
+    const headerOccupations = countryData.headerOccupations || [];
 
-    const countryName = countrySlug.charAt(0).toUpperCase() + countrySlug.slice(1);
-    const totalJobs = records.length;
-    const avgSalary = records.reduce((sum, rec) => sum + (rec.avgAnnualSalary || 0), 0) / totalJobs;
-    const states = Array.from(new Set(records.map(rec => rec.state).filter(Boolean))) as string[];
-    
-    const occupationItems = records.map(record => ({
-      id: record.slug_url,
-      displayName: record.title || record.h1Title || "Unknown Occupation",
-      originalName: record.title || record.h1Title || "Unknown Occupation",
-      slug_url: record.slug_url,
-      location: record.location || undefined,
-      state: record.state || undefined,
-      avgAnnualSalary: record.avgAnnualSalary || undefined,
-      countrySlug: countrySlug
-    }));
-
-    const headerOccupations = records.map(rec => ({
-      country: rec.country.toLowerCase(),
-      title: rec.title || rec.h1Title || "",
-      slug: rec.slug_url,
-      state: rec.state ? rec.state : null,
-      location: rec.location ? rec.location : null,
-    }));
-
-    const result = {
-      countryName,
-      totalJobs,
-      avgSalary,
+    return {
+      countryName: countryData.countryName,
+      totalJobs: countryData.totalJobs,
+      avgSalary: countryData.avgSalary,
       states,
       occupationItems,
       headerOccupations
     };
-
-    // Cache for future use
-    return result;
   }
 
-  // Get state data with prefetch optimization
+  // Get state data using PostgreSQL queries
   async getStateData(countrySlug: string, state: string): Promise<{
     name: string;
     jobs: Array<{
@@ -112,41 +62,22 @@ export class OptimizedDataAccess {
       avgHourlySalary: number | null;
     }>;
   } | null> {
-    const cacheKey = `state:${countrySlug}:${state}`;
-    
-    // Try prefetch cache first
-    const prefetched = getPrefetchedData(cacheKey);
-    if (prefetched) {
-      return prefetched as {
-        name: string;
-        jobs: Array<{
-          slug: string;
-          title: string | null;
-          occupation: string | null;
-          avgAnnualSalary: number | null;
-          avgHourlySalary: number | null;
-        }>;
-      };
-    }
-
-    // Fallback to regular fetch
-    const stateGroups = await getStateData(countrySlug);
-    const stateKey = state.toLowerCase().replace(/\s+/g, '-');
-    const stateData = stateGroups.get(stateKey);
+    // Use direct database query
+    const stateData = await dbGetStateData(countrySlug, state);
     
     if (!stateData) return null;
     
     // Transform the data to include occupation field
     return {
       name: stateData.name,
-      jobs: stateData.jobs.map(job => ({
+      jobs: stateData.jobs.map((job: any) => ({
         ...job,
         occupation: job.title // Use title as occupation since that's what it represents
       }))
     };
   }
 
-  // Get location data with prefetch optimization
+  // Get location data using PostgreSQL queries
   async getLocationData(countrySlug: string, state: string, location: string): Promise<{
     name: string;
     jobs: Array<{
@@ -157,111 +88,54 @@ export class OptimizedDataAccess {
       avgHourlySalary: number | null;
     }>;
   } | null> {
-    const cacheKey = `location:${countrySlug}:${state}:${location}`;
-    
-    // Try prefetch cache first
-    const prefetched = getPrefetchedData(cacheKey);
-    if (prefetched) {
-      return prefetched as {
-        name: string;
-        jobs: Array<{
-          slug: string;
-          title: string | null;
-          occupation: string | null;
-          avgAnnualSalary: number | null;
-          avgHourlySalary: number | null;
-        }>;
-      };
-    }
-
-    // Fallback to regular fetch
-    const locationGroups = await getLocationData(countrySlug, state);
-    const locationKey = location.toLowerCase().replace(/\s+/g, '-');
-    const locationData = locationGroups.get(locationKey);
+    // Use direct database query
+    const locationData = await dbGetLocationData(countrySlug, state, location);
     
     if (!locationData) return null;
     
     // Transform the data to include occupation field
     return {
       name: locationData.name,
-      jobs: locationData.jobs.map(job => ({
+      jobs: locationData.jobs.map((job: any) => ({
         ...job,
         occupation: job.title // Use title as occupation since that's what it represents
       }))
     };
   }
 
-  // Find record by path with prefetch optimization
+  // Find record by path using PostgreSQL queries
   async findRecordByPath(params: { country: string; state?: string; location?: string; slug: string }): Promise<OccupationRecord | null> {
-    const { country, state, location, slug } = params;
-    
-    // Build cache key
-    const cacheKey = `occupation:${country}:${state || 'none'}:${location || 'none'}:${slug}`;
-    
-    // Try prefetch cache first
-    const prefetched = getPrefetchedData(cacheKey);
-    if (prefetched) {
-      return prefetched as OccupationRecord;
-    }
-
-    // Fallback to regular fetch
+    // Use direct database query
     return await findRecordByPath(params);
   }
 
-  // Prefetch route data
+  // Prefetch route data (DISABLED - using PostgreSQL instead)
   async prefetchRoute(route: string): Promise<any> {
-    return await prefetchRoute(route);
+    // DISABLED: PostgreSQL queries are fast enough, no need for prefetching
+    return null;
   }
 
-  // Get all states for a country with optimization
+  // Get all states for a country using PostgreSQL queries
   async getAllStates(countrySlug: string): Promise<string[]> {
-    const dataset = await this.getDataset();
-    const records = dataset.byCountry.get(countrySlug) || [];
-    // Filter out null/undefined states, ensure only strings are returned
-    return Array.from(
-      new Set(
-        records
-          .map(rec => rec.state)
-          .filter((state): state is string => typeof state === 'string' && !!state)
-      )
-    );
+    // Use direct database query
+    return await getAllStates(countrySlug);
   }
 
-  // Get all locations for a state with optimization
+  // Get all locations for a state using PostgreSQL queries
   async getAllLocations(countrySlug: string, state: string): Promise<string[]> {
-    const dataset = await this.getDataset();
-    const records = dataset.byCountry.get(countrySlug) || [];
-    const stateRecords = records.filter(rec => rec.state === state);
-    // Filter out null/undefined locations, ensure only strings are returned
-    return Array.from(
-      new Set(
-        stateRecords
-          .map(rec => rec.location)
-          .filter((loc): loc is string => typeof loc === 'string' && !!loc)
-      )
-    );
+    // Use direct database query
+    return await getAllLocations(countrySlug, state);
   }
 
-  // Get occupation suggestions for search
+  // Get occupation suggestions for search using PostgreSQL queries
   async getOccupationSuggestions(countrySlug: string, query: string, limit: number = 10): Promise<OccupationRecord[]> {
-    const dataset = await this.getDataset();
-    const records = dataset.byCountry.get(countrySlug) || [];
-    
-    if (!query.trim()) return records.slice(0, limit);
-    
-    const queryLower = query.toLowerCase();
-    return records
-      .filter(rec => 
-        (rec.title && rec.title.toLowerCase().includes(queryLower)) ||
-        (rec.occupation && rec.occupation.toLowerCase().includes(queryLower))
-      )
-      .slice(0, limit);
+    // Use direct database query
+    return await searchOccupations(query, countrySlug, limit);
   }
 
-  // Clear all caches
+  // Clear all caches (no longer needed with PostgreSQL)
   clearCache(): void {
-    this.datasetCache = null;
-    this.lastDatasetFetch = 0;
+    // No-op: PostgreSQL handles caching internally
   }
 }
 

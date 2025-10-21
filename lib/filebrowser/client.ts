@@ -28,7 +28,7 @@ if (typeof process !== 'undefined' && process.env) {
 // Filebrowser configuration
 const FILEBROWSER_BASE_URL = process.env.FILEBROWSER_BASE_URL;
 const FILEBROWSER_API_KEY = process.env.FILEBROWSER_API_KEY;
-const SOURCE_NAME = 'folder'; // Based on server logs
+const SOURCE_NAME = 'srv'; // Based on server logs
 const ENTRY_FOLDER = '/rollthepay'; // Based on server logs
 
 // Development country filter for faster development

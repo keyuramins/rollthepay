@@ -1,77 +1,56 @@
 // Optimization Configuration for RollThePay
-// This file contains all the performance and caching settings
+// PostgreSQL-based architecture with efficient caching
 
 export const OPTIMIZATION_CONFIG = {
-  // Cache durations (in milliseconds)
-  CACHE_DURATIONS: {
-    DATASET: 31536000 * 1000, // 1 year
-    PREFETCH: 31536000 * 1000, // 1 year
-    ROUTE: 31536000 * 1000, // 1 year
-    METADATA: 31536000 * 1000, // 1 year
-  },
-
-  // Prefetch settings
-  PREFETCH: {
-    ENABLED: true,
-    AGGRESSIVE: true,
-    ON_MOUNT: true,
-    ON_HOVER: true,
-    ON_FOCUS: true,
-    DELAY: 150, // milliseconds
-    BATCH_SIZE: 7, // number of routes to prefetch simultaneously
-    PRIORITY_ROUTES: [
-      '/', // Homepage
-      '/about', // About page
-    ],
-  },
-
-  // Data access optimization
-  DATA_ACCESS: {
-    USE_PREFETCH_CACHE: true,
-    FALLBACK_TO_API: true,
-    PARALLEL_FETCHING: true,
-    MAX_CONCURRENT_REQUESTS: 5,
-  },
-
-  // Next.js specific optimizations
+  // Next.js ISR (Incremental Static Regeneration) settings
   NEXTJS: {
-    REVALIDATE: 31536000, // 1 year in seconds
+    REVALIDATE_DATA_DRIVEN: 3600, // 1 hour for data-driven pages (homepage, country, state, location, occupation)
+    REVALIDATE_STATIC: 31536000, // 1 year for static pages (about, privacy, terms)
     DYNAMIC_PARAMS: false, // Ensure static generation only
     FORCE_STATIC: true,
-    PREFETCH: true,
+  },
+
+  // PostgreSQL connection and query optimization
+  DATABASE: {
+    QUERY_TIMEOUT: 30000, // 30 seconds
+    CONNECTION_POOL_MAX: 20,
+    CONNECTION_POOL_IDLE_TIMEOUT: 30000, // 30 seconds
+    CONNECTION_POOL_CONNECTION_TIMEOUT: 10000, // 10 seconds
+    BATCH_SIZE: 1000, // For bulk operations
+  },
+
+  // In-memory caching (short-lived for frequently accessed data)
+  CACHE: {
+    COUNTRY_LIST_TTL: 5 * 60 * 1000, // 5 minutes
+    HOMEPAGE_STATS_TTL: 5 * 60 * 1000, // 5 minutes
+    SEARCH_RESULTS_TTL: 2 * 60 * 1000, // 2 minutes
+    MAX_CACHE_SIZE: 100, // Maximum number of cached items
+    CLEANUP_INTERVAL: 300000, // 5 minutes
   },
 
   // Performance thresholds
   PERFORMANCE: {
     MAX_INITIAL_LOAD_TIME: 2000, // 2 seconds
     MAX_NAVIGATION_TIME: 500, // 500ms
-    MAX_DATA_FETCH_TIME: 1000, // 1 second
-  },
-
-  // Memory management
-  MEMORY: {
-    MAX_CACHE_SIZE: 1000, // Maximum number of cached items
-    CLEANUP_INTERVAL: 300000, // 5 minutes
-    EVICTION_POLICY: 'LRU', // Least Recently Used
+    MAX_DATABASE_QUERY_TIME: 1000, // 1 second
   },
 
   // Error handling
   ERROR_HANDLING: {
     RETRY_ATTEMPTS: 3,
     RETRY_DELAY: 1000, // 1 second
-    FALLBACK_STRATEGY: 'CACHE_FIRST',
+    FALLBACK_STRATEGY: 'DATABASE_FIRST', // PostgreSQL is primary, no fallback needed
   },
 
-  // Monitoring and analytics
-  MONITORING: {
+  // Logging configuration
+  LOGGING: {
     ENABLE_PERFORMANCE_METRICS: true,
-    ENABLE_CACHE_STATS: true,
-    ENABLE_ERROR_TRACKING: true,
-    LOG_LEVEL: 'info', // 'debug' | 'info' | 'warn' | 'error'
+    ENABLE_QUERY_LOGGING: false, // Set to true for debugging
+    LOG_LEVEL: 'warn', // 'error' | 'warn' | 'info' | 'debug'
   },
 } as const;
 
-// Performance monitoring utilities
+// Simple performance monitoring for PostgreSQL queries
 export class PerformanceMonitor {
   private static instance: PerformanceMonitor;
   private metrics: Map<string, number[]> = new Map();
@@ -92,6 +71,8 @@ export class PerformanceMonitor {
   }
 
   recordMetric(operation: string, value: number): void {
+    if (!OPTIMIZATION_CONFIG.LOGGING.ENABLE_PERFORMANCE_METRICS) return;
+    
     if (!this.metrics.has(operation)) {
       this.metrics.set(operation, []);
     }
@@ -117,87 +98,5 @@ export class PerformanceMonitor {
   }
 }
 
-// Cache management utilities
-export class CacheManager {
-  private static instance: CacheManager;
-  private cache: Map<string, { data: any; timestamp: number; ttl: number }> = new Map();
-
-  static getInstance(): CacheManager {
-    if (!CacheManager.instance) {
-      CacheManager.instance = new CacheManager();
-    }
-    return CacheManager.instance;
-  }
-
-  set<T>(key: string, data: T, ttl: number = OPTIMIZATION_CONFIG.CACHE_DURATIONS.DATASET): void {
-    // Implement LRU eviction if cache is full
-    if (this.cache.size >= OPTIMIZATION_CONFIG.MEMORY.MAX_CACHE_SIZE) {
-      this.evictOldest();
-    }
-
-    this.cache.set(key, {
-      data,
-      timestamp: Date.now(),
-      ttl
-    });
-  }
-
-  get<T>(key: string): T | null {
-    const item = this.cache.get(key);
-    if (!item) return null;
-
-    const now = Date.now();
-    if (now - item.timestamp > item.ttl) {
-      this.cache.delete(key);
-      return null;
-    }
-
-    return item.data as T;
-  }
-
-  has(key: string): boolean {
-    return this.cache.has(key);
-  }
-
-  delete(key: string): boolean {
-    return this.cache.delete(key);
-  }
-
-  clear(): void {
-    this.cache.clear();
-  }
-
-  size(): number {
-    return this.cache.size;
-  }
-
-  private evictOldest(): void {
-    let oldestKey: string | null = null;
-    let oldestTime = Date.now();
-
-    for (const [key, item] of this.cache) {
-      if (item.timestamp < oldestTime) {
-        oldestTime = item.timestamp;
-        oldestKey = key;
-      }
-    }
-
-    if (oldestKey) {
-      this.cache.delete(oldestKey);
-    }
-  }
-
-  // Cleanup expired items
-  cleanup(): void {
-    const now = Date.now();
-    for (const [key, item] of this.cache) {
-      if (now - item.timestamp > item.ttl) {
-        this.cache.delete(key);
-      }
-    }
-  }
-}
-
-// Export singleton instances
+// Export singleton instance
 export const performanceMonitor = PerformanceMonitor.getInstance();
-export const cacheManager = CacheManager.getInstance();

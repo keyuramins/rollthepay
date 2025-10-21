@@ -3,7 +3,7 @@ import { TrendingUp } from "lucide-react";
 
 export function Logo() {
   return (
-    <Link prefetch={true} href="/" className="flex items-center space-x-2 hover:text-secondary text-card">
+    <Link href="/" className="flex items-center space-x-2 hover:text-secondary text-card">
       <TrendingUp className="h-8 w-8" />
       <span className="text-xl font-bold">RollThePay</span>
     </Link>

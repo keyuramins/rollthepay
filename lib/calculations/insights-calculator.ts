@@ -350,7 +350,6 @@ function calculateCostOfLivingFactor(record: OccupationRecord, location?: string
     'algeria': 0.40,          // 60% below global average
     'botswana': 0.50,         // 50% below global average
     'cameroon': 0.35,         // 65% below global average
-    'egypt': 0.30,            // 70% below global average
     'ghana': 0.40,            // 60% below global average
     'kenya': 0.35,            // 65% below global average
     'mauritius': 0.60,        // 40% below global average
@@ -364,41 +363,32 @@ function calculateCostOfLivingFactor(record: OccupationRecord, location?: string
     'uganda': 0.30,           // 70% below global average
     'zambia': 0.35,           // 65% below global average
     'zimbabwe': 0.25,         // 75% below global average
+    'south-africa': 0.50,     // 50% below global average
     
     // Asia
     'afghanistan': 0.30,      // 70% below global average
     'azerbaijan': 0.40,       // 60% below global average
-    'bahrain': 0.80,          // 20% below global average
     'bangladesh': 0.25,       // 75% below global average
     'british-indian-ocean-territory': 0.60, // 40% below global average
     'cambodia': 0.30,         // 70% below global average
     'china': 0.50,            // 50% below global average
     'hong-kong': 1.40,        // 40% above global average
     'india': 0.30,            // 70% below global average
-    'iran': 0.35,             // 65% below global average
-    'iraq': 0.40,             // 60% below global average
-    'israel': 1.20,           // 20% above global average
     'japan': 1.25,            // 25% above global average
-    'jordan': 0.50,           // 50% below global average
     'kazakhstan': 0.40,       // 60% below global average
     'korea': 0.90,            // 10% below global average
-    'kuwait': 0.70,           // 30% below global average
-    'lebanon': 0.60,          // 40% below global average
     'malaysia': 0.50,         // 50% below global average
     'myanmar': 0.25,          // 75% below global average
     'nepal': 0.30,            // 70% below global average
-    'oman': 0.60,             // 40% below global average
     'pakistan': 0.30,         // 70% below global average
-    'qatar': 0.80,            // 20% below global average
     'philippines': 0.35,      // 65% below global average
-    'saudi-arabia': 0.60,     // 40% below global average
     'sri-lanka': 0.35,        // 65% below global average
     'singapore': 1.30,        // 30% above global average
     'brunei-darussalam': 0.70, // 30% below global average
     'thailand': 0.40,         // 60% below global average
-    'turkey': 0.50,           // 50% below global average
     'taiwan': 0.70,           // 30% below global average
     'vietnam': 0.35,          // 65% below global average
+    'indonesia': 0.40,        // 60% below global average
     
     // Europe
     'albania': 0.40,          // 60% below global average
@@ -406,7 +396,6 @@ function calculateCostOfLivingFactor(record: OccupationRecord, location?: string
     'belarus': 0.40,          // 60% below global average
     'belgium': 1.20,          // 20% above global average
     'bulgaria': 0.50,         // 50% below global average
-    'cyprus': 1.00,           // At global average
     'czech-republic': 0.70,   // 30% below global average
     'denmark': 1.40,          // 40% above global average
     'estonia': 0.80,          // 20% below global average
@@ -432,9 +421,24 @@ function calculateCostOfLivingFactor(record: OccupationRecord, location?: string
     'sweden': 1.30,           // 30% above global average
     'switzerland': 1.80,      // 80% above global average
     'ukraine': 0.30,          // 70% below global average
+    'ireland': 1.20,          // 20% above global average
+    'spain': 0.80,            // 20% below global average
     'united-kingdom': 1.25,   // 25% above global average
     
     // Middle East
+    'bahrain': 0.80,          // 20% below global average
+    'cyprus': 1.00,           // At global average
+    'egypt': 0.30,            // 70% below global average
+    'iran': 0.35,             // 65% below global average
+    'iraq': 0.40,             // 60% below global average
+    'israel': 1.20,           // 20% above global average
+    'jordan': 0.50,           // 50% below global average
+    'kuwait': 0.70,           // 30% below global average
+    'lebanon': 0.60,          // 40% below global average
+    'oman': 0.60,             // 40% below global average
+    'qatar': 0.80,            // 20% below global average
+    'saudi-arabia': 0.60,     // 40% below global average
+    'turkey': 0.50,           // 50% below global average
     'united-arab-emirates': 0.80, // 20% below global average
     
     // North America
@@ -448,6 +452,9 @@ function calculateCostOfLivingFactor(record: OccupationRecord, location?: string
     'puerto-rico': 0.80,      // 20% below global average
     'canada': 1.10,           // 10% above global average
     'mexico': 0.50,           // 50% below global average
+    'bahamas': 1.00,          // At global average
+    'guyana': 0.50,           // 50% below global average
+    'trinidad-and-tobago': 0.70, // 30% below global average
     'united-states': 1.15,    // 15% above global average
     
     // Oceania
@@ -465,8 +472,6 @@ function calculateCostOfLivingFactor(record: OccupationRecord, location?: string
     'peru': 0.40,             // 60% below global average
     'venezuela': 0.20,        // 80% below global average
     'ecuador': 0.40,          // 60% below global average
-    'bolivia': 0.35,          // 65% below global average
-    'paraguay': 0.40,         // 60% below global average
     'uruguay': 0.70           // 30% below global average
   };
   

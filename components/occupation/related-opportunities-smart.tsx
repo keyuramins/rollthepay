@@ -7,7 +7,7 @@ import {
 } from "@/lib/utils/similarity";
 import { formatCurrency } from "@/lib/format/currency";
 import { Badge } from "@/components/ui/badge";
-import { InstantLink as Link } from "@/components/ui/enhanced-link";
+import Link from "next/link";
 import { MapPin, Building, Users } from "lucide-react";
 import { Card, CardContent, CardHeader } from "../ui/card";
 import { removeAveragePrefix } from "@/lib/utils/remove-average-cleaner";
@@ -57,9 +57,6 @@ function RelatedOccupationCard({ occupation, currentRecord, showSalaryComparison
 
   return (
     <Link
-      prefetch
-      prefetchOnMount
-      prefetchDelay={120}
       href={occupationURL}
       className="bg-card rounded-xl p-6 border border-input hover:border-primary hover:shadow-md hover:bg-green-100 cursor-pointer flex flex-col h-full"
     >
@@ -114,9 +111,6 @@ function LocationOpportunityCard({ location, type, salary, currentSalary, countr
 
   return (
     <Link
-      prefetch
-      prefetchOnMount
-      prefetchDelay={120}
       href={occupationURL}
       className="bg-secondary/5 rounded-lg p-4 border border-input hover:border-secondary/40 hover:shadow-md hover:bg-secondary/10 cursor-pointer flex flex-col h-full"
     >

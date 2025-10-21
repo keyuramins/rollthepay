@@ -1,5 +1,5 @@
-import { InstantLink } from "@/components/ui/enhanced-link";
-import { getDataset } from "@/lib/data/parse";
+import Link from "next/link";
+import { getAllLocations } from "@/lib/db/queries";
 
 interface LocationsGridProps {
   country: string;
@@ -16,13 +16,8 @@ export async function LocationsGrid({
   description, 
   className = "" 
 }: LocationsGridProps) {
-  const { all } = await getDataset();
-  const locations = Array.from(new Set(
-    all
-      .filter(rec => rec.country.toLowerCase() === country.toLowerCase() && rec.state === state)
-      .map(rec => rec.location)
-      .filter(Boolean)
-  )) as string[];
+  // Get locations for this state using database query
+  const locations = await getAllLocations(country, state);
   
   if (locations.length === 0) return null;
 
@@ -41,14 +36,14 @@ export async function LocationsGrid({
         <ul className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
           {locations.map((location) => (
             <li key={location}>
-              <InstantLink
+              <Link
                 href={`/${country}/${state.toLowerCase().replace(/\s+/g, "-")}/${location.toLowerCase().replace(/\s+/g, "-")}`}
                 title={`Explore salaries in ${location}, ${state}`}
                 aria-label={`Explore salaries in ${location}, ${state}`}
                 className="block bg-card rounded-lg border p-6 hover:shadow-md transition-all hover:border-primary/50 hover:scale-105 text-center shadow-sm"
               >
                 <h3 className="text-lg font-semibold text-foreground">{location}</h3>
-              </InstantLink>
+              </Link>
             </li>
           ))}
         </ul>

@@ -23,7 +23,6 @@ const createCountryConfig = () => {
       case 'angola': currencyCode = 'AOA'; locale = 'pt-AO'; break;
       case 'botswana': currencyCode = 'BWP'; locale = 'en-BW'; break;
       case 'cameroon': currencyCode = 'XAF'; locale = 'fr-CM'; break;
-      case 'egypt': currencyCode = 'EGP'; locale = 'ar-EG'; break;
       case 'ghana': currencyCode = 'GHS'; locale = 'en-GH'; break;
       case 'kenya': currencyCode = 'KES'; locale = 'en-KE'; break;
       case 'mauritius': currencyCode = 'MUR'; locale = 'en-MU'; break;
@@ -37,6 +36,7 @@ const createCountryConfig = () => {
       case 'uganda': currencyCode = 'UGX'; locale = 'en-UG'; break;
       case 'zambia': currencyCode = 'ZMW'; locale = 'en-ZM'; break;
       case 'zimbabwe': currencyCode = 'ZWL'; locale = 'en-ZW'; break;
+      case 'south-africa': currencyCode = 'ZAR'; locale = 'en-ZA'; break;
       
       // Asia
       case 'afghanistan': currencyCode = 'AFN'; locale = 'fa-AF'; break;
@@ -72,6 +72,7 @@ const createCountryConfig = () => {
       case 'turkey': currencyCode = 'TRY'; locale = 'tr-TR'; break;
       case 'taiwan': currencyCode = 'TWD'; locale = 'zh-TW'; break;
       case 'vietnam': currencyCode = 'VND'; locale = 'vi-VN'; break;
+      case 'indonesia': currencyCode = 'IDR'; locale = 'id-ID'; break;
       
       // Europe
       case 'albania': currencyCode = 'ALL'; locale = 'sq-AL'; break;
@@ -79,7 +80,6 @@ const createCountryConfig = () => {
       case 'belarus': currencyCode = 'BYN'; locale = 'be-BY'; break;
       case 'belgium': currencyCode = 'EUR'; locale = 'nl-BE'; break;
       case 'bulgaria': currencyCode = 'BGN'; locale = 'bg-BG'; break;
-      case 'cyprus': currencyCode = 'EUR'; locale = 'el-CY'; break;
       case 'czech-republic': currencyCode = 'CZK'; locale = 'cs-CZ'; break;
       case 'denmark': currencyCode = 'DKK'; locale = 'da-DK'; break;
       case 'estonia': currencyCode = 'EUR'; locale = 'et-EE'; break;
@@ -105,8 +105,23 @@ const createCountryConfig = () => {
       case 'sweden': currencyCode = 'SEK'; locale = 'sv-SE'; break;
       case 'switzerland': currencyCode = 'CHF'; locale = 'de-CH'; break;
       case 'ukraine': currencyCode = 'UAH'; locale = 'uk-UA'; break;
+      case 'ireland': currencyCode = 'EUR'; locale = 'en-IE'; break;
+      case 'spain': currencyCode = 'EUR'; locale = 'es-ES'; break;
       
       // Middle East
+      case 'bahrain': currencyCode = 'BHD'; locale = 'ar-BH'; break;
+      case 'cyprus': currencyCode = 'EUR'; locale = 'el-CY'; break;
+      case 'egypt': currencyCode = 'EGP'; locale = 'ar-EG'; break;
+      case 'iran': currencyCode = 'IRR'; locale = 'fa-IR'; break;
+      case 'iraq': currencyCode = 'IQD'; locale = 'ar-IQ'; break;
+      case 'israel': currencyCode = 'ILS'; locale = 'he-IL'; break;
+      case 'jordan': currencyCode = 'JOD'; locale = 'ar-JO'; break;
+      case 'kuwait': currencyCode = 'KWD'; locale = 'ar-KW'; break;
+      case 'lebanon': currencyCode = 'LBP'; locale = 'ar-LB'; break;
+      case 'oman': currencyCode = 'OMR'; locale = 'ar-OM'; break;
+      case 'qatar': currencyCode = 'QAR'; locale = 'ar-QA'; break;
+      case 'saudi-arabia': currencyCode = 'SAR'; locale = 'ar-SA'; break;
+      case 'turkey': currencyCode = 'TRY'; locale = 'tr-TR'; break;
       case 'united-arab-emirates': currencyCode = 'AED'; locale = 'ar-AE'; break;
       
       // North America
@@ -120,6 +135,9 @@ const createCountryConfig = () => {
       case 'puerto-rico': currencyCode = 'USD'; locale = 'en-PR'; break;
       case 'canada': currencyCode = 'CAD'; locale = 'en-CA'; break;
       case 'mexico': currencyCode = 'MXN'; locale = 'es-MX'; break;
+      case 'bahamas': currencyCode = 'BSD'; locale = 'en-BS'; break;
+      case 'guyana': currencyCode = 'GYD'; locale = 'en-GY'; break;
+      case 'trinidad-and-tobago': currencyCode = 'TTD'; locale = 'en-TT'; break;
       
       // Oceania
       case 'australia': currencyCode = 'AUD'; locale = 'en-AU'; break;
@@ -136,8 +154,6 @@ const createCountryConfig = () => {
       case 'peru': currencyCode = 'PEN'; locale = 'es-PE'; break;
       case 'venezuela': currencyCode = 'VES'; locale = 'es-VE'; break;
       case 'ecuador': currencyCode = 'USD'; locale = 'es-EC'; break;
-      case 'bolivia': currencyCode = 'BOB'; locale = 'es-BO'; break;
-      case 'paraguay': currencyCode = 'PYG'; locale = 'es-PY'; break;
       case 'uruguay': currencyCode = 'UYU'; locale = 'es-UY'; break;
       
       default:

@@ -148,7 +148,6 @@ export function OccupationList({
               <li key={item.id} role="listitem">
                 <Link
                   href={href}
-                  prefetch
                   className="block bg-white rounded-lg border border-input py-3 px-4 sm:py-2 sm:px-6 hover:shadow-md transition-shadow hover:border-green-100"
                   aria-label={`View details for ${item.displayName}${item.location ? ` in ${item.location}${item.state ? `, ${item.state}` : ""}` : ""}`}
                 >

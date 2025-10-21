@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, useMemo } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { Search, X, Check, ArrowRight, Loader2 } from "lucide-react";
-import { prefetchRoute } from "@/lib/prefetch";
+// Removed prefetchRoute import - this is a client component and shouldn't import server-side database code
 import { continents, CONTINENTS } from "@/app/constants/continents";
 import { gsap } from "gsap";
 
@@ -85,59 +85,7 @@ export function SearchableDropdown({
   // In header mode, we're effectively in "home mode" for occupation search
   const isInSearchMode = useMemo(() => isHome || headerMode, [isHome, headerMode]);
 
-  // Enhanced prefetching for all country pages on mount
-  useEffect(() => {
-    console.log('🚀 Prefetching all country pages...');
-    COUNTRIES.forEach(country => {
-      prefetchRoute(`/${country.slug}`).catch(error => {
-        console.log(`⚠️ Failed to prefetch ${country.slug}:`, error);
-      });
-    });
-  }, []);
-
-  // Enhanced prefetching for occupation pages when suggestions are available
-  useEffect(() => {
-    if (occupationSuggestions.length > 0 && selectedCountry) {
-      console.log(`🚀 Prefetching ${occupationSuggestions.length} occupation pages for ${selectedCountry.name}...`);
-      occupationSuggestions.slice(0, 10).forEach(suggestion => {
-        let url = `/${selectedCountry.slug}`;
-        
-        if (suggestion.state) {
-          const normalizedState = suggestion.state.toLowerCase().replace(/\s+/g, '-');
-          url += `/${normalizedState}`;
-          
-          if (suggestion.location) {
-            const normalizedLocation = suggestion.location.toLowerCase().replace(/\s+/g, '-');
-            url += `/${normalizedLocation}`;
-          }
-        }
-        
-        url += `/${suggestion.slug}`;
-        prefetchRoute(url).catch(error => {
-          console.log(`⚠️ Failed to prefetch occupation ${suggestion.slug}:`, error);
-        });
-      });
-    }
-  }, [occupationSuggestions, selectedCountry]);
-
-  // Prefetch state pages for selected country
-  useEffect(() => {
-    if (selectedCountry && allOccupations.length > 0) {
-      const countryOccupations = allOccupations.filter(o => o.country === selectedCountry.slug);
-      const states = new Set(countryOccupations.map(o => o.state).filter(Boolean));
-      
-      console.log(`🚀 Prefetching ${states.size} state pages for ${selectedCountry.name}...`);
-      states.forEach(state => {
-        if (state) {
-          const normalizedState = state.toLowerCase().replace(/\s+/g, '-');
-          const stateUrl = `/${selectedCountry.slug}/${normalizedState}`;
-          prefetchRoute(stateUrl).catch(error => {
-            console.log(`⚠️ Failed to prefetch state ${state}:`, error);
-          });
-        }
-      });
-    }
-  }, [selectedCountry, allOccupations]);
+  // Prefetching functionality removed - PostgreSQL queries are fast enough
 
   // Filter countries based on search query (when no country selected or not in search mode)
   useEffect(() => {

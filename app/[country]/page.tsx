@@ -7,16 +7,11 @@ import { OccupationList } from "@/components/ui/occupation-list";
 import { StatesGrid } from "@/components/country/states-grid";
 import { CountryCTASection } from "@/components/country/cta-section";
 
-
-
-
-
-
-
-
-export const revalidate = 31536000;
+export const revalidate = 86400; // 1 day
 export const dynamicParams = false;
 
+// Optimized caching for PostgreSQL - shorter revalidation since data is now in database
+// 1 day - database queries are fast
 interface CountryPageProps {
   params: Promise<{ country: string }>;
 }
@@ -26,9 +21,7 @@ export async function generateMetadata({ params }: CountryPageProps): Promise<Me
   const countryData = await optimizedDataAccess.getCountryData(country);
   
   if (!countryData) {
-    return {
-      title: "Country Not Found - RollThePay",
-    };
+    notFound();
   }
 
   const { countryName, totalJobs } = countryData;

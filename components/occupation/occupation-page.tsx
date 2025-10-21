@@ -1,3 +1,4 @@
+import { notFound } from "next/navigation";
 import { Breadcrumbs } from "./breadcrumbs";
 import { OccupationHeroSection } from "./hero-section";
 import { CompensationAnalysis } from "./compensation-analysis";
@@ -7,7 +8,8 @@ import { TopSkillsMarketDemand } from "./top-skills-market-demand";
 import { RelatedOpportunitiesSmart } from "./related-opportunities-smart";
 import { GenderComparison } from "./gender-comparison";
 import { OccupationCTASection } from "./cta-section";
-import { findRecordByPath, getDataset } from "@/lib/data/parse";
+import { findRecordByPath } from "@/lib/data/parse";
+import { searchOccupations } from "@/lib/db/queries";
 import { formatLocationString } from "@/lib/utils/title-cleaner";
 
 interface OccupationPageProps {
@@ -21,7 +23,7 @@ export async function OccupationPage({ country, state, location, slug }: Occupat
   const record = await findRecordByPath({ country, state, location, slug });
   
   if (!record) {
-    return null;
+    notFound();
   }
   
   const countryName = record.country;
@@ -54,7 +56,7 @@ export async function OccupationPage({ country, state, location, slug }: Occupat
         <SalaryPercentilesChart record={record} country={country} />
         <ExperienceLevelSalariesChart record={record} country={country} />
         <TopSkillsMarketDemand record={record} />
-        <RelatedOpportunitiesSmart record={record} allRecords={(await getDataset()).all} />
+        <RelatedOpportunitiesSmart record={record} allRecords={await searchOccupations(record.title || record.occupation || '', record.country, 100)} />
         <OccupationCTASection countryName={countryName} locationText={locationText} record={record} />
       </article>
     </main>

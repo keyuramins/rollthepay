@@ -9,9 +9,21 @@ import Link from "next/link";
 
 
 
+
+
+
+
+
+
+
+
+
+
+
 export const revalidate = 31536000;
 export const dynamicParams = false;
 
+// Static page - keep 1-year revalidation
 export const metadata: Metadata = {
   title: "About RollThePay - Salary Transparency & Career Insights",
   description: "Learn about RollThePay's mission to provide accurate salary information and increase transparency in the labor market. Discover how we help job seekers and employers make informed decisions.",
@@ -221,7 +233,6 @@ export default function AboutPage() {
               comprehensive salary database and make informed career decisions.
             </p>
             <Link
-              prefetch
               href="/"
               className="inline-flex items-center justify-center text-sm bg-secondary text-primary px-6 py-3 rounded-md font-semibold hover:bg-card transition-colors cursor-pointer min-h-[44px] min-w-[44px] sm:px-8 sm:py-4 sm:text-lg"
               aria-label="Return to RollThePay homepage to explore salary data"

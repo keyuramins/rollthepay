@@ -6,17 +6,10 @@ import { SearchableDropdown } from "@/components/navigation/searchable-dropdown"
 import { MobileMenuToggle } from "./mobile-menu-toggle";
 import { continents } from "@/app/constants/continents";
 import Link from "next/link";
-import { getDataset } from "@/lib/data/parse";
+import { getAllOccupationsForSearch } from "@/lib/db/queries";
 
 export async function Header() {
-  const dataset = await getDataset();
-  const allOccupations = dataset.all.map(record => ({
-    country: record.country?.toLowerCase() || '',
-    title: record.title || '',
-    slug: record.slug_url || '',
-    state: record.state || null,
-    location: record.location || null
-  })) as Array<{ country: string; title: string; slug: string; state: string | null; location: string | null; }>;
+  const allOccupations = await getAllOccupationsForSearch();
   return (
     <header className="bg-primary shadow-lg sticky top-0 z-50" role="banner">
       <div className="max-w-7xl lg:max-w-full mx-auto px-4 sm:px-6 lg:px-8">

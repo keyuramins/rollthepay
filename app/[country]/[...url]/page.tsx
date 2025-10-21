@@ -1,3 +1,4 @@
+// app/[country]/[...url]/page.tsx
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { optimizedDataAccess } from "@/lib/data/optimized-parse";
@@ -8,15 +9,11 @@ import { cleanTitle } from "@/lib/utils/title-cleaner";
 import { removeAveragePrefix } from "@/lib/utils/remove-average-cleaner";
 
 
-
-
-
-
-
-
-export const revalidate = 31536000;
+export const revalidate = 86400; // 1 day
 export const dynamicParams = false;
 
+// Optimized caching for PostgreSQL - shorter revalidation since data is now in database
+// 1 hour - database queries are fast
 interface UnifiedPageProps {
   params: Promise<{ country: string; url: string[] }>;
 }

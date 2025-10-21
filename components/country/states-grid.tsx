@@ -1,4 +1,4 @@
-import { InstantLink } from "@/components/ui/enhanced-link";
+import Link from "next/link";
 
 interface StatesGridProps {
   states: string[];
@@ -24,13 +24,13 @@ export function StatesGrid({ states, countrySlug, title, description }: StatesGr
           const slug = state.toLowerCase().replace(/\s+/g, "-");
           return (
             <li key={state}>
-              <InstantLink
+              <Link
                 href={`/${countrySlug}/${slug}`}
                 title={`Learn more about ${state} salaries and jobs`}
                 className="block bg-card rounded-lg border p-4 sm:p-6 hover:shadow-md transition-shadow hover:border-green-100 text-center shadow-sm text-sm sm:text-base font-medium text-foreground"
               >
                 {state}
-              </InstantLink>
+              </Link>
             </li>
           );
         })}

@@ -1,5 +1,5 @@
 import { removeAveragePrefix } from "@/lib/utils/remove-average-cleaner";
-import { HoverPrefetchLink } from "@/components/ui/enhanced-link";
+import Link from "next/link";
 
 interface Breadcrumb {
   name: string;
@@ -39,13 +39,13 @@ export function Breadcrumbs({ breadcrumbs }: BreadcrumbsProps) {
                   {removeAveragePrefix(breadcrumb.name)}
                 </span>
               ) : (
-                <HoverPrefetchLink 
+                <Link 
                   href={breadcrumb.href} 
                   className="text-sm sm:text-base text-primary hover:underline font-medium focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded-sm"
                   itemProp="item"
                 >
                   <span itemProp="name">{breadcrumb.name}</span>
-                </HoverPrefetchLink>
+                </Link>
               )}
               {!isLast && (
                 <span 

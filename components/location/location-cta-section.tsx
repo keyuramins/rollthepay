@@ -1,4 +1,4 @@
-import { InstantLink } from "@/components/ui/enhanced-link";
+import Link from "next/link";
 
 interface LocationCTASectionProps {
   country: string;
@@ -37,22 +37,22 @@ export function LocationCTASection({
           Compare salaries across different locations and discover career opportunities in {destinationText}.
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <InstantLink
+          <Link
             href={`/${country}`}
             className="inline-flex items-center justify-center text-base bg-secondary text-primary px-8 py-3 sm:text-lg sm:px-8 sm:py-4 rounded-md font-semibold hover:bg-card transition-colors min-h-[44px] min-w-[44px] cursor-pointer"
             title={`View all salary data in ${countryName}`}
           >
             View All Salary Data in {countryName}
-          </InstantLink>
+          </Link>
 
           {state && location && stateName && (
-            <InstantLink
+            <Link
               href={`/${country}/${stateName.toLowerCase().replace(/\s+/g, '-')}`}
               className="inline-flex items-center justify-center text-base bg-secondary text-primary px-8 py-3 sm:text-lg sm:px-8 sm:py-4 rounded-md font-semibold hover:bg-card transition-colors min-h-[44px] min-w-[44px] cursor-pointer"
               title={`View all salary data in ${stateName}`}
             >
               View All Salary Data in {stateName}
-            </InstantLink>
+            </Link>
           )}
         </div>
       </div>

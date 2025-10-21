@@ -23,7 +23,6 @@ export function OccupationCTASection({ countryName, locationText, record }: Occu
         </p>
         <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center">
           <Link 
-            prefetch={true} 
             href={`/${countryName.toLowerCase().replace(/\s+/g, '-')}`}
             className="w-full sm:w-auto"
           >
@@ -37,7 +36,6 @@ export function OccupationCTASection({ countryName, locationText, record }: Occu
           
           {record.state && (
             <Link 
-              prefetch={true} 
               href={`/${countryName.toLowerCase().replace(/\s+/g, '-')}/${record.state.toLowerCase().replace(/\s+/g, '-')}`}
               className="w-full sm:w-auto"
             >
@@ -52,7 +50,6 @@ export function OccupationCTASection({ countryName, locationText, record }: Occu
           
           {record.location && (
             <Link 
-              prefetch={true} 
               href={`/${countryName.toLowerCase().replace(/\s+/g, '-')}/${record.state.toLowerCase().replace(/\s+/g, '-')}/${record.location.toLowerCase().replace(/\s+/g, '-')}`}
               className="w-full sm:w-auto"
             >

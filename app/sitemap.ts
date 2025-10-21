@@ -1,7 +1,8 @@
 import type { MetadataRoute } from "next";
 import { continents } from "@/app/constants/continents";
-import { getDataset } from "@/lib/data/filebrowser-parse";
+import { getAllCountries, getAllStates, getAllLocations, searchOccupations } from "@/lib/db/queries";
 
+// Static sitemap - keep 1-year revalidation
 export const revalidate = 31536000; // 1 year
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
@@ -42,105 +43,90 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
   ];
 
-  // Dynamic routes from CSV data
+  // Skip dynamic sitemap generation during build
+  if (process.env.SKIP_SITEMAP_GENERATION === 'true') {
+    console.log('⚠️ Skipping dynamic sitemap generation (SKIP_SITEMAP_GENERATION=true)');
+    return staticRoutes;
+  }
+
+  // Dynamic routes from database
   const dynamicRoutes: MetadataRoute.Sitemap = [];
 
   try {
-    // Get all countries from continents data
-    const allCountries = continents.flatMap(continent => continent.countries);
+    // Check if we're in build mode and database is not available
+    if (process.env.NODE_ENV === 'production' && !process.env.DATABASE_URL) {
+      console.log('⚠️ Skipping dynamic sitemap generation during build (no database connection)');
+      return staticRoutes;
+    }
     
-    // Get dataset to find available countries and their data
-    const { byCountry } = await getDataset();
+    // Get all countries from database
+    const dbCountries = await getAllCountries();
     
     // Add country pages
-    for (const country of allCountries) {
-      const countrySlug = country.slug;
-      const countryRecords = byCountry.get(countrySlug) || [];
+    for (const countrySlug of dbCountries) {
+      // Add country page
+      dynamicRoutes.push({
+        url: `${base}/${countrySlug}`,
+        lastModified: now,
+        changeFrequency: "weekly",
+        priority: 0.9,
+      });
       
-      if (countryRecords.length > 0) {
-        // Add country page
+      // Get states for this country
+      const states = await getAllStates(countrySlug);
+      
+      // Add state pages
+      for (const state of states) {
+        const stateSlug = state.toLowerCase().replace(/\s+/g, '-');
+        
         dynamicRoutes.push({
-          url: `${base}/${countrySlug}`,
+          url: `${base}/${countrySlug}/${stateSlug}`,
           lastModified: now,
           changeFrequency: "weekly",
-          priority: 0.9,
+          priority: 0.8,
         });
         
-        // Group records by state
-        const stateGroups = new Map<string, typeof countryRecords>();
-        for (const record of countryRecords) {
-          if (record.state) {
-            const stateKey = record.state.toLowerCase().replace(/\s+/g, '-');
-            if (!stateGroups.has(stateKey)) {
-              stateGroups.set(stateKey, []);
-            }
-            stateGroups.get(stateKey)!.push(record);
-          }
-        }
+        // Get locations for this state
+        const locations = await getAllLocations(countrySlug, state);
         
-        // Add state pages
-        for (const [stateSlug, stateRecords] of stateGroups) {
+        // Add location pages
+        for (const location of locations) {
+          const locationSlug = location.toLowerCase().replace(/\s+/g, '-');
+          
           dynamicRoutes.push({
-            url: `${base}/${countrySlug}/${stateSlug}`,
+            url: `${base}/${countrySlug}/${stateSlug}/${locationSlug}`,
             lastModified: now,
             changeFrequency: "weekly",
-            priority: 0.8,
+            priority: 0.7,
           });
+        }
+      }
+      
+      // Get occupation pages for this country (search for occupations)
+      const occupations = await searchOccupations('', countrySlug, 1000); // Get up to 1000 occupations per country
+      
+      for (const occupation of occupations) {
+        let occupationUrl = `${base}/${countrySlug}`;
+        
+        // Build URL based on geographic hierarchy
+        if (occupation.state) {
+          const stateSlug = occupation.state.toLowerCase().replace(/\s+/g, '-');
+          occupationUrl += `/${stateSlug}`;
           
-          // Group state records by location
-          const locationGroups = new Map<string, typeof stateRecords>();
-          for (const record of stateRecords) {
-            if (record.location) {
-              const locationKey = record.location.toLowerCase().replace(/\s+/g, '-');
-              if (!locationGroups.has(locationKey)) {
-                locationGroups.set(locationKey, []);
-              }
-              locationGroups.get(locationKey)!.push(record);
-            }
-          }
-          
-          // Add location pages
-          for (const [locationSlug, locationRecords] of locationGroups) {
-            dynamicRoutes.push({
-              url: `${base}/${countrySlug}/${stateSlug}/${locationSlug}`,
-              lastModified: now,
-              changeFrequency: "weekly",
-              priority: 0.7,
-            });
-            
-            // Add occupation pages for this location
-            for (const record of locationRecords) {
-              dynamicRoutes.push({
-                url: `${base}/${countrySlug}/${stateSlug}/${locationSlug}/${record.slug_url}`,
-                lastModified: now,
-                changeFrequency: "monthly",
-                priority: 0.6,
-              });
-            }
-          }
-          
-          // Add occupation pages for state (without location)
-          const stateOnlyRecords = stateRecords.filter(record => !record.location);
-          for (const record of stateOnlyRecords) {
-            dynamicRoutes.push({
-              url: `${base}/${countrySlug}/${stateSlug}/${record.slug_url}`,
-              lastModified: now,
-              changeFrequency: "monthly",
-              priority: 0.6,
-            });
+          if (occupation.location) {
+            const locationSlug = occupation.location.toLowerCase().replace(/\s+/g, '-');
+            occupationUrl += `/${locationSlug}`;
           }
         }
         
-        // Add occupation pages for country (without state)
-        const countryOnlyRecords = countryRecords.filter(record => !record.state);
-        for (const record of countryOnlyRecords) {
-          dynamicRoutes.push({
-            url: `${base}/${countrySlug}/${record.slug_url}`,
-            lastModified: now,
-            changeFrequency: "monthly",
-            priority: 0.6,
-          });
-        }
+        occupationUrl += `/${occupation.slug_url}`;
+        
+        dynamicRoutes.push({
+          url: occupationUrl,
+          lastModified: now,
+          changeFrequency: "monthly",
+          priority: 0.6,
+        });
       }
     }
   } catch (error) {

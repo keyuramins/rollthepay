@@ -6,9 +6,17 @@
     "dev": "next dev",
     "dev:algeria": "node dev.js development algeria && next dev",
     "build": "node dev.js production && next build",
+    "build:no-db": "SKIP_DB_DURING_BUILD=true SKIP_SITEMAP_GENERATION=true node dev.js production && next build",
     "start": "next start",
     "lint": "next lint",
-    "migrate-to-filebrowser": "node scripts/migrate-to-filebrowser.js"
+    "migrate-to-filebrowser": "node scripts/migrate-to-filebrowser.js",
+    "db:setup": "tsx scripts/setup-database.ts",
+    "db:migrate": "tsx scripts/migrate-csv-to-postgres.ts",
+    "db:validate": "tsx scripts/validate-schema.ts",
+    "db:refresh-views": "tsx -e \"import { pool } from './lib/db/client'; pool.query('REFRESH MATERIALIZED VIEW CONCURRENTLY mv_country_stats; REFRESH MATERIALIZED VIEW CONCURRENTLY mv_state_stats;').then(() => { console.log('✅ Materialized views refreshed'); pool.end(); });\"",
+    "db:reindex": "tsx -e \"import { pool } from './lib/db/client'; pool.query('REINDEX TABLE occupations; VACUUM ANALYZE occupations;').then(() => { console.log('✅ Table reindexed and analyzed'); pool.end(); });\"",
+    "db:backup": "tsx -e \"import { exec } from 'child_process'; const timestamp = new Date().toISOString().replace(/[:.]/g, '-'); exec(`pg_dump $POSTGRES_URL > backup_${timestamp}.sql`, (err, stdout, stderr) => { if (err) { console.error('Backup failed:', err); process.exit(1); } console.log('✅ Backup completed'); });\"",
+    "db:test-connection": "tsx -e \"import { testConnection } from './lib/db/client'; testConnection().then(result => { console.log(result.success ? '✅ Connection successful' : '❌ Connection failed'); console.log(JSON.stringify(result, null, 2)); process.exit(result.success ? 0 : 1); });\""
   },
   "dependencies": {
     "@radix-ui/react-slot": "^1.2.3",
@@ -18,9 +26,11 @@
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",
     "csv-parse": "^5.5.6",
+    "dotenv": "^17.2.3",
     "gsap": "^3.13.0",
     "lucide-react": "^0.539.0",
     "next": "^15.4.6",
+    "pg": "^8.16.3",
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "recharts": "^3.1.2",
@@ -31,11 +41,12 @@
     "@svgr/webpack": "^8.1.0",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
+    "@types/pg": "^8.15.5",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "tailwindcss": "^4",
     "terser-webpack-plugin": "^5.3.14",
-    "tsx": "^4.19.2",
+    "tsx": "^4.20.6",
     "typescript": "^5"
   }
 }

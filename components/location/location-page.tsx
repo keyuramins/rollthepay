@@ -1,8 +1,10 @@
+// components/location/location-page.tsx
+import { notFound } from "next/navigation";
 import { Breadcrumbs } from "@/components/occupation/breadcrumbs";
 import { LocationHeroSection } from "@/components/location/location-hero-section";
 import { LocationCTASection } from "@/components/location/location-cta-section";
 import { OccupationList } from "@/components/ui/occupation-list";
-import { getDataset } from "@/lib/data/parse";
+import { getLocationData, getCountryData } from "@/lib/db/queries";
 
 interface LocationPageProps {
   country: string;
@@ -11,34 +13,35 @@ interface LocationPageProps {
 }
 
 export async function LocationPage({ country, state, location }: LocationPageProps) {
-  const { all } = await getDataset();
+  // De-slugify state and location (hyphens -> spaces) for DB matching
+  const stateName = state
+    .replace(/-/g, ' ') // Replace hyphens with spaces
+    .replace(/\b\w/g, (char) => char.toUpperCase()); // Capitalize first letter of each word
   
-  // The state and location parameters are now the actual names, not normalized slugs
-  const stateName = state;
-  const locationName = location;
+  const locationName = location
+    .replace(/-/g, ' ') // Replace hyphens with spaces
+    .replace(/\b\w/g, (char) => char.toUpperCase()); // Capitalize first letter of each word
   
-  // Get jobs for this specific location
-  const locationJobs = all.filter(rec => 
-    rec.country.toLowerCase() === country.toLowerCase() &&
-    rec.state === stateName &&
-    rec.location === locationName
-  );
+  // Get jobs for this specific location using database query
+  const locationData = await getLocationData(country, stateName, locationName);
   
-  if (locationJobs.length === 0) {
-    return null; // This should be handled by the parent component
+  if (!locationData || locationData.jobs.length === 0) {
+    notFound();
   }
   
-  const countryName = all.find(r => r.country.toLowerCase() === country)?.country || country;
+  // Get country name from database
+  const countryData = await getCountryData(country);
+  const countryName = countryData?.countryName || country;
   
   // Prepare occupation data for the list
-  const occupationItems = locationJobs.map(record => ({
-    id: record.slug_url,
-    displayName: record.title || record.h1Title || "Unknown Occupation",
-    originalName: record.title || record.h1Title || "Unknown Occupation",
-    slug_url: record.slug_url,
-    location: record.location || undefined,
-    state: record.state || undefined,
-    avgAnnualSalary: record.avgAnnualSalary || undefined,
+  const occupationItems = locationData.jobs.map(job => ({
+    id: job.slug,
+    displayName: job.title || "Unknown Occupation",
+    originalName: job.title || "Unknown Occupation",
+    slug_url: job.slug,
+    location: locationName,
+    state: stateName,
+    avgAnnualSalary: job.avgAnnualSalary || undefined,
     countrySlug: country
   }));
   

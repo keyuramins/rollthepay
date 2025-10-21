@@ -4,7 +4,7 @@ export { Logo } from "./navigation/logo";
 export { SearchableDropdown } from "./navigation/searchable-dropdown";
 
 // Enhanced Links with Aggressive Prefetching
-export { EnhancedLink, InstantLink, LazyLink, HoverPrefetchLink } from "./ui/enhanced-link";
+// EnhancedLink components removed - using standard Next.js Link instead
 
 // Country Components
 export { CountryHeroSection } from "./country/hero-section";
@@ -37,5 +37,5 @@ export { OccupationListSkeleton } from "./ui/occupation-list-skeleton";
 
 
 // Prefetch and Optimization Utilities
-export { prefetchAllRoutes, prefetchRoute, getPrefetchedData, clearPrefetchCache, getPrefetchStats } from "../lib/prefetch";
+// Prefetch functions removed - using PostgreSQL with efficient caching instead
 export { optimizedDataAccess } from "../lib/data/optimized-parse";

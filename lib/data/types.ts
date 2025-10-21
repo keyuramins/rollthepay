@@ -306,7 +306,14 @@ export interface OccupationRecord {
 }
 
 export interface DatasetIndex {
-  all: OccupationRecord[];
-  byCountry: Map<string, OccupationRecord[]>; // key: lowercase country
+  all: OccupationRecord[]; // Empty array - data fetched on demand
+  byCountry: Map<string, OccupationRecord[]>; // key: lowercase country, values: empty arrays (data fetched on demand)
+}
+
+// Lightweight dataset index for efficient queries
+export interface LightweightDatasetIndex {
+  countries: string[]; // List of available countries
+  totalRecords: number; // Total record count
+  totalCountries: number; // Total country count
 }
 
