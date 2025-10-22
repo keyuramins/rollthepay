@@ -371,22 +371,22 @@ function normalizeSlugForComparison(slug: string): string {
     .replace(/\+/g, '-plus'); // Replace + with -plus
 }
 
-export async function findRecordByPath(params: { country: string; state?: string; location?: string; slug: string }): Promise<OccupationRecord | null> {
+export async function findOccupationSalaryByPath(params: { country: string; state?: string; location?: string; slug: string }): Promise<OccupationRecord | null> {
   const requestUrl = typeof window !== 'undefined' ? window.location.href : 'server-side';
   const pathInfo = `/${params.country}${params.state ? `/${params.state}` : ''}${params.location ? `/${params.location}` : ''}/${params.slug}`;
   
-  console.log('🔍 findRecordByPath() called for:', pathInfo);
+  console.log('🔍 findOccupationSalaryByPath() called for:', pathInfo);
   console.log('🌐 Request URL:', requestUrl);
   
   // Return null during build to prevent Filebrowser calls
   if (isBuildTime) {
-    if (!isBuildTime) console.log('Build-time bypass: returning null for findRecordByPath');
+    if (!isBuildTime) console.log('Build-time bypass: returning null for findOccupationSalaryByPath');
     return null;
   }
 
   // Return null on client side to prevent Filebrowser calls
   if (isClientSide) {
-    console.log('🚫 Client-side bypass: returning null for findRecordByPath');
+    console.log('🚫 Client-side bypass: returning null for findOccupationSalaryByPath');
     return null;
   }
 

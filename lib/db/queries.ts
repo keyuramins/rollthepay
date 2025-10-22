@@ -217,29 +217,20 @@ export async function getAllCountries(): Promise<string[]> {
 export async function getHomepageStats(): Promise<{
   totalRecords: number;
   uniqueCountries: number;
-  countries: string[];
 }> {
   // Skip DB queries during build
   if (process.env.SKIP_DB_DURING_BUILD === 'true') {
     return {
       totalRecords: 300000,
       uniqueCountries: 100,
-      countries: [],
     };
   }
-
-  let poolInstance;
-  try {
-    poolInstance = requirePool();
-  } catch (error) {
-    logger.error("Database pool not initialized", error);
-    return { totalRecords: 300000, uniqueCountries: 100, countries: [] }; // fallback
-  }
+  const poolInstance = requirePool();
   const cacheKey = 'homepage:stats';
-  const cached = getCached<{totalRecords: number; uniqueCountries: number; countries: string[]}>(cacheKey);
-  if (cached) {
-    return cached;
-  }
+    const cached = getCached<{totalRecords: number; uniqueCountries: number;}>(cacheKey);
+    if (cached) {
+      return cached;
+    }
 
   try {
     const result = await poolInstance.query(`
@@ -253,14 +244,13 @@ export async function getHomepageStats(): Promise<{
     const stats = {
       totalRecords: parseInt(row.total_records),
       uniqueCountries: parseInt(row.unique_countries),
-      countries: row.countries || [],
     };
     
     setCached(cacheKey, stats);
     return stats;
   } catch (error) {
     logger.error('Error fetching homepage stats:', error);
-    return { totalRecords: 300000, uniqueCountries: 100, countries: [] }; // fallback
+    return { totalRecords: 302000, uniqueCountries: 102 }; // fallback
   }
 }
 
@@ -334,8 +324,8 @@ export async function getDataset(): Promise<OccupationRecord[]> {
   }
 }
 
-// Find record by path
-export async function findRecordByPath(params: {
+// Find Occupation Salary Record by path
+export async function findOccupationSalaryByPath(params: {
   country: string;
   state?: string;
   location?: string;
@@ -343,8 +333,8 @@ export async function findRecordByPath(params: {
 }): Promise<OccupationRecord | null> {
   const poolInstance = requirePool();
   const { country, state, location, slug } = params;
-
-  const values = [country.toLowerCase()];
+  const dbCountryName = country.replace(/-/g, ' ');
+  const values = [dbCountryName.toLowerCase()];
   let query = `
     SELECT *
     FROM occupations
@@ -401,7 +391,9 @@ export async function getCountryData(country: string): Promise<{
   headerOccupations: any[];
 } | null> {
   const poolInstance = requirePool();
-
+  // Convert slug to DB country format
+  const dbCountryName = country.replace(/-/g, ' '); // brunei-darussalam -> brunei darussalam
+  
   try {
     const [countryResult, statesResult, occupationsResult] = await Promise.all([
       poolInstance.query(`
@@ -413,14 +405,14 @@ export async function getCountryData(country: string): Promise<{
         FROM occupations 
         WHERE LOWER(country) = LOWER($1)
         GROUP BY country
-      `, [country]),
+      `, [dbCountryName]),
       poolInstance.query(`
         SELECT DISTINCT state 
         FROM occupations 
         WHERE LOWER(country) = LOWER($1) AND state IS NOT NULL
         ORDER BY state
-      `, [country]),
-      poolInstance.query('SELECT * FROM occupations WHERE LOWER(country) = LOWER($1) ORDER BY title', [country])
+      `, [dbCountryName]),
+      poolInstance.query('SELECT * FROM occupations WHERE LOWER(country) = LOWER($1) ORDER BY LOWER(title)', [dbCountryName])
     ]);
 
     if (countryResult.rows.length === 0) {
@@ -431,9 +423,14 @@ export async function getCountryData(country: string): Promise<{
     const states = statesResult.rows.map(row => row.state);
     const occupations = occupationsResult.rows.map(transformDbRowToOccupationRecord);
 
-    const countryName = country.charAt(0).toUpperCase() + country.slice(1);
+    //const countryName = country.charAt(0).toUpperCase() + country.slice(1);
+    const countryName = countryResult.rows[0].country;
     const totalJobs = parseInt(countryData.job_count);
     const avgSalary = parseFloat(countryData.avg_salary) || 0;
+
+    function slugify(name: string) {
+      return name.toLowerCase().replace(/\s+/g, '-');
+    }
 
     const occupationItems = occupations.map(record => ({
       id: record.slug_url,
@@ -443,7 +440,7 @@ export async function getCountryData(country: string): Promise<{
       location: record.location || undefined,
       state: record.state || undefined,
       avgAnnualSalary: record.avgAnnualSalary || undefined,
-      countrySlug: country
+      countrySlug: slugify(countryResult.rows[0].country) //DB country normalized for URL
     }));
 
     const headerOccupations = occupations.map(rec => ({

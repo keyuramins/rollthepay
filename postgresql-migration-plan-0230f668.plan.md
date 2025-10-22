@@ -80,7 +80,7 @@ Update `lib/data/db.ts` (renamed from parse.ts):
 - Remove all CSV parsing logic
 - Remove Filebrowser client imports
 - Replace `getDataset()` with PostgreSQL queries
-- Replace `findRecordByPath()` with database lookup
+- Replace `findOccupationSalaryByPath()` with database lookup
 - Replace `getStateData()` with SQL queries
 - Replace `getLocationData()` with SQL queries
 - Maintain same TypeScript interfaces (`OccupationRecord`, `DatasetIndex`)

@@ -2,7 +2,7 @@
 import type { DatasetIndex, OccupationRecord, LightweightDatasetIndex } from "./types";
 import {
   getCountryData as dbGetCountryData,
-  findRecordByPath as dbFindRecordByPath,
+  findOccupationSalaryByPath as dbfindOccupationSalaryByPath,
   getStateData as dbGetStateData,
   getLocationData as dbGetLocationData,
   getAllCountries as dbGetAllCountries,
@@ -119,15 +119,15 @@ export async function getDataset(): Promise<DatasetIndex> {
   }
 }
 
-export async function findRecordByPath(params: { country: string; state?: string; location?: string; slug: string }): Promise<OccupationRecord | null> {
+export async function findOccupationSalaryByPath(params: { country: string; state?: string; location?: string; slug: string }): Promise<OccupationRecord | null> {
   const requestUrl = typeof window !== 'undefined' ? window.location.href : 'server-side';
   const pathInfo = `/${params.country}${params.state ? `/${params.state}` : ''}${params.location ? `/${params.location}` : ''}/${params.slug}`;
   
-  console.log('🔍 findRecordByPath() called for:', pathInfo);
+  console.log('🔍 findOccupationSalaryByPath() called for:', pathInfo);
   console.log('🌐 Request URL:', requestUrl);
   
   try {
-    const record = await dbFindRecordByPath(params);
+    const record = await dbfindOccupationSalaryByPath(params);
     
     if (record) {
       console.log(`✅ RECORD FOUND for URL: ${requestUrl}`);

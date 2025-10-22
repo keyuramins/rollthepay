@@ -9,9 +9,11 @@ import { cleanTitle } from "@/lib/utils/title-cleaner";
 import { removeAveragePrefix } from "@/lib/utils/remove-average-cleaner";
 
 
-export const revalidate = 86400; // 1 day
+
+export const revalidate = 31536000;
 export const dynamicParams = false;
 
+// 1 day
 // Optimized caching for PostgreSQL - shorter revalidation since data is now in database
 // 1 hour - database queries are fast
 interface UnifiedPageProps {
@@ -60,7 +62,7 @@ async function generateOccupationMetadata(country: string, state?: string, locat
     };
   }
   
-  const record = await optimizedDataAccess.findRecordByPath({ country, state, location, slug });
+  const record = await optimizedDataAccess.findOccupationSalaryByPath({ country, state, location, slug });
   
   if (!record) {
     return {
@@ -249,7 +251,7 @@ export default async function UnifiedPage({ params }: UnifiedPageProps) {
         return <LocationPageComponent country={country} state={state} location={decodeURIComponent(secondSegment)} />;
       } else {
         // Check if this is an occupation page with both state and location
-        const occupationRecord = await optimizedDataAccess.findRecordByPath({
+        const occupationRecord = await optimizedDataAccess.findOccupationSalaryByPath({
           country,
           state: stateData,
           slug: decodeURIComponent(secondSegment)
@@ -272,7 +274,7 @@ export default async function UnifiedPage({ params }: UnifiedPageProps) {
     const [state, location, slug] = url;
     
     // Find the record with this specific location
-    const record = await optimizedDataAccess.findRecordByPath({
+    const record = await optimizedDataAccess.findOccupationSalaryByPath({
       country,
       state: denormalizeStateName(decodeURIComponent(state)),
       location: denormalizeLocationName(decodeURIComponent(location)),
@@ -304,7 +306,7 @@ async function StatePageComponent({ country, state }: { country: string; state: 
 
 // Occupation Page Component
 async function OccupationPageComponent({ country, state, location, slug }: { country: string; state?: string; location?: string; slug: string }) {
-  const record = await optimizedDataAccess.findRecordByPath({ country, state, location, slug });
+  const record = await optimizedDataAccess.findOccupationSalaryByPath({ country, state, location, slug });
   
   if (!record) {
     notFound();

@@ -7,9 +7,11 @@ import { OccupationList } from "@/components/ui/occupation-list";
 import { StatesGrid } from "@/components/country/states-grid";
 import { CountryCTASection } from "@/components/country/cta-section";
 
-export const revalidate = 86400; // 1 day
+
+export const revalidate = 31536000;
 export const dynamicParams = false;
 
+// 1 day
 // Optimized caching for PostgreSQL - shorter revalidation since data is now in database
 // 1 day - database queries are fast
 interface CountryPageProps {
@@ -55,7 +57,13 @@ export default async function CountryPage({ params }: CountryPageProps) {
     notFound();
   }
 
-  const { countryName, totalJobs, states, occupationItems, headerOccupations } = countryData;
+  // Normalize the fetched country name and compare with slug
+  const normalizedFetchedName = countryData.countryName.toLowerCase().replace(/\s+/g, '-');
+  if (normalizedFetchedName !== country.toLowerCase()) {
+    notFound();
+  }
+
+  const { countryName, totalJobs, states, occupationItems } = countryData;
 
   return (
     <>

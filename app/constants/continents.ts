@@ -127,7 +127,6 @@ export type Continent = {
         { name: "Belize", slug: "belize", code: "BZ", continent: "north_america", currencySymbol: "$" },
         { name: "Bermuda", slug: "bermuda", code: "BM", continent: "north_america", currencySymbol: "$" },
         { name: "Canada", slug: "canada", code: "CA", continent: "north_america", currencySymbol: "$" },
-        { name: "Costa Rica", slug: "costa-rica", code: "CR", continent: "north_america", currencySymbol: "₡" },
         { name: "Dominican Republic", slug: "dominican-republic", code: "DO", continent: "north_america", currencySymbol: "$" },
         { name: "Guatemala", slug: "guatemala", code: "GT", continent: "north_america", currencySymbol: "Q" },
         { name: "Guyana", slug: "guyana", code: "GY", continent: "north_america", currencySymbol: "$" },

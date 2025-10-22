@@ -33,7 +33,7 @@ The PostgreSQL migration for RollThePay has been successfully implemented accord
 4. **Query Functions** (`lib/db/queries.ts`)
    - Prepared statements for all data access patterns
    - `getDataset()` - Fetch all occupations with caching
-   - `findRecordByPath()` - Find by geographic path + slug
+   - `findOccupationSalaryByPath()` - Find by geographic path + slug
    - `updateOccupationSalary()` - Easy salary updates for user contributions
    - `bulkInsertOccupations()` - Batch operations for migration
    - Full CRUD operations with proper error handling

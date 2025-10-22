@@ -18,12 +18,14 @@ function normalizeSlugForURL(slug: string): string {
     .replace(/#/g, '-sharp')  // Replace # with -sharp
     .replace(/\+/g, '-plus'); // Replace + with -plus
 }
-
+function slugify(name: string) {
+  return name.toLowerCase().replace(/\s+/g, '-');
+}
 // Helper function to generate occupation URL
 function generateOccupationURL(occupation: OccupationRecord): string {
-  const country = occupation.country.toLowerCase();
-  const state = occupation.state ? `/${occupation.state.toLowerCase().replace(/\s+/g, '-')}` : '';
-  const location = occupation.location ? `/${occupation.location.toLowerCase().replace(/\s+/g, '-')}` : '';
+  const country = slugify(occupation.country);
+  const state = occupation.state ? `/${slugify(occupation.state)}` : '';
+  const location = occupation.location ? `/${slugify(occupation.location)}` : '';
   const slug = normalizeSlugForURL(occupation.slug_url);
   
   return `/${country}${state}${location}/${slug}`;

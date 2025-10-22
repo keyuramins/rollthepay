@@ -810,7 +810,7 @@ This section documents all database queries in the system and their case sensiti
 | `getAllCountries()` | Get all countries list | N/A | `SELECT DISTINCT country` | ✅ Fast - uses index |
 | `getHomepageStats()` | Homepage statistics | N/A | `COUNT(*)`, `COUNT(DISTINCT country)` | ✅ Fast - uses index |
 | `getAllOccupationsForSearch()` | Search dropdown data | N/A | `SELECT * FROM occupations` | ⚠️ Slow - full table scan |
-| `findRecordByPath()` | Find occupation by URL path | **CASE-INSENSITIVE** | `WHERE LOWER(country)=LOWER($1) AND (LOWER(state)=LOWER($2) OR state IS NULL ...) AND (LOWER(location)=LOWER($3) OR location IS NULL ...) AND slug_url=$4` | ✅ Fast - uses functional index |
+| `findOccupationSalaryByPath()` | Find occupation by URL path | **CASE-INSENSITIVE** | `WHERE LOWER(country)=LOWER($1) AND (LOWER(state)=LOWER($2) OR state IS NULL ...) AND (LOWER(location)=LOWER($3) OR location IS NULL ...) AND slug_url=$4` | ✅ Fast - uses functional index |
 | `getCountryData()` | Country page data | **CASE-INSENSITIVE** | `WHERE LOWER(country) = LOWER($1)` | ✅ Fast - uses functional covering index |
 | `getStateData()` | State page data | **CASE-INSENSITIVE** | `WHERE LOWER(country)=LOWER($1) AND LOWER(state)=LOWER($2)` | ✅ Fast - uses functional composite index |
 | `getLocationData()` | Location page data | **CASE-INSENSITIVE** | `WHERE LOWER(country)=LOWER($1) AND LOWER(state)=LOWER($2) AND LOWER(location)=LOWER($3)` | ✅ Fast - uses functional composite index |
@@ -840,7 +840,7 @@ This section documents all database queries in the system and their case sensiti
 | `idx_occupations_location_ci` | `(LOWER(location))` | **CASE-INSENSITIVE (functional)** | Location-based queries |
 | `idx_occupations_country_state_ci` | `(LOWER(country), LOWER(state))` | **CASE-INSENSITIVE (functional)** | `getStateData()`, `getAllLocations()` |
 | `idx_occupations_country_state_location_ci` | `(LOWER(country), LOWER(state), LOWER(location))` | **CASE-INSENSITIVE (functional)** | `getLocationData()` |
-| `idx_occupations_path_lookup` | `(country, state, location, slug_url)` | **CASE-SENSITIVE** | `findRecordByPath()` |
+| `idx_occupations_path_lookup` | `(country, state, location, slug_url)` | **CASE-SENSITIVE** | `findOccupationSalaryByPath()` |
 | `idx_occupations_country_covering` | `(country)` INCLUDE `(title, slug_url, avg_annual_salary, state, location)` | **CASE-SENSITIVE** | `getCountryData()` |
 | `idx_occupations_title_search` | `GIN (to_tsvector('english', title \|\| ' ' \|\| COALESCE(occupation, '')))` | **CASE-INSENSITIVE** | `searchOccupations()` |
 

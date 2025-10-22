@@ -8,7 +8,7 @@ import { TopSkillsMarketDemand } from "./top-skills-market-demand";
 import { RelatedOpportunitiesSmart } from "./related-opportunities-smart";
 import { GenderComparison } from "./gender-comparison";
 import { OccupationCTASection } from "./cta-section";
-import { findRecordByPath } from "@/lib/data/parse";
+import { findOccupationSalaryByPath } from "@/lib/data/parse";
 import { searchOccupations } from "@/lib/db/queries";
 import { formatLocationString } from "@/lib/utils/title-cleaner";
 
@@ -20,7 +20,7 @@ interface OccupationPageProps {
 }
 
 export async function OccupationPage({ country, state, location, slug }: OccupationPageProps) {
-  const record = await findRecordByPath({ country, state, location, slug });
+  const record = await findOccupationSalaryByPath({ country, state, location, slug });
   
   if (!record) {
     notFound();

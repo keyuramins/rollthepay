@@ -1,5 +1,5 @@
 // lib/data/optimized-parse.ts
-import { findRecordByPath } from './parse';
+import { findOccupationSalaryByPath } from './parse';
 import { getCountryData as dbGetCountryData, getAllStates, getAllLocations, getStateData as dbGetStateData, getLocationData as dbGetLocationData, searchOccupations } from '../db/queries';
 import type { OccupationRecord } from './types';
 
@@ -17,7 +17,7 @@ export class OptimizedDataAccess {
   }
 
   // Legacy getDataset method removed - using PostgreSQL queries instead
-
+  
   // Get country data using PostgreSQL queries
   async getCountryData(countrySlug: string): Promise<{
     countryName: string;
@@ -104,9 +104,9 @@ export class OptimizedDataAccess {
   }
 
   // Find record by path using PostgreSQL queries
-  async findRecordByPath(params: { country: string; state?: string; location?: string; slug: string }): Promise<OccupationRecord | null> {
+  async findOccupationSalaryByPath(params: { country: string; state?: string; location?: string; slug: string }): Promise<OccupationRecord | null> {
     // Use direct database query
-    return await findRecordByPath(params);
+    return await findOccupationSalaryByPath(params);
   }
 
   // Prefetch route data (DISABLED - using PostgreSQL instead)

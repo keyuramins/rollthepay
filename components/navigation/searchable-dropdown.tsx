@@ -1,3 +1,4 @@
+// components/navigation/searchable-dropdown.tsx
 "use client";
 
 import { useState, useEffect, useRef, useMemo } from "react";
@@ -465,6 +466,7 @@ export function SearchableDropdown({
       // Don't immediately open occupations dropdown - wait for user to type
       setOccupationSuggestions([]);
       setIsOccupationDropdownOpen(false);
+
       // Focus the input field after country selection
       setTimeout(() => {
         if (inputRef.current) {
