@@ -45,13 +45,18 @@ const nextConfig: NextConfig = {
             value: 'DENY',
           },
           {
-            key: 'X-XSS-Protection',
-            value: '1; mode=block',
-          },
-          {
             key: 'Referrer-Policy',
             value: 'strict-origin-when-cross-origin',
           },
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=0, must-revalidate' // allow bfcache
+          },
+          { 
+            key: 'Strict-Transport-Security', 
+            value: 'max-age=63072000; includeSubDomains; preload' 
+          },
+
         ],
       },
       {

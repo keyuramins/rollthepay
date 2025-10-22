@@ -8,10 +8,16 @@ import { gsap } from "gsap";
 
 export function MobileMenuToggle() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [mounted, setMounted] = useState(false); //track client mount state
   const menuRef = useRef<HTMLDivElement>(null);
   const continentsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!menuRef.current) return;
     if (mobileMenuOpen) {
       // Open animation
       gsap.fromTo(
@@ -46,6 +52,7 @@ export function MobileMenuToggle() {
     }
   }, [mobileMenuOpen]);
 
+  // Close menu when escape key is pressed
   useEffect(() => {
     const handleEsc = (e: KeyboardEvent) => {
       if (e.key === "Escape") setMobileMenuOpen(false);
@@ -53,7 +60,7 @@ export function MobileMenuToggle() {
     document.addEventListener("keydown", handleEsc);
     return () => document.removeEventListener("keydown", handleEsc);
   }, []);
-  
+  if (!mounted) return null; //prevent hydration errors = don't render anything until mounted
   return (
     <>
     <div className="fixed top-4 right-4 z-[60] lg:hidden">
@@ -66,17 +73,18 @@ export function MobileMenuToggle() {
         {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
       </Button>
     </div>
-      {/* Overlay */}
+      {/* Mobile menu overlay */}
       <div
         className={`fixed inset-0 bg-black/30 backdrop-blur-sm z-40 transition-opacity ${
           mobileMenuOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
         }`}
         onClick={() => setMobileMenuOpen(false)}
       />
-
+      {/* Mobile menu content */}
       <div
         ref={menuRef}
         className="fixed top-0 left-0 w-full z-50 bg-primary shadow-xl max-h-screen overflow-y-auto lg:hidden"
+        style={{ display: mobileMenuOpen ? "block" : "none" }} // hide from DOM when closed
       >
         <div ref={continentsRef} className="px-4 pt-24 pb-8 space-y-6">
           {continents.map((continent) => (
