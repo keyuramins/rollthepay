@@ -271,7 +271,7 @@ export async function searchOccupationsServer(
 ): Promise<OccupationSearchResult[]> {
   const pool = requirePool();
 
-  // Only fetch occupations for the given country and match full-text search
+  // Use LIKE for partial matching to support "acc" -> "accountant"
   const result = await pool.query(
     `
     SELECT 
@@ -284,14 +284,17 @@ export async function searchOccupationsServer(
       currency_code
     FROM occupations
     WHERE LOWER(country) = LOWER($1)
-      AND to_tsvector('english', occ_name) @@ plainto_tsquery('english', $2)
-    ORDER BY ts_rank(
-      to_tsvector('english', occ_name),
-      plainto_tsquery('english', $2)
-    ) DESC
-    LIMIT $3
+      AND LOWER(occ_name) LIKE LOWER($2)
+    ORDER BY 
+      CASE 
+        WHEN LOWER(occ_name) LIKE LOWER($3) THEN 1
+        WHEN LOWER(occ_name) LIKE LOWER($4) THEN 2
+        ELSE 3
+      END,
+      occ_name
+    LIMIT $5
     `,
-    [country, query, limit]
+    [country, `%${query}%`, `${query}%`, `%${query}%`, limit]
   );
 
   return result.rows;

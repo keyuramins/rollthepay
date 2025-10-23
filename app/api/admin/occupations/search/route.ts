@@ -1,40 +1,36 @@
-// app/api/admin/occupations/search/route.ts
-// API endpoint for searching occupations by country and query
-import type { NextApiRequest, NextApiResponse } from "next";
-import { getAllOccupationsForSearch } from "@/lib/db/queries";
+// /app/api/occupations/search/route.ts
+import { NextRequest, NextResponse } from "next/server";
+import { searchOccupationsServer } from "@/lib/db/queries";
+import type { OccupationSearchResult } from "@/lib/db/queries";
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  const country = req.query.country as string;
-  const q = (req.query.q as string) || ""; // optional search query
-  const limit = 1000; // max results to return, adjust as needed
-
-  if (!country) {
-    return res.status(400).json({ error: "Missing country parameter" });
-  }
+export async function GET(req: NextRequest) {
+  const { searchParams } = req.url ? new URL(req.url) : { searchParams: new URLSearchParams() };
+  const countrySlug = searchParams.get("country") || "";
+  const q = searchParams.get("q") || "";
 
   try {
-    // Fetch all occupations for the country
-    let occupations = await getAllOccupationsForSearch(country, limit);
-
-    // If a search query exists, filter server-side for faster dropdown
-    if (q.trim().length > 0) {
-      const queryLower = q.trim().toLowerCase();
-
-      occupations = occupations.filter((occ) => {
-        const title = occ.title.toLowerCase();
-        const state = occ.state?.toLowerCase() ?? "";
-        const location = occ.location?.toLowerCase() ?? "";
-        return (
-          title.includes(queryLower) ||
-          state.includes(queryLower) ||
-          location.includes(queryLower)
-        );
-      });
+    if (!countrySlug || !q) {
+      return NextResponse.json({ occupations: [] });
     }
 
-    res.status(200).json(occupations);
+    // Convert slug to database country name (e.g., "australia" -> "Australia", "united-states" -> "United States")
+    const dbCountryName = countrySlug.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+
+    let occupations = await searchOccupationsServer(dbCountryName, q, 50) as OccupationSearchResult[];
+
+    // Transform the data to match frontend interface
+    const transformedOccupations = occupations.map(occ => ({
+      country: countrySlug.toLowerCase(),
+      title: occ.title,
+      slug: occ.slug,
+      state: occ.state,
+      location: occ.location,
+      averageSalary: occ.avg_salary,
+      currencyCode: occ.currency_code
+    }));
+
+    return NextResponse.json({ occupations: transformedOccupations });
   } catch (err) {
-    console.error("Error fetching occupations:", err);
-    res.status(500).json({ error: "Failed to fetch occupations" });
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }

@@ -6,10 +6,8 @@ import { SearchableDropdown } from "@/components/navigation/searchable-dropdown"
 import { MobileMenuToggle } from "./mobile-menu-toggle";
 import { continents } from "@/app/constants/continents";
 import Link from "next/link";
-import { getAllOccupationsForSearch } from "@/lib/db/queries";
 
 export async function Header() {
-  const allOccupations = await getAllOccupationsForSearch();
   return (
     <header className="bg-primary shadow-lg sticky top-0 z-50" role="banner">
       <div className="max-w-7xl lg:max-w-full mx-auto px-4 sm:px-6 lg:px-8">
@@ -64,7 +62,6 @@ export async function Header() {
           <div className="hidden xl:flex flex-1 justify-center px-4 lg:px-8">
             <div className="w-full max-w-3xl">
               <SearchableDropdown 
-                allOccupations={allOccupations} 
                 headerMode={true}
                 placeholder="Select a country..."
                 fullWidth={true}
@@ -122,7 +119,6 @@ export async function Header() {
           <div className="px-0 lg:px-4">
             <div className="w-full lg:max-w-3xl mx-auto">
               <SearchableDropdown 
-                allOccupations={allOccupations} 
                 headerMode={true}
                 placeholder="Search occupations..."
                 fullWidth={true}

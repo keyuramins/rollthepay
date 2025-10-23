@@ -65,6 +65,7 @@ export function SearchableDropdown({
   const [debouncedQuery, setDebouncedQuery] = useState("");
   const [selectedCountry, setSelectedCountry] = useState<Country | null>(null);
   const [userRemovedCountry, setUserRemovedCountry] = useState(false);
+  const [isInputFocused, setIsInputFocused] = useState(false);
 
   const virtualListRef = useRef<HTMLDivElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -94,18 +95,24 @@ export function SearchableDropdown({
   // Fetch occupations from API
   async function fetchOccupations(countrySlug: string, query: string) {
     if (!countrySlug || query.trim().length < 2) return [];
+    
     try {
-      const res = await fetch(`/api/occupations/search?country=${countrySlug}&q=${encodeURIComponent(query)}`);
-      if (!res.ok) throw new Error("Failed to fetch occupations");
-      const data = await res.json();
-      return data as OccupationIndexItem[];
+      const url = `/api/admin/occupations/search?country=${countrySlug}&q=${encodeURIComponent(query)}`;
+      
+      const res = await fetch(url);
+      
+      if (!res.ok) throw new Error(`Failed to fetch occupations: ${res.status}`);
+  
+      const data: { occupations: OccupationIndexItem[] } = await res.json();
+      return data.occupations; // ✅ use the array inside the object
     } catch (err) {
-      console.error(err);
       return [];
     }
   }
+  
   // Handle occupation suggestions
   useEffect(() => {
+
     if (!(isInSearchMode && selectedCountry)) {
       setOccupationSuggestions([]);
       setIsOccupationDropdownOpen(false);
@@ -125,6 +132,7 @@ export function SearchableDropdown({
         const formatted = results.map(r => ({ ...r, title: r.title.replace(/^Average\s+/i, "").trim() }));
         setOccupationSuggestions(formatted);
         setIsOccupationDropdownOpen(formatted.length > 0);
+        
       })
       .finally(() => setIsOccupationLoading(false));
   }, [debouncedQuery, selectedCountry, isInSearchMode]);
@@ -182,6 +190,20 @@ export function SearchableDropdown({
   useEffect(() => {
     setChipWidth(chipRef.current?.offsetWidth ?? 0);
   }, [selectedCountry]);
+
+
+  // Aggressive focus management - keep input focused at all times
+  useEffect(() => {
+    if (isInputFocused && inputRef.current) {
+      const interval = setInterval(() => {
+        if (inputRef.current && document.activeElement !== inputRef.current) {
+          inputRef.current.focus();
+        }
+      }, 10); // Check every 10ms
+      
+      return () => clearInterval(interval);
+    }
+  }, [isInputFocused]);
 
   // Handle enter key
   async function handleEnter() {
@@ -304,8 +326,19 @@ export function SearchableDropdown({
           value={inputValue}
           onChange={e => setSearchQuery(e.target.value)}
           onFocus={() => {
-            if (isInSearchMode && selectedCountry && searchQuery.trim().length >= 2) setIsOccupationDropdownOpen(true);
-            else setIsDropdownOpen(true);
+            setIsInputFocused(true);
+            if (isInSearchMode && selectedCountry && searchQuery.trim().length >= 2) {
+              setIsOccupationDropdownOpen(true);
+            } else {
+              setIsDropdownOpen(true);
+            }
+          }}
+          onBlur={(e) => {
+            // Only blur if focus is moving to a dropdown item, not to buttons
+            const relatedTarget = e.relatedTarget as HTMLElement;
+            if (!relatedTarget || !dropdownRef.current?.contains(relatedTarget)) {
+              setIsInputFocused(false);
+            }
           }}
           onKeyDown={e => {
             if (e.key === 'Enter' && isInSearchMode && selectedCountry) {
@@ -316,13 +349,18 @@ export function SearchableDropdown({
             }
           }}
           disabled={isLoading || isOccupationLoading}
-          className={`block ${fullWidth ? 'w-full' : 'w-full sm:w-80 lg:w-96'} pr-10 py-3 border rounded-lg text-black leading-5 focus:outline-none shadow-md transition-all duration-200 border-input placeholder-muted-foreground disabled:cursor-not-allowed`}
+          className={`block ${fullWidth ? 'w-full' : 'w-full sm:w-80 lg:w-96'} pr-10 py-3 border rounded-lg bg-background text-black leading-5 focus:outline-none shadow-md transition-all duration-200 border-input placeholder-muted-foreground disabled:cursor-not-allowed`}
           style={{ paddingLeft: (isInSearchMode && selectedCountry) ? 48 + chipWidth + 16 : 48 }}
         />
 
         <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
           {searchQuery && (
-            <button onClick={() => setSearchQuery("")} className="mr-2">
+            <button 
+              onClick={() => setSearchQuery("")} 
+              className="mr-2"
+              tabIndex={-1}
+              onMouseDown={(e) => e.preventDefault()}
+            >
               <X className="h-4 w-4 text-primary hover:text-primary" />
             </button>
           )}
@@ -331,7 +369,9 @@ export function SearchableDropdown({
               ref={arrowButtonRef}
               type="button"
               onClick={handleEnter}
-              disabled={isLoading || isOccupationLoading}
+              disabled={isLoading || isOccupationLoading || isDropdownOpen || isOccupationDropdownOpen}
+              tabIndex={-1}
+              onMouseDown={(e) => e.preventDefault()}
               className="mr-2 inline-flex h-8 w-8 items-center justify-center rounded-md border border-primary text-primary bg-background hover:bg-primary/5 disabled:opacity-60 disabled:cursor-not-allowed"
             >
               {isLoading || isOccupationLoading ? <Loader2 className="h-4 w-4 animate-spin text-primary" /> : <ArrowRight className="h-4 w-4" />}
@@ -350,7 +390,7 @@ export function SearchableDropdown({
                   <button
                     key={country.code}
                     onClick={() => handleCountrySelect(country)}
-                    className="w-full text-left px-4 py-2 text-sm text-foreground hover:bg-primary/5 hover:text-primary transition-colors duration-150"
+                    className="w-full text-left px-4 py-2 text-sm text-foreground hover:bg-primary/5 hover:text-primary transition-colors duration-150 cursor-pointer"
                   >
                     {country.name}
                   </button>
@@ -372,7 +412,7 @@ export function SearchableDropdown({
                 <button
                   key={`${s.slug}-${s.state ?? 'na'}-${s.location ?? 'na'}`}
                   onClick={() => handleOccupationSelect(s)}
-                  className="w-full text-left px-4 py-2 text-sm text-foreground hover:bg-primary/5 hover:text-primary transition-colors duration-150"
+                  className="w-full text-left px-4 py-2 text-sm text-foreground hover:bg-primary/5 hover:text-primary transition-colors duration-150 cursor-pointer"
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex-1 min-w-0">
