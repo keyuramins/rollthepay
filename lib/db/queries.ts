@@ -254,6 +254,49 @@ export async function getHomepageStats(): Promise<{
   }
 }
 
+export interface OccupationSearchResult {
+  title: string;
+  occ_name: string;
+  slug: string;
+  state: string | null;
+  location: string | null;
+  avg_salary: number | null;
+  currency_code: string | null;
+}
+
+export async function searchOccupationsServer(
+  country: string,
+  query: string,
+  limit: number = 50
+): Promise<OccupationSearchResult[]> {
+  const pool = requirePool();
+
+  // Only fetch occupations for the given country and match full-text search
+  const result = await pool.query(
+    `
+    SELECT 
+      title,
+      occ_name,
+      slug_url AS slug,
+      state,
+      location,
+      avg_annual_salary AS avg_salary,
+      currency_code
+    FROM occupations
+    WHERE LOWER(country) = LOWER($1)
+      AND to_tsvector('english', occ_name) @@ plainto_tsquery('english', $2)
+    ORDER BY ts_rank(
+      to_tsvector('english', occ_name),
+      plainto_tsquery('english', $2)
+    ) DESC
+    LIMIT $3
+    `,
+    [country, query, limit]
+  );
+
+  return result.rows;
+}
+
 // Get occupations for search (lightweight - only essential fields, no ORDER BY for performance)
 export async function getAllOccupationsForSearch(country?: string, limit: number = 1000): Promise<Array<{
   country: string;

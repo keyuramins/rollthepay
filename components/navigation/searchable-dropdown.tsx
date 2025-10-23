@@ -30,12 +30,11 @@ const COUNTRIES: Country[] = continents.flatMap(continent =>
 interface OccupationIndexItem {
   country: string; // lowercased
   title: string;
-  slug: string; // slug_url
+  slug: string;
   state: string | null;
   location: string | null;
-  // Optional fields for richer dropdown context (if available from caller)
   averageSalary?: number | null;
-  currencyCode?: string | null; // e.g., 'AUD', 'INR'
+  currencyCode?: string | null;
 }
 
 interface SearchableDropdownProps {
@@ -44,7 +43,6 @@ interface SearchableDropdownProps {
   className?: string;
   fullWidth?: boolean;
   centered?: boolean;
-  allOccupations?: OccupationIndexItem[]; // provided on home for suggestions
   headerMode?: boolean; // new prop for header mode
 }
 
@@ -54,29 +52,28 @@ export function SearchableDropdown({
   className = "",
   fullWidth = false,
   centered = false,
-  allOccupations = [],
   headerMode = false
 }: SearchableDropdownProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [filteredCountries, setFilteredCountries] = useState<Country[]>(COUNTRIES);
   const [dropdownPosition, setDropdownPosition] = useState<"bottom" | "top">("bottom");
-  interface OccupationSuggestion extends OccupationIndexItem { display: string }
-  const [occupationSuggestions, setOccupationSuggestions] = useState<OccupationSuggestion[]>([]);
+  const [occupationSuggestions, setOccupationSuggestions] = useState<OccupationIndexItem[]>([]);
   const [isOccupationDropdownOpen, setIsOccupationDropdownOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [isCountryLoading, setIsCountryLoading] = useState(false);
   const [isOccupationLoading, setIsOccupationLoading] = useState(false);
   const [debouncedQuery, setDebouncedQuery] = useState("");
+  const [selectedCountry, setSelectedCountry] = useState<Country | null>(null);
+  const [userRemovedCountry, setUserRemovedCountry] = useState(false);
+
   const virtualListRef = useRef<HTMLDivElement>(null);
-  const [scrollTop, setScrollTop] = useState(0);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const chipRef = useRef<HTMLSpanElement>(null);
   const arrowButtonRef = useRef<HTMLButtonElement>(null);
-  const [chipWidth, setChipWidth] = useState<number>(0);
-  const [selectedCountry, setSelectedCountry] = useState<Country | null>(null);
-  const [userRemovedCountry, setUserRemovedCountry] = useState<boolean>(false);
+  const [scrollTop, setScrollTop] = useState(0);
+  const [chipWidth, setChipWidth] = useState(0);
+  
   const router = useRouter();
   const pathname = usePathname();
 
@@ -88,133 +85,63 @@ export function SearchableDropdown({
 
   // Prefetching functionality removed - PostgreSQL queries are fast enough
 
-  // Filter countries based on search query (when no country selected or not in search mode)
-  useEffect(() => {
-    // If a country is already selected in search mode, we're in occupation search mode.
-    if (isInSearchMode && selectedCountry) return;
-
-    if (searchQuery.trim() === "") {
-      setFilteredCountries(COUNTRIES);
-    } else {
-      const term = searchQuery.toLowerCase();
-      const filtered = COUNTRIES.filter(country =>
-        country.name.toLowerCase().includes(term) ||
-        country.continent.toLowerCase().includes(term)
-      );
-      setFilteredCountries(filtered);
-    }
-  }, [searchQuery, isInSearchMode, selectedCountry]);
-
-  // Build occupation suggestions when searching after a country is picked (search mode)
-  useEffect(() => {
-    if (!(isInSearchMode && selectedCountry)) {
-      if (occupationSuggestions.length !== 0) setOccupationSuggestions([]);
-      if (isOccupationDropdownOpen) setIsOccupationDropdownOpen(false);
-      return;
-    }
-    const term = debouncedQuery.trim().toLowerCase();
-    
-    // Only show occupation dropdown if user has typed at least 3 characters
-    if (term.length < 2) {
-      setOccupationSuggestions([]);
-      setIsOccupationDropdownOpen(false);
-      return;
-    }
-    
-    // Strict ranking only (removed fuzzy logic)
-    const pool: OccupationSuggestion[] = allOccupations
-      .filter(o => o.country === selectedCountry.slug)
-      .map(o => ({ ...o, display: o.title.replace(/^Average\s+/i, "").trim() }))
-      .sort((a, b) => a.display.localeCompare(b.display));
-
-    const normalize = (s: string) => s.toLowerCase().normalize('NFKD').replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, ' ').trim();
-    const singularize = (s: string) => s.endsWith('s') ? s.slice(0, -1) : s;
-
-    const queryNorm = normalize(term);
-    const queryTokens = queryNorm.split(' ').filter(Boolean).map(singularize);
-
-    function scoreMatch(queryTokens: string[], title: string): number {
-      const tNorm = normalize(title);
-      const tTokens = tNorm.split(' ').filter(Boolean).map(singularize);
-      const tJoined = tTokens.join(' ');
-    
-      // Exact equal
-      if (tJoined === queryTokens.join(' ')) return 1000;
-    
-      let score = 0;
-    
-      // Starts with full query
-      const startsWithFull = tJoined.startsWith(queryTokens.join(' '));
-      if (startsWithFull) score += 800;
-    
-      // All tokens prefix some title tokens (strict)
-      const allPrefix = queryTokens.every(qt =>
-        tTokens.some(tt => tt.startsWith(qt))
-      );
-      if (allPrefix) score += 700;
-    
-      // Word-start matches and order bonus
-      let orderIdx = -1;
-      let orderMatches = 0;
-      for (let i = 0; i < queryTokens.length; i++) {
-        const qt = queryTokens[i];
-        const idx = tTokens.findIndex(tt => tt.startsWith(qt) || tt === qt);
-        if (idx >= 0) {
-          if (idx > orderIdx) orderMatches++;
-          orderIdx = idx;
-          score += 40; // per-token prefix bonus
-        }
-      }
-      if (orderMatches >= 2) score += 60;
-    
-      // Substring includes (strict)
-      const includesFull = tJoined.includes(queryTokens.join(' '));
-      if (includesFull) score += 300;
-    
-      // If no strict match at all, return 0 to exclude this item
-      const matched = startsWithFull || allPrefix || orderMatches > 0 || includesFull;
-      if (!matched) return 0;
-    
-      // Bonuses only if matched
-      const firstIdx = tJoined.indexOf(queryTokens[0] || '');
-      score += Math.max(0, 50 - Math.max(0, firstIdx));
-      score += Math.max(0, 80 - tJoined.length);
-    
-      return score;
-    }
-
-    // Rank, then deduplicate by slug/state/location; keep all matches (scrollable list)
-    const ranked = pool
-      .map(o => ({ item: o, score: scoreMatch(queryTokens, o.display) }))
-      .filter(x => x.score > 0)
-      .sort((a, b) => b.score - a.score);
-
-    const seen = new Set<string>();
-    const deduped: OccupationSuggestion[] = [];
-    for (const r of ranked) {
-      const key = `${r.item.slug}|${r.item.state ?? ''}|${r.item.location ?? ''}`;
-      if (!seen.has(key)) {
-        seen.add(key);
-        deduped.push(r.item);
-      }
-    }
-
-    setOccupationSuggestions(deduped);
-    setIsOccupationDropdownOpen(true);
-  }, [debouncedQuery, isInSearchMode, selectedCountry, allOccupations, isOccupationDropdownOpen, occupationSuggestions.length]);
-
   // Debounce user input to avoid recalculating on every keystroke
   useEffect(() => {
     const id = setTimeout(() => setDebouncedQuery(searchQuery), 250);
     return () => clearTimeout(id);
   }, [searchQuery]);
 
-  // Reset userRemovedCountry flag when pathname changes (user navigated to different page)
+  // Fetch occupations from API
+  async function fetchOccupations(countrySlug: string, query: string) {
+    if (!countrySlug || query.trim().length < 2) return [];
+    try {
+      const res = await fetch(`/api/occupations/search?country=${countrySlug}&q=${encodeURIComponent(query)}`);
+      if (!res.ok) throw new Error("Failed to fetch occupations");
+      const data = await res.json();
+      return data as OccupationIndexItem[];
+    } catch (err) {
+      console.error(err);
+      return [];
+    }
+  }
+  // Handle occupation suggestions
   useEffect(() => {
-    setUserRemovedCountry(false);
-  }, [pathname]);
+    if (!(isInSearchMode && selectedCountry)) {
+      setOccupationSuggestions([]);
+      setIsOccupationDropdownOpen(false);
+      return;
+    }
 
-  // Initialize selected country from URL on non-home pages or in header mode
+    const term = debouncedQuery.trim();
+    if (term.length < 2) {
+      setOccupationSuggestions([]);
+      setIsOccupationDropdownOpen(false);
+      return;
+    }
+
+    setIsOccupationLoading(true);
+    fetchOccupations(selectedCountry.slug, term)
+      .then(results => {
+        const formatted = results.map(r => ({ ...r, title: r.title.replace(/^Average\s+/i, "").trim() }));
+        setOccupationSuggestions(formatted);
+        setIsOccupationDropdownOpen(formatted.length > 0);
+      })
+      .finally(() => setIsOccupationLoading(false));
+  }, [debouncedQuery, selectedCountry, isInSearchMode]);
+
+  // Filter countries
+  useEffect(() => {
+    if (isInSearchMode && selectedCountry) return;
+    if (!searchQuery.trim()) {
+      setFilteredCountries(COUNTRIES);
+    } else {
+      const term = searchQuery.toLowerCase();
+      const filtered = COUNTRIES.filter(c => c.name.toLowerCase().includes(term) || c.continent.toLowerCase().includes(term));
+      setFilteredCountries(filtered);
+    }
+  }, [searchQuery, isInSearchMode, selectedCountry]);
+
+  // Initialize selected country from URL
   useEffect(() => {
     if ((!isHome || headerMode) && !selectedCountry && !userRemovedCountry) {
       const seg = pathname.split('/').filter(Boolean)[0];
@@ -223,9 +150,9 @@ export function SearchableDropdown({
         if (found) setSelectedCountry(found);
       }
     }
-  }, [isHome, headerMode, pathname, selectedCountry, userRemovedCountry]);
+  }, [pathname, selectedCountry, userRemovedCountry, isHome, headerMode]);
 
-  // Handle click outside to close dropdown
+  // Click outside to close dropdowns
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
@@ -233,322 +160,113 @@ export function SearchableDropdown({
         setIsOccupationDropdownOpen(false);
       }
     }
-    
     document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Determine dropdown position based on available space
+  // Dropdown position
   useEffect(() => {
     if (!isDropdownOpen || !inputRef.current) return;
-
     const updatePosition = () => {
-      if (!inputRef.current) return;
-      
-      const rect = inputRef.current.getBoundingClientRect();
+      const rect = inputRef.current!.getBoundingClientRect();
       const spaceBelow = window.innerHeight - rect.bottom;
       const spaceAbove = rect.top;
-      
-      // Need at least 300px for dropdown, otherwise show above
       setDropdownPosition(spaceBelow < 300 && spaceAbove > 300 ? "top" : "bottom");
     };
-
     updatePosition();
     window.addEventListener('resize', updatePosition);
-    
-    return () => {
-      window.removeEventListener('resize', updatePosition);
-    };
+    return () => window.removeEventListener('resize', updatePosition);
   }, [isDropdownOpen]);
 
-  // Measure inline country tag width to pad input accordingly
+  // Chip width
   useEffect(() => {
-    if (!chipRef.current) {
-      setChipWidth(0);
-      return;
-    }
-    setChipWidth(chipRef.current.offsetWidth);
+    setChipWidth(chipRef.current?.offsetWidth ?? 0);
   }, [selectedCountry]);
 
-  // Animate elements when country is selected
-  useEffect(() => {
-    if (isInSearchMode && selectedCountry && chipRef.current && arrowButtonRef.current) {
-      // Create animation timeline
-      const tl = gsap.timeline();
-      
-      // Set initial states
-      gsap.set(arrowButtonRef.current, { 
-        scale: 1, 
-        opacity: 0,
-        x: 0
-      });
-      
-      // Hide the original placeholder by temporarily removing it
-      const originalPlaceholder = inputRef.current?.getAttribute('placeholder');
-      if (inputRef.current) {
-        inputRef.current.setAttribute('placeholder', '');
-      }
-      
-      // Create animated placeholder text
-      const placeholderText = `Search occupations in ${selectedCountry.name}...`;
-      const placeholderElement = document.createElement('div');
-      placeholderElement.textContent = placeholderText;
-      placeholderElement.style.position = 'absolute';
-      
-      // Calculate precise position using getBoundingClientRect
-      const chipRect = chipRef.current.getBoundingClientRect();
-      const inputRect = inputRef.current!.getBoundingClientRect();
-      const leftOffset = chipRect.right - inputRect.left + 8; // 8px spacing
-      placeholderElement.style.left = `${leftOffset}px`;
-      
-      placeholderElement.style.top = '50%';
-      placeholderElement.style.transform = 'translateY(-50%)';
-      placeholderElement.style.fontSize = '16px';
-      placeholderElement.style.color = 'oklch(0 0 0)';
-      placeholderElement.style.pointerEvents = 'none';
-      placeholderElement.style.zIndex = '1';
-      placeholderElement.style.whiteSpace = 'nowrap';
-      
-      // Insert placeholder element
-      if (inputRef.current && inputRef.current.parentElement) {
-        inputRef.current.parentElement.appendChild(placeholderElement);
-      }
-      
-      // Split text into characters
-      const chars = placeholderText.split('');
-      placeholderElement.innerHTML = chars.map(char => 
-        `<span style="display: inline-block;">${char === ' ' ? '&nbsp;' : char}</span>`
-      ).join('');
-      
-      const charElements = placeholderElement.querySelectorAll('span');
-      
-      // Set initial state for characters
-      gsap.set(charElements, {
-        y: 20,
-        opacity: 0,
-        scale: 1.5
-      });
-      
-      // Animate characters in
-      tl.to(charElements, {
-        y: 0,
-        opacity: 1,
-        scale: 1,
-        duration: 0.6,
-        stagger: 0.02,
-        ease: "back.out(1.7)"
-      })
-        
-      // Clean up placeholder element and restore original placeholder
-      .to({}, {
-        duration: 0,
-        onComplete: () => {
-          if (placeholderElement.parentElement) {
-            placeholderElement.parentElement.removeChild(placeholderElement);
-          }
-          // Restore the original placeholder
-          if (inputRef.current && originalPlaceholder) {
-            inputRef.current.setAttribute('placeholder', originalPlaceholder);
-          }
-        }
-      })
-      // Arrow appears instantly
-      .to(arrowButtonRef.current, {
-        opacity: 1,
-        duration: 0.1,
-      })
-      // Fast horizontal shake/nudge animation
-      .to(arrowButtonRef.current, {
-        x: 10,
-        duration: 0.2,
-        ease: "bounce.inOut",
-        yoyo: true,
-        repeat: 10
-      }, "<");
-    }
-  }, [isInSearchMode, selectedCountry]);
-
-  const groupedCountries = CONTINENTS.map(continent => ({
-    ...continent,
-    countries: filteredCountries.filter(country => country.continent === continent.code)
-  })).filter(group => group.countries.length > 0);
-
-  // Always use light styling for better visibility
-  const isLight = true;
-  
-  const inputBgClass = "bg-background";
-  const inputTextClass = "text-foreground placeholder-muted-foreground";
-  const inputBorderClass = "border-input focus:border-primary focus:ring-2 focus:ring-primary/20";
-  const iconColor = "text-primary";
-  const dropdownBgClass = "bg-background";
-
-  const containerClasses = [
-    'relative',
-    fullWidth ? 'w-full' : 'w-auto',
-    centered ? 'mx-auto' : '',
-    className
-  ].filter(Boolean).join(' ');
-
-  function slugify(value: string): string {
-    return value
-      .toLowerCase()
-      .trim()
-      .replace(/[^a-z0-9\s-]/g, "")
-      .replace(/\s+/g, "-")
-      .replace(/-+/g, "-");
-  }
-
+  // Handle enter key
   async function handleEnter() {
+    if (!selectedCountry) return;
     setIsLoading(true);
-    //if (!isInSearchMode) return; // occupation search only in search mode
-    if (!selectedCountry) return; // need a country first
-    const query = searchQuery.trim();
-    
-    console.log('🚀 handleEnter: Starting navigation...');
     setIsOccupationLoading(true);
-    
-    // Add a minimum loading time to ensure spinner is visible
-    // const startTime = Date.now();
-    // const minLoadingTime = 500; // 500ms minimum loading time
-    
+    const query = searchQuery.trim();
+
     try {
-      if (query.length === 0) {
-        console.log('🚀 handleEnter: Navigating to country page');
+      if (!query || occupationSuggestions.length === 0) {
         await router.push(`/${selectedCountry.slug}`);
-      } else if (occupationSuggestions.length > 0) {
-        // If there are occupation suggestions, go to the first result
+      } else {
         const firstResult = occupationSuggestions[0];
-        console.log('🚀 handleEnter: Navigating to occupation page:', firstResult.display);
-        
-        // Build the URL according to our routing rules
         let url = `/${selectedCountry.slug}`;
-        
         if (firstResult.state) {
-          const normalizedState = firstResult.state.toLowerCase().replace(/\s+/g, '-');
-          url += `/${normalizedState}`;
-          
-          if (firstResult.location) {
-            const normalizedLocation = firstResult.location.toLowerCase().replace(/\s+/g, '-');
-            url += `/${normalizedLocation}`;
-          }
+          url += `/${firstResult.state.toLowerCase().replace(/\s+/g, '-')}`;
+          if (firstResult.location) url += `/${firstResult.location.toLowerCase().replace(/\s+/g, '-')}`;
         }
-        
         url += `/${firstResult.slug}`;
         await router.push(url);
-      } else {
-        // If no results found, go to the country page
-        console.log('🚀 handleEnter: No results found, navigating to country page');
-        await router.push(`/${selectedCountry.slug}`);
       }
     } finally {
-      // Ensure minimum loading time for better UX
-      // const elapsed = Date.now() - startTime;
-      // const remaining = Math.max(0, minLoadingTime - elapsed);
-      
-      // console.log(`⏱️ handleEnter: Loading time - elapsed: ${elapsed}ms, remaining: ${remaining}ms`);
-      
-      // setTimeout(() => {
-      //   console.log('✅ handleEnter: Clearing loading states');
-      //   setIsLoading(false);
-      //   setIsOccupationLoading(false);
-      // }, remaining);
+      setIsLoading(false);
+      setIsOccupationLoading(false);
     }
   }
 
+  // Handle country select
   async function handleCountrySelect(country: Country) {
     if (isInSearchMode) {
       setSelectedCountry(country);
-      setUserRemovedCountry(false); // Reset the flag when user selects a country
+      setUserRemovedCountry(false);
       setIsDropdownOpen(false);
       setSearchQuery("");
-      // Don't immediately open occupations dropdown - wait for user to type
       setOccupationSuggestions([]);
       setIsOccupationDropdownOpen(false);
-
-      // Focus the input field after country selection
-      setTimeout(() => {
-        if (inputRef.current) {
-          inputRef.current.focus();
-        }
-      }, 0);
+      setTimeout(() => inputRef.current?.focus(), 0);
     } else {
-      setIsCountryLoading(true);
-      
-      // Add a minimum loading time to ensure spinner is visible
-      const startTime = Date.now();
-      const minLoadingTime = 300; // 300ms minimum loading time
-      
-      try {
-        setIsDropdownOpen(false);
-        await router.push(`/${country.slug}`);
-      } finally {
-        // Ensure minimum loading time for better UX
-        const elapsed = Date.now() - startTime;
-        const remaining = Math.max(0, minLoadingTime - elapsed);
-        
-        setTimeout(() => {
-          setIsCountryLoading(false);
-        }, remaining);
-      }
+      setIsDropdownOpen(false);
+      setIsLoading(true);
+      await router.push(`/${country.slug}`);
+      setIsLoading(false);
     }
   }
 
-  async function handleOccupationSelect(suggestion: OccupationSuggestion) {
+  // Handle occupation select
+  async function handleOccupationSelect(occupation: OccupationIndexItem) {
+    if (!selectedCountry) return;
     setIsLoading(true);
     setIsOccupationLoading(true);
-    
-    // Add a minimum loading time to ensure spinner is visible
-    const startTime = Date.now();
-    const minLoadingTime = 500; // 500ms minimum loading time
-    
-    try {
-      setIsDropdownOpen(false);
-      setIsOccupationDropdownOpen(false);
-      setSearchQuery("");
-      
-      // Build the URL according to our routing rules
-      let url = `/${selectedCountry!.slug}`;
-      
-      if (suggestion.state) {
-        const normalizedState = suggestion.state.toLowerCase().replace(/\s+/g, '-');
-        url += `/${normalizedState}`;
-        
-        if (suggestion.location) {
-          const normalizedLocation = suggestion.location.toLowerCase().replace(/\s+/g, '-');
-          url += `/${normalizedLocation}`;
-        }
-      }
-      
-      url += `/${suggestion.slug}`;
-      await router.push(url);
-    } finally {
-      // Ensure minimum loading time for better UX
-      const elapsed = Date.now() - startTime;
-      const remaining = Math.max(0, minLoadingTime - elapsed);
-      
-      setTimeout(() => {
-        setIsLoading(false);
-        setIsOccupationLoading(false);
-      }, remaining);
+
+    let url = `/${selectedCountry.slug}`;
+    if (occupation.state) {
+      url += `/${occupation.state.toLowerCase().replace(/\s+/g, '-')}`;
+      if (occupation.location) url += `/${occupation.location.toLowerCase().replace(/\s+/g, '-')}`;
     }
+    url += `/${occupation.slug}`;
+    setIsDropdownOpen(false);
+    setIsOccupationDropdownOpen(false);
+    setSearchQuery("");
+    await router.push(url);
+
+    setIsLoading(false);
+    setIsOccupationLoading(false);
   }
 
   const inputValue = useMemo(() => {
-    if (!isInSearchMode && selectedCountry && searchQuery === "") {
-      return selectedCountry.name; // show selected by default on non-search mode pages
-    }
+    if (!isInSearchMode && selectedCountry && !searchQuery) return selectedCountry.name;
     return searchQuery;
   }, [isInSearchMode, selectedCountry, searchQuery]);
+
+  const groupedCountries = CONTINENTS.map(continent => ({
+    ...continent,
+    countries: filteredCountries.filter(c => c.continent === continent.code)
+  })).filter(g => g.countries.length > 0);
+
+  const containerClasses = ['relative', fullWidth ? 'w-full' : 'w-auto', centered ? 'mx-auto' : '', className].filter(Boolean).join(' ');
 
   return (
     <div ref={dropdownRef} className={containerClasses}>
       <div className="relative">
         <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-            <Search className={`h-5 w-5 ${iconColor} opacity-40`} />
+          <Search className="h-5 w-5 text-primary opacity-40" />
         </div>
-        {/* Inline tag area inside input */}
+
         {isInSearchMode && selectedCountry && (
           <div className="absolute inset-y-0 left-12 flex items-center z-10">
             <span ref={chipRef} className="inline-flex items-center px-2 py-1 rounded-full bg-green-100 text-primary text-sm">
@@ -556,20 +274,15 @@ export function SearchableDropdown({
               <button
                 aria-label="Remove selected country"
                 className="ml-2 hover:text-primary"
-                onClick={(e) => {
+                onClick={e => {
                   e.preventDefault();
                   setSelectedCountry(null);
                   setUserRemovedCountry(true);
                   setSearchQuery("");
-                  setIsDropdownOpen(true); // Show country dropdown immediately
+                  setIsDropdownOpen(true);
                   setIsOccupationDropdownOpen(false);
                   setOccupationSuggestions([]);
-                  // Focus the input field after country removal
-                  setTimeout(() => {
-                    if (inputRef.current) {
-                      inputRef.current.focus();
-                    }
-                  }, 0);
+                  setTimeout(() => inputRef.current?.focus(), 0);
                 }}
               >
                 <X className="h-3 w-3" />
@@ -577,6 +290,7 @@ export function SearchableDropdown({
             </span>
           </div>
         )}
+
         <input
           ref={inputRef}
           type="text"
@@ -584,217 +298,91 @@ export function SearchableDropdown({
             isInSearchMode && selectedCountry
               ? `Search occupations in ${selectedCountry.name}...`
               : isInSearchMode && userRemovedCountry
-                ? "Select a country..."
-                : placeholder
+              ? "Select a country..."
+              : placeholder
           }
           value={inputValue}
-          onChange={(e) => setSearchQuery(e.target.value)}
+          onChange={e => setSearchQuery(e.target.value)}
           onFocus={() => {
-            if (isInSearchMode && selectedCountry) {
-              // Only open occupation dropdown if user has typed at least 3 characters
-              if (searchQuery.trim().length >= 3) {
-                setIsOccupationDropdownOpen(true);
-              }
-            } else {
-              setIsDropdownOpen(true);
-            }
-            if (!isInSearchMode && selectedCountry && searchQuery === "") {
-              setTimeout(() => {
-                if (inputRef.current) {
-                  const val = inputRef.current.value;
-                  inputRef.current.setSelectionRange(0, val.length);
-                }
-              }, 0);
-            }
+            if (isInSearchMode && selectedCountry && searchQuery.trim().length >= 2) setIsOccupationDropdownOpen(true);
+            else setIsDropdownOpen(true);
           }}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') {
-              // Only allow occupation search in search mode after picking a country
-              if (isInSearchMode && selectedCountry) {
-                e.preventDefault();
-                handleEnter();
-              }
+          onKeyDown={e => {
+            if (e.key === 'Enter' && isInSearchMode && selectedCountry) {
+              e.preventDefault();
+              handleEnter();
             } else if ((e.key === 'ArrowDown' || e.key === 'ArrowUp') && isInSearchMode && selectedCountry) {
               setIsOccupationDropdownOpen(true);
             }
           }}
           disabled={isLoading || isOccupationLoading}
-          className={`block ${fullWidth ? 'w-full' : 'w-full sm:w-80 lg:w-96'} pr-10 py-3 border rounded-lg text-black leading-5 focus:outline-none shadow-md transition-all duration-200 ${inputBorderClass} ${inputBgClass} ${inputTextClass} disabled:cursor-not-allowed`}
-          style={{ 
-            paddingLeft: (isInSearchMode && selectedCountry) ? 48 + chipWidth + 16 : 48,
-            paddingRight: (isInSearchMode && selectedCountry) ? 80 : undefined
-          }}
+          className={`block ${fullWidth ? 'w-full' : 'w-full sm:w-80 lg:w-96'} pr-10 py-3 border rounded-lg text-black leading-5 focus:outline-none shadow-md transition-all duration-200 border-input placeholder-muted-foreground disabled:cursor-not-allowed`}
+          style={{ paddingLeft: (isInSearchMode && selectedCountry) ? 48 + chipWidth + 16 : 48 }}
         />
+
         <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
           {searchQuery && (
-            <button 
-              onClick={() => setSearchQuery("")}
-              className="mr-2"
-            >
-              <X className={`h-4 w-4 ${iconColor} hover:text-primary`} />
+            <button onClick={() => setSearchQuery("")} className="mr-2">
+              <X className="h-4 w-4 text-primary hover:text-primary" />
             </button>
           )}
           {isInSearchMode && selectedCountry && (
             <button
               ref={arrowButtonRef}
               type="button"
-              onClick={() => {
-                console.log('🔘 Button clicked! Loading states:', { isLoading, isOccupationLoading });
-                handleEnter();
-              }}
+              onClick={handleEnter}
               disabled={isLoading || isOccupationLoading}
-              aria-label="Go to results"
-              title={
-                searchQuery.trim().length === 0 
-                  ? `Go to ${selectedCountry.name}` 
-                  : occupationSuggestions.length > 0 
-                    ? `Go to first result: ${occupationSuggestions[0].display}` 
-                    : `Go to ${selectedCountry.name}`
-              }
-              className={
-                `mr-2 inline-flex h-8 w-8 items-center justify-center rounded-md border transition-all duration-200 border-primary text-primary bg-background hover:bg-primary/5 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed`
-              }
+              className="mr-2 inline-flex h-8 w-8 items-center justify-center rounded-md border border-primary text-primary bg-background hover:bg-primary/5 disabled:opacity-60 disabled:cursor-not-allowed"
             >
-              {isLoading || isOccupationLoading ? (
-                <Loader2 className="h-4 w-4 animate-spin text-primary" />
-              ) : (
-                <ArrowRight className="h-4 w-4" />
-              )}
+              {isLoading || isOccupationLoading ? <Loader2 className="h-4 w-4 animate-spin text-primary" /> : <ArrowRight className="h-4 w-4" />}
             </button>
           )}
-          {/* <button
-            type="button"
-            onClick={() => {
-              if (isHome && selectedCountry) {
-                setIsOccupationDropdownOpen(!isOccupationDropdownOpen);
-              } else {
-                setIsDropdownOpen(!isDropdownOpen);
-              }
-            }}
-          >
-            <ChevronDown 
-              className={`h-5 w-5 ${iconColor} ${(isHome && selectedCountry ? isOccupationDropdownOpen : isDropdownOpen) ? 'transform rotate-180' : ''} transition-transform duration-200`}
-            />
-          </button> */}
         </div>
       </div>
 
-      {/* Inline tag moved inside the input above */}
-
       {isDropdownOpen && (!isInSearchMode || !selectedCountry) && (
-        <div 
-          className={`absolute ${dropdownPosition === 'top' ? 'bottom-full mb-2' : 'top-full'} left-0 ${fullWidth ? 'w-full' : 'w-full sm:w-80 lg:w-96'} ${dropdownBgClass} rounded-lg shadow-xl ring-1 ring-black ring-opacity-5 z-50 border`}
-        >
+        <div className={`absolute ${dropdownPosition === 'top' ? 'bottom-full mb-2' : 'top-full'} left-0 ${fullWidth ? 'w-full' : 'w-full sm:w-80 lg:w-96'} bg-background rounded-lg shadow-xl ring-1 ring-black ring-opacity-5 z-50 border`}>
           <div className="py-1 max-h-[300px] overflow-y-auto">
-            {groupedCountries.length > 0 ? (
-              groupedCountries.map((continent) => (
-                <div key={continent.code}>
-                  <div className="px-4 py-2 text-sm font-semibold text-foreground bg-muted border-b">
-                    {continent.name}
-                  </div>
-                  {continent.countries.map((country) => (
-                    <button
-                      key={country.code}
-                      onClick={() => handleCountrySelect(country)}
-                      disabled={isCountryLoading}
-                      className="w-full text-left px-4 py-2 text-sm text-foreground hover:bg-primary/5 hover:text-primary transition-colors duration-150 flex items-center justify-between disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      <span>{country.name}</span>
-                      {isCountryLoading && selectedCountry?.code === country.code ? (
-                        <Loader2 className="h-4 w-4 animate-spin text-primary" />
-                      ) : selectedCountry?.code === country.code ? (
-                        <Check className="h-4 w-4 text-primary" />
-                      ) : null}
-                    </button>
-                  ))}
-                </div>
-              ))
-            ) : (
-              <div className="px-4 py-6 text-center text-muted-foreground">
-                No countries found matching "{searchQuery}"
+            {groupedCountries.length > 0 ? groupedCountries.map(continent => (
+              <div key={continent.code}>
+                <div className="px-4 py-2 text-sm font-semibold text-foreground bg-muted border-b">{continent.name}</div>
+                {continent.countries.map(country => (
+                  <button
+                    key={country.code}
+                    onClick={() => handleCountrySelect(country)}
+                    className="w-full text-left px-4 py-2 text-sm text-foreground hover:bg-primary/5 hover:text-primary transition-colors duration-150"
+                  >
+                    {country.name}
+                  </button>
+                ))}
               </div>
+            )) : (
+              <div className="px-4 py-6 text-center text-muted-foreground">No countries found matching "{searchQuery}"</div>
             )}
           </div>
         </div>
       )}
 
-      {/* Occupation suggestions dropdown (search mode after country selection) */}
       {isInSearchMode && selectedCountry && isOccupationDropdownOpen && (
-        <div 
-          className={`absolute ${dropdownPosition === 'top' ? 'bottom-full mb-2' : 'top-full'} left-0 ${fullWidth ? 'w-full' : 'w-full sm:w-80 lg:w-96'} ${dropdownBgClass} rounded-lg shadow-xl ring-1 ring-black ring-opacity-5 z-50 border`} 
-          onMouseDown={(e) => e.preventDefault()}
-        >
-          <div
-            ref={virtualListRef}
-            className="py-1 max-h-[300px] overflow-y-auto"
-            onScroll={(e) => {
-              const el = e.currentTarget as HTMLDivElement;
-              setScrollTop(el.scrollTop);
-            }}
-          >
-            {(() => {
-              const itemHeight = 56; // px per row (approx)
-              const viewportHeight = 300; // matches max-h
-              const overscan = 6;
-              const startIndex = Math.max(0, Math.floor(scrollTop / itemHeight) - overscan);
-              const visibleCount = Math.ceil(viewportHeight / itemHeight) + overscan * 2;
-              const endIndex = Math.min(occupationSuggestions.length, startIndex + visibleCount);
-              const totalHeight = occupationSuggestions.length * itemHeight;
-              const offsetY = startIndex * itemHeight;
-              const slice = occupationSuggestions.slice(startIndex, endIndex);
-
-              return (
-                <div style={{ height: totalHeight }}>
-                  <div style={{ transform: `translateY(${offsetY}px)` }}>
-                    {slice.map(s => {
-              const subtitleParts: string[] = [];
-              if (s.state) subtitleParts.push(s.state);
-              if (s.location) subtitleParts.push(s.location);
-              const region = subtitleParts.join(' • ');
-              const formatCurrency = (amount?: number | null, currencyCode?: string | null) => {
-                if (typeof amount !== 'number' || !isFinite(amount)) return null;
-                const countrySlug = selectedCountry?.slug;
-                const defaultLocale = countrySlug === 'australia' ? 'en-AU' : countrySlug === 'india' ? 'en-IN' : undefined;
-                const code = currencyCode || (countrySlug === 'australia' ? 'AUD' : countrySlug === 'india' ? 'INR' : undefined);
-                try {
-                  if (code) {
-                    return new Intl.NumberFormat(defaultLocale, { style: 'currency', currency: code, maximumFractionDigits: 0 }).format(amount);
-                  }
-                  return new Intl.NumberFormat(defaultLocale, { maximumFractionDigits: 0 }).format(amount);
-                } catch {
-                  return `${code ?? ''} ${Math.round(amount)}`.trim();
-                }
-              };
-              const salary = formatCurrency(s.averageSalary ?? null, s.currencyCode ?? null);
+        <div className={`absolute ${dropdownPosition === 'top' ? 'bottom-full mb-2' : 'top-full'} left-0 ${fullWidth ? 'w-full' : 'w-full sm:w-80 lg:w-96'} bg-background rounded-lg shadow-xl ring-1 ring-black ring-opacity-5 z-50 border`}>
+          <div ref={virtualListRef} className="py-1 max-h-[300px] overflow-y-auto" onScroll={e => setScrollTop(e.currentTarget.scrollTop)}>
+            {occupationSuggestions.map(s => {
+              const region = [s.state, s.location].filter(Boolean).join(' • ');
               return (
                 <button
                   key={`${s.slug}-${s.state ?? 'na'}-${s.location ?? 'na'}`}
                   onClick={() => handleOccupationSelect(s)}
-                  disabled={isLoading || isOccupationLoading}
-                  className="w-full text-left px-4 py-2 text-sm text-foreground hover:bg-primary/5 hover:text-primary transition-colors duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full text-left px-4 py-2 text-sm text-foreground hover:bg-primary/5 hover:text-primary transition-colors duration-150"
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex-1 min-w-0">
-                      <div className="font-medium truncate">{s.display}</div>
-                      {(region || salary) && (
-                        <div className="text-xs text-muted-foreground mt-0.5 truncate">
-                          {region}
-                          {region && salary ? ' • ' : ''}
-                          {salary}
-                        </div>
-                      )}
+                      <div className="font-medium truncate">{s.title}</div>
+                      {region && <div className="text-xs text-muted-foreground mt-0.5 truncate">{region}</div>}
                     </div>
-                    {(isLoading || isOccupationLoading) && (
-                      <Loader2 className="h-4 w-4 mt-1 shrink-0 animate-spin text-primary" />
-                    )}
                   </div>
                 </button>
-                      );
-                    })}
-                  </div>
-                </div>
               );
-            })()}
+            })}
           </div>
         </div>
       )}
