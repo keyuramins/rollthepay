@@ -8,7 +8,9 @@ CREATE TABLE occupations (
   slug_url VARCHAR(500) NOT NULL,
   title TEXT NOT NULL,
   h1_title TEXT,
-  occupation TEXT,
+  occ_name TEXT,
+  popularity_score INTEGER DEFAULT 0,
+
   
   -- Geographic hierarchy
   country VARCHAR(100) NOT NULL,
@@ -95,7 +97,7 @@ CREATE INDEX IF NOT EXISTS idx_occupations_country_state_ci ON occupations ((LOW
 CREATE INDEX IF NOT EXISTS idx_occupations_country_state_location_ci ON occupations ((LOWER(country)), (LOWER(state)), (LOWER(location))) WHERE location IS NOT NULL;
 
 -- Full-text search index
-CREATE INDEX idx_occupations_title_search ON occupations USING GIN (to_tsvector('english', title || ' ' || COALESCE(occupation, '')));
+CREATE INDEX idx_occupations_title_search ON occupations USING GIN (to_tsvector('english', occ_name));
 
 -- Skills JSONB index
 CREATE INDEX idx_occupations_skills ON occupations USING GIN (skills);

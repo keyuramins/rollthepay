@@ -58,7 +58,7 @@ const logger = {
 
 // Field validation for SQL injection prevention
 const ALLOWED_OCCUPATION_FIELDS = new Set([
-  'title', 'h1_title', 'occupation', 'country', 'state', 'location', 'currency_code',
+  'title', 'h1_title', 'occ_name', 'country', 'state', 'location', 'currency_code',
   'avg_annual_salary', 'low_salary', 'high_salary', 'avg_hourly_salary', 'hourly_low_value', 'hourly_high_value',
   'weekly_salary', 'fortnightly_salary', 'monthly_salary', 'total_pay_min', 'total_pay_max',
   'total_hourly_low_value', 'total_hourly_high_value', 'bonus_range_min', 'bonus_range_max',
@@ -80,49 +80,49 @@ const NUMERIC_FIELDS = new Set([
 ]);
 
 const SALARY_RANGES = {
-  // Annual salaries: $0 - $10M (reasonable upper bound)
-  'avg_annual_salary': { min: 0, max: 10000000 },
-  'low_salary': { min: 0, max: 10000000 },
-  'high_salary': { min: 0, max: 10000000 },
-  'entry_level': { min: 0, max: 10000000 },
-  'early_career': { min: 0, max: 10000000 },
-  'mid_career': { min: 0, max: 10000000 },
-  'experienced': { min: 0, max: 10000000 },
-  'late_career': { min: 0, max: 10000000 },
-  'one_yr': { min: 0, max: 10000000 },
-  'one_four_yrs': { min: 0, max: 10000000 },
-  'five_nine_yrs': { min: 0, max: 10000000 },
-  'ten_nineteen_yrs': { min: 0, max: 10000000 },
-  'twenty_yrs_plus': { min: 0, max: 10000000 },
-  'percentile_10': { min: 0, max: 10000000 },
-  'percentile_25': { min: 0, max: 10000000 },
-  'percentile_50': { min: 0, max: 10000000 },
-  'percentile_75': { min: 0, max: 10000000 },
-  'percentile_90': { min: 0, max: 10000000 },
+  // Annual salaries: $0 - $100M (reasonable upper bound)
+  'avg_annual_salary': { min: 0, max: 100000000 },
+  'low_salary': { min: 0, max: 100000000 },
+  'high_salary': { min: 0, max: 100000000 },
+  'entry_level': { min: 0, max: 100000000 },
+  'early_career': { min: 0, max: 100000000 },
+  'mid_career': { min: 0, max: 100000000 },
+  'experienced': { min: 0, max: 100000000 },
+  'late_career': { min: 0, max: 100000000 },
+  'one_yr': { min: 0, max: 100000000 },
+  'one_four_yrs': { min: 0, max: 100000000 },
+  'five_nine_yrs': { min: 0, max: 100000000 },
+  'ten_nineteen_yrs': { min: 0, max: 100000000 },
+  'twenty_yrs_plus': { min: 0, max: 100000000 },
+  'percentile_10': { min: 0, max: 100000000 },
+  'percentile_25': { min: 0, max: 100000000 },
+  'percentile_50': { min: 0, max: 100000000 },
+  'percentile_75': { min: 0, max: 100000000 },
+  'percentile_90': { min: 0, max: 100000000 },
   
-  // Hourly rates: $0 - $1000/hour
-  'avg_hourly_salary': { min: 0, max: 1000 },
-  'hourly_low_value': { min: 0, max: 1000 },
-  'hourly_high_value': { min: 0, max: 1000 },
-  'total_hourly_low_value': { min: 0, max: 1000 },
-  'total_hourly_high_value': { min: 0, max: 1000 },
+  // Hourly rates: $0 - $10,000/hour
+  'avg_hourly_salary': { min: 0, max: 10000 },
+  'hourly_low_value': { min: 0, max: 10000 },
+  'hourly_high_value': { min: 0, max: 10000 },
+  'total_hourly_low_value': { min: 0, max: 10000 },
+  'total_hourly_high_value': { min: 0, max: 10000 },
   
   // Gender percentages: 0-100
   'gender_male': { min: 0, max: 100 },
   'gender_female': { min: 0, max: 100 },
   
-  // Other salary fields: $0 - $10M
-  'weekly_salary': { min: 0, max: 10000000 },
-  'fortnightly_salary': { min: 0, max: 10000000 },
-  'monthly_salary': { min: 0, max: 10000000 },
-  'total_pay_min': { min: 0, max: 10000000 },
-  'total_pay_max': { min: 0, max: 10000000 },
-  'bonus_range_min': { min: 0, max: 10000000 },
-  'bonus_range_max': { min: 0, max: 10000000 },
-  'profit_sharing_min': { min: 0, max: 10000000 },
-  'profit_sharing_max': { min: 0, max: 10000000 },
-  'commission_min': { min: 0, max: 10000000 },
-  'commission_max': { min: 0, max: 10000000 }
+  // Other salary fields: $0 - $100M
+  'weekly_salary': { min: 0, max: 100000000 },
+  'fortnightly_salary': { min: 0, max: 100000000 },
+  'monthly_salary': { min: 0, max: 100000000 },
+  'total_pay_min': { min: 0, max: 100000000 },
+  'total_pay_max': { min: 0, max: 100000000 },
+  'bonus_range_min': { min: 0, max: 100000000 },
+  'bonus_range_max': { min: 0, max: 100000000 },
+  'profit_sharing_min': { min: 0, max: 100000000 },
+  'profit_sharing_max': { min: 0, max: 100000000 },
+  'commission_min': { min: 0, max: 100000000 },
+  'commission_max': { min: 0, max: 100000000 }
 };
 
 function validateFields(fields: string[]): string[] {
@@ -767,9 +767,12 @@ export async function searchOccupations(query: string, country?: string, limit: 
   try {
     const result = await poolInstance.query(`
       SELECT * FROM occupations 
-      WHERE to_tsvector('english', title || ' ' || COALESCE(occupation, '')) @@ plainto_tsquery('english', $1)
+      WHERE to_tsvector('english', COALESCE(occ_name, '')) @@ plainto_tsquery('english', $1)
       AND ($2::text IS NULL OR LOWER(country) = LOWER($2::text))
-      ORDER BY ts_rank(to_tsvector('english', title || ' ' || COALESCE(occupation, '')), plainto_tsquery('english', $1)) DESC
+      ORDER BY ts_rank(
+        to_tsvector('english', COALESCE(occ_name, '')),
+        plainto_tsquery('english', $1)
+      ) DESC
       LIMIT $3
     `, [query, country || null, limit]);
 

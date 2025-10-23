@@ -1,5 +1,4 @@
 import type { MetadataRoute } from "next";
-import { continents } from "@/app/constants/continents";
 import { getAllCountries, getAllStates, getAllLocations, searchOccupations } from "@/lib/db/queries";
 
 // Static sitemap - keep 1-year revalidation
