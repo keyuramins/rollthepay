@@ -6,7 +6,7 @@ export interface DbOccupationRow {
   slug_url: string;
   title: string;
   h1_title: string | null;
-  occupation: string | null;
+  occ_name: string | null;
   country: string;
   state: string | null;
   location: string | null;
@@ -180,7 +180,8 @@ export function transformDbRowToOccupationRecord(row: DbOccupationRow): Occupati
     skillsNamePercTen: skills[9]?.percentage || null,
     
     // Occupation
-    occupation: row.occupation,
+
+    occ_name: row.occ_name,
     
     // Related occupations (all null - computed dynamically)
     relLinkOcc1: null,
@@ -285,7 +286,7 @@ export function transformOccupationRecordToDb(record: Partial<OccupationRecord>)
     slug_url: record.slug_url,
     title: record.title,
     h1_title: record.h1Title,
-    occupation: record.occupation,
+    occ_name: record.occ_name,
     country: record.country,
     state: record.state,
     location: record.location,

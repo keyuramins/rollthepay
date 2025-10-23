@@ -517,7 +517,7 @@ export async function getStateData(country: string, state: string): Promise<{
   jobs: Array<{
     slug: string;
     title: string | null;
-    occupation: string | null;
+    occ_name: string | null;
     avgAnnualSalary: number | null;
     avgHourlySalary: number | null;
   }>;
@@ -530,7 +530,7 @@ export async function getStateData(country: string, state: string): Promise<{
     jobs: Array<{
       slug: string;
       title: string | null;
-      occupation: string | null;
+      occ_name: string | null;
       avgAnnualSalary: number | null;
       avgHourlySalary: number | null;
     }>;
@@ -544,7 +544,7 @@ export async function getStateData(country: string, state: string): Promise<{
       SELECT 
         slug_url,
         title,
-        occupation,
+        occ_name,
         avg_annual_salary,
         avg_hourly_salary,
         state
@@ -560,7 +560,7 @@ export async function getStateData(country: string, state: string): Promise<{
       jobs: result.rows.map(row => ({
         slug: row.slug_url,
         title: row.title,
-        occupation: row.occupation,
+        occ_name: row.occ_name,
         avgAnnualSalary: row.avg_annual_salary,
         avgHourlySalary: row.avg_hourly_salary
       }))
@@ -580,7 +580,7 @@ export async function getLocationData(country: string, state: string, location: 
   jobs: Array<{
     slug: string;
     title: string | null;
-    occupation: string | null;
+    occ_name: string | null;
     avgAnnualSalary: number | null;
     avgHourlySalary: number | null;
   }>;
@@ -592,7 +592,7 @@ export async function getLocationData(country: string, state: string, location: 
       SELECT 
         slug_url,
         title,
-        occupation,
+        occ_name,
         avg_annual_salary,
         avg_hourly_salary,
         location
@@ -608,7 +608,7 @@ export async function getLocationData(country: string, state: string, location: 
       jobs: result.rows.map(row => ({
         slug: row.slug_url,
         title: row.title,
-        occupation: row.occupation,
+        occ_name: row.occ_name,
         avgAnnualSalary: row.avg_annual_salary,
         avgHourlySalary: row.avg_hourly_salary
       }))

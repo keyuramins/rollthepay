@@ -17,7 +17,7 @@ export interface RawCsvRow {
   commissionMax?: string;
   lowSalary?: string;
   highSalary?: string;
-  occupation?: string;
+  occ_name?: string;
   totalPayMin?: string;
   totalPayMax?: string;
   avgHourlySalary?: string;
@@ -141,6 +141,7 @@ export interface RawCsvRow {
 }
 
 export interface OccupationRecord {
+  occ_name: string | null;
   title: string;
   slug_url: string; // use as-is in routing; already lowercase in source
   country: string; // display case from data, routing uses lowercase segment
@@ -167,8 +168,6 @@ export interface OccupationRecord {
   weeklySalary: MaybeNumber;
   fortnightlySalary: MaybeNumber;
   monthlySalary: MaybeNumber;
-
-  occupation: string | null;
 
   // Experience buckets (when present in CSV)
   entryLevel?: number | null;

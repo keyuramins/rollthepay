@@ -14,7 +14,7 @@ interface OccupationHeroSectionProps {
 
 export function OccupationHeroSection({ record, country, locationText }: OccupationHeroSectionProps) {
   // Remove "Average" prefix but keep location information
-  const occupationName = removeAveragePrefix(record.title || record.h1Title || record.occupation || '');
+  const occupationName = removeAveragePrefix(record.title || record.h1Title || record.occ_name || '');
   
   // Get detailed job category information
   const jobCategoryInfo = getJobCategoryInfo(occupationName);
@@ -162,8 +162,8 @@ export function OccupationHeroSection({ record, country, locationText }: Occupat
                 </span>
               )}
             </div>
-            <h1 id="hero-heading" itemProp="title">{occupationName}</h1>
-            <p itemProp="description">{jobDescription}</p>
+            <h1 id="hero-heading">{occupationName}</h1>
+            <p>{jobDescription}</p>
 
             {/* Primary Metrics Row */}
             {primaryMetrics.length > 0 && (
@@ -190,7 +190,7 @@ export function OccupationHeroSection({ record, country, locationText }: Occupat
           <div className="lg:col-span-3">
             <aside className="salary-card" aria-labelledby="salary-card-heading">
               <div className="salary-card__header">
-                <div className="salary-value" itemProp="baseSalary" content={record.avgAnnualSalary?.toString()}>
+                <div className="salary-value">
                   {avgSalary || 'N/A'}
                 </div>
                 <p className="metric-label" id="salary-card-heading">Average Annual Salary</p>

@@ -16,27 +16,15 @@ const COUNTRY_CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 hours
 
 // New lightweight function that returns proper structure
 export async function getLightweightDataset(): Promise<LightweightDatasetIndex> {
-  const requestUrl = typeof window !== 'undefined' ? window.location.href : 'server-side';
-  const timestamp = new Date().toISOString();
-
-  if (process.env.NODE_ENV === 'development' || process.env.DEBUG_QUERIES === 'true') {
-    console.log('🔍 getLightweightDataset() called at:', timestamp);
-    console.log('🌐 Request URL:', requestUrl);
-  }
-
   try {
-    console.log('🚀 Using efficient database queries instead of loading full dataset...');
-
     // Use cached countries if available
     let countries: string[];
     if (cachedCountries && Date.now() - lastCountryCacheTime < COUNTRY_CACHE_DURATION) {
       countries = cachedCountries;
-      console.log(`🎯 CACHE HIT for countries (${countries.length} countries)`);
     } else {
       countries = await dbGetAllCountries();
       cachedCountries = countries;
       lastCountryCacheTime = Date.now();
-      console.log(`❌ CACHE MISS for countries - fetched ${countries.length} countries`);
     }
 
     // Get total record count (lightweight query)
@@ -47,14 +35,8 @@ export async function getLightweightDataset(): Promise<LightweightDatasetIndex> 
       totalRecords: stats.totalRecords,
       totalCountries: stats.uniqueCountries
     };
-
-    console.log(`🎉 Successfully created lightweight index for ${countries.length} countries`);
-    console.log(`🌍 Countries available: ${countries.slice(0, 10).join(', ')}${countries.length > 10 ? '...' : ''}`);
-    console.log(`💡 Full dataset loading removed - using on-demand queries instead!`);
-    
     return lightweightIndex;
   } catch (error) {
-    console.error('Failed to get dataset from PostgreSQL:', error);
     throw new Error(`PostgreSQL data access failed: ${error instanceof Error ? error.message : 'Unknown error'}. Please ensure PostgreSQL is accessible and contains data.`);
   }
 }
@@ -72,29 +54,19 @@ export async function getDataset(): Promise<DatasetIndex> {
       'DEPRECATED: getDataset() is disabled in production. Use getLightweightDataset() or specific query functions instead. ' +
       `Called from: ${requestUrl} at ${timestamp}`
     );
-    console.error('🚨 PRODUCTION ERROR:', error.message);
     throw error;
   }
 
-  if (process.env.NODE_ENV === 'development' || process.env.DEBUG_QUERIES === 'true') {
-    console.warn('⚠️ DEPRECATED getDataset() called at:', timestamp);
-    console.warn('🌐 Request URL:', requestUrl);
-    console.warn('💡 This function returns empty arrays - use getLightweightDataset() or specific queries instead');
-  }
 
   try {
-    console.log('🚀 Using efficient database queries instead of loading full dataset...');
-
     // Use cached countries if available
     let countries: string[];
     if (cachedCountries && Date.now() - lastCountryCacheTime < COUNTRY_CACHE_DURATION) {
       countries = cachedCountries;
-      console.log(`🎯 CACHE HIT for countries (${countries.length} countries)`);
     } else {
       countries = await dbGetAllCountries();
       cachedCountries = countries;
       lastCountryCacheTime = Date.now();
-      console.log(`❌ CACHE MISS for countries - fetched ${countries.length} countries`);
     }
     
     // Create a lightweight index structure with empty arrays
@@ -107,59 +79,30 @@ export async function getDataset(): Promise<DatasetIndex> {
       all: [], // Empty - will be populated on demand
       byCountry 
     };
-
-    console.log(`🎉 Successfully created lightweight index for ${countries.length} countries`);
-    console.log(`🌍 Countries available: ${countries.slice(0, 10).join(', ')}${countries.length > 10 ? '...' : ''}`);
-    console.log(`💡 Full dataset loading removed - using on-demand queries instead!`);
-    
     return lightweightIndex;
   } catch (error) {
-    console.error('Failed to get dataset from PostgreSQL:', error);
     throw new Error(`PostgreSQL data access failed: ${error instanceof Error ? error.message : 'Unknown error'}. Please ensure PostgreSQL is accessible and contains data.`);
   }
 }
 
 export async function findOccupationSalaryByPath(params: { country: string; state?: string; location?: string; slug: string }): Promise<OccupationRecord | null> {
-  const requestUrl = typeof window !== 'undefined' ? window.location.href : 'server-side';
-  const pathInfo = `/${params.country}${params.state ? `/${params.state}` : ''}${params.location ? `/${params.location}` : ''}/${params.slug}`;
-  
-  console.log('🔍 findOccupationSalaryByPath() called for:', pathInfo);
-  console.log('🌐 Request URL:', requestUrl);
-  
   try {
     const record = await dbfindOccupationSalaryByPath(params);
-    
-    if (record) {
-      console.log(`✅ RECORD FOUND for URL: ${requestUrl}`);
-      console.log(`📄 Found occupation: ${record.title} in ${record.country}/${record.state || 'no-state'}/${record.location || 'no-location'}`);
-    } else {
-      console.log(`❌ RECORD NOT FOUND for URL: ${requestUrl}`);
-      console.log(`🔍 Searched for: ${pathInfo}`);
-    }
-    
     return record;
   } catch (error) {
-    console.error('Failed to find record by path:', error);
-    throw error; // Re-throw to fail fast
+    throw error;
   }
 }
 
 // Helper function to group records by state
 export async function getStateData(country: string) {
-  const requestUrl = typeof window !== 'undefined' ? window.location.href : 'server-side';
-  
-  if (process.env.NODE_ENV === 'development' || process.env.DEBUG_QUERIES === 'true') {
-    console.log('🔍 getStateData() called for country:', country);
-    console.log('🌐 Request URL:', requestUrl);
-  }
-  
   try {
     const stateGroups = new Map<string, { 
       name: string; 
       jobs: Array<{
         slug: string;
         title: string | null;
-        occupation: string | null;
+        occ_name: string | null;
         avgAnnualSalary: number | null;
         avgHourlySalary: number | null;
       }>;
@@ -197,20 +140,13 @@ export async function getStateData(country: string) {
 
 // Helper function to group records by location within a state
 export async function getLocationData(country: string, state: string) {
-  const requestUrl = typeof window !== 'undefined' ? window.location.href : 'server-side';
-  
-  if (process.env.NODE_ENV === 'development' || process.env.DEBUG_QUERIES === 'true') {
-    console.log('🔍 getLocationData() called for:', `${country}/${state}`);
-    console.log('🌐 Request URL:', requestUrl);
-  }
-  
   try {
     const locationGroups = new Map<string, { 
       name: string; 
       jobs: Array<{
         slug: string;
         title: string | null;
-        occupation: string | null;
+        occ_name: string | null;
         avgAnnualSalary: number | null;
         avgHourlySalary: number | null;
       }>;
@@ -241,8 +177,7 @@ export async function getLocationData(country: string, state: string) {
     
     return locationGroups;
   } catch (error) {
-    console.error('Failed to get location data:', error);
-    throw error; // Re-throw to fail fast
+    throw error;
   }
 }
 
@@ -250,7 +185,6 @@ export async function getLocationData(country: string, state: string) {
 export function clearCache() {
   cachedCountries = null;
   lastCountryCacheTime = 0; // Reset cache time
-  console.log('Country cache cleared');
 }
 
 // Also export safe extraction utilities

@@ -18,23 +18,18 @@ export function Breadcrumbs({ breadcrumbs }: BreadcrumbsProps) {
       aria-label="Breadcrumb navigation"
       role="navigation"
     >
-      <ol className="flex flex-wrap gap-2" itemScope itemType="https://schema.org/BreadcrumbList">
+      <ol className="flex flex-wrap gap-2">
         {breadcrumbs.map((breadcrumb, index) => {
           const isLast = index === breadcrumbs.length - 1;
           return (
             <li 
               key={breadcrumb.name} 
               className="flex items-center"
-              itemProp="itemListElement"
-              itemScope
-              itemType="https://schema.org/ListItem"
             >
-              <meta itemProp="position" content={(index + 1).toString()} />
               {isLast ? (
                 <span 
                   className="text-muted-foreground text-sm sm:text-base" 
                   aria-current="page"
-                  itemProp="name"
                 >
                   {removeAveragePrefix(breadcrumb.name)}
                 </span>
@@ -42,9 +37,8 @@ export function Breadcrumbs({ breadcrumbs }: BreadcrumbsProps) {
                 <Link 
                   href={breadcrumb.href} 
                   className="text-sm sm:text-base text-primary hover:underline font-medium focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded-sm"
-                  itemProp="item"
                 >
-                  <span itemProp="name">{breadcrumb.name}</span>
+                  {breadcrumb.name}
                 </Link>
               )}
               {!isLast && (
