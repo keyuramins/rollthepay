@@ -74,7 +74,7 @@ async function generateOccupationMetadata(country: string, state?: string, locat
   const countryName = record.country;
   const stateName = record.state;
   const locationName = record.location;
-  const occupationName = removeAveragePrefix(record.title || record.h1Title || record.occupation || "");
+  const occupationName = removeAveragePrefix(record.title || record.h1Title || record.occ_name || "");
   
   // Build location string for metadata
   let locationString = "";
@@ -123,7 +123,7 @@ export async function generateMetadata({ params }: UnifiedPageProps): Promise<Me
         // It's a state page
         const countryName = country.charAt(0).toUpperCase() + country.slice(1);
         
-        const metaTitle = `${stateData} Salary Data - RollThePay`;
+        const metaTitle = `${stateData} Salary Data`;
         const metaDescription = `Explore salary information and job opportunities in ${stateData}, ${countryName}. Get comprehensive compensation data for various occupations.`;
         
         return {
@@ -163,7 +163,7 @@ export async function generateMetadata({ params }: UnifiedPageProps): Promise<Me
           // It's a location page
           const countryName = country.charAt(0).toUpperCase() + country.slice(1);
           
-          const metaTitle = `${locationData}, ${stateData} Salary Data - RollThePay`;
+          const metaTitle = `${locationData}, ${stateData} Salary Data`;
           const metaDescription = `Explore salary information and job opportunities in ${locationData}, ${stateData}, ${countryName}. Get comprehensive compensation data for various occupations.`;
           
           return {
@@ -190,7 +190,7 @@ export async function generateMetadata({ params }: UnifiedPageProps): Promise<Me
         }
       } else {
         return { 
-          title: "Page Not Found - RollThePay",
+          title: "State Not Found - RollThePay",
           description: "The requested page could not be found. Please check the URL or browse our available content.",
         };
       }
@@ -205,7 +205,7 @@ export async function generateMetadata({ params }: UnifiedPageProps): Promise<Me
       );
     } else {
       return { 
-        title: "Page Not Found - RollThePay",
+        title: "Location Not Found - RollThePay",
         description: "The requested page could not be found. Please check the URL or browse our available content.",
       };
     }
