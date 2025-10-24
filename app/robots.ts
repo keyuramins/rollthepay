@@ -15,7 +15,6 @@ export default function robots(): MetadataRoute.Robots {
           "/private/",
           "/*.json$",
           "/*.xml$",
-          "/dev.js",
         ],
       },
       {

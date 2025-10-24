@@ -52,11 +52,6 @@ PGPOOL_CONNECTION_TIMEOUT=10000
 # Admin API authentication (generate a secure random key)
 ADMIN_API_KEY=your_secure_random_api_key_here
 
-# TEMPORARY: Filebrowser Configuration (for migration only)
-FILEBROWSER_BASE_URL=http://your-filebrowser-server:port
-FILEBROWSER_API_KEY=your_filebrowser_api_key_here
-```
-
 ### 1.2 Install Dependencies
 
 ```bash

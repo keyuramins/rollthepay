@@ -8,8 +8,6 @@ import { OccupationPage } from "@/components/occupation/occupation-page";
 import { cleanTitle } from "@/lib/utils/title-cleaner";
 import { removeAveragePrefix } from "@/lib/utils/remove-average-cleaner";
 
-
-
 export const revalidate = 31536000;
 export const dynamicParams = false;
 

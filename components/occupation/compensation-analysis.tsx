@@ -29,7 +29,7 @@ export function CompensationAnalysis({ record, country, location }: Compensation
 
   // Generate unique insights based on real calculations
   const generateCompensationInsight = (type: 'bonus' | 'commission' | 'profitSharing') => {
-    const occupationTitle = cleanTitle(record.title || record.h1Title || record.occupation || 'this role');
+    const occupationTitle = cleanTitle(record.title || record.h1Title || record.occ_name || 'this role');
     const fullLocation = formatLocationString(record.location || undefined, record.state || undefined, record.country || undefined);
     
     switch (type) {
