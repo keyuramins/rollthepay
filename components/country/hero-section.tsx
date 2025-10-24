@@ -15,7 +15,7 @@ export function CountryHeroSection({
     >
       <h1 id="hero-heading">Salary Information in {countryName}</h1>
       <p className="mt-4 leading-8 max-w-3xl mx-auto">
-        Discover accurate salary data for {totalJobs}+ jobs across {countryName}. 
+        Discover accurate salary data for {totalJobs}+ occupations across {countryName}. 
         Get the compensation insights you need to advance your career.
       </p>
     </section>
