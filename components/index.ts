@@ -1,10 +1,10 @@
+// components/index.ts
 // Navigation
 export { Header } from "./navigation/header";
 export { Logo } from "./navigation/logo";
 export { SearchableDropdown } from "./navigation/searchable-dropdown";
 
 // Enhanced Links with Aggressive Prefetching
-// EnhancedLink components removed - using standard Next.js Link instead
 
 // Country Components
 export { CountryHeroSection } from "./country/hero-section";
@@ -37,5 +37,4 @@ export { OccupationListSkeleton } from "./ui/occupation-list-skeleton";
 
 
 // Prefetch and Optimization Utilities
-// Prefetch functions removed - using PostgreSQL with efficient caching instead
 export { optimizedDataAccess } from "../lib/data/optimized-parse";

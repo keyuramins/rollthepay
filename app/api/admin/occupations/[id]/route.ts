@@ -1,3 +1,4 @@
+// app/api/admin/occupations/[id]/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { getOccupationById, updateOccupationSalary } from '@/lib/db/queries';
 import type { SalaryUpdateData } from '@/lib/db/types';
@@ -163,7 +164,7 @@ export async function DELETE(
     }
 
     // Import deleteOccupation function
-    const { deleteOccupation } = await import('@/lib/db/queries');
+    const { deleteOccupation } = await import('@/lib/db/queries') as { deleteOccupation: (id: number) => Promise<boolean> };
     const deleted = await deleteOccupation(occupationId);
 
     if (!deleted) {

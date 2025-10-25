@@ -1,3 +1,4 @@
+// lib/data/safe-extractors.ts
 import type { OccupationRecord } from "./types";
 
 /**
@@ -77,7 +78,7 @@ export function extractOccupation(record: OccupationRecord): string | null {
     return null;
   }
   
-  const occupation = record.occupation;
+  const occupation = record.occ_name;
   if (typeof occupation === 'string' && occupation.trim().length > 0) {
     return occupation.trim();
   }

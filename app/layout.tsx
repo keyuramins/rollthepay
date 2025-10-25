@@ -1,3 +1,4 @@
+// app/layout.tsx
 import type { Metadata, Viewport } from "next";
 import { Roboto, Roboto_Condensed, Inter } from "next/font/google";
 import "./globals.css";

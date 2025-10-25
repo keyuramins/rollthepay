@@ -1,3 +1,4 @@
+// components/country/hero-section.tsx
 interface CountryHeroSectionProps {
   countryName: string;
   totalJobs: number;

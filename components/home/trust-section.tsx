@@ -1,3 +1,4 @@
+// components/home/trust-section.tsx
 import { Shield, CheckCircle, Award, Lock } from "lucide-react";
 
 const trustItems = [

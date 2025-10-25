@@ -1,4 +1,4 @@
-// lib/db/schema.sql
+-- lib/db/schema.sql
 -- PostgreSQL Schema for RollThePay
 -- Single table design optimized for user contributions and high performance
 

@@ -1,3 +1,4 @@
+// components/country/states-grid.tsx
 import Link from "next/link";
 
 interface StatesGridProps {

@@ -1,3 +1,4 @@
+// app/robots.ts
 import type { MetadataRoute } from "next";
 
 export const revalidate = 31536000; // 1 year

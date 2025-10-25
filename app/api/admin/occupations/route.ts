@@ -1,15 +1,13 @@
+// app/api/admin/occupations/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { 
-  getOccupationById, 
   insertOccupation, 
   updateOccupation, 
-  updateOccupationSalary, 
   deleteOccupation,
   getOccupationStats,
   searchOccupations
 } from '@/lib/db/queries';
 import type { OccupationRecord } from '@/lib/data/types';
-import type { SalaryUpdateData } from '@/lib/db/types';
 
 // Middleware for API key authentication
 function authenticate(request: NextRequest): boolean {
@@ -33,8 +31,6 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const country = searchParams.get('country');
-    const state = searchParams.get('state');
-    const location = searchParams.get('location');
     const search = searchParams.get('search');
     const limit = parseInt(searchParams.get('limit') || '50');
     const offset = parseInt(searchParams.get('offset') || '0');

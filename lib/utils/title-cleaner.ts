@@ -1,7 +1,4 @@
-/**
- * Utility functions for cleaning and formatting occupation titles
- */
-
+// lib/utils/title-cleaner.ts
 /**
  * Cleans occupation titles by removing "Average" prefix and location information
  * @param title - The full occupation title (e.g., "Average Software Engineer Salary in Sydney, Australia")

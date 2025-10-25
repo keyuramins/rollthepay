@@ -1,3 +1,4 @@
+// components/home/stats-section.tsx
 import { TrendingUp, Globe, Shield, Users, DollarSign, Building2 } from "lucide-react";
 
 interface StatsSectionProps {

@@ -1,3 +1,4 @@
+// lib/format/million-currency.ts
 import type { OccupationRecord } from "@/lib/data/types";
 import { formatCurrency, getCurrencySymbol } from "./currency";
 

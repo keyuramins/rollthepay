@@ -1,3 +1,4 @@
+// components/location/location-hero-section.tsx
 interface LocationHeroSectionProps {
   locationName: string;
   stateName: string;

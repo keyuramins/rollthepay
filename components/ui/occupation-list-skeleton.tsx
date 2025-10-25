@@ -1,3 +1,4 @@
+// components/ui/occupation-list-skeleton.tsx
 import { AZFilter } from "../occupation/az-filter";
 
 export function OccupationListSkeleton({

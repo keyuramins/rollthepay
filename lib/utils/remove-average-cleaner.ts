@@ -1,3 +1,4 @@
+// lib/utils/remove-average-cleaner.ts
 /**
  * Utility functions for removing "Average" prefix from occupation titles while preserving location information
  */

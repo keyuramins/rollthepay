@@ -1,3 +1,4 @@
+// lib/format/currency.ts
 import type { OccupationRecord } from "@/lib/data/types";
 import { continents } from "@/app/constants/continents";
 

@@ -1,3 +1,5 @@
+// lib/optimization-config.ts
+
 // Optimization Configuration for RollThePay
 // PostgreSQL-based architecture with efficient caching
 

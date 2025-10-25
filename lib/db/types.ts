@@ -1,3 +1,4 @@
+// lib/db/types.ts
 import type { OccupationRecord } from '@/lib/data/types';
 
 // Database row type (matches the PostgreSQL schema)

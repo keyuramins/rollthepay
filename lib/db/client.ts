@@ -1,3 +1,4 @@
+// lib/db/client.ts
 import 'dotenv/config';
 import { Pool, PoolConfig } from 'pg';
 

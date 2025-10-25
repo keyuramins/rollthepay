@@ -1,7 +1,9 @@
+// app/api/admin/import-csv/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { parse } from 'csv-parse/sync';
 import { bulkInsertOccupations } from '@/lib/db/queries';
 import type { RawCsvRow } from '@/lib/data/types';
+import { Pool } from 'pg';
 
 // Middleware for API key authentication
 function authenticate(request: NextRequest): boolean {
@@ -217,7 +219,7 @@ export async function POST(request: NextRequest) {
 
     // Refresh materialized views
     console.log('🔄 Refreshing materialized views...');
-    const { pool } = await import('@/lib/db/client');
+    const { pool } = await import('@/lib/db/client') as { pool: Pool };
     await pool.query('REFRESH MATERIALIZED VIEW mv_country_stats');
     await pool.query('REFRESH MATERIALIZED VIEW mv_state_stats');
 

@@ -1,3 +1,4 @@
+// components/state/state-hero-section.tsx
 interface StateHeroSectionProps {
   stateName: string;
   countryName: string;

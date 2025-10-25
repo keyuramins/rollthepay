@@ -1,3 +1,4 @@
+// lib/utils/similarity.ts
 import type { OccupationRecord } from "@/lib/data/types";
 
 /**

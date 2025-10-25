@@ -1,3 +1,4 @@
+// components/navigation/logo.tsx
 import Link from "next/link";
 import { TrendingUp } from "lucide-react";
 

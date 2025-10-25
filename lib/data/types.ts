@@ -1,3 +1,4 @@
+// lib/data/types.ts
 export type MaybeNumber = number | null;
 
 export interface RawCsvRow {

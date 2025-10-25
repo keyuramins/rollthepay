@@ -1,3 +1,4 @@
+// lib/format/slug.ts
 // Helper function to normalize slugs for URLs (handles special characters)
 export function normalizeSlugForURL(slug: string): string {
   return slug

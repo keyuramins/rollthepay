@@ -1,3 +1,4 @@
+// components/home/features-section.tsx
 import { Search, Shield, Globe, TrendingUp, Users, BarChart3 } from "lucide-react";
 
 const features = [

@@ -1,5 +1,4 @@
-// src/constants/continents.ts
-
+// app/constants/continents.ts
 export type Continent = {
     name: string;
     code: string;

@@ -1,3 +1,4 @@
+// lib/utils.ts
 /**
  * Utility functions for merging and cleaning class names
  */ 

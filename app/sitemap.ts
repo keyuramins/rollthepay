@@ -1,7 +1,7 @@
+// app/sitemap.ts
 import type { MetadataRoute } from "next";
 import { getAllCountries, getAllStates, getAllLocations, searchOccupations } from "@/lib/db/queries";
 
-// Static sitemap - keep 1-year revalidation
 export const revalidate = 31536000; // 1 year
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {

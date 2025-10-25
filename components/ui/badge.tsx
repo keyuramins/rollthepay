@@ -1,3 +1,4 @@
+// components/ui/badge.tsx
 import { ReactNode } from "react";
 
 interface BadgeProps {

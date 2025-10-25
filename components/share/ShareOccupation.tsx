@@ -1,3 +1,4 @@
+// components/share/ShareOccupation.tsx
 "use client";
 import { useEffect, useState } from "react";
 

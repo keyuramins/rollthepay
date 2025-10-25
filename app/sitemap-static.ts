@@ -1,3 +1,4 @@
+// app/sitemap-static.ts
 import type { MetadataRoute } from "next";
 
 // Static-only sitemap for build time when database is not available

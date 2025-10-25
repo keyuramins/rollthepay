@@ -1,3 +1,4 @@
+// app/about/page.tsx
 import { Metadata } from "next";
 import { Breadcrumbs } from "@/components/occupation/breadcrumbs";
 import Link from "next/link";
@@ -5,7 +6,6 @@ import Link from "next/link";
 export const revalidate = 31536000;
 export const dynamicParams = false;
 
-// Static page - keep 1-year revalidation
 export const metadata: Metadata = {
   title: "About RollThePay - Salary Transparency & Career Insights",
   description: "Learn about RollThePay's mission to provide accurate salary information and increase transparency in the labor market. Discover how we help job seekers and employers make informed decisions.",

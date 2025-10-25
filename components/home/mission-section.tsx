@@ -1,3 +1,4 @@
+// components/home/mission-section.tsx
 import { Target, Users, Globe } from "lucide-react";
 
 const missionItems = [

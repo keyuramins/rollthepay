@@ -1,3 +1,4 @@
+// components/state/locations-grid.tsx
 import Link from "next/link";
 import { getAllLocations } from "@/lib/db/queries";
 

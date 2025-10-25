@@ -1,5 +1,5 @@
+// components/home/StatsSectionWrapper.tsx
 import { StatsSection } from "./stats-section";
-
 
 export function StatsSectionWrapper({ countries, totalSalaries }: { countries: number; totalSalaries: number }) {
 

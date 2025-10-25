@@ -1,4 +1,4 @@
-// header.tsx
+// components/navigation/header.tsx
 import { Logo } from "./logo";
 import { Button } from "@/components/ui/button";
 import { ChevronDown } from "lucide-react";

@@ -1,3 +1,4 @@
+// app/[country]/page.tsx
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { optimizedDataAccess } from "@/lib/data/optimized-parse";
@@ -10,9 +11,6 @@ import { CountryCTASection } from "@/components/country/cta-section";
 export const revalidate = 31536000;
 export const dynamicParams = false;
 
-// 1 day
-// Optimized caching for PostgreSQL - shorter revalidation since data is now in database
-// 1 day - database queries are fast
 interface CountryPageProps {
   params: Promise<{ country: string }>;
 }

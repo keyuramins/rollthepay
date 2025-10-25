@@ -1,3 +1,4 @@
+// components/navigation/footer.tsx
 import Link from "next/link";
 import { Search, Users, ArrowRight, Globe, Shield, FileText, Scale } from "lucide-react";
 

@@ -1,7 +1,8 @@
+// components/home/HeroSectionWrapper.tsx
 import { SearchableDropdown } from "@/components/navigation/searchable-dropdown";
 import { Globe, Shield, Users } from "lucide-react";
 
-export function HeroSectionWrapper({ occupations }: { occupations: any[] }) {
+export function HeroSectionWrapper() {
   const trustItems = [
     { icon: Shield, label: "Trusted Data" },
     { icon: Globe, label: "Global Coverage" },
@@ -41,7 +42,6 @@ export function HeroSectionWrapper({ occupations }: { occupations: any[] }) {
                 placeholder="Select a country..."
                 fullWidth
                 centered
-                allOccupations={occupations}
                 className="transform transition-all duration-300 hover:scale-[1.05] shadow-2xl"
             />
             </div>

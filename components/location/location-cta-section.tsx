@@ -1,3 +1,4 @@
+// components/location/location-cta-section.tsx
 import Link from "next/link";
 
 interface LocationCTASectionProps {
