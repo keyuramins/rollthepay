@@ -807,21 +807,53 @@ export async function getLocationCount(country: string, state: string): Promise<
 }
 
 // Search occupations
+// export async function searchOccupations(query: string, country?: string, limit: number = 10): Promise<OccupationRecord[]> {
+//   const poolInstance = requirePool();
+//   const hasQuery = query && query.trim().length > 0;//Added
+
+//   try {
+//     const result = await poolInstance.query(`
+//       SELECT * FROM occupations 
+//       WHERE to_tsvector('english', COALESCE(occ_name, '')) @@ plainto_tsquery('english', $1)
+//       AND ($2::text IS NULL OR LOWER(country) = LOWER($2::text))
+//       ORDER BY ts_rank(
+//         to_tsvector('english', COALESCE(occ_name, '')),
+//         plainto_tsquery('english', $1)
+//       ) DESC
+//       LIMIT $3
+//     `, [query, country || null, limit]);
+
+//     return result.rows.map(transformDbRowToOccupationRecord);
+//   } catch (error) {
+//     console.error('Error searching occupations:', error);
+//     throw error;
+//   }
+// }
 export async function searchOccupations(query: string, country?: string, limit: number = 10): Promise<OccupationRecord[]> {
   const poolInstance = requirePool();
+  const hasQuery = query && query.trim().length > 0;
 
   try {
-    const result = await poolInstance.query(`
-      SELECT * FROM occupations 
-      WHERE to_tsvector('english', COALESCE(occ_name, '')) @@ plainto_tsquery('english', $1)
-      AND ($2::text IS NULL OR LOWER(country) = LOWER($2::text))
-      ORDER BY ts_rank(
-        to_tsvector('english', COALESCE(occ_name, '')),
-        plainto_tsquery('english', $1)
-      ) DESC
-      LIMIT $3
-    `, [query, country || null, limit]);
+    const sql = hasQuery
+      ? `
+          SELECT * FROM occupations
+          WHERE to_tsvector('english', COALESCE(occ_name, '')) @@ plainto_tsquery('english', $1)
+            AND ($2::text IS NULL OR LOWER(country) = LOWER($2::text))
+          ORDER BY ts_rank(
+            to_tsvector('english', COALESCE(occ_name, '')),
+            plainto_tsquery('english', $1)
+          ) DESC
+          LIMIT $3
+        `
+      : `
+          SELECT * FROM occupations
+          WHERE ($1::text IS NULL OR LOWER(country) = LOWER($1::text))
+          LIMIT $2
+        `;
 
+    const params = hasQuery ? [query, country || null, limit] : [country || null, limit];
+
+    const result = await poolInstance.query(sql, params);
     return result.rows.map(transformDbRowToOccupationRecord);
   } catch (error) {
     console.error('Error searching occupations:', error);

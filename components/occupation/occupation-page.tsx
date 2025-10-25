@@ -136,7 +136,7 @@ export async function OccupationPage({ country, state, location, slug }: Occupat
   
   // Generate the Occupation schema
   const occupationSchema = generateOccupationSchema(record, country, state, location);
-  
+
   return (
     <>
       <script
@@ -155,7 +155,7 @@ export async function OccupationPage({ country, state, location, slug }: Occupat
           <SalaryPercentilesChart record={record} country={country} />
           <ExperienceLevelSalariesChart record={record} country={country} />
           <TopSkillsMarketDemand record={record} />
-          <RelatedOpportunitiesSmart record={record} allRecords={await searchOccupations(record.title || record.occ_name || '', record.country, 100)} />
+          <RelatedOpportunitiesSmart record={record} allRecords={await searchOccupations('', record.country, 5000)} />
           <OccupationCTASection countryName={countryName} locationText={locationText} record={record} />
         </article>
       </main>

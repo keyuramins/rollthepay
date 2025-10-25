@@ -1,10 +1,10 @@
+//components/occupation/related-opportunities-smart.tsx
 import type { OccupationRecord } from "@/lib/data/types";
 import { 
-  getCommonSkills, 
   calculateSalaryDifference,
-  getIndustryCategory,
   calculateTitleSimilarity
 } from "@/lib/utils/similarity";
+import { getJobCategory } from "@/components/occupation/job-category-detector";
 import { formatCurrency } from "@/lib/format/currency";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
@@ -52,9 +52,8 @@ interface LocationOpportunityProps {
 }
 
 function RelatedOccupationCard({ occupation, currentRecord, showSalaryComparison = true }: RelatedOccupationCardProps) {
-  const commonSkills = getCommonSkills(currentRecord, occupation);
   const salaryDiff = calculateSalaryDifference(currentRecord.avgAnnualSalary, occupation.avgAnnualSalary);
-  const industry = getIndustryCategory(occupation.title);
+  const industry = getJobCategory(occupation.title);
   const occupationURL = generateOccupationURL(occupation);
 
   return (
@@ -151,109 +150,61 @@ function LocationOpportunityCard({ location, type, salary, currentSalary, countr
 
 export function RelatedOpportunitiesSmart({ record, allRecords }: RelatedOpportunitiesEnhancedProps) {
   // Find intelligent related occupations
+  const normalizeCountry = (c: string) => c?.toLowerCase().trim();
+  const currentCountry = normalizeCountry(record.country);
   const findIntelligentRelatedOccupations = (): OccupationRecord[] => {
-    const currentTitle = record.title?.toLowerCase() || '';
-    const currentIndustry = getIndustryCategory(record.title);
-    
+    const currentTitle = record.occ_name?.toLowerCase().trim() || '';
+    const currentIndustry = getJobCategory(record.occ_name || '');
+  
     return allRecords
-      .filter(occ => {
-        // Skip current occupation
+      .filter((occ) => {
+        if (!occ.occ_name || !occ.country) return false;
+  
+        const candidateCountry = normalizeCountry(occ.country);
+        const candidateTitle = occ.occ_name.toLowerCase().trim();
+        const candidateIndustry = getJobCategory(occ.occ_name);
+  
+        // Skip same record
         if (occ.slug_url === record.slug_url) return false;
-        
-        // Must be in same country
-        if (occ.country.toLowerCase() !== record.country.toLowerCase()) return false;
-        
-        const candidateTitle = occ.title?.toLowerCase() || '';
-        const candidateIndustry = getIndustryCategory(occ.title);
-        
-        // Industry-based filtering (most important for career progression)
-        if (currentIndustry === candidateIndustry) {
-          return true; // Same industry is always relevant for career progression
-        }
-        
-        // Title similarity for cross-industry but related roles (more strict)
-        const titleWords = currentTitle.split(/\s+/);
-        const candidateWords = candidateTitle.split(/\s+/);
-        const commonWords = titleWords.filter(word => candidateWords.includes(word));
-        
-        // If they share significant words AND are in related industries, include them
-        if (commonWords.length >= 2) {
-          // Only allow cross-industry if they share 3+ words or are in related industries
-          const relatedIndustries = {
-            'Finance': ['Finance'],
-            'Technology': ['Technology'],
-            'Healthcare': ['Healthcare'],
-            'Education': ['Education'],
-            'Sales & Marketing': ['Sales & Marketing'],
-            'Legal': ['Legal'],
-            'Engineering': ['Engineering'],
-            'Construction': ['Construction'],
-            'Manufacturing': ['Manufacturing'],
-            'Retail': ['Retail'],
-            'Hospitality': ['Hospitality'],
-            'Transportation': ['Transportation'],
-            'Logistics': ['Logistics'],
-            'Real Estate': ['Real Estate'],
-            'Insurance': ['Insurance'],
-            'Banking': ['Banking'],
-            'Consulting': ['Consulting'],
-            'Government': ['Government'],
-            'Non-Profit': ['Non-Profit'],
-            'Media': ['Media'],
-            'Entertainment': ['Entertainment'],
-            'Sports': ['Sports'],
-            'Agriculture': ['Agriculture'],
-            'Energy': ['Energy'],
-            'Telecommunications': ['Telecommunications'],
-            'Aerospace': ['Aerospace'],
-            'Automotive': ['Automotive'],
-            'Pharmaceuticals': ['Pharmaceuticals'],
-            'Biotechnology': ['Biotechnology'],
-            'Other': ['Other']
-          };
-          
-          const isRelatedIndustry = relatedIndustries[currentIndustry as keyof typeof relatedIndustries]?.includes(candidateIndustry);
-          if (commonWords.length >= 3 || isRelatedIndustry) {
-            return true;
-          }
-        }
-        
-        // Check for specific career progression patterns
+  
+        // Same country only
+        if (candidateCountry.toLowerCase().trim() !== currentCountry.toLowerCase().trim()) return false;
+  
+        const titleSimilarity = calculateTitleSimilarity(currentTitle, candidateTitle);
+        const sameCategory = currentIndustry === candidateIndustry;
+  
+        // Allow looser match in same category
+        if (sameCategory && titleSimilarity >= 0.05) return true;
+  
+        // Strong title match across categories
+        if (!sameCategory && titleSimilarity >= 0.45) return true;
+  
+        // Common progression patterns
         const progressionPatterns = [
           ['junior', 'senior'],
           ['assistant', 'manager'],
           ['analyst', 'senior'],
           ['coordinator', 'manager'],
           ['specialist', 'lead'],
-          ['associate', 'senior']
+          ['associate', 'senior'],
         ];
-        
         for (const [from, to] of progressionPatterns) {
-          if (currentTitle.includes(from) && candidateTitle.includes(to) && currentIndustry === candidateIndustry) {
+          if (currentTitle.includes(from) && candidateTitle.includes(to) && sameCategory) {
             return true;
           }
         }
-        
+  
         return false;
       })
       .sort((a, b) => {
-        const industryA = getIndustryCategory(a.title);
-        const industryB = getIndustryCategory(b.title);
-        
-        // Prioritize same industry
-        if (industryA === currentIndustry && industryB !== currentIndustry) return -1;
-        if (industryB === currentIndustry && industryA !== currentIndustry) return 1;
-        
-        // Then by title similarity
-        const titleA = a.title?.toLowerCase() || '';
-        const titleB = b.title?.toLowerCase() || '';
-        const similarityA = calculateTitleSimilarity(currentTitle, titleA);
-        const similarityB = calculateTitleSimilarity(currentTitle, titleB);
-        
+        const similarityA = calculateTitleSimilarity(currentTitle, a.occ_name?.toLowerCase().trim() || '');
+        const similarityB = calculateTitleSimilarity(currentTitle, b.occ_name?.toLowerCase().trim() || '');
         return similarityB - similarityA;
       })
-      .slice(0, 6); // Limit to 6 most relevant
+      .slice(0, 6);
   };
+  
+  
 
   // Find related locations
   const findRelatedLocations = (): LocationOpportunityProps[] => {
@@ -262,7 +213,7 @@ export function RelatedOpportunitiesSmart({ record, allRecords }: RelatedOpportu
     allRecords
       .filter(occ => {
         // Same occupation type
-        if (occ.title?.toLowerCase() !== record.title?.toLowerCase()) return false;
+        if (occ.occ_name?.toLowerCase() !== record.occ_name?.toLowerCase()) return false;
         
         // Different location
         if (occ.country === record.country && 

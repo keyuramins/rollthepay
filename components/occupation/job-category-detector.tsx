@@ -1,3 +1,4 @@
+//components/occupation/job-category-detector.tsx
 /**
  * Job Category Detector Component
  * Provides detailed job categorization and related content for occupations + The order of categories is important
@@ -203,7 +204,8 @@ export function getJobCategoryInfo(occupationName: string): JobCategoryInfo {
     lowerName.includes('ledger') || lowerName.includes('balance') || lowerName.includes('budget') ||
     lowerName.includes('payroll') || lowerName.includes('investment') || lowerName.includes('funds') ||
     lowerName.includes('risk') || lowerName.includes('compliance') || lowerName.includes('credit') ||
-    lowerName.includes('reconciliation') || lowerName.includes('financial planning') || lowerName.includes('fp&a')
+    lowerName.includes('reconciliation') || lowerName.includes('financial') || lowerName.includes('fp&a') ||
+    lowerName.includes('payable')
   ) {
     return {
       category: 'Finance',
@@ -428,9 +430,29 @@ export function getJobCategoryInfo(occupationName: string): JobCategoryInfo {
   
   // 17. Management & Leadership (Broadest category, comes last)
   if (
+    (
     lowerName.includes('manager') || lowerName.includes('director') || lowerName.includes('supervisor') ||
     lowerName.includes('head') || lowerName.includes('chief') ||
     lowerName.includes('principal') || lowerName.includes('executive') || lowerName.includes('controller')
+    ) &&
+    !(
+      lowerName.includes('account') ||
+      lowerName.includes('finance') ||
+      lowerName.includes('financial') ||
+      lowerName.includes('hr') ||
+      lowerName.includes('human resources') ||
+      lowerName.includes('legal') ||
+      lowerName.includes('engineer') ||
+      lowerName.includes('teacher') ||
+      lowerName.includes('sales') ||
+      lowerName.includes('marketing') ||
+      lowerName.includes('business development') ||
+      lowerName.includes('relationship manager') ||
+      lowerName.includes('advertising') ||
+      lowerName.includes('seo') ||
+      lowerName.includes('brand') ||
+      lowerName.includes('social media')
+    )
   ) {
     return {
       category: 'Management',
