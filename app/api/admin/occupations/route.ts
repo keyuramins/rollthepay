@@ -9,6 +9,9 @@ import {
 } from '@/lib/db/queries';
 import type { OccupationRecord } from '@/lib/data/types';
 
+// Next.js 16: Route segment configuration for admin API
+export const routeSegmentConfig = { revalidate: 0 }; // No caching for admin operations
+
 // Middleware for API key authentication
 function authenticate(request: NextRequest): boolean {
   const apiKey = request.headers.get('x-api-key');

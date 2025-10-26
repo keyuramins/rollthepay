@@ -31,7 +31,7 @@
     "@next/bundle-analyzer": "^16.0.0",
     "@svgr/webpack": "^8.1.0",
     "@tailwindcss/postcss": "^4",
-    "@types/node": "^20",
+    "@types/node": "^20.19.23",
     "@types/pg": "^8.15.5",
     "@types/react": "^19",
     "@types/react-dom": "^19",

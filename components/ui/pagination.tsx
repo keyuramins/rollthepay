@@ -19,8 +19,10 @@ export function Pagination({ currentPage, totalPages, onPageChange, className = 
       aria-label="Pagination"
     >
       <button
+        type="button"
         onClick={() => onPageChange(Math.max(1, currentPageSafe - 1))}
         disabled={currentPageSafe === 1}
+        aria-disabled={currentPageSafe === 1}
         className="inline-flex items-center rounded-md border border-input bg-white px-3 py-2 text-sm text-black hover:bg-green-100 disabled:opacity-50"
         aria-label="Previous page"
       >
@@ -43,6 +45,7 @@ export function Pagination({ currentPage, totalPages, onPageChange, className = 
           return (
             <button
               key={page}
+              type="button"
               onClick={() => onPageChange(page)}
               className={`inline-flex items-center rounded-md border border-input px-3 py-2 text-sm ${
                 page === currentPageSafe
@@ -58,6 +61,7 @@ export function Pagination({ currentPage, totalPages, onPageChange, className = 
       </div>
 
       <button
+        type="button"
         onClick={() => onPageChange(Math.min(totalPages, currentPageSafe + 1))}
         disabled={currentPageSafe === totalPages}
         className="inline-flex items-center rounded-md border border-input bg-white px-3 py-2 text-sm text-black hover:bg-green-100 disabled:opacity-50"

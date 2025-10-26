@@ -3,6 +3,9 @@ import { findOccupationSalaryByPath } from './parse';
 import { getCountryData as dbGetCountryData, getAllStates, getAllLocations, getStateData as dbGetStateData, getLocationData as dbGetLocationData, searchOccupations } from '../db/queries';
 import type { OccupationRecord } from './types';
 
+// Note: All database queries are now wrapped with React cache() in queries.ts
+// This provides automatic deduplication and caching for Next.js 16
+
 // Optimized data access with PostgreSQL queries
 export class OptimizedDataAccess {
   private static instance: OptimizedDataAccess;
@@ -15,8 +18,6 @@ export class OptimizedDataAccess {
     }
     return OptimizedDataAccess.instance;
   }
-
-  // Legacy getDataset method removed - using PostgreSQL queries instead
   
   // Get country data using PostgreSQL queries
   async getCountryData(countrySlug: string): Promise<{

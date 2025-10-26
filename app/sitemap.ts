@@ -2,7 +2,8 @@
 import type { MetadataRoute } from "next";
 import { getAllCountries, getAllStates, getAllLocations, searchOccupations } from "@/lib/db/queries";
 
-export const revalidate = 31536000; // 1 year
+// Next.js 16: Route segment configuration for sitemap
+export const routeSegmentConfig = { revalidate: 86400 }; // 1 day for sitemap
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const base = "https://rollthepay.com";

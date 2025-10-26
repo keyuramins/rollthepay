@@ -1,5 +1,6 @@
 // lib/db/queries.ts
 import 'dotenv/config';
+import { cache } from 'react';
 import { pool } from './client';
 import type { OccupationRecord } from '@/lib/data/types';
 import type { DbOccupationRow, SalaryUpdateData } from './types';
@@ -190,8 +191,8 @@ function requirePool() {
   return pool;
 }
 
-// Get all countries (lightweight operation)
-export async function getAllCountries(): Promise<string[]> {
+// Get all countries (lightweight operation) - Next.js 16 cached
+export const getAllCountries = cache(async (): Promise<string[]> => {
   // Skip DB queries during build
   if (process.env.SKIP_DB_DURING_BUILD === 'true') {
     return [];
@@ -207,13 +208,13 @@ export async function getAllCountries(): Promise<string[]> {
     logger.error('Error fetching countries:', error);
     throw error;
   }
-}
+});
 
-// Get homepage statistics (lightweight operation with caching)
-export async function getHomepageStats(): Promise<{
+// Get homepage statistics (lightweight operation with caching) - Next.js 16 cached
+export const getHomepageStats = cache(async (): Promise<{
   totalRecords: number;
   uniqueCountries: number;
-}> {
+}> => {
   // Skip DB queries during build
   if (process.env.SKIP_DB_DURING_BUILD === 'true') {
     return {
@@ -248,7 +249,7 @@ export async function getHomepageStats(): Promise<{
     logger.error('Error fetching homepage stats:', error);
     return { totalRecords: 302000, uniqueCountries: 102 }; // fallback
   }
-}
+});
 
 export interface OccupationSearchResult {
   title: string;
@@ -260,11 +261,11 @@ export interface OccupationSearchResult {
   currency_code: string | null;
 }
 
-export async function searchOccupationsServer(
+export const searchOccupationsServer = cache(async (
   country: string,
   query: string,
   limit: number = 50
-): Promise<OccupationSearchResult[]> {
+): Promise<OccupationSearchResult[]> => {
   const pool = requirePool();
 
   // Use LIKE for partial matching to support "acc" -> "accountant"
@@ -294,16 +295,16 @@ export async function searchOccupationsServer(
   );
 
   return result.rows;
-}
+});
 
-// Get occupations for search (lightweight - only essential fields, no ORDER BY for performance)
-export async function getAllOccupationsForSearch(country?: string, limit: number = 1000): Promise<Array<{
+// Get occupations for search (lightweight - only essential fields, no ORDER BY for performance) - Next.js 16 cached
+export const getAllOccupationsForSearch = cache(async (country?: string, limit: number = 1000): Promise<Array<{
   country: string;
   title: string;
   slug: string;
   state: string | null;
   location: string | null;
-}>> {
+}>> => {
   // Skip DB queries during build
   if (process.env.SKIP_DB_DURING_BUILD === 'true') {
     return [];
@@ -348,7 +349,7 @@ export async function getAllOccupationsForSearch(country?: string, limit: number
     console.error('Error fetching occupations for search:', error);
     throw error;
   }
-}
+});
 
 // Get all occupations (for dataset) - DEPRECATED: Use specific queries instead
 export async function getDataset(): Promise<OccupationRecord[]> {
@@ -366,13 +367,13 @@ export async function getDataset(): Promise<OccupationRecord[]> {
   }
 }
 
-// Find Occupation Salary Record by path
-export async function findOccupationSalaryByPath(params: {
+// Find Occupation Salary Record by path - Next.js 16 cached
+export const findOccupationSalaryByPath = cache(async (params: {
   country: string;
   state?: string;
   location?: string;
   slug: string;
-}): Promise<OccupationRecord | null> {
+}): Promise<OccupationRecord | null> => {
   const poolInstance = requirePool();
   const { country, state, location, slug } = params;
   const dbCountryName = country.replace(/-/g, ' ');
@@ -402,36 +403,17 @@ export async function findOccupationSalaryByPath(params: {
 
   const result = await poolInstance.query(query, values);
   return result.rows.length > 0 ? transformDbRowToOccupationRecord(result.rows[0]) : null;
-  // try {
-  //   const { country, state, location, slug } = params;
-    
-  //   const result = await poolInstance.query(`
-  //     SELECT * FROM occupations
-  //     WHERE LOWER(country) = LOWER($1)
-  //       AND state IS NOT DISTINCT FROM $2
-  //       AND location IS NOT DISTINCT FROM $3
-  //       AND slug_url = $4
-  //     LIMIT 1
-  //   `, [country, state || null, location || null, slug]);    
+});
 
-  //   if (result.rows.length === 0) return null;
-    
-  //   return transformDbRowToOccupationRecord(result.rows[0]);
-  // } catch (error) {
-  //   console.error('Error finding record by path:', error);
-  //   throw error;
-  // }
-}
-
-// Get country data with statistics - Next.js 16 compatible
-export async function getCountryData(country: string): Promise<{
+// Get country data with statistics - Next.js 16 cached
+export const getCountryData = cache(async (country: string): Promise<{
   countryName: string;
   totalJobs: number;
   avgSalary: number;
   states: string[];
   occupationItems: any[];
   headerOccupations: any[];
-} | null> {
+} | null> => {
   // Skip DB queries during build for Next.js 16 compatibility
   if (process.env.SKIP_DB_DURING_BUILD === 'true') {
     return {
@@ -517,10 +499,10 @@ export async function getCountryData(country: string): Promise<{
     console.error('Error getting country data:', error);
     throw error;
   }
-}
+});
 
-// Get state data
-export async function getStateData(country: string, state: string): Promise<{
+// Get state data - Next.js 16 cached
+export const getStateData = cache(async (country: string, state: string): Promise<{
   name: string;
   jobs: Array<{
     slug: string;
@@ -529,7 +511,7 @@ export async function getStateData(country: string, state: string): Promise<{
     avgAnnualSalary: number | null;
     avgHourlySalary: number | null;
   }>;
-} | null> {
+} | null> => {
   const poolInstance = requirePool();
 
   const cacheKey = `state:${country}:${state}`;
@@ -580,10 +562,10 @@ export async function getStateData(country: string, state: string): Promise<{
     console.error('Error getting state data:', error);
     throw error;
   }
-}
+});
 
-// Get location data
-export async function getLocationData(country: string, state: string, location: string): Promise<{
+// Get location data - Next.js 16 cached
+export const getLocationData = cache(async (country: string, state: string, location: string): Promise<{
   name: string;
   jobs: Array<{
     slug: string;
@@ -592,7 +574,7 @@ export async function getLocationData(country: string, state: string, location: 
     avgAnnualSalary: number | null;
     avgHourlySalary: number | null;
   }>;
-} | null> {
+} | null> => {
   const poolInstance = requirePool();
 
   try {
@@ -625,10 +607,10 @@ export async function getLocationData(country: string, state: string, location: 
     console.error('Error getting location data:', error);
     throw error;
   }
-}
+});
 
-// Get all states for a country (with caching)
-export async function getAllStates(country: string): Promise<string[]> {
+// Get all states for a country (with caching) - Next.js 16 cached
+export const getAllStates = cache(async (country: string): Promise<string[]> => {
   const poolInstance = requirePool();
 
   const cacheKey = `states:${country}`;
@@ -652,10 +634,10 @@ export async function getAllStates(country: string): Promise<string[]> {
     console.error('Error getting all states:', error);
     throw error;
   }
-}
+});
 
-// Get all locations for a state (with caching)
-export async function getAllLocations(country: string, state: string): Promise<string[]> {
+// Get all locations for a state (with caching) - Next.js 16 cached
+export const getAllLocations = cache(async (country: string, state: string): Promise<string[]> => {
   const poolInstance = requirePool();
 
   const cacheKey = `locations:${country}:${state}`;
@@ -679,7 +661,7 @@ export async function getAllLocations(country: string, state: string): Promise<s
     console.error('Error getting all locations:', error);
     throw error;
   }
-}
+});
 
 // Get states with pagination (for large datasets)
 export async function getStatesPaginated(country: string, limit: number = 100, offset: number = 0): Promise<string[]> {
@@ -837,7 +819,7 @@ export async function getLocationCount(country: string, state: string): Promise<
 //     throw error;
 //   }
 // }
-export async function searchOccupations(query: string, country?: string, limit: number = 10): Promise<OccupationRecord[]> {
+export const searchOccupations = cache(async (query: string, country?: string, limit: number = 10): Promise<OccupationRecord[]> => {
   const poolInstance = requirePool();
   const hasQuery = query && query.trim().length > 0;
 
@@ -867,7 +849,7 @@ export async function searchOccupations(query: string, country?: string, limit: 
     console.error('Error searching occupations:', error);
     throw error;
   }
-}
+});
 
 // Update occupation salary (for user contributions)
 export async function updateOccupationSalary(

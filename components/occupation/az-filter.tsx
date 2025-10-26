@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 interface OccupationItem {
   id: string;
@@ -22,12 +22,12 @@ export function AZFilter({ items, onFilteredItemsChange }: AZFilterProps) {
   const [selectedFilter, setSelectedFilter] = useState<string>("All");
   const loading = !items || items.length === 0;
 
-  const generateFilters = () => ["All", ...Array.from({ length: 26 }, (_, i) => String.fromCharCode(65 + i))];
-
-  const filters: string[] = loading
-    ? Array.from({ length: 27 }, (_, i) => `skeleton-${i}`)
-    : generateFilters();
-
+  const filters = useMemo(() => {
+    if (!items || items.length === 0)
+      return Array.from({ length: 27 }, (_, i) => `skeleton-${i}`);
+    return ["All", ...Array.from({ length: 26 }, (_, i) => String.fromCharCode(65 + i))];
+  }, [items]);  
+    
   const applyFilter = (filter: string) => {
     setSelectedFilter(filter);
     if (filter === "All") {
@@ -46,7 +46,7 @@ export function AZFilter({ items, onFilteredItemsChange }: AZFilterProps) {
       {/* Mobile & Tablet */}
       <div className="block lg:hidden">
         <div className="grid grid-cols-5 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10 gap-1.5 sm:gap-2 px-1 sm:px-2">
-          {filters.map((filter, index) =>
+          {filters.map((filter: string, index: number) =>
             loading ? (
               <div
                 key={index}
@@ -87,7 +87,7 @@ export function AZFilter({ items, onFilteredItemsChange }: AZFilterProps) {
       {/* Desktop */}
       <div className="hidden lg:flex justify-center">
         <div className="inline-flex rounded-lg overflow-hidden border border-input shadow-sm flex-shrink-0" role="group" aria-label="Alphabetical filter">
-          {filters.map((filter, index) =>
+          {filters.map((filter: string, index: number) =>
             loading ? (
               <div
                 key={index}

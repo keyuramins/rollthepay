@@ -4,28 +4,30 @@ import dynamic from "next/dynamic";
 import { HeroSectionWrapper } from "@/components/home/HeroSectionWrapper";
 import { StatsSectionWrapper } from "@/components/home/StatsSectionWrapper";
 import { getHomepageStats } from "@/lib/db/queries";
+import { OccupationListSkeleton } from "@/components/ui/skeletons";
 
-// Next.js 16: Using cacheComponents in next.config.ts instead of individual page configs
+// Next.js 16: Route segment configuration for optimal caching
+export const routeSegmentConfig = { revalidate: 86400 }; // 1 day for homepage stats
 
 // Next.js 16: Updated dynamic imports with proper syntax
 const FeaturesSectionDynamic = dynamic(() => import("@/components/home/features-section").then(mod => mod.FeaturesSection), { 
   ssr: true, 
-  loading: () => <div className="h-32 bg-gray-200 animate-pulse rounded-md"></div> 
+  loading: () => <OccupationListSkeleton />
 });
 
 const TrustSectionDynamic = dynamic(() => import("@/components/home/trust-section").then(mod => mod.TrustSection), { 
   ssr: true, 
-  loading: () => <div className="h-32 bg-gray-200 animate-pulse rounded-md"></div> 
+  loading: () => <OccupationListSkeleton />
 });
 
 const MissionSectionDynamic = dynamic(() => import("@/components/home/mission-section").then(mod => mod.MissionSection), { 
   ssr: true, 
-  loading: () => <div className="h-32 bg-gray-200 animate-pulse rounded-md"></div> 
+  loading: () => <OccupationListSkeleton />
 });
 
 const CTASectionDynamic = dynamic(() => import("@/components/home/cta-section").then(mod => mod.CTASection), { 
   ssr: true, 
-  loading: () => <div className="h-32 bg-gray-200 animate-pulse rounded-md"></div> 
+  loading: () => <OccupationListSkeleton />
 });
 
 export async function generateMetadata(): Promise<Metadata> {

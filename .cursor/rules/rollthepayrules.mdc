@@ -1,0 +1,208 @@
+---
+alwaysApply: true
+---
+## Overview
+All Next.js 16 development in this repository must leverage **Next DevTools MCP** for debugging, documentation lookup, and issue resolution.
+
+```yaml
+use_mcp: next-devtools
+description: >
+  All Next.js 16 related development should leverage `next-devtools` MCP for 
+  debugging, finding and referencing documentation, resolving issues, and other 
+  related activities.
+
+These rules are authoritative for this repository. Follow them for all new code, edits, reviews, and refactors.
+
+## Architecture & Rendering
+- **Visualize first**: Before coding a new page or component, sketch the layout (wireframe) and data sections it will render from the database. Confirm sections and states (loading not applicable—static) before implementation.
+- **Server Components by default**: Every `page.tsx` in `app/**` must be a Server Component. No client-side data fetching in pages.
+- **Next.js 16 Cache Semantics**: Use modern cache configuration with routeSegmentConfig.
+  - Set `export const routeSegmentConfig = { revalidate: 31536000 }` in every `page.tsx` and route handlers.
+  - Use `export const fetchCache = 'force-cache'` for static data that never changes.
+  - Do not use `output: 'export'` (it disables ISR). Use standard Next build with automatic caching.
+- **Client Components**: Only when necessary.
+  - Place them under `@/components/**` (use kebab-case filenames) and export PascalCase components.
+  - Never place client components directly under `app/**`.
+  - Add `"use client"` at the top only where required (Next 16 enforces this strictly).
+- **Unique page component**: Each page renders a single unique top-level component (e.g., `OccupationPage`) that composes smaller presentational components. Avoid duplicating page-level layouts across routes—extract to shared components.
+- **Static-first**: Prefer SSG over SSR. All content originates from PostgreSQL database with optimized queries and caching.
+
+## Data Model & Access
+- **Single source of truth**: Use PostgreSQL database as the primary data source. No parallel JSON or duplicated state.
+- **Next.js 16 Caching**: Use React's `cache()` utility for database queries.
+  - Wrap all database query functions with `import { cache } from 'react'` and `export const getData = cache(async () => { /* database query */ })`.
+  - Never call database queries inside Client Components.
+  - Cache results automatically with Next.js 16's built-in caching.
+- **Database Connection**: Use connection pooling with PgBouncer for optimal performance.
+  - Skip database initialization during build phases (`NEXT_PHASE === 'phase-production-build'`).
+  - Use environment variables for connection configuration.
+- **No redundancy for titles**: Treat `title` as the source-of-truth for display and SEO. Ignore `h1_title` unless `title` is missing; do not show both.
+- **Slug**: Use `slug_url` from database as-is for the route segment. It must be lowercase in source. Do not transform or re-slugify.
+- **Data validation**: Gracefully handle null values and invalid data. Never crash a build due to malformed database records.
+- **Numeric parsing**: Coerce numeric values from database; default to `null` when not parseable. Never infer currency from numbers; always from country metadata.
+
+## Routing & URL Conventions
+- **Route pattern**: `/[country]/[state?]/[location?]/[slug]` all lowercase.
+  - Country is required. If a state exists in data, it occupies the second segment.
+  - If a location exists in data, it occupies the third segment.
+  - Values for `[country]`, `[state]`, `[location]`, `[slug]` must be lowercase and URL-safe.
+- **App Router structure**:
+  - `app/[country]/[slug]/page.tsx` for country-only records.
+  - `app/[country]/[state]/[slug]/page.tsx` for country+state records.
+  - `app/[country]/[state]/[location]/[slug]/page.tsx` for country+state+location records.
+  - `app/[country]/[state]/page.tsx` for state overview pages.
+  - `app/[country]/[state]/[location]/page.tsx` for location overview pages.
+- **Static params**: Implement `generateStaticParams` to enumerate all pages from database at build time. Use `export const dynamic = 'error'` to enforce static paths only (replaces deprecated `dynamicParams = false`).
+- **Canonical**: Provide canonical URLs in metadata. No querystring variants.
+
+## ISR, Caching & Build
+- **Next.js 16 Cache Configuration**: Use `routeSegmentConfig` for consistent revalidation.
+  - Set `export const routeSegmentConfig = { revalidate: 31536000 }` in every route.
+  - Use `export const fetchCache = 'force-cache'` for static data that never changes.
+- **React Cache Integration**: Use React's `cache()` utility for all data fetching.
+  - Wrap database query calls with `cache()` to prevent duplicate requests.
+  - Automatic deduplication and caching handled by Next.js 16.
+- **No runtime rebuilds**: Do not trigger on-demand revalidation. The site must not be rebuilt for 1 year unless a critical fix is required.
+- **Static assets**: Store derived JSON or images in `public/` if precomputed. Do not compute at request time.
+
+## SEO & Metadata
+- **Next.js 16 Metadata API**: Use async `generateMetadata` functions with typed `Metadata` import.
+  - Import `import type { Metadata } from 'next'` for proper typing.
+  - Derive values once from database row:
+    - `title`: from `title` (fallback `h1_title` only if `title` absent).
+    - `description`: concise summary including occupation, country, state, and location if present; avoid keyword stuffing.
+    - `alternates.canonical`: computed from the route.
+    - OpenGraph/Twitter cards with consistent branding.
+- **Headings**: Exactly one `<h1>` per page, matching the chosen display title. Do not repeat title text in multiple headings.
+- **Sitemap & robots**: Use `generateSitemap()` in root route for dynamic sitemap generation. Allow indexing; no duplicated routes.
+
+## Components & Styling
+- **Naming**: Files in `components/**` use kebab-case filenames; exported React components are PascalCase. Example: `components/occupation/summary-card.tsx` exporting `SummaryCard`.
+- **Reusability**: Factor shared UI into `components/ui/**`. Do not duplicate markup across pages.
+- **Use Existing CSS**: Leverage existing styles from `globals.css` including CSS custom properties, component classes, and responsive patterns. Do not add new CSS unless absolutely necessary.
+- **CSS Custom Properties**: Use existing CSS variables (e.g., `var(--primary)`, `var(--muted)`, `var(--spacing-md)`) for consistent theming.
+- **Component Classes**: Utilize existing component classes like `.card`, `.salary-card`, `.hero-badge`, `.btn-secondary` for consistency.
+- **Responsive Patterns**: Follow existing responsive patterns using Tailwind breakpoints (`sm:`, `md:`, `lg:`, `xl:`) as established in `globals.css`.
+- **Use Shadcn**: Prefer Shadcn UI components for new UI elements and shared primitives. Use existing Shadcn components where possible for consistency, accessibility, and maintainability. Only extend or customize when necessary for RollThePay requirements.
+- **Skeleton Components**: Create skeleton components in `components/ui/` with `-skeleton` suffix (e.g., `occupation-list-skeleton.tsx`).
+- **Mobile-First Skeletons**: Design skeleton components mobile-first with responsive breakpoints using existing Tailwind classes and CSS patterns.
+- **Skeleton Animation**: Use existing CSS patterns for subtle animations; avoid adding new CSS for skeleton loading states.
+
+## Localization & Currency
+- **Localization**: Use locale-aware formatting via `Intl` only on the server.
+  - Locale determination by country: AU → `en-AU`, IN → `en-IN`, etc.
+- **Currency formatting**:
+  - Australia: currency `AUD`, locale `en-AU`, thousands grouping (e.g., `123,456`, decimals as required).
+  - India: currency `INR`, locale `en-IN`, lakh/crore grouping (e.g., `1,23,123`).
+  - Never manually insert commas; always use `Intl.NumberFormat(locale, { style: 'currency', currency })` or a dedicated numeric formatter for non-currency amounts.
+- **Units**: Show both annual and hourly values where available; annotate currency consistently. Do not mix symbols and codes within the same page—prefer code (`AUD`, `INR`) in tables and symbol in headings.
+
+## Data-driven Page Contract
+- From each database row, the page must render:
+  - Primary title (from `title`)
+  - Country, state, and location (if present)
+  - Occupation and slug (unchanged)
+  - Salary ranges (low, high, average) with currency formatting per locale
+  - Experience buckets if present
+  - Related links only when valid (skip null values)
+- Do not render empty sections. Omit blocks when data missing.
+
+## Performance & Quality
+- **No client data fetching**: Never fetch in Client Components.
+- **Images**: Use static images under `public/`. Avoid remote patterns without caching.
+- **Accessibility**: All interactive elements must be keyboard accessible; headings in order; images with alt text.
+- **Type safety**: Strong types for database rows. No `any` in public APIs.
+- **React Compiler**: Use `"jsxImportSource": "react"` and `"reactCompiler": true` in tsconfig.json for React Compiler compatibility.
+- **No tests**: Do not add unit/e2e tests or test tooling in this repository unless explicitly requested in writing. Remove any `tests/**`, test configs, and test scripts if introduced.
+
+## Loading States & Suspense
+- **Skeleton Components**: When using Suspense, create skeleton components that match the actual component structure to prevent Cumulative Layout Shift (CLS).
+- **No Generic Loading**: Never use generic "Loading..." text. Always create specific skeleton components for each data section.
+- **Mobile Responsive Skeletons**: Ensure skeleton components are fully responsive and match mobile layouts.
+- **Skeleton Examples**:
+  - `OccupationListSkeleton` for occupation lists with proper card layouts
+  - `SalaryChartSkeleton` for charts with placeholder bars/graphs
+  - `StatsSkeleton` for statistics sections with placeholder numbers
+  - `BreadcrumbSkeleton` for navigation breadcrumbs
+- **Skeleton Styling**: Use existing CSS patterns from `globals.css` including:
+  - Existing component classes (`.card`, `.salary-card`, `.metrics-grid`)
+  - CSS custom properties for colors and spacing (`var(--muted)`, `var(--spacing-md)`)
+  - Responsive Tailwind patterns (`sm:`, `md:`, `lg:`, `xl:`) as established
+  - Existing shadow and border utilities
+- **Suspense Boundaries**: Place Suspense boundaries at component level, not page level, for granular loading states.
+
+## File & Code Organization
+- **Utilities**: Data parsing/formatting utilities live in `@/lib/**`. Currency and locale helpers in `@/lib/format/**`.
+- **Do not modify data**: Never edit database records inside code. If data is wrong, fix the database directly.
+- **Testing**: Add basic unit tests for parsing and formatting functions when introduced.
+
+## Implementation Checklist (per new route/page)
+1. Define route in `app/[country]/[state?]/[location?]/[slug]/page.tsx` as a Server Component.
+2. Set `export const routeSegmentConfig = { revalidate: 31536000 }` and `export const dynamic = 'error'`.
+3. Implement `generateStaticParams` to enumerate rows from relevant database queries.
+4. Use `cache()` wrapper for database query functions to prevent duplicate requests.
+5. Build metadata via async `generateMetadata` with typed `Metadata` import from the chosen row.
+6. Render one unique page component that composes shared UI.
+7. Format numbers/currency with `Intl` per locale.
+8. Skip invalid or null values; do not render empty content.
+9. Ensure URLs are `/country[/state][/location]/slug` all lowercase with slug from database unchanged.
+10. Use `generateSitemap()` for dynamic sitemap generation. Verify no duplicate `title`/`h1`.
+11. Create skeleton components for any async data sections to prevent CLS.
+12. Ensure skeleton components are mobile-responsive and match actual component layouts.
+
+## Prohibited
+- No SSR-only features that disable ISR (e.g., `export const dynamic = 'force-dynamic'`).
+- No client-side routing hacks for data display.
+- No duplicate titles or headings (avoid `title` and `h1_title` redundancy).
+- No transforming or re-slugifying `slug_url`.
+- No manual file-system cache management (handled automatically by Next.js 16).
+- No deprecated `dynamicParams = false` (use `dynamic = 'error'` instead).
+
+## Notes from README
+- Mission: provide accurate salary data by country/state; simple UX; transparent labor market info.
+- Keep content concise and relevant to the occupation and location. Avoid marketing fluff on data pages.
+
+## Location Routing Rules (NEW)
+- **Location pages**: When a database record has both `state` and `location` fields populated, create a location page at `/[country]/[state]/[location]`.
+- **Location page structure**: Location pages should mirror state pages but show jobs specific to that location within the state.
+- **Location normalization**: Convert location names to URL-safe format (lowercase, hyphenated) similar to state normalization.
+- **Location data grouping**: Group records by location within each state, similar to how states are grouped within countries.
+- **Location breadcrumbs**: Include location in breadcrumb navigation: Home > Countries > Country > State > Location.
+- **Location metadata**: Generate appropriate metadata for location pages including location-specific descriptions.
+- **Location occupation lists**: Show only jobs that have the specific location field populated, filtered by state and location.
+
+## PostgreSQL Database Integration Rules
+- **Database Connection**: Use PostgreSQL with PgBouncer connection pooling for optimal performance.
+- **Environment Variables**: Require `DATABASE_URL` or `PGBOUNCER_URL` in `.env`.
+- **Connection Pooling**: Configure pool settings with appropriate max connections and timeouts.
+- **Build Safety**: Skip database initialization during Next.js build phases to prevent build failures.
+- **Query Optimization**: Use indexed queries and avoid N+1 problems with proper joins.
+- **Data Types**: Use proper PostgreSQL data types (NUMERIC for salaries, JSONB for skills, etc.).
+- **Error Handling**: Gracefully handle database connection errors and provide clear troubleshooting guidance.
+- **Caching Strategy**: Use React's `cache()` utility for all database queries to prevent duplicate requests.
+- **Connection Management**: Properly handle connection lifecycle in development and production.
+- **Query Performance**: Use database indexes and optimized queries for fast data retrieval.
+- **Data Validation**: Validate data integrity at the database level with proper constraints.
+
+## Next.js 16 Development Tools
+- **MCP Integration**: Enable `NEXT_DEVTOOLS=1` in `.env.local` for enhanced debugging.
+- **TypeScript Configuration**: Use modern TypeScript settings for React Compiler compatibility.
+  - Set `"jsxImportSource": "react"` in tsconfig.json.
+  - Enable `"reactCompiler": true` for automatic optimizations.
+- **ESLint Configuration**: Use `eslint-plugin-next@latest` with default config for Next.js 16.
+  - Enforce `"use client"` only at top level of files.
+  - Validate route segment configurations.
+- **Development Workflow**: Leverage next-devtools MCP for all debugging and optimization tasks.
+  - Use MCP tools for runtime diagnostics and error resolution.
+  - Prefer MCP over manual debugging for Next.js specific issues.
+
+## Current Next.js 16 Configuration
+- **React Compiler**: Enabled in `next.config.ts` with `reactCompiler: true`.
+- **Cache Components**: Enabled with `cacheComponents: true` for optimal performance.
+- **Turbopack**: Configured for SVG handling with `@svgr/webpack`.
+- **Package Optimization**: Enabled for `@/components` and `@/lib` imports.
+- **Image Optimization**: Configured with WebP/AVIF formats and 1-year cache TTL.
+- **Security Headers**: Production-only headers for security and performance.
+- **Build Optimizations**: TypeScript errors ignored during build, source maps disabled in production.
+- **Database Integration**: Properly configured to skip database during build phases.
+

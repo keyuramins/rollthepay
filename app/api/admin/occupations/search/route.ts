@@ -3,6 +3,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { searchOccupationsServer } from "@/lib/db/queries";
 import type { OccupationSearchResult } from "@/lib/db/queries";
 
+// Next.js 16: Route segment configuration for search API
+export const routeSegmentConfig = { revalidate: 3600 }; // 1 hour for search results
+
 export async function GET(req: NextRequest) {
   const { searchParams } = req.url ? new URL(req.url) : { searchParams: new URLSearchParams() };
   const countrySlug = searchParams.get("country") || "";
