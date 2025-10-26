@@ -1,5 +1,4 @@
 import { Suspense } from "react";
-import { OccupationListSkeleton } from "./skeletons";
 import { OccupationListClient, OccupationListSearchBar } from "@/components/ui/occupation-list-client";
 
 export function OccupationList({
@@ -35,14 +34,12 @@ export function OccupationList({
           </div>
         </div>
 
-        <Suspense fallback={<OccupationListSkeleton />}>
-          <OccupationListClient
-            items={items}
-            countrySlug={countrySlug}
-            currentState={currentState}
-            currentLocation={currentLocation}
-          />
-        </Suspense>
+        <OccupationListClient
+          items={items}
+          countrySlug={countrySlug}
+          currentState={currentState}
+          currentLocation={currentLocation}
+        />
       </div>
     </section>
   );

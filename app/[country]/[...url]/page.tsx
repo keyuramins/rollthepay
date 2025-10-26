@@ -71,22 +71,47 @@ export async function generateMetadata({ params }: UnifiedPageProps): Promise<Me
     }
 
     if (url.length === 2) {
-      const [state, location] = url;
-      const locationName = denormalizeLocationName(location);
+      const [state, locationOrSlug] = url;
       const stateName = denormalizeStateName(state);
-      return {
-        title: `${locationName}, ${stateName} Salaries`,
-        description: `Salary data and job trends in ${locationName}, ${stateName}, ${countryName}.`,
-        alternates: { canonical: `/${country}/${state}/${location}` },
-      };
+      
+      // Check if this is a location page or state occupation page
+      const locations = await optimizedDataAccess.getAllLocations(country, stateName);
+      const locationMatch = locations.find((l) => normalizeLocationName(l) === locationOrSlug);
+      
+      if (locationMatch) {
+        // This is a location page
+        const locationName = denormalizeLocationName(locationOrSlug);
+        return {
+          title: `${locationName}, ${stateName} Salaries`,
+          description: `Salary data and job trends in ${locationName}, ${stateName}, ${countryName}.`,
+          alternates: { canonical: `/${country}/${state}/${locationOrSlug}` },
+        };
+      } else {
+        // This is a state occupation page
+        const record = await optimizedDataAccess.findOccupationSalaryByPath({
+          country,
+          state: stateName,
+          slug: locationOrSlug,
+        });
+        if (!record) return { title: "Occupation Not Found", description: "No data available." };
+
+        const occupationName = removeAveragePrefix(record.title || record.h1Title || "");
+        return {
+          title: occupationName,
+          description: `Detailed salary data for ${occupationName} in ${stateName}, ${countryName}.`,
+          alternates: { canonical: `/${country}/${state}/${locationOrSlug}` },
+        };
+      }
     }
 
     if (url.length === 3) {
       const [state, location, slug] = url;
+      const denormalizedState = denormalizeStateName(state);
+      const denormalizedLocation = denormalizeLocationName(location);
       const record = await optimizedDataAccess.findOccupationSalaryByPath({
         country,
-        state,
-        location,
+        state: denormalizedState,
+        location: denormalizedLocation,
         slug,
       });
       if (!record) return { title: "Occupation Not Found", description: "No data available." };
@@ -114,37 +139,65 @@ export default async function UnifiedPage({ params }: UnifiedPageProps) {
 
   const countryDisplayName = country.charAt(0).toUpperCase() + country.slice(1).replace(/-/g, " ");
 
-  // --- STATE PAGE ---
+  // --- STATE PAGE OR COUNTRY-LEVEL OCCUPATION PAGE ---
   if (url.length === 1) {
-    const stateSlug = url[0];
-    const stateDisplayName = denormalizeStateName(stateSlug);
+    const stateOrSlug = url[0];
+    const states = await optimizedDataAccess.getAllStates(country);
+    const stateMatch = states.find((s) => normalizeStateName(s) === stateOrSlug);
 
-    return (
-      <main>
-          <StatePage country={country} state={stateSlug} />
-      </main>
-    );
+    if (stateMatch) {
+      // This is a state page
+      return (
+        <main>
+          <StatePage country={country} state={stateOrSlug} />
+        </main>
+      );
+    } else {
+      // This is a country-level occupation page
+      return (
+        <main>
+          <OccupationPage country={country} slug={stateOrSlug} />
+        </main>
+      );
+    }
   }
 
-  // --- LOCATION PAGE ---
+  // --- LOCATION PAGE OR STATE OCCUPATION PAGE ---
   if (url.length === 2) {
-    const [state, location] = url;
+    const [state, locationOrSlug] = url;
     const stateDisplayName = denormalizeStateName(state);
-    const locationDisplayName = denormalizeLocationName(location);
-
-    return (
-      <main>
-        <LocationPage country={country} state={state} location={location} />
-      </main>
-    );
+    
+    // Check if this is a location page by looking for locations in this state
+    const locations = await optimizedDataAccess.getAllLocations(country, stateDisplayName);
+    const locationMatch = locations.find((l) => normalizeLocationName(l) === locationOrSlug);
+    
+    if (locationMatch) {
+      // This is a location page
+      const locationDisplayName = denormalizeLocationName(locationOrSlug);
+      return (
+        <main>
+          <LocationPage country={country} state={state} location={locationOrSlug} />
+        </main>
+      );
+    } else {
+      // This is a state occupation page
+      const denormalizedState = denormalizeStateName(state);
+      return (
+        <main>
+          <OccupationPage country={country} state={denormalizedState} slug={locationOrSlug} />
+        </main>
+      );
+    }
   }
 
   // --- OCCUPATION PAGE ---
   if (url.length === 3) {
     const [state, location, slug] = url;
+    const denormalizedState = denormalizeStateName(state);
+    const denormalizedLocation = denormalizeLocationName(location);
     return (
       <main>
-        <OccupationPage country={country} state={state} location={location} slug={slug} />
+        <OccupationPage country={country} state={denormalizedState} location={denormalizedLocation} slug={slug} />
       </main>
     );
   }

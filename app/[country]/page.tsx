@@ -6,8 +6,17 @@ import { OccupationList } from "@/components/ui/occupation-list";
 import { StatesGrid } from "@/components/country/states-grid";
 import { CountryCTASection } from "@/components/country/cta-section";
 import { optimizedDataAccess } from "@/lib/data/optimized-parse";
+import { getAllCountries } from "@/lib/db/queries";
 
-export const dynamic = 'force-dynamic';
+export const routeSegmentConfig = { revalidate: 31536000 };
+export const dynamic = 'error';
+
+export async function generateStaticParams() {
+  const countries = await getAllCountries();
+  return countries.map((country) => ({
+    country: country.toLowerCase().replace(/\s+/g, '-'),
+  }));
+}
 
 interface CountryPageProps {
   params: Promise<{ country: string }>;

@@ -33,6 +33,7 @@ export default function OccupationListItems({
       {paginatedItems.map((item) => {
         const normalizedSlug = normalizeSlugForURL(item.slug_url);
         let href = `/${item.countrySlug}/${normalizedSlug}`;
+        
         if (currentLocation && currentState) {
           href = `/${item.countrySlug}/${currentState}/${currentLocation}/${normalizedSlug}`;
         } else if (currentState) {

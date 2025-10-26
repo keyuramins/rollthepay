@@ -1,4 +1,4 @@
-import Link from "next/link";
+//components/occupation/hero-section.tsx
 import { formatCurrency } from "@/lib/format/currency";
 import { formatCurrencyWithMillion } from "@/lib/format/million-currency";
 import type { OccupationRecord } from "@/lib/data/types";
@@ -212,14 +212,14 @@ export function OccupationHeroSection({ record, country, locationText }: Occupat
               </div>
 
               <div className="salary-actions">
-                <Link 
+                <a 
                   href="#compensation-heading"
                   className="btn-secondary align-middle"
                   title="View Salary Details"
                   aria-describedby="salary-card-heading"
                 >
                   View Salary Details
-                </Link>
+                </a>
                 {/* <Link 
                   href="#"
                   className="btn-icon" 

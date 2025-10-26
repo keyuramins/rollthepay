@@ -4,6 +4,7 @@ import "./globals.css";
 import Script from "next/script";
 import { Header } from "@/components/navigation/header";
 import { Footer } from "@/components/navigation/footer";
+import { TooltipProvider } from "@/components/ui/tooltip";
 
 const robotoCondensed = Roboto_Condensed({
   weight: ["400","500", "600", "700", "800"],
@@ -85,12 +86,14 @@ export default async function RootLayout({
           crossOrigin="anonymous" />
       </head>
       <body>
-        <a href="#main-content" className="skip-link">
-          Skip to main content
-        </a>
-        <Header />
-        {children}
-        <Footer />
+        <TooltipProvider>
+          <a href="#main-content" className="skip-link">
+            Skip to main content
+          </a>
+          <Header />
+          {children}
+          <Footer />
+        </TooltipProvider>
       </body>
     </html>
   );

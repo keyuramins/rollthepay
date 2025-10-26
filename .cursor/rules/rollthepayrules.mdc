@@ -27,6 +27,10 @@ These rules are authoritative for this repository. Follow them for all new code,
 - **Unique page component**: Each page renders a single unique top-level component (e.g., `OccupationPage`) that composes smaller presentational components. Avoid duplicating page-level layouts across routes—extract to shared components.
 - **Static-first**: Prefer SSG over SSR. All content originates from PostgreSQL database with optimized queries and caching.
 
+<Link href="/page"> - For navigating to different pages/routes
+<a href="#section"> - For jumping to sections within the same page
+<a href="https://external.com"> - For external links
+
 ## Data Model & Access
 - **Single source of truth**: Use PostgreSQL database as the primary data source. No parallel JSON or duplicated state.
 - **Next.js 16 Caching**: Use React's `cache()` utility for database queries.

@@ -12,7 +12,6 @@ interface ExperienceLevelSalariesChartProps {
   record: OccupationRecord;
   country: string;
 }
-
 export function ExperienceLevelSalariesChart({ record, country }: ExperienceLevelSalariesChartProps) {
   const experienceLevelsData = useMemo(() => {
     // Experience level data

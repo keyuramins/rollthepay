@@ -1,6 +1,7 @@
 // components/navigation/server-navigation.tsx
 import Link from "next/link";
 import { continents } from "@/app/constants/continents";
+import { ChevronDown } from "lucide-react";
 
 interface ServerNavigationProps {
   className?: string;
@@ -12,9 +13,9 @@ export function ServerNavigation({ className = "" }: ServerNavigationProps) {
       <ul className="flex space-x-2">
         {continents.map((continent) => (
           <li key={continent.code} className="relative group">
-            <button className="flex items-center text-sm font-semibold">
-              <span>{continent.name}</span>
-              <span className="ml-1">▼</span>
+            <button className="justify-center whitespace-nowrap text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 shrink-0 outline-none focus-visible:border-primary focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive cursor-pointer text-card hover:bg-secondary hover:text-secondary-foreground h-8 rounded-md gap-1 px-2 flex items-center">
+              <span className="text-sm font-semibold">{continent.name}</span>
+              <span><ChevronDown className="h-3 w-3" /></span>
             </button>
             
             {/* SEO-friendly dropdown - always rendered in HTML, original styling */}

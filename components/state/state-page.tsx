@@ -39,7 +39,7 @@ export async function StatePage({ country, state }: StatePageProps) {
     displayName: job.title || "Unknown Job",
     originalName: job.title || "Unknown Job",
     slug_url: job.slug,
-    //location: job.location || undefined, // State-level jobs don't have specific locations
+    location: job.location || undefined, // Include location data if available
     state: stateName,
     avgAnnualSalary: job.avgAnnualSalary || undefined,
     countrySlug: country
