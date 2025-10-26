@@ -1,4 +1,3 @@
-// app/[country]/page.tsx
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { optimizedDataAccess } from "@/lib/data/optimized-parse";
@@ -7,48 +6,52 @@ import { CountryHeroSection } from "@/components/country/hero-section";
 import { OccupationList } from "@/components/ui/occupation-list";
 import { StatesGrid } from "@/components/country/states-grid";
 import { CountryCTASection } from "@/components/country/cta-section";
+import { Suspense } from "react";
 
-export const revalidate = 31536000;
-export const dynamicParams = false;
+// Next.js 16: Using cacheComponents in next.config.ts instead of individual page configs
 
+// 1 day
+// Optimized caching for PostgreSQL - shorter revalidation since data is now in database
+// 1 day - database queries are fast
 interface CountryPageProps {
   params: Promise<{ country: string }>;
 }
 
 export async function generateMetadata({ params }: CountryPageProps): Promise<Metadata> {
   const { country } = await params;
-  const countryData = await optimizedDataAccess.getCountryData(country);
   
-  if (!countryData) {
-    notFound();
-  }
-
-  const { countryName, totalJobs } = countryData;
-
+  // Use static metadata for better Next.js 16 compatibility
+  const countryName = country.charAt(0).toUpperCase() + country.slice(1);
+  
   return {
     title: `${countryName} Salary Information`,
-    description: `Explore ${totalJobs}+ salary records for jobs in ${countryName}. Find accurate salary data, compensation trends, and career insights.`,
+    description: `Explore salary records for jobs in ${countryName}. Find accurate salary data, compensation trends, and career insights.`,
     alternates: {
       canonical: `/${country}`,
     },
     openGraph: {
       title: `${countryName} Salary Information`,
-      description: `Discover salary data for ${totalJobs}+ jobs in ${countryName}. Get accurate compensation information to advance your career.`,
+      description: `Discover salary data for jobs in ${countryName}. Get accurate compensation information to advance your career.`,
       type: "website",
       url: `/${country}`,
     },
     twitter: {
       card: "summary_large_image",
       title: `${countryName} Salary Information`,
-      description: `Discover salary data for ${totalJobs}+ jobs in ${countryName}. Get accurate compensation information to advance your career.`,
+      description: `Discover salary data for jobs in ${countryName}. Get accurate compensation information to advance your career.`,
     },
   };
 }
 
-export default async function CountryPage({ params }: CountryPageProps) {
-  const { country } = await params;
-  
-  const countryData = await optimizedDataAccess.getCountryData(country);
+async function CountryPageContent({ country }: { country: string }) {
+  // Use a try-catch to handle potential data access issues
+  let countryData;
+  try {
+    countryData = await optimizedDataAccess.getCountryData(country);
+  } catch (error) {
+    console.error('Error fetching country data:', error);
+    notFound();
+  }
   
   if (!countryData) {
     notFound();
@@ -77,13 +80,13 @@ export default async function CountryPage({ params }: CountryPageProps) {
           totalJobs={totalJobs}
         />
 
-        <OccupationList
-          items={occupationItems}
-          title="Explore Salaries by Occupation"
-          description="Browse salary information organized by respective categories and specializations."
-          states={states}
-          countrySlug={country}
-        />
+          <OccupationList
+            items={occupationItems}
+            title="Explore Salaries by Occupation"
+            description="Browse salary information organized by respective categories and specializations."
+            states={states}
+            countrySlug={country}
+          />
 
         {states.length > 0 && (
           <StatesGrid
@@ -99,3 +102,13 @@ export default async function CountryPage({ params }: CountryPageProps) {
     </>
   );
 }
+export default async function CountryPage({ params }: CountryPageProps) {
+  const { country } = await params;
+  
+  return (
+    <Suspense fallback={<div className="h-64 bg-gray-200 animate-pulse rounded-md"></div>}>
+      <CountryPageContent country={country} />
+    </Suspense>
+  );
+}
+

@@ -1,19 +1,32 @@
 // app/page.tsx
 import { Metadata } from "next";
-import dynamicImport from "next/dynamic";
+import dynamic from "next/dynamic";
 import { HeroSectionWrapper } from "@/components/home/HeroSectionWrapper";
 import { StatsSectionWrapper } from "@/components/home/StatsSectionWrapper";
 import { getHomepageStats } from "@/lib/db/queries";
 
-export const revalidate = 31536000;
-export const dynamicParams = false;
+// Next.js 16: Using cacheComponents in next.config.ts instead of individual page configs
 
-// Next.js caching settings
-//Dynamically import components
-const FeaturesSectionDynamic = dynamicImport(() => import("@/components/home/features-section").then(mod => mod.FeaturesSection), { ssr: true, loading: () => <div>Loading Features...</div> });
-const TrustSectionDynamic = dynamicImport(() => import("@/components/home/trust-section").then(mod => mod.TrustSection), { ssr: true, loading: () => <div>Loading Trust...</div> });
-const MissionSectionDynamic = dynamicImport(() => import("@/components/home/mission-section").then(mod => mod.MissionSection), { ssr: true, loading: () => <div>Loading Mission...</div> });
-const CTASectionDynamic = dynamicImport(() => import("@/components/home/cta-section").then(mod => mod.CTASection), { ssr: true, loading: () => <div>Loading CTA...</div> });
+// Next.js 16: Updated dynamic imports with proper syntax
+const FeaturesSectionDynamic = dynamic(() => import("@/components/home/features-section").then(mod => mod.FeaturesSection), { 
+  ssr: true, 
+  loading: () => <div className="h-32 bg-gray-200 animate-pulse rounded-md"></div> 
+});
+
+const TrustSectionDynamic = dynamic(() => import("@/components/home/trust-section").then(mod => mod.TrustSection), { 
+  ssr: true, 
+  loading: () => <div className="h-32 bg-gray-200 animate-pulse rounded-md"></div> 
+});
+
+const MissionSectionDynamic = dynamic(() => import("@/components/home/mission-section").then(mod => mod.MissionSection), { 
+  ssr: true, 
+  loading: () => <div className="h-32 bg-gray-200 animate-pulse rounded-md"></div> 
+});
+
+const CTASectionDynamic = dynamic(() => import("@/components/home/cta-section").then(mod => mod.CTASection), { 
+  ssr: true, 
+  loading: () => <div className="h-32 bg-gray-200 animate-pulse rounded-md"></div> 
+});
 
 export async function generateMetadata(): Promise<Metadata> {
   return {
@@ -48,7 +61,7 @@ export default async function Home() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/5 to-primary/10 overflow-x-hidden">
-      <HeroSectionWrapper occupations={[]} />
+      <HeroSectionWrapper />
       <StatsSectionWrapper countries={countries} totalSalaries={totalSalaries} />
       <FeaturesSectionDynamic />
       <TrustSectionDynamic />

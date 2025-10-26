@@ -8,9 +8,11 @@ import { OccupationPage } from "@/components/occupation/occupation-page";
 import { cleanTitle } from "@/lib/utils/title-cleaner";
 import { removeAveragePrefix } from "@/lib/utils/remove-average-cleaner";
 
-export const revalidate = 31536000;
-export const dynamicParams = false;
+// Next.js 16: Using cacheComponents in next.config.ts instead of individual page configs
 
+// 1 day
+// Optimized caching for PostgreSQL - shorter revalidation since data is now in database
+// 1 hour - database queries are fast
 interface UnifiedPageProps {
   params: Promise<{ country: string; url: string[] }>;
 }

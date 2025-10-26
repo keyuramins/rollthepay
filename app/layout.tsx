@@ -1,8 +1,6 @@
-// app/layout.tsx
 import type { Metadata, Viewport } from "next";
 import { Roboto, Roboto_Condensed, Inter } from "next/font/google";
 import "./globals.css";
-import { TooltipProvider } from "@/components/ui/tooltip";
 import Script from "next/script";
 import { Header } from "@/components/navigation/header";
 import { Footer } from "@/components/navigation/footer";
@@ -91,9 +89,7 @@ export default async function RootLayout({
           Skip to main content
         </a>
         <Header />
-        <TooltipProvider>
-          {children}
-        </TooltipProvider>
+        {children}
         <Footer />
       </body>
     </html>

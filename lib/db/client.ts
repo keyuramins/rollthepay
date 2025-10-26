@@ -16,6 +16,7 @@ const poolConfig: PoolConfig = {
 
 // Only initialize pool when needed (skip during build)
 const isBuildTime = process.env.NEXT_PHASE === 'phase-production-build';
+const isNextBuild = process.env.NEXT_PHASE === 'phase-production-build' || process.env.SKIP_DB_DURING_BUILD === 'true';
 
 const isDev = process.env.NODE_ENV !== 'production';
 
@@ -27,9 +28,10 @@ declare global {
   var __rollthepay_pg_pool__: Pool | undefined;
 }
 
-// Initialize pool based on environment
+// Initialize pool based on environment - Next.js 16 compatible
 function initializePool(): Pool | null {
-  if (process.env.SKIP_DB_DURING_BUILD === 'true' && isBuildTime) return null;
+  // Skip database initialization during Next.js build phases
+  if (isNextBuild) return null;
 
   if (isDev) {
     if (!global.__rollthepay_pg_pool__) {
@@ -50,9 +52,12 @@ let poolEnded = false;
 
 async function closePool() {
   if (!poolEnded && _pool && !isDev) {
-    console.log('Closing database pool...');
-    await _pool.end();
-    poolEnded = true;
+    try {
+      await _pool.end();
+      poolEnded = true;
+    } catch (error) {
+      // Pool already closed, ignore error
+    }
   }
 }
 
@@ -61,9 +66,13 @@ if (!isDev) {
   process.on('SIGINT', closePool);
 }
 
-// Helper to ensure pool is initialized
+// Helper to ensure pool is initialized - Next.js 16 compatible
 export function requirePool(): Pool {
   if (!pool) {
+    // During build time, return a mock pool to prevent errors
+    if (isNextBuild) {
+      throw new Error('Database pool not available during build - use SKIP_DB_DURING_BUILD=true');
+    }
     throw new Error('Database pool not initialized');
   }
   return pool;

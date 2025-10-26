@@ -204,7 +204,7 @@ export function ExperienceLevelSalariesChart({ record, country }: ExperienceLeve
                     dot={(props: any) => {
                       const { cx, cy, payload } = props;
                       const value = payload?.value;
-                      if (!value) return (<g></g>);
+                      if (!value) return (<g key={`empty-${cx}-${cy}`}></g>);
                       
                       const text = formatHourly(Number(value));
                       const textWidth = Math.max(text.length * 8, 55);
@@ -212,7 +212,7 @@ export function ExperienceLevelSalariesChart({ record, country }: ExperienceLeve
                       const pillHeight = 32;
                       
                       return (
-                        <g>
+                        <g key={`dot-${cx}-${cy}`}>
                           <defs>
                             <linearGradient id={`pillGradient-${cx}-${cy}`} x1="0%" y1="0%" x2="100%" y2="0%">
                               <stop offset="0%" stopColor="var(--chart-1)" stopOpacity={0.9} />
@@ -247,7 +247,7 @@ export function ExperienceLevelSalariesChart({ record, country }: ExperienceLeve
                     activeDot={(props: any) => {
                       const { cx, cy, payload } = props;
                       const value = payload?.value;
-                      if (!value) return (<g></g>);
+                      if (!value) return (<g key={`empty-${cx}-${cy}`}></g>);
                       
                       const text = formatHourly(Number(value));
                       const textWidth = Math.max(text.length * 8, 55);

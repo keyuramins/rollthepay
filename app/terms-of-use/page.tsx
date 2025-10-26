@@ -6,8 +6,7 @@ export const metadata: Metadata = {
   alternates: { canonical: "/terms-of-use" },
 };
 
-export const revalidate = 31536000; // 1 year
-export const dynamicParams = false;
+// Next.js 16: Using cacheComponents in next.config.ts instead of individual page configs
 
 export default function TermsPage() {
   return (

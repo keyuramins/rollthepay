@@ -1,22 +1,27 @@
-// next.config.ts
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   // Build optimizations
   compress: true,
   
+  // Next.js 16 new features
+  cacheComponents: true,
+  reactCompiler: true,
+  
+  // Turbopack configuration for Next.js 16
+  turbopack: {
+    rules: {
+      '*.svg': {
+        loaders: ['@svgr/webpack'],
+        as: '*.js',
+      },
+    },
+  },
+  
   // Compression and optimization
   experimental: {
     // Enable package optimization for better tree shaking
     optimizePackageImports: ['@/components', '@/lib'],
-  },
-  webpack(config) {
-    config.module.rules.push({
-      test: /\.svg$/i,
-      issuer: /\.[jt]sx?$/,
-      use: ['@svgr/webpack'],
-    });
-    return config;
   },
   // Asset optimization
   images: {
@@ -79,11 +84,6 @@ const nextConfig: NextConfig = {
         ],
       },
     ];
-  },
-
-  // Disable eslint during builds for speed
-  eslint: {
-    ignoreDuringBuilds: true,
   },
 
   // Disable type checking during builds for speed

@@ -279,6 +279,10 @@ export function RelatedOpportunitiesSmart({ record, allRecords }: RelatedOpportu
             <div className="flex items-center gap-3 mb-6">
               <MapPin className="w-5 h-5 text-primary" />
               <h4>Geographic Opportunities</h4>
+              </div>
+              <div className="mb-6">
+              <p>Discover below the locations that pays for your current position.</p>
+              <p>It also provides a salary comparison to your current position based on different locations.</p>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 auto-rows-fr">
               {relatedLocations.map((loc, index) => (

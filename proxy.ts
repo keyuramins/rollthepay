@@ -1,8 +1,7 @@
-// middleware.ts
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   // Temporarily pass through all requests to avoid routing interference
   return NextResponse.next();
 }
