@@ -5,7 +5,7 @@ const nextConfig: NextConfig = {
   compress: true,
   
   // Next.js 16 new features
-  cacheComponents: true,
+  // cacheComponents: false, // Disabled - not needed for dynamic pages with database queries
   reactCompiler: true,
   
   // Turbopack configuration for Next.js 16

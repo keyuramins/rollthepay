@@ -7,8 +7,7 @@ import { StatesGrid } from "@/components/country/states-grid";
 import { CountryCTASection } from "@/components/country/cta-section";
 import { optimizedDataAccess } from "@/lib/data/optimized-parse";
 
-export const routeSegmentConfig = { revalidate: 86400 }; // 1 day for country data
-// Pages generate on-demand with ISR (Incremental Static Regeneration)
+export const dynamic = 'force-dynamic';
 
 interface CountryPageProps {
   params: Promise<{ country: string }>;
@@ -33,14 +32,12 @@ export default async function CountryPage({ params }: CountryPageProps) {
 
   return (
     <main>
-      {/* Instant shell */}
-      <Breadcrumbs
+    <Breadcrumbs
         breadcrumbs={[
           { name: "Home", href: "/" },
           { name: countryDisplayName, href: "#", current: true },
         ]}
       />
-
       <CountryHeroSection
         countryName={countryDisplayName}
         totalJobs={countryData.totalJobs}
@@ -63,10 +60,7 @@ export default async function CountryPage({ params }: CountryPageProps) {
           description={`Find salary data specific to different regions within ${countryData.countryName}.`}
         />
       )}
-
       <CountryCTASection />
     </main>
   );
 }
-
-
