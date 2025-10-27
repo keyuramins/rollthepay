@@ -52,7 +52,6 @@ export default async function CountryPage({ params }: CountryPageProps) {
         totalJobs={countryData.totalJobs}
       />
 
-      {/* Occupation list now handles its own Suspense internally */}
       <OccupationList
         items={countryData.occupationItems}
         title="Explore Salaries by Occupation"

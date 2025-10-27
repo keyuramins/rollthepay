@@ -42,10 +42,10 @@ export function AZFilter({ items, onFilteredItemsChange }: AZFilterProps) {
   const hasItemsForFilter = (filter: string) => filter === "All" || items.some((item) => item.displayName.toUpperCase().startsWith(filter));
 
   return (
-    <div className="mb-6" role="region" aria-label="Alphabetical filter">
+    <div className="mt-4" role="region" aria-label="Alphabetical filter">
       {/* Mobile & Tablet */}
       <div className="block lg:hidden">
-        <div className="grid grid-cols-5 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10 gap-1.5 sm:gap-2 px-1 sm:px-2">
+        <div className="grid grid-cols-6 gap-4 sm:grid-cols-10 md:grid-cols-14">
           {filters.map((filter: string, index: number) =>
             loading ? (
               <div

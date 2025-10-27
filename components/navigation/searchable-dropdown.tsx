@@ -3,10 +3,8 @@
 
 import { useState, useEffect, useRef, useMemo } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { Search, X, Check, ArrowRight, Loader2 } from "lucide-react";
-// Removed prefetchRoute import - this is a client component and shouldn't import server-side database code
+import { Search, X, ArrowRight, Loader2 } from "lucide-react";
 import { continents, CONTINENTS } from "@/app/constants/continents";
-import { gsap } from "gsap";
 
 interface Country {
   name: string;
@@ -334,7 +332,6 @@ export function SearchableDropdown({
             }
           }}
           onBlur={(e) => {
-            // Only blur if focus is moving to a dropdown item, not to buttons
             const relatedTarget = e.relatedTarget as HTMLElement;
             if (!relatedTarget || !dropdownRef.current?.contains(relatedTarget)) {
               setIsInputFocused(false);
@@ -357,6 +354,7 @@ export function SearchableDropdown({
           {searchQuery && (
             <button 
               onClick={() => setSearchQuery("")} 
+              aria-label="Clear search query"
               className="mr-2"
               tabIndex={-1}
               onMouseDown={(e) => e.preventDefault()}
@@ -366,6 +364,7 @@ export function SearchableDropdown({
           )}
           {isInSearchMode && selectedCountry && (
             <button
+              aria-label="Search occupations"
               ref={arrowButtonRef}
               type="button"
               onClick={handleEnter}
@@ -388,6 +387,8 @@ export function SearchableDropdown({
                 <div className="px-4 py-2 text-sm font-semibold text-foreground bg-muted border-b">{continent.name}</div>
                 {continent.countries.map(country => (
                   <button
+                    type="button"
+                    aria-label={`Select ${country.name}`}
                     key={country.code}
                     onClick={() => handleCountrySelect(country)}
                     className="w-full text-left px-4 py-2 text-sm text-foreground hover:bg-primary/5 hover:text-primary transition-colors duration-150 cursor-pointer"
@@ -410,6 +411,8 @@ export function SearchableDropdown({
               const region = [s.state, s.location].filter(Boolean).join(' • ');
               return (
                 <button
+                  type="button"
+                  aria-label={`Select ${s.title}`}
                   key={`${s.slug}-${s.state ?? 'na'}-${s.location ?? 'na'}`}
                   onClick={() => handleOccupationSelect(s)}
                   className="w-full text-left px-4 py-2 text-sm text-foreground hover:bg-primary/5 hover:text-primary transition-colors duration-150 cursor-pointer"

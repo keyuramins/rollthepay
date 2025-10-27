@@ -56,10 +56,11 @@ export function OccupationListClient({
   const paginatedItems = visibleItems.slice(startIndex, startIndex + PAGE_SIZE);
 
   return (
-    <div className="flex flex-col gap-8">
-      {/* A–Z Filter below header */}
+    <div className="flex flex-col gap-4">
+      <div className="mt-4 flex flex-col items-center gap-4 xl:flex-row xl:justify-between xl:items-center">
       <AZFilter items={preparedItems} onFilteredItemsChange={setFilteredItems} />
-
+      <SearchWithinOccupationList setSearchQuery={setQuery} />
+      </div>
       {/* List + Pagination */}
       <OccupationListItems
         paginatedItems={paginatedItems}

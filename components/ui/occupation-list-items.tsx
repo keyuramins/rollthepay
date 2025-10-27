@@ -20,10 +20,6 @@ interface OccupationListItemsProps {
 
 export default function OccupationListItems({
   paginatedItems,
-  totalItems,
-  PAGE_SIZE,
-  currentPage,
-  totalPages,
   countrySlug,
   currentState,
   currentLocation,

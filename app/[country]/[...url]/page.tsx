@@ -1,14 +1,11 @@
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { Suspense } from "react";
 import { optimizedDataAccess } from "@/lib/data/optimized-parse";
 
 import { OccupationPage } from "@/components/occupation/occupation-page";
 import { StatePage } from "@/components/state/state-page";
 import { LocationPage } from "@/components/location/location-page";
-import { OccupationListSkeleton } from "@/components/ui/skeletons";
 
-import { cleanTitle } from "@/lib/utils/title-cleaner";
 import { removeAveragePrefix } from "@/lib/utils/remove-average-cleaner";
 
 /* -------------------------------------------------
