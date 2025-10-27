@@ -1,8 +1,6 @@
 // lib/calculations/insights-calculator.ts
 import type { OccupationRecord } from "@/lib/data/types";
-import { formatCurrency } from "@/lib/format/currency";
 import { cleanTitle, formatLocationString } from "@/lib/utils/title-cleaner";
-import { continents } from "@/app/constants/continents";
 
 // Types for calculated insights
 export interface InsightsData {

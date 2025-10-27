@@ -1,6 +1,4 @@
-"use client";
-
-import { useMemo } from "react";
+//components/occupation/top-skills-market-demand.tsx
 import {
   AwardIcon,
   MessageCircleIcon,
@@ -16,15 +14,7 @@ interface TopSkillsMarketDemandProps {
   record: any;
 }
 
-
 export function TopSkillsMarketDemand({ record }: TopSkillsMarketDemandProps) {
-
-  // Helper function to check if value exists and is not #REF! or invalid
-  const isValidValue = (value: any) => {
-    if (!value || value === '#REF!' || value === '' || value === '0' || value === '00') return false;
-    const numValue = Number(value);
-    return !isNaN(numValue) && numValue > 0;
-  };
 
   // Skills data (include percentage with proper key)
   const skills = [
@@ -38,13 +28,6 @@ export function TopSkillsMarketDemand({ record }: TopSkillsMarketDemandProps) {
     { name: record.skillsNameEight, value: record.skillsNamePercEight || 0, percentage: record.skillsNamePercEight, color: '#33FF57' },
     { name: record.skillsNameNine, value: record.skillsNamePercNine || 0, percentage: record.skillsNamePercNine, color: '#3357FF' },
     { name: record.skillsNameTen, value: record.skillsNamePercTen || 0, percentage: record.skillsNamePercTen, color: '#FF33A1' },
-    { name: record.skillsNameEleven, value: record.skillsNamePercEleven || 0, percentage: record.skillsNamePercEleven, color: '#FF33A1' },
-    { name: record.skillsNameTwelve, value: record.skillsNamePercTwelve || 0, percentage: record.skillsNamePercTwelve, color: '#FF33A1' },
-    { name: record.skillsNameThirteen, value: record.skillsNamePercThirteen || 0, percentage: record.skillsNamePercThirteen, color: '#FF33A1' },
-    { name: record.skillsNameFourteen, value: record.skillsNamePercFourteen || 0, percentage: record.skillsNamePercFourteen, color: '#FF33A1' },
-    { name: record.skillsNameFifteen, value: record.skillsNamePercFifteen || 0, percentage: record.skillsNamePercFifteen, color: '#FF33A1' },
-    { name: record.skillsNameSixteen, value: record.skillsNamePercSixteen || 0, percentage: record.skillsNamePercSixteen, color: '#FF33A1' },
-    { name: record.skillsNameSeventeen, value: record.skillsNamePercSeventeen || 0, percentage: record.skillsNamePercSeventeen, color: '#FF33A1' },
   ]
     .filter(skill => skill.name && skill.name !== '#REF!' && skill.value > 0)
     .map(skill => ({
@@ -136,9 +119,7 @@ export function TopSkillsMarketDemand({ record }: TopSkillsMarketDemandProps) {
   });
 
   // Sort skills by proficiency (highest first)
-  const sortedSkills = useMemo(() => {
-    return [...enhancedSkills].sort((a, b) => b.percentage - a.percentage);
-  }, [enhancedSkills]);
+  const sortedSkills = [...enhancedSkills].sort((a, b) => b.percentage - a.percentage);
 
   return (
     <section className="card-section">

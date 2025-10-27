@@ -15,7 +15,7 @@ interface OccupationListItemsProps {
   currentLocation?: string;
 }
 
-export default function OccupationListItems({
+export function OccupationListItems({
   paginatedItems,
   countrySlug,
   currentState,

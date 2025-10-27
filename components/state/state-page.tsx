@@ -14,7 +14,6 @@ interface StatePageProps {
 }
 
 export async function StatePage({ country, state }: StatePageProps) {
-  // De-slugify state (hyphens -> spaces) for DB matching
   const normalizedState = state.replace(/-/g, ' ');
 
   // Get state data directly from database
@@ -33,7 +32,7 @@ export async function StatePage({ country, state }: StatePageProps) {
   // Get locations for this state using database query
   const locations = await getAllLocations(country, stateName);
   
-  // Prepare occupation data for the list (only jobs in this state)
+  // Prepare occupation data for the list (only occupations in this state)
   const occupationItems = jobs.map(job => ({
     id: job.slug,
     displayName: job.title || "Unknown Job",

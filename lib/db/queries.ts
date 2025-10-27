@@ -508,6 +508,7 @@ export const getStateData = cache(async (country: string, state: string): Promis
     slug: string;
     title: string | null;
     occ_name: string | null;
+    location: string | null;
     avgAnnualSalary: number | null;
     avgHourlySalary: number | null;
   }>;
@@ -521,6 +522,7 @@ export const getStateData = cache(async (country: string, state: string): Promis
       slug: string;
       title: string | null;
       occ_name: string | null;
+      location: string | null;
       avgAnnualSalary: number | null;
       avgHourlySalary: number | null;
     }>;
@@ -551,6 +553,7 @@ export const getStateData = cache(async (country: string, state: string): Promis
         slug: row.slug_url,
         title: row.title,
         occ_name: row.occ_name,
+        location: row.location,
         avgAnnualSalary: row.avg_annual_salary,
         avgHourlySalary: row.avg_hourly_salary
       }))
@@ -571,6 +574,7 @@ export const getLocationData = cache(async (country: string, state: string, loca
     slug: string;
     title: string | null;
     occ_name: string | null;
+    location: string | null;
     avgAnnualSalary: number | null;
     avgHourlySalary: number | null;
   }>;
@@ -599,6 +603,7 @@ export const getLocationData = cache(async (country: string, state: string, loca
         slug: row.slug_url,
         title: row.title,
         occ_name: row.occ_name,
+        location: row.location,
         avgAnnualSalary: row.avg_annual_salary,
         avgHourlySalary: row.avg_hourly_salary
       }))

@@ -1,10 +1,10 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { AZFilter } from "../occupation/az-filter";
-import { SearchWithinOccupationList } from "./search-within-occupation-list";
+import { OccupationListItems } from "./occupation-list-items";
 import { Pagination } from "./pagination";
-import OccupationListItems from "./occupation-list-items";
+import { SearchWithinOccupationList } from "./search-within-occupation-list";
+import { AZFilter } from "../occupation/az-filter";
 
 /* 🔍 Search bar isolated so it can render inside server layout */
 export function OccupationListSearchBar({
