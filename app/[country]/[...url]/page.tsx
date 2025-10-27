@@ -7,6 +7,7 @@ import { StatePage } from "@/components/state/state-page";
 import { LocationPage } from "@/components/location/location-page";
 
 import { removeAveragePrefix } from "@/lib/utils/remove-average-cleaner";
+import { decodeSlugFromURL } from "@/lib/format/slug";
 
 /* -------------------------------------------------
    Route Configuration
@@ -55,7 +56,7 @@ export async function generateMetadata({ params }: UnifiedPageProps): Promise<Me
 
       const record = await optimizedDataAccess.findOccupationSalaryByPath({
         country,
-        slug: stateOrSlug,
+        slug: decodeSlugFromURL(stateOrSlug),
       });
       if (!record) return { title: "Occupation Not Found", description: "No data available." };
 
@@ -88,7 +89,7 @@ export async function generateMetadata({ params }: UnifiedPageProps): Promise<Me
         const record = await optimizedDataAccess.findOccupationSalaryByPath({
           country,
           state: stateName,
-          slug: locationOrSlug,
+          slug: decodeSlugFromURL(locationOrSlug),
         });
         if (!record) return { title: "Occupation Not Found", description: "No data available." };
 
@@ -109,7 +110,7 @@ export async function generateMetadata({ params }: UnifiedPageProps): Promise<Me
         country,
         state: denormalizedState,
         location: denormalizedLocation,
-        slug,
+        slug: decodeSlugFromURL(slug),
       });
       if (!record) return { title: "Occupation Not Found", description: "No data available." };
 
@@ -153,7 +154,7 @@ export default async function UnifiedPage({ params }: UnifiedPageProps) {
       // This is a country-level occupation page
       return (
         <main>
-          <OccupationPage country={country} slug={stateOrSlug} />
+          <OccupationPage country={country} slug={decodeSlugFromURL(stateOrSlug)} />
         </main>
       );
     }
@@ -181,7 +182,7 @@ export default async function UnifiedPage({ params }: UnifiedPageProps) {
       const denormalizedState = denormalizeStateName(state);
       return (
         <main>
-          <OccupationPage country={country} state={denormalizedState} slug={locationOrSlug} />
+          <OccupationPage country={country} state={denormalizedState} slug={decodeSlugFromURL(locationOrSlug)} />
         </main>
       );
     }
@@ -194,7 +195,7 @@ export default async function UnifiedPage({ params }: UnifiedPageProps) {
     const denormalizedLocation = denormalizeLocationName(location);
     return (
       <main>
-        <OccupationPage country={country} state={denormalizedState} location={denormalizedLocation} slug={slug} />
+        <OccupationPage country={country} state={denormalizedState} location={denormalizedLocation} slug={decodeSlugFromURL(slug)} />
       </main>
     );
   }

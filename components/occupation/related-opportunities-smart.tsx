@@ -11,22 +11,14 @@ import Link from "next/link";
 import { MapPin, Building, Users } from "lucide-react";
 import { Card, CardContent, CardHeader } from "../ui/card";
 import { removeAveragePrefix } from "@/lib/utils/remove-average-cleaner";
+import { encodeSlugForURL, slugify } from "@/lib/format/slug";
 
-// Helper function to normalize slugs for URLs (handles special characters)
-function normalizeSlugForURL(slug: string): string {
-  return slug
-    .replace(/#/g, '-sharp')  // Replace # with -sharp
-    .replace(/\+/g, '-plus'); // Replace + with -plus
-}
-function slugify(name: string) {
-  return name.toLowerCase().replace(/\s+/g, '-');
-}
 // Helper function to generate occupation URL
 function generateOccupationURL(occupation: OccupationRecord): string {
   const country = slugify(occupation.country);
   const state = occupation.state ? `/${slugify(occupation.state)}` : '';
   const location = occupation.location ? `/${slugify(occupation.location)}` : '';
-  const slug = normalizeSlugForURL(occupation.slug_url);
+  const slug = encodeSlugForURL(occupation.slug_url);
   
   return `/${country}${state}${location}/${slug}`;
 }

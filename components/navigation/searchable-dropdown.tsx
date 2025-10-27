@@ -5,6 +5,7 @@ import { useState, useEffect, useRef, useMemo } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { Search, X, ArrowRight, Loader2 } from "lucide-react";
 import { continents, CONTINENTS } from "@/app/constants/continents";
+import { encodeSlugForURL } from "@/lib/format/slug";
 
 interface Country {
   name: string;
@@ -220,7 +221,7 @@ export function SearchableDropdown({
           url += `/${firstResult.state.toLowerCase().replace(/\s+/g, '-')}`;
           if (firstResult.location) url += `/${firstResult.location.toLowerCase().replace(/\s+/g, '-')}`;
         }
-        url += `/${firstResult.slug}`;
+        url += `/${encodeSlugForURL(firstResult.slug)}`;
         await router.push(url);
       }
     } finally {
@@ -258,7 +259,7 @@ export function SearchableDropdown({
       url += `/${occupation.state.toLowerCase().replace(/\s+/g, '-')}`;
       if (occupation.location) url += `/${occupation.location.toLowerCase().replace(/\s+/g, '-')}`;
     }
-    url += `/${occupation.slug}`;
+    url += `/${encodeSlugForURL(occupation.slug)}`;
     setIsDropdownOpen(false);
     setIsOccupationDropdownOpen(false);
     setSearchQuery("");
