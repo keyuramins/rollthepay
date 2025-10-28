@@ -128,7 +128,7 @@ export function SearchableDropdown({
     setIsOccupationLoading(true);
     fetchOccupations(selectedCountry.slug, term)
       .then(results => {
-        const formatted = results.map(r => ({ ...r, title: r.title.replace(/^Average\s+/i, "").trim() }));
+        const formatted = results.map(r => ({ ...r, title: r.title.trim() }));
         setOccupationSuggestions(formatted);
         setIsOccupationDropdownOpen(formatted.length > 0);
         

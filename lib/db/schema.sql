@@ -7,7 +7,6 @@ CREATE TABLE occupations (
   id SERIAL PRIMARY KEY,
   slug_url VARCHAR(500) NOT NULL,
   title TEXT NOT NULL,
-  h1_title TEXT,
   occ_name TEXT,
   popularity_score INTEGER DEFAULT 0,
 

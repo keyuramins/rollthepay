@@ -40,7 +40,7 @@ These rules are authoritative for this repository. Follow them for all new code,
 - **Database Connection**: Use connection pooling with PgBouncer for optimal performance.
   - Skip database initialization during build phases (`NEXT_PHASE === 'phase-production-build'`).
   - Use environment variables for connection configuration.
-- **No redundancy for titles**: Treat `title` as the source-of-truth for display and SEO. Ignore `h1_title` unless `title` is missing; do not show both.
+- **No redundancy for titles**: Treat `title` as the source-of-truth for display and SEO.
 - **Slug**: Use `slug_url` from database as-is for the route segment. It must be lowercase in source. Do not transform or re-slugify.
 - **Data validation**: Gracefully handle null values and invalid data. Never crash a build due to malformed database records.
 - **Numeric parsing**: Coerce numeric values from database; default to `null` when not parseable. Never infer currency from numbers; always from country metadata.
@@ -73,7 +73,7 @@ These rules are authoritative for this repository. Follow them for all new code,
 - **Next.js 16 Metadata API**: Use async `generateMetadata` functions with typed `Metadata` import.
   - Import `import type { Metadata } from 'next'` for proper typing.
   - Derive values once from database row:
-    - `title`: from `title` (fallback `h1_title` only if `title` absent).
+    - `title`: from `title`.
     - `description`: concise summary including occupation, country, state, and location if present; avoid keyword stuffing.
     - `alternates.canonical`: computed from the route.
     - OpenGraph/Twitter cards with consistent branding.
@@ -157,7 +157,7 @@ These rules are authoritative for this repository. Follow them for all new code,
 ## Prohibited
 - No SSR-only features that disable ISR (e.g., `export const dynamic = 'force-dynamic'`).
 - No client-side routing hacks for data display.
-- No duplicate titles or headings (avoid `title` and `h1_title` redundancy).
+- No duplicate titles or headings (avoid `title` redundancy).
 - No transforming or re-slugifying `slug_url`.
 - No manual file-system cache management (handled automatically by Next.js 16).
 - No deprecated `dynamicParams = false` (use `dynamic = 'error'` instead).

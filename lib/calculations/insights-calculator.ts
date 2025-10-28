@@ -1,6 +1,6 @@
 // lib/calculations/insights-calculator.ts
 import type { OccupationRecord } from "@/lib/data/types";
-import { cleanTitle, formatLocationString } from "@/lib/utils/title-cleaner";
+import { locationStateCountryString } from "@/lib/utils/locationStateCountryString";
 
 // Types for calculated insights
 export interface InsightsData {
@@ -8,7 +8,7 @@ export interface InsightsData {
   location: string;
   state: string;
   country: string;
-  formattedLocation: string; // Properly formatted location string
+  formattedLocation: string;
   salaryIncreasePercent: number;
   inflationComparison: string;
   demandStrength: 'strong' | 'moderate' | 'weak';
@@ -33,7 +33,7 @@ export interface BonusCompensationData {
   location: string;
   state: string;
   country: string;
-  formattedLocation: string; // Properly formatted location string
+  formattedLocation: string;
   maxBonus: number;
   avgBonus: number;
   minBonus: number;
@@ -96,7 +96,7 @@ function calculateSalaryIncrease(record: OccupationRecord, country: string): num
   if (avgSalary === 0) return 0;
   
   // Industry-specific growth rates (based on real market data)
-  const occupationTitle = (record.title || record.h1Title || record.occ_name || '').toLowerCase();
+  const occupationTitle = (record.title || record.occ_name || '').toLowerCase();
   let industryGrowthRate = 4.5; // Default growth rate
   
   // Technology sector (high growth)
@@ -217,7 +217,7 @@ function calculateDemandStrength(record: OccupationRecord, location?: string, co
   if (avgSalary === 0) return 'moderate';
   
   // Industry demand multipliers based on current market trends
-  const occupationTitle = (record.title || record.h1Title || record.occ_name || '').toLowerCase();
+  const occupationTitle = (record.title || record.occ_name || '').toLowerCase();
   let industryDemandMultiplier = 1.0;
   
   // High-demand industries
@@ -506,7 +506,7 @@ function calculateProjectedIncrease(record: OccupationRecord, country: string): 
   const currentIncrease = calculateSalaryIncrease(record, country);
   
   // 3-year projection factors based on industry and economic trends
-  const occupationTitle = (record.title || record.h1Title || record.occ_name || '').toLowerCase();
+  const occupationTitle = (record.title || record.occ_name || '').toLowerCase();
   let projectionFactor = 0.8; // Default: slight decrease from current rate
   
   // High-growth industries maintain or increase rates
@@ -595,11 +595,11 @@ export function calculateInsights(record: OccupationRecord, country: string, loc
   const actualCountry = record.country;
   
   return {
-    occupationTitle: cleanTitle(record.title || record.h1Title || record.occ_name || 'Unknown Role'),
+    occupationTitle: record.title || record.occ_name || 'Unknown Role',
     location: actualLocation || '',
     state: actualState || '',
     country: actualCountry || '',
-    formattedLocation: formatLocationString(actualLocation || undefined, actualState || undefined, actualCountry || undefined),
+    formattedLocation: locationStateCountryString(actualLocation || undefined, actualState || undefined, actualCountry || undefined),
     salaryIncreasePercent,
     inflationComparison,
     demandStrength,
@@ -635,12 +635,12 @@ export function calculateBonusCompensation(record: OccupationRecord, country: st
   const actualCountry = record.country;
   
   return {
-    occupationTitle: cleanTitle(record.title || record.h1Title || record.occ_name || 'Unknown Role'),
+    occupationTitle: record.title || record.occ_name || 'Unknown Role',
     skillsList: extractSkillsList(record),
     location: actualLocation || '',
     state: actualState || '',
     country: actualCountry || '',
-    formattedLocation: formatLocationString(actualLocation || undefined, actualState || undefined, actualCountry || undefined),
+    formattedLocation: locationStateCountryString(actualLocation || undefined, actualState || undefined, actualCountry || undefined),
     maxBonus,
     avgBonus,
     minBonus,

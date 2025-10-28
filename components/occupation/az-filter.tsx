@@ -5,7 +5,7 @@ import { useMemo, useState } from "react";
 interface OccupationItem {
   id: string;
   displayName: string;
-  originalName: string;
+  originalName?: string;
   slug_url: string;
   location?: string;
   state?: string;

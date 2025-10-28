@@ -1,4 +1,4 @@
-import { removeAveragePrefix } from "@/lib/utils/remove-average-cleaner";
+//components/occupation/breadcrumbs.tsx
 import Link from "next/link";
 
 interface Breadcrumb {
@@ -31,7 +31,7 @@ export function Breadcrumbs({ breadcrumbs }: BreadcrumbsProps) {
                   className="text-muted-foreground text-sm sm:text-base" 
                   aria-current="page"
                 >
-                  {removeAveragePrefix(breadcrumb.name)}
+                  {breadcrumb.name}
                 </span>
               ) : (
                 <Link 

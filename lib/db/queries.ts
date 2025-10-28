@@ -55,7 +55,7 @@ const logger = {
 
 // Field validation for SQL injection prevention
 const ALLOWED_OCCUPATION_FIELDS = new Set([
-  'title', 'h1_title', 'occ_name', 'country', 'state', 'location', 'currency_code',
+  'title', 'occ_name', 'country', 'state', 'location', 'currency_code',
   'avg_annual_salary', 'low_salary', 'high_salary', 'avg_hourly_salary', 'hourly_low_value', 'hourly_high_value',
   'weekly_salary', 'fortnightly_salary', 'monthly_salary', 'total_pay_min', 'total_pay_max',
   'total_hourly_low_value', 'total_hourly_high_value', 'bonus_range_min', 'bonus_range_max',
@@ -278,7 +278,8 @@ export const searchOccupationsServer = cache(async (
       state,
       location,
       avg_annual_salary AS avg_salary,
-      currency_code
+      currency_code,
+      company_name
     FROM occupations
     WHERE LOWER(country) = LOWER($1)
       AND LOWER(occ_name) LIKE LOWER($2)
@@ -304,6 +305,7 @@ export const getAllOccupationsForSearch = cache(async (country?: string, limit: 
   slug: string;
   state: string | null;
   location: string | null;
+  company_name: string | null;
 }>> => {
   // Skip DB queries during build
   if (process.env.SKIP_DB_DURING_BUILD === 'true') {
@@ -318,6 +320,7 @@ export const getAllOccupationsForSearch = cache(async (country?: string, limit: 
     slug: string;
     state: string | null;
     location: string | null;
+    company_name: string | null;
   }>>(cacheKey);
   if (cached) {
     logger.debug('Cache hit for occupations search');
@@ -335,7 +338,8 @@ export const getAllOccupationsForSearch = cache(async (country?: string, limit: 
         title,
         slug_url as slug,
         state,
-        location
+        location,
+        company_name
       FROM occupations
       WHERE LOWER(country) = LOWER($1)
       ORDER BY title
@@ -468,23 +472,32 @@ export const getCountryData = cache(async (country: string): Promise<{
       return name.toLowerCase().replace(/\s+/g, '-');
     }
 
-    const occupationItems = occupations.map(record => ({
-      id: record.slug_url,
-      displayName: record.title || record.h1Title || "Unknown Occupation",
-      originalName: record.title || record.h1Title || "Unknown Occupation",
-      slug_url: record.slug_url,
-      location: record.location || undefined,
-      state: record.state || undefined,
-      avgAnnualSalary: record.avgAnnualSalary || undefined,
-      countrySlug: slugify(countryResult.rows[0].country) //DB country normalized for URL
-    }));
+    const occupationItems = occupations.map(record => {
+      const baseTitle = record.title || record.occ_name || 'Unknown Occupation';
+      const atCompany = record.company_name ? ` at ${record.company_name}` : "";
+      const place = record.location || record.state || countryName;
+      const inPlace = place ? ` in ${place}` : "";
+      
+      return {
+        id: record.slug_url,
+        displayName: `${baseTitle}${atCompany}${inPlace}`,
+        originalName: record.title || '',
+        slug_url: record.slug_url,
+        location: record.location || undefined,
+        state: record.state || undefined,
+        avgAnnualSalary: record.avgAnnualSalary || undefined,
+        countrySlug: slugify(countryResult.rows[0].country), //DB country normalized for URL
+        company_name: record.company_name || undefined,
+      };
+    });
 
     const headerOccupations = occupations.map(rec => ({
       country: rec.country.toLowerCase(),
-      title: rec.title || rec.h1Title || "",
+      title: rec.title || "",
       slug: rec.slug_url,
       state: rec.state ? rec.state : null,
       location: rec.location ? rec.location : null,
+      company_name: rec.company_name ? rec.company_name : null,
     }));
 
     return {
@@ -511,6 +524,7 @@ export const getStateData = cache(async (country: string, state: string): Promis
     location: string | null;
     avgAnnualSalary: number | null;
     avgHourlySalary: number | null;
+    company_name: string | null;
   }>;
 } | null> => {
   const poolInstance = requirePool();
@@ -525,6 +539,7 @@ export const getStateData = cache(async (country: string, state: string): Promis
       location: string | null;
       avgAnnualSalary: number | null;
       avgHourlySalary: number | null;
+      company_name: string | null;
     }>;
   } | null>(cacheKey);
   if (cached) {
@@ -539,7 +554,9 @@ export const getStateData = cache(async (country: string, state: string): Promis
         occ_name,
         avg_annual_salary,
         avg_hourly_salary,
-        state
+        state,
+        location,
+        company_name
       FROM occupations 
       WHERE LOWER(country) = LOWER($1) AND LOWER(state) = LOWER($2)
       ORDER BY title
@@ -555,7 +572,8 @@ export const getStateData = cache(async (country: string, state: string): Promis
         occ_name: row.occ_name,
         location: row.location,
         avgAnnualSalary: row.avg_annual_salary,
-        avgHourlySalary: row.avg_hourly_salary
+        avgHourlySalary: row.avg_hourly_salary,
+        company_name: row.company_name
       }))
     };
     
@@ -577,6 +595,7 @@ export const getLocationData = cache(async (country: string, state: string, loca
     location: string | null;
     avgAnnualSalary: number | null;
     avgHourlySalary: number | null;
+    company_name: string | null;
   }>;
 } | null> => {
   const poolInstance = requirePool();
@@ -589,7 +608,9 @@ export const getLocationData = cache(async (country: string, state: string, loca
         occ_name,
         avg_annual_salary,
         avg_hourly_salary,
-        location
+        location,
+        state,
+        company_name
       FROM occupations 
       WHERE LOWER(country) = LOWER($1) AND LOWER(state) = LOWER($2) AND LOWER(location) = LOWER($3)
       ORDER BY title
@@ -604,8 +625,10 @@ export const getLocationData = cache(async (country: string, state: string, loca
         title: row.title,
         occ_name: row.occ_name,
         location: row.location,
+        state: row.state,
         avgAnnualSalary: row.avg_annual_salary,
-        avgHourlySalary: row.avg_hourly_salary
+        avgHourlySalary: row.avg_hourly_salary,
+        company_name: row.company_name
       }))
     };
   } catch (error) {

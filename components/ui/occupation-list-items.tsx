@@ -40,7 +40,7 @@ export function OccupationListItems({
         }
 
         return (
-          <li key={item.id} role="listitem">
+          <li key={href} role="listitem">
             <Link
               href={href}
               className="block bg-white rounded-lg border border-input py-3 px-4 sm:py-2 sm:px-6 hover:shadow-md transition-shadow hover:border-green-100"

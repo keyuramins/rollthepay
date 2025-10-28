@@ -4,7 +4,6 @@
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import MaleIcon from '../../app/assets/male.svg';
 import FemaleIcon from '../../app/assets/female.svg';
-import { removeAveragePrefix } from "@/lib/utils/remove-average-cleaner";
 
 interface GenderComparisonProps {
   record: any;
@@ -17,7 +16,7 @@ export function GenderComparison({ record }: GenderComparisonProps) {
   const malePercentage = total > 0 ? (m / total) * 100 : 0;
   const femalePercentage = total > 0 ? (f / total) * 100 : 0;
   const dominant = f > m ? 'female' : m > f ? 'male' : 'equal';
-  const role = removeAveragePrefix(record.title || record.occupation || 'this role');
+  const role = record.title || record.occ_name || 'this role';
 
   if (total === 0) {
     return null;

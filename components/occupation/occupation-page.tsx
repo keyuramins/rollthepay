@@ -10,10 +10,10 @@ import { GenderComparison } from "./gender-comparison";
 import { OccupationCTASection } from "./cta-section";
 import { searchOccupations } from "@/lib/db/queries";
 import { RelatedOpportunitiesSmart } from "./related-opportunities-smart";
-import { formatLocationString } from "@/lib/utils/title-cleaner";
 import { getCurrencyCode } from "@/lib/format/currency";
 import type { OccupationRecord } from "@/lib/data/types";
 import { getJobCategoryInfo } from "./job-category-detector";
+import { locationStateCountryString } from "@/lib/utils/locationStateCountryString";
 
 interface OccupationPageProps {
   country: string;
@@ -28,7 +28,7 @@ function generateOccupationSchema(record: OccupationRecord, country: string, sta
     "@context": "https://schema.org",
     "@type": "Occupation",
     "name": record.occ_name || record.title,
-    "description": `Salary information for ${record.occ_name} in ${formatLocationString(location, state, country)}`,
+    "description": `Salary information for ${record.occ_name} in ${locationStateCountryString(location, state, country)}`,
   };
 
   // Add location information with proper hierarchy
@@ -121,7 +121,7 @@ export async function OccupationPage({ country, state, location, slug }: Occupat
   const countryName = record.country;
   const stateName = record.state;
   const locationName = record.location;
-  const title = record.title || record.h1Title || record.occ_name || record.slug_url;
+  const title = record.title || record.occ_name || '';
   
   // Breadcrumb navigation
   const breadcrumbs = [
@@ -132,7 +132,7 @@ export async function OccupationPage({ country, state, location, slug }: Occupat
     { name: title, href: "#", current: true },
   ];
   
-  const locationText = formatLocationString(locationName || undefined, stateName || undefined, countryName || undefined);
+  const locationText = locationStateCountryString(locationName || undefined, stateName || undefined, countryName || undefined);
   
   // Generate the Occupation schema
   const occupationSchema = generateOccupationSchema(record, country, state, location);

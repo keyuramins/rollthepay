@@ -33,17 +33,24 @@ export async function StatePage({ country, state }: StatePageProps) {
   const locations = await getAllLocations(country, stateName);
   
   // Prepare occupation data for the list (only occupations in this state)
-  const occupationItems = jobs.map(job => ({
-    id: job.slug,
-    displayName: job.title || "Unknown Job",
-    originalName: job.title || "Unknown Job",
-    slug_url: job.slug,
-    location: job.location || undefined, // Include location data if available
-    state: stateName,
-    avgAnnualSalary: job.avgAnnualSalary || undefined,
-    countrySlug: country
-  }));
-
+  const occupationItems = jobs.map((job: any) => {
+    const baseTitle = job.title || job.occ_name || 'Unknown Occupation';
+    const atCompany = job.company_name ? ` at ${job.company_name}` : "";
+    const place = job.location || stateName || countryName;
+    const inPlace = place ? ` in ${place}` : "";
+    
+    return {
+      id: job.slug,
+      displayName: `${baseTitle}${atCompany}${inPlace}`,
+      originalName: job.title || '',
+      slug_url: job.slug,
+      location: job.location || undefined,
+      state: stateName,
+      avgAnnualSalary: job.avgAnnualSalary || undefined,
+      countrySlug: country,
+      company_name: job.company_name || undefined,
+    };
+  });
   // Breadcrumb navigation
   const breadcrumbs = [
     { name: "Home", href: "/" },

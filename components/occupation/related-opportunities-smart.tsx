@@ -10,7 +10,6 @@ import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 import { MapPin, Building, Users } from "lucide-react";
 import { Card, CardContent, CardHeader } from "../ui/card";
-import { removeAveragePrefix } from "@/lib/utils/remove-average-cleaner";
 import { encodeSlugForURL, slugify } from "@/lib/format/slug";
 
 // Helper function to generate occupation URL
@@ -55,7 +54,7 @@ function RelatedOccupationCard({ occupation, currentRecord, showSalaryComparison
     >
       <div className="flex-1 flex flex-col justify-between">
         <div className="mb-4">
-          <h4 className="line-clamp-2">{removeAveragePrefix(occupation.title)}</h4>
+          <h4 className="line-clamp-2">{occupation.title}</h4>
           <div className="flex items-center justify-between py-2">
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <MapPin className="w-4 h-4" />
@@ -111,7 +110,7 @@ function LocationOpportunityCard({ location, type, salary, currentSalary, countr
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
             <IconComponent className="w-4 h-4 text-secondary" />
-            <h4 className="line-clamp-2">{removeAveragePrefix(location)}</h4>
+            <h4 className="line-clamp-2">{location}</h4>
           </div>
           <Badge variant="green" className="text-sm">
             {type}

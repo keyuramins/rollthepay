@@ -6,7 +6,6 @@ import { OccupationPage } from "@/components/occupation/occupation-page";
 import { StatePage } from "@/components/state/state-page";
 import { LocationPage } from "@/components/location/location-page";
 
-import { removeAveragePrefix } from "@/lib/utils/remove-average-cleaner";
 import { decodeSlugFromURL } from "@/lib/format/slug";
 
 /* -------------------------------------------------
@@ -60,7 +59,13 @@ export async function generateMetadata({ params }: UnifiedPageProps): Promise<Me
       });
       if (!record) return { title: "Occupation Not Found", description: "No data available." };
 
-      const occupationName = removeAveragePrefix(record.title || record.h1Title || "");
+      const baseTitle =
+        record.title || record.occ_name;
+      const atCompany = record.company_name ? ` at ${record.company_name}` : "";
+      const place =
+      record.location || (country ? country.split("-").map((w: string) => (w ? w[0].toUpperCase() + w.slice(1) : "")).join(" ") : "");
+      const inPlace = place ? ` in ${place}` : "";
+      const occupationName = `${baseTitle}${atCompany}${inPlace}`;
       return {
         title: occupationName,
         description: `Detailed salary data for ${occupationName} in ${countryName}.`,
@@ -93,7 +98,13 @@ export async function generateMetadata({ params }: UnifiedPageProps): Promise<Me
         });
         if (!record) return { title: "Occupation Not Found", description: "No data available." };
 
-        const occupationName = removeAveragePrefix(record.title || record.h1Title || "");
+        const baseTitle =
+        record.title || record.occ_name;
+      const atCompany = record.company_name ? ` at ${record.company_name}` : "";
+      const place =
+        record.location || (country ? country.split("-").map((w: string) => (w ? w[0].toUpperCase() + w.slice(1) : "")).join(" ") : "");
+      const inPlace = place ? ` in ${place}` : "";
+      const occupationName = `${baseTitle}${atCompany}${inPlace}`;
         return {
           title: occupationName,
           description: `Detailed salary data for ${occupationName} in ${stateName}, ${countryName}.`,
@@ -114,7 +125,14 @@ export async function generateMetadata({ params }: UnifiedPageProps): Promise<Me
       });
       if (!record) return { title: "Occupation Not Found", description: "No data available." };
 
-      const occupationName = removeAveragePrefix(record.title || record.h1Title || "");
+      const baseTitle =
+        record.title || record.occ_name;
+      const atCompany = record.company_name ? ` at ${record.company_name}` : "";
+      const place =
+      record.location || record.state || (country ? country.split("-").map((w: string) => (w ? w[0].toUpperCase() + w.slice(1) : "")).join(" ") : "");
+      const inPlace = place ? ` in ${place}` : "";
+
+      const occupationName = `${baseTitle}${atCompany}${inPlace}`;
       return {
         title: occupationName,
         description: `Comprehensive salary details for ${occupationName} in ${location}, ${state}, ${countryName}.`,

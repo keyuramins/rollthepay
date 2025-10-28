@@ -2,7 +2,6 @@
 import { formatCurrency } from "@/lib/format/currency";
 import { formatCurrencyWithMillion } from "@/lib/format/million-currency";
 import type { OccupationRecord } from "@/lib/data/types";
-import { removeAveragePrefix } from "@/lib/utils/remove-average-cleaner";
 import { getJobCategoryInfo } from "./job-category-detector";
 import { ShareOccupation } from "@/components/share/ShareOccupation";
 
@@ -13,8 +12,20 @@ interface OccupationHeroSectionProps {
 }
 
 export function OccupationHeroSection({ record, country, locationText }: OccupationHeroSectionProps) {
-  // Remove "Average" prefix but keep location information
-  const occupationName = removeAveragePrefix(record.title || record.h1Title || record.occ_name || '');
+  const baseTitle =
+          record.title || record.occ_name || '';
+        const atCompany = record.company_name ? ` at ${record.company_name}` : "";
+        const place =
+          record.location ||
+          record.state ||
+          (country
+            ? country
+                .split("-")
+                .map((w: string) => (w ? w[0].toUpperCase() + w.slice(1) : ""))
+                .join(" ")
+            : "");
+        const inPlace = place ? ` in ${place}` : "";
+  const occupationName = `${baseTitle}${atCompany}${inPlace}`;
   
   // Get detailed job category information
   const jobCategoryInfo = getJobCategoryInfo(occupationName);

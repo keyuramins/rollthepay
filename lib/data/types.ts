@@ -6,9 +6,9 @@ export interface RawCsvRow {
   title?: string;
   slug_url?: string;
   country?: string;
+  company_name?: string;
   location?: string;
   state?: string;
-  h1Title?: string;
   currency?: string;
   avgAnnualSalary?: string;
   bonusRangeMin?: string;
@@ -72,12 +72,12 @@ export interface RawCsvRow {
 
 export interface OccupationRecord {
   occ_name: string | null;
-  title: string;
+  title: string | null;
+  company_name: string | null;
   slug_url: string; // use as-is in routing; already lowercase in source
   country: string; // display case from data, routing uses lowercase segment
   location: string | null; // city/locality when present
   state: string | null; // optional state; lowercased in route segment
-  h1Title: string | null; // fallback only if title missing
 
   currencyCode: string | null; // e.g., AUD, INR (derived from country when absent)
 

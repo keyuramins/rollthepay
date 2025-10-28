@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { OccupationListItems } from "./occupation-list-items";
 import { Pagination } from "./pagination";
 import { SearchWithinOccupationList } from "./search-within-occupation-list";
@@ -33,15 +33,36 @@ export function OccupationListClient({
 }: any) {
   const preparedItems = useMemo(
     () =>
-      items.map((item: any) => ({
-        ...item,
-        id: item.slug_url,
-        displayName: item.originalName.replace(/^Average\s+/i, "").trim(),
-      })),
-    [items]
+      items.map((item: any) => {
+        const baseTitle = item.title || item.originalName || item.occ_name;
+        const atCompany = item.company_name ? ` at ${item.company_name}` : "";
+        const place = item.location || item.state || (countrySlug ? countrySlug
+                .split("-")
+                .map((w: string) => (w ? w[0].toUpperCase() + w.slice(1) : ""))
+                .join(" ")
+            : "");
+        const inPlace = place ? ` in ${place}` : "";
+  
+        return {
+          ...item,
+          id: item.slug_url,
+          displayName: `${baseTitle}${atCompany}${inPlace}`,
+        };
+      }),
+    [items, countrySlug]
   );
+    // () =>
+    //   items.map((item: any) => ({
+    //     ...item,
+    //     id: item.slug_url,
+    //     displayName: `${item?.title} Salary ${item?.company_name ? item?.company_name : ''} ${(item?.location || item?.state || item?.country) ? " in " +  item?.location || item?.state || item?.country : '' }`
+    //   })),
+    // [items]
 
   const [filteredItems, setFilteredItems] = useState(preparedItems);
+  useEffect(() => {
+    setFilteredItems(preparedItems);
+  }, [preparedItems]);
   const [query, setQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const PAGE_SIZE = 50;

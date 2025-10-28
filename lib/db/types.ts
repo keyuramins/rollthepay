@@ -6,13 +6,12 @@ export interface DbOccupationRow {
   id: number;
   slug_url: string;
   title: string;
-  h1_title: string | null;
   occ_name: string | null;
   country: string;
   state: string | null;
   location: string | null;
   currency_code: string | null;
-  
+  company_name: string | null;
   // Salary fields
   avg_annual_salary: number | null;
   low_salary: number | null;
@@ -107,9 +106,8 @@ export function transformDbRowToOccupationRecord(row: DbOccupationRow): Occupati
     country: row.country,
     location: row.location,
     state: row.state,
-    h1Title: row.h1_title,
     currencyCode: row.currency_code,
-    
+    company_name: row.company_name || null,
     // Salary fields (safe number conversion)
     avgAnnualSalary: safeNumber(row.avg_annual_salary),
     lowSalary: safeNumber(row.low_salary),
@@ -182,7 +180,6 @@ export function transformDbRowToOccupationRecord(row: DbOccupationRow): Occupati
     
     // Occupation
     occ_name: row.occ_name,
-    
   };
 }
 
@@ -202,14 +199,13 @@ export function transformOccupationRecordToDb(record: Partial<OccupationRecord>)
   
   return {
     slug_url: record.slug_url,
-    title: record.title,
-    h1_title: record.h1Title,
+    title: record.title || '',
     occ_name: record.occ_name,
     country: record.country,
     state: record.state,
     location: record.location,
     currency_code: record.currencyCode,
-    
+    company_name: record.company_name,
     // Salary fields
     avg_annual_salary: record.avgAnnualSalary,
     low_salary: record.lowSalary,

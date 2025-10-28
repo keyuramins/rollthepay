@@ -49,7 +49,7 @@ function safeString(value: unknown): string | null {
 
 // Transform CSV row to database format
 function transformCsvRowToDb(row: RawCsvRow): any {
-  const title = safeString(row.title) ?? safeString(row.h1Title);
+  const title = safeString(row.title);
   const slug = safeString(row.slug_url);
   const country = safeString(row.country);
   
@@ -71,8 +71,7 @@ function transformCsvRowToDb(row: RawCsvRow): any {
   return {
     slug_url: slug,
     title,
-    h1_title: safeString(row.h1Title),
-    occupation: safeString(row.occupation),
+    occ_name: safeString(row.occ_name),
     country,
     state: safeString(row.state),
     location: safeString(row.location),

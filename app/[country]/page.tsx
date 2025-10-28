@@ -24,7 +24,9 @@ interface CountryPageProps {
 
 export async function generateMetadata({ params }: CountryPageProps): Promise<Metadata> {
   const { country } = await params;
-  const countryName = country.charAt(0).toUpperCase() + country.slice(1);
+  const countryName = country?.split("-")
+  .map((w: string) => (w ? w[0].toUpperCase() + w.slice(1) : ""))
+    .join(" ");
   return {
     title: `${countryName} Salary Information`,
     description: `Explore salary records for jobs in ${countryName}.`,
@@ -34,9 +36,10 @@ export async function generateMetadata({ params }: CountryPageProps): Promise<Me
 
 export default async function CountryPage({ params }: CountryPageProps) {
   const { country } = await params;
-  const countryDisplayName = country.charAt(0).toUpperCase() + country.slice(1).replace(/-/g, " ");
-
   const countryData = await optimizedDataAccess.getCountryData(country);
+  const countryDisplayName = country?.split("-")
+      .map((w: string) => (w ? w[0].toUpperCase() + w.slice(1) : ""))
+        .join(" ");
   if (!countryData) notFound();
 
   return (

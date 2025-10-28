@@ -34,16 +34,24 @@ export async function LocationPage({ country, state, location }: LocationPagePro
   const countryName = countryData?.countryName || country;
   
   // Prepare occupation data for the list
-  const occupationItems = locationData.jobs.map(job => ({
-    id: job.slug,
-    displayName: job.title || "Unknown Occupation",
-    originalName: job.title || "Unknown Occupation",
-    slug_url: job.slug,
-    location: locationName,
-    state: stateName,
-    avgAnnualSalary: job.avgAnnualSalary || undefined,
-    countrySlug: country
-  }));
+  const occupationItems = locationData.jobs.map(job => {
+    const baseTitle = job.title || job.occ_name || 'Unknown Occupation';
+    const atCompany = job.company_name ? ` at ${job.company_name}` : "";
+    const place = job.location || locationName || stateName || countryName;
+    const inPlace = place ? ` in ${place}` : "";
+    
+    return {
+      id: job.slug,
+      displayName: `${baseTitle}${atCompany}${inPlace}`,
+      originalName: job.title || '',
+      slug_url: job.slug,
+      location: job.location || undefined,
+      state: stateName,
+      avgAnnualSalary: job.avgAnnualSalary || undefined,
+      countrySlug: country,
+      company_name: job.company_name || undefined,
+    };
+  });
   
   // Breadcrumb navigation
   const breadcrumbs = [
