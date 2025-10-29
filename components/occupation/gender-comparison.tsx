@@ -22,6 +22,12 @@ export function GenderComparison({ record }: GenderComparisonProps) {
     return null;
   }
 
+  // Calculate the circumference and dash values
+  const radius = 80;
+  const circumference = 2 * Math.PI * radius; // ≈ 502.65
+  const maleDashLength = (malePercentage / 100) * circumference;
+  const femaleDashLength = (femalePercentage / 100) * circumference;
+
   return (
     <section className="card-section">
       <Card>
@@ -50,9 +56,9 @@ export function GenderComparison({ record }: GenderComparisonProps) {
                       fill="none" 
                       stroke="var(--accent)" 
                       strokeWidth="20" 
-                      strokeDasharray={`${malePercentage * 5.02} 502`} 
-                      strokeDashoffset="125.5"
-                      transform="rotate(-90 100 100)"
+                      strokeDasharray={`${maleDashLength} ${circumference}`}
+                      strokeDashoffset="0"
+                      transform="rotate(45 100 100)"
                     />
                     
                     {/* Female segment */}
@@ -61,9 +67,9 @@ export function GenderComparison({ record }: GenderComparisonProps) {
                       fill="none" 
                       stroke="var(--primary)" 
                       strokeWidth="20" 
-                      strokeDasharray={`${femalePercentage * 5.02} 502`} 
-                      strokeDashoffset={`${125.5 - (malePercentage * 5.02)}`}
-                      transform="rotate(-90 100 100)"
+                      strokeDasharray={`${femaleDashLength} ${circumference}`}
+                      strokeDashoffset={`-${maleDashLength}`}
+                      transform="rotate(45 100 100)"
                     />
                     
                     {/* Center text */}

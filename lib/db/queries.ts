@@ -679,7 +679,7 @@ export const getAllLocations = cache(async (country: string, state: string): Pro
     const result = await poolInstance.query(`
       SELECT DISTINCT location 
       FROM occupations 
-      WHERE LOWER(country) = LOWER($1) AND LOWER(state) = LOWER($2) AND location IS NOT NULL
+      WHERE LOWER(country) = LOWER($1) AND LOWER(state) = LOWER($2) AND location IS NOT NULL AND TRIM(location) <> ''
       ORDER BY location
     `, [country, state]);
 
