@@ -29,7 +29,7 @@ const createCountryConfig = () => {
       case 'mauritius': currencyCode = 'MUR'; locale = 'en-MU'; break;
       case 'morocco': currencyCode = 'MAD'; locale = 'ar-MA'; break;
       case 'mozambique': currencyCode = 'MZN'; locale = 'pt-MZ'; break;
-      case 'namibia': currencyCode = 'NAD'; locale = 'en-NA'; break;
+      //case 'namibia': currencyCode = 'NAD'; locale = 'en-NA'; break;
       case 'nigeria': currencyCode = 'NGN'; locale = 'en-NG'; break;
       case 'swaziland': currencyCode = 'SZL'; locale = 'en-SZ'; break;
       case 'tunisia': currencyCode = 'TND'; locale = 'ar-TN'; break;

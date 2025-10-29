@@ -354,7 +354,7 @@ function calculateCostOfLivingFactor(record: OccupationRecord, location?: string
     'mauritius': 0.60,        // 40% below global average
     'morocco': 0.40,          // 60% below global average
     'mozambique': 0.30,       // 70% below global average
-    'namibia': 0.50,          // 50% below global average
+    //'namibia': 0.50,          // 50% below global average
     'nigeria': 0.35,          // 65% below global average
     'swaziland': 0.40,        // 60% below global average
     'tunisia': 0.40,          // 60% below global average
