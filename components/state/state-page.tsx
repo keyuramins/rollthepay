@@ -6,6 +6,7 @@ import { LocationCTASection } from "@/components/location/location-cta-section";
 import { OccupationList } from "@/components/ui/occupation-list";
 import { LocationsGrid } from "./locations-grid";
 import { getAllLocations, getCountryData, getStateData } from "@/lib/db/queries";
+import type { OccupationListItem } from "@/lib/types/occupation-list";
 
 interface StatePageProps {
   country: string;
@@ -33,16 +34,16 @@ export async function StatePage({ country, state }: StatePageProps) {
   const locations = await getAllLocations(country, stateName);
   
   // Prepare occupation data for the list (only occupations in this state)
-  const occupationItems = jobs.map((job: any) => {
-    const baseTitle = job.title || job.occ_name || 'Unknown Occupation';
+  const occupationItems: OccupationListItem[] = jobs.map((job: any) => {
+    const baseTitle = job.title || job.occ_name || "";
     const atCompany = job.company_name ? ` at ${job.company_name}` : "";
     const place = job.location || stateName || countryName;
     const inPlace = place ? ` in ${place}` : "";
     
     return {
       id: job.slug,
+      title: baseTitle,
       displayName: `${baseTitle}${atCompany}${inPlace}`,
-      originalName: job.title || '',
       slug_url: job.slug,
       location: job.location || undefined,
       state: stateName,

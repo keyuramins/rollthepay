@@ -5,6 +5,7 @@ import { OccupationListItems } from "./occupation-list-items";
 import { Pagination } from "./pagination";
 import { SearchWithinOccupationList } from "./search-within-occupation-list";
 import { AZFilter } from "../occupation/az-filter";
+import type { OccupationListItem, OccupationListClientProps } from "@/lib/types/occupation-list";
 
 /* 🔍 Search bar isolated so it can render inside server layout */
 export function OccupationListSearchBar({
@@ -30,26 +31,15 @@ export function OccupationListClient({
   countrySlug,
   currentState,
   currentLocation,
-}: any) {
+}: OccupationListClientProps) {
+  // Use precomputed displayName from producers - no redundant computation needed
   const preparedItems = useMemo(
     () =>
-      items.map((item: any) => {
-        const baseTitle = item.title || item.originalName || item.occ_name;
-        const atCompany = item.company_name ? ` at ${item.company_name}` : "";
-        const place = item.location || item.state || (countrySlug ? countrySlug
-                .split("-")
-                .map((w: string) => (w ? w[0].toUpperCase() + w.slice(1) : ""))
-                .join(" ")
-            : "");
-        const inPlace = place ? ` in ${place}` : "";
-  
-        return {
-          ...item,
-          id: item.slug_url,
-          displayName: `${baseTitle}${atCompany}${inPlace}`,
-        };
-      }),
-    [items, countrySlug]
+      items.map((item: OccupationListItem) => ({
+        ...item,
+        id: item.slug_url, // Ensure id is set for consistency
+      })),
+    [items]
   );
     // () =>
     //   items.map((item: any) => ({
@@ -68,7 +58,7 @@ export function OccupationListClient({
   const PAGE_SIZE = 50;
 
   const visibleItems = useMemo(() => {
-    return filteredItems.filter((item: any) =>
+    return filteredItems.filter((item: OccupationListItem) =>
       item.displayName.toLowerCase().includes(query.toLowerCase())
     );
   }, [filteredItems, query]);

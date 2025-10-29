@@ -1,21 +1,11 @@
 "use client";
 
 import { useMemo, useState } from "react";
-
-interface OccupationItem {
-  id: string;
-  displayName: string;
-  originalName?: string;
-  slug_url: string;
-  location?: string;
-  state?: string;
-  avgAnnualSalary?: number;
-  countrySlug: string;
-}
+import type { OccupationListItem } from "@/lib/types/occupation-list";
 
 interface AZFilterProps {
-  items: OccupationItem[];
-  onFilteredItemsChange: (filteredItems: OccupationItem[]) => void;
+  items: OccupationListItem[];
+  onFilteredItemsChange: (filteredItems: OccupationListItem[]) => void;
 }
 
 export function AZFilter({ items, onFilteredItemsChange }: AZFilterProps) {

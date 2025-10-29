@@ -5,6 +5,7 @@ import { LocationHeroSection } from "@/components/location/location-hero-section
 import { LocationCTASection } from "@/components/location/location-cta-section";
 import { OccupationList } from "@/components/ui/occupation-list";
 import { getLocationData, getCountryData } from "@/lib/db/queries";
+import type { OccupationListItem } from "@/lib/types/occupation-list";
 
 interface LocationPageProps {
   country: string;
@@ -34,16 +35,16 @@ export async function LocationPage({ country, state, location }: LocationPagePro
   const countryName = countryData?.countryName || country;
   
   // Prepare occupation data for the list
-  const occupationItems = locationData.jobs.map(job => {
-    const baseTitle = job.title || job.occ_name || 'Unknown Occupation';
+  const occupationItems: OccupationListItem[] = locationData.jobs.map(job => {
+    const baseTitle = job.title || job.occ_name || "";
     const atCompany = job.company_name ? ` at ${job.company_name}` : "";
     const place = job.location || locationName || stateName || countryName;
     const inPlace = place ? ` in ${place}` : "";
     
     return {
       id: job.slug,
+      title: baseTitle,
       displayName: `${baseTitle}${atCompany}${inPlace}`,
-      originalName: job.title || '',
       slug_url: job.slug,
       location: job.location || undefined,
       state: stateName,

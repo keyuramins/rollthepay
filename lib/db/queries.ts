@@ -5,6 +5,7 @@ import { pool } from './client';
 import type { OccupationRecord } from '@/lib/data/types';
 import type { DbOccupationRow, SalaryUpdateData } from './types';
 import { transformDbRowToOccupationRecord, transformOccupationRecordToDb } from './types';
+import type { OccupationListItem } from '@/lib/types/occupation-list';
 
 // Short-lived cache for frequently accessed data
 const queryCache = new Map<string, { data: any; timestamp: number }>();
@@ -415,7 +416,7 @@ export const getCountryData = cache(async (country: string): Promise<{
   totalJobs: number;
   avgSalary: number;
   states: string[];
-  occupationItems: any[];
+  occupationItems: OccupationListItem[];
   headerOccupations: any[];
 } | null> => {
   // Skip DB queries during build for Next.js 16 compatibility
@@ -473,15 +474,15 @@ export const getCountryData = cache(async (country: string): Promise<{
     }
 
     const occupationItems = occupations.map(record => {
-      const baseTitle = record.title || record.occ_name || 'Unknown Occupation';
+      const baseTitle = record.title || record.occ_name || '';
       const atCompany = record.company_name ? ` at ${record.company_name}` : "";
       const place = record.location || record.state || countryName;
       const inPlace = place ? ` in ${place}` : "";
       
       return {
         id: record.slug_url,
+        title: baseTitle,
         displayName: `${baseTitle}${atCompany}${inPlace}`,
-        originalName: record.title || '',
         slug_url: record.slug_url,
         location: record.location || undefined,
         state: record.state || undefined,

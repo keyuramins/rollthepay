@@ -595,7 +595,7 @@ export function calculateInsights(record: OccupationRecord, country: string, loc
   const actualCountry = record.country;
   
   return {
-    occupationTitle: record.title || record.occ_name || 'Unknown Role',
+    occupationTitle: record.title || record.occ_name || '',
     location: actualLocation || '',
     state: actualState || '',
     country: actualCountry || '',
@@ -635,7 +635,7 @@ export function calculateBonusCompensation(record: OccupationRecord, country: st
   const actualCountry = record.country;
   
   return {
-    occupationTitle: record.title || record.occ_name || 'Unknown Role',
+    occupationTitle: record.title || record.occ_name || '',
     skillsList: extractSkillsList(record),
     location: actualLocation || '',
     state: actualState || '',

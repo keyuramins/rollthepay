@@ -3,17 +3,7 @@ import Link from "next/link";
 import { MapPin } from "lucide-react";
 import { formatCurrency } from "@/lib/format/currency";
 import { encodeSlugForURL } from "@/lib/format/slug";
-
-interface OccupationListItemsProps {
-  paginatedItems: any[];
-  totalItems: number;
-  PAGE_SIZE: number;
-  currentPage: number;
-  totalPages: number;
-  countrySlug?: string;
-  currentState?: string;
-  currentLocation?: string;
-}
+import type { OccupationListItemsProps } from "@/lib/types/occupation-list";
 
 export function OccupationListItems({
   paginatedItems,
@@ -27,14 +17,8 @@ export function OccupationListItems({
         const normalizedSlug = encodeSlugForURL(item.slug_url);
         let href = `/${item.countrySlug}/${normalizedSlug}`;
         
-        if (currentLocation && currentState) {
-          href = `/${item.countrySlug}/${currentState}/${currentLocation}/${normalizedSlug}`;
-        } else if (currentState) {
-          href = item.location
-            ? `/${item.countrySlug}/${currentState}/${item.location.toLowerCase().replace(/\s+/g, "-")}/${normalizedSlug}`
-            : `/${item.countrySlug}/${currentState}/${normalizedSlug}`;
-        } else if (item.state && item.location) {
-          href = `/${item.countrySlug}/${item.state.toLowerCase().replace(/\s+/g, "-")}/${item.location.toLowerCase().replace(/\s+/g, "-")}/${normalizedSlug}`;
+        if (currentState) {
+          href = `/${item.countrySlug}/${currentState}/${normalizedSlug}`;
         } else if (item.state) {
           href = `/${item.countrySlug}/${item.state.toLowerCase().replace(/\s+/g, "-")}/${normalizedSlug}`;
         }
