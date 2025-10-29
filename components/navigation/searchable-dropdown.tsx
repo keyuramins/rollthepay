@@ -257,7 +257,6 @@ export function SearchableDropdown({
     let url = `/${selectedCountry.slug}`;
     if (occupation.state) {
       url += `/${occupation.state.toLowerCase().replace(/\s+/g, '-')}`;
-      if (occupation.location) url += `/${occupation.location.toLowerCase().replace(/\s+/g, '-')}`;
     }
     url += `/${encodeSlugForURL(occupation.slug)}`;
     setIsDropdownOpen(false);

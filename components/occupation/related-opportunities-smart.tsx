@@ -16,10 +16,9 @@ import { encodeSlugForURL, slugify } from "@/lib/format/slug";
 function generateOccupationURL(occupation: OccupationRecord): string {
   const country = slugify(occupation.country);
   const state = occupation.state ? `/${slugify(occupation.state)}` : '';
-  const location = occupation.location ? `/${slugify(occupation.location)}` : '';
   const slug = encodeSlugForURL(occupation.slug_url);
   
-  return `/${country}${state}${location}/${slug}`;
+  return `/${country}${state}/${slug}`;
 }
 
 interface RelatedOpportunitiesEnhancedProps {
@@ -44,7 +43,7 @@ interface LocationOpportunityProps {
 
 function RelatedOccupationCard({ occupation, currentRecord, showSalaryComparison = true }: RelatedOccupationCardProps) {
   const salaryDiff = calculateSalaryDifference(currentRecord.avgAnnualSalary, occupation.avgAnnualSalary);
-  const industry = getJobCategory(occupation.title);
+  const industry = getJobCategory(occupation.title || '');
   const occupationURL = generateOccupationURL(occupation);
 
   return (
