@@ -1,5 +1,6 @@
 // components/country/states-grid.tsx
 import Link from "next/link";
+import { slugify } from "@/lib/format/slug";
 
 interface StatesGridProps {
   states: string[];
@@ -22,7 +23,7 @@ export function StatesGrid({ states, countrySlug, title, description }: StatesGr
 
       <ul className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
         {states.map((state) => {
-          const slug = state.toLowerCase().replace(/\s+/g, "-");
+          const slug = slugify(state);
           return (
             <li key={state}>
               <Link

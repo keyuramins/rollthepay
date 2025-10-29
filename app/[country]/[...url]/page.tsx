@@ -6,7 +6,7 @@ import { OccupationPage } from "@/components/occupation/occupation-page";
 import { StatePage } from "@/components/state/state-page";
 import { LocationPage } from "@/components/location/location-page";
 
-import { decodeSlugFromURL } from "@/lib/format/slug";
+import { decodeSlugFromURL, slugify, deslugify } from "@/lib/format/slug";
 
 /* -------------------------------------------------
    Route Configuration
@@ -20,17 +20,13 @@ interface UnifiedPageProps {
 /* -------------------------------------------------
    Utility functions
 -------------------------------------------------- */
-const normalizeStateName = (name: string) =>
-  name.toLowerCase().replace(/\s+/g, "-");
+const normalizeStateName = (name: string) => slugify(name);
 
-const denormalizeStateName = (name: string) =>
-  name.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+const denormalizeStateName = (name: string) => deslugify(name);
 
-const normalizeLocationName = (name: string) =>
-  name.toLowerCase().replace(/\s+/g, "-");
+const normalizeLocationName = (name: string) => slugify(name);
 
-const denormalizeLocationName = (name: string) =>
-  name.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+const denormalizeLocationName = (name: string) => deslugify(name);
 
 /* -------------------------------------------------
    Metadata generation
@@ -153,19 +149,16 @@ export async function generateMetadata({ params }: UnifiedPageProps): Promise<Me
 export default async function UnifiedPage({ params }: UnifiedPageProps) {
   const { country, url } = await params;
 
-  const countryDisplayName = country.charAt(0).toUpperCase() + country.slice(1).replace(/-/g, " ");
-
   // --- STATE PAGE OR COUNTRY-LEVEL OCCUPATION PAGE ---
   if (url.length === 1) {
     const stateOrSlug = url[0];
     const states = await optimizedDataAccess.getAllStates(country);
     const stateMatch = states.find((s) => normalizeStateName(s) === stateOrSlug);
-
     if (stateMatch) {
-      // This is a state page
+      // This is a state page; pass display name to StatePage
       return (
         <main>
-          <StatePage country={country} state={stateOrSlug} />
+          <StatePage country={country} state={stateMatch} />
         </main>
       );
     } else {
@@ -181,15 +174,14 @@ export default async function UnifiedPage({ params }: UnifiedPageProps) {
   // --- LOCATION PAGE OR STATE OCCUPATION PAGE ---
   if (url.length === 2) {
     const [state, locationOrSlug] = url;
-    const stateDisplayName = denormalizeStateName(state);
+    const stateDisplayName = deslugify(state);
     
     // Check if this is a location page by looking for locations in this state
     const locations = await optimizedDataAccess.getAllLocations(country, stateDisplayName);
-    const locationMatch = locations.find((l) => normalizeLocationName(l) === locationOrSlug);
+    const locationMatch = locations.find((l) => slugify(l) === locationOrSlug);
     
     if (locationMatch) {
       // This is a location page
-      const locationDisplayName = denormalizeLocationName(locationOrSlug);
       return (
         <main>
           <LocationPage country={country} state={state} location={locationOrSlug} />
@@ -197,7 +189,7 @@ export default async function UnifiedPage({ params }: UnifiedPageProps) {
       );
     } else {
       // This is a state occupation page
-      const denormalizedState = denormalizeStateName(state);
+      const denormalizedState = deslugify(state);
       return (
         <main>
           <OccupationPage country={country} state={denormalizedState} slug={decodeSlugFromURL(locationOrSlug)} />
@@ -209,8 +201,8 @@ export default async function UnifiedPage({ params }: UnifiedPageProps) {
   // --- OCCUPATION PAGE ---
   if (url.length === 3) {
     const [state, location, slug] = url;
-    const denormalizedState = denormalizeStateName(state);
-    const denormalizedLocation = denormalizeLocationName(location);
+    const denormalizedState = deslugify(state);
+    const denormalizedLocation = deslugify(location);
     return (
       <main>
         <OccupationPage country={country} state={denormalizedState} location={denormalizedLocation} slug={decodeSlugFromURL(slug)} />

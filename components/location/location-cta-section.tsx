@@ -1,5 +1,6 @@
 // components/location/location-cta-section.tsx
 import Link from "next/link";
+import { slugify } from "@/lib/format/slug";
 
 interface LocationCTASectionProps {
   country: string;
@@ -48,7 +49,7 @@ export function LocationCTASection({
 
           {state && location && stateName && (
             <Link
-              href={`/${country}/${stateName.toLowerCase().replace(/\s+/g, '-')}`}
+              href={`/${country}/${slugify(stateName)}`}
               className="inline-flex items-center justify-center text-base bg-secondary text-primary px-8 py-3 sm:text-lg sm:px-8 sm:py-4 rounded-md font-semibold hover:bg-card transition-colors min-h-[44px] min-w-[44px] cursor-pointer"
               title={`View all salary data in ${stateName}`}
             >

@@ -1,6 +1,7 @@
 // components/state/locations-grid.tsx
 import Link from "next/link";
 import { getAllLocations } from "@/lib/db/queries";
+import { slugify } from "@/lib/format/slug";
 
 interface LocationsGridProps {
   country: string;
@@ -38,7 +39,7 @@ export async function LocationsGrid({
           {locations.map((location) => (
             <li key={location}>
               <Link
-                href={`/${country}/${state.toLowerCase().replace(/\s+/g, "-")}/${location.toLowerCase().replace(/\s+/g, "-")}`}
+                href={`/${country}/${slugify(state)}/${slugify(location)}`}
                 title={`Explore salaries in ${location}, ${state}`}
                 aria-label={`Explore salaries in ${location}, ${state}`}
                 className="block bg-card rounded-lg border p-6 hover:shadow-md transition-all hover:border-primary/50 hover:scale-105 text-center shadow-sm"

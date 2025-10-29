@@ -5,6 +5,7 @@ import { LocationHeroSection } from "@/components/location/location-hero-section
 import { LocationCTASection } from "@/components/location/location-cta-section";
 import { OccupationList } from "@/components/ui/occupation-list";
 import { getLocationData, getCountryData } from "@/lib/db/queries";
+import { deslugify, slugify } from "@/lib/format/slug";
 import type { OccupationListItem } from "@/lib/types/occupation-list";
 
 interface LocationPageProps {
@@ -14,14 +15,9 @@ interface LocationPageProps {
 }
 
 export async function LocationPage({ country, state, location }: LocationPageProps) {
-  // De-slugify state and location (hyphens -> spaces) for DB matching
-  const stateName = state
-    .replace(/-/g, ' ') // Replace hyphens with spaces
-    .replace(/\b\w/g, (char) => char.toUpperCase()); // Capitalize first letter of each word
-  
-  const locationName = location
-    .replace(/-/g, ' ') // Replace hyphens with spaces
-    .replace(/\b\w/g, (char) => char.toUpperCase()); // Capitalize first letter of each word
+  // De-slugify state and location using the centralized function
+  const stateName = deslugify(state);
+  const locationName = deslugify(location);
   
   // Get jobs for this specific location using database query
   const locationData = await getLocationData(country, stateName, locationName);
@@ -58,7 +54,7 @@ export async function LocationPage({ country, state, location }: LocationPagePro
   const breadcrumbs = [
     { name: "Home", href: "/" },
     { name: countryName, href: `/${country}` },
-    { name: stateName, href: `/${country}/${stateName.toLowerCase().replace(/\s+/g, '-')}` },
+    { name: stateName, href: `/${country}/${slugify(stateName)}` },
     { name: locationName, href: "#", current: true },
   ];
   

@@ -6,6 +6,7 @@ import { LocationCTASection } from "@/components/location/location-cta-section";
 import { OccupationList } from "@/components/ui/occupation-list";
 import { LocationsGrid } from "./locations-grid";
 import { getAllLocations, getCountryData, getStateData } from "@/lib/db/queries";
+import { deslugify, slugify } from "@/lib/format/slug";
 import type { OccupationListItem } from "@/lib/types/occupation-list";
 
 interface StatePageProps {
@@ -15,7 +16,8 @@ interface StatePageProps {
 }
 
 export async function StatePage({ country, state }: StatePageProps) {
-  const normalizedState = state.replace(/-/g, ' ');
+  // The route handler now passes the database name directly, so use it as-is
+  const normalizedState = state;
 
   // Get state data directly from database
   const stateData = await getStateData(country, normalizedState);
@@ -74,7 +76,7 @@ export async function StatePage({ country, state }: StatePageProps) {
           title="Explore Salaries by Occupation"
           description={`Browse salary information organized by respective categories and specializations in ${stateName}.`}
           states={[stateName]}
-          currentState={state.toLowerCase().replace(/\s+/g, '-')}
+          currentState={slugify(stateName)}
           countrySlug={country}
         />
 

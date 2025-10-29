@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { slugify } from "@/lib/format/slug";
 
 interface OccupationCTASectionProps {
   countryName: string;
@@ -23,7 +24,7 @@ export function OccupationCTASection({ countryName, locationText, record }: Occu
         </p>
         <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center">
           <Link 
-            href={`/${countryName.toLowerCase().replace(/\s+/g, '-')}`}
+            href={`/${slugify(countryName)}`}
             className="w-full sm:w-auto"
           >
             <button 
@@ -36,7 +37,7 @@ export function OccupationCTASection({ countryName, locationText, record }: Occu
           
           {record.state && (
             <Link 
-              href={`/${countryName.toLowerCase().replace(/\s+/g, '-')}/${record.state.toLowerCase().replace(/\s+/g, '-')}`}
+              href={`/${slugify(countryName)}/${slugify(record.state)}`}
               className="w-full sm:w-auto"
             >
               <button 
@@ -50,7 +51,7 @@ export function OccupationCTASection({ countryName, locationText, record }: Occu
           
           {record.location && (
             <Link 
-              href={`/${countryName.toLowerCase().replace(/\s+/g, '-')}/${record.state.toLowerCase().replace(/\s+/g, '-')}/${record.location.toLowerCase().replace(/\s+/g, '-')}`}
+              href={`/${slugify(countryName)}/${slugify(record.state)}/${slugify(record.location)}`}
               className="w-full sm:w-auto"
             >
               <button 

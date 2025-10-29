@@ -11,6 +11,7 @@ import { OccupationCTASection } from "./cta-section";
 import { searchOccupations } from "@/lib/db/queries";
 import { RelatedOpportunitiesSmart } from "./related-opportunities-smart";
 import { getCurrencyCode } from "@/lib/format/currency";
+import { slugify } from "@/lib/format/slug";
 import type { OccupationRecord } from "@/lib/data/types";
 import { getJobCategoryInfo } from "./job-category-detector";
 import { locationStateCountryString } from "@/lib/utils/locationStateCountryString";
@@ -127,8 +128,8 @@ export async function OccupationPage({ country, state, location, slug }: Occupat
   const breadcrumbs = [
     { name: "Home", href: "/" },
     { name: countryName, href: `/${country}` },
-    ...(stateName ? [{ name: stateName, href: `/${country}/${stateName.toLowerCase().replace(/\s+/g, '-')}` }] : []),
-    ...(locationName ? [{ name: locationName, href: `/${country}/${stateName?.toLowerCase().replace(/\s+/g, '-')}/${locationName.toLowerCase().replace(/\s+/g, '-')}` }] : []),
+    ...(stateName ? [{ name: stateName, href: `/${country}/${slugify(stateName)}` }] : []),
+    ...(locationName ? [{ name: locationName, href: `/${country}/${slugify(stateName || '')}/${slugify(locationName)}` }] : []),
     { name: title, href: "#", current: true },
   ];
   

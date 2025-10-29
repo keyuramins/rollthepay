@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { MapPin } from "lucide-react";
 import { formatCurrency } from "@/lib/format/currency";
-import { encodeSlugForURL } from "@/lib/format/slug";
+import { encodeSlugForURL, slugify } from "@/lib/format/slug";
 import type { OccupationListItemsProps } from "@/lib/types/occupation-list";
 
 export function OccupationListItems({
@@ -14,13 +14,13 @@ export function OccupationListItems({
   return (
     <ul className="grid grid-cols-1 gap-4" role="list">
       {paginatedItems.map((item) => {
-        const normalizedSlug = encodeSlugForURL(item.slug_url);
+        const normalizedSlug = slugify(encodeSlugForURL(item.slug_url));
         let href = `/${item.countrySlug}/${normalizedSlug}`;
         
         if (currentState) {
-          href = `/${item.countrySlug}/${currentState}/${normalizedSlug}`;
+          href = `/${item.countrySlug}/${slugify(currentState)}/${normalizedSlug}`;
         } else if (item.state) {
-          href = `/${item.countrySlug}/${item.state.toLowerCase().replace(/\s+/g, "-")}/${normalizedSlug}`;
+          href = `/${item.countrySlug}/${slugify(item.state)}/${normalizedSlug}`;
         }
 
         return (
