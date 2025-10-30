@@ -1,8 +1,6 @@
 import Redis from "ioredis";
 
-export const redis = new Redis(process.env.REDIS_URL!, {
-  tls: {}, // required for `rediss://`
-});
+export const redis = new Redis(process.env.REDIS_URL!);
 
 // Example: caching a query result
 export async function cacheQuery(key: string, fetcher: () => Promise<any>, ttl = 3600) {
