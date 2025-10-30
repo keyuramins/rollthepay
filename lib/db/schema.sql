@@ -8,6 +8,7 @@ CREATE TABLE occupations (
   slug_url VARCHAR(500) NOT NULL,
   title TEXT NOT NULL,
   occ_name TEXT,
+  company_name TEXT,
   popularity_score INTEGER DEFAULT 0,
 
   
@@ -95,23 +96,12 @@ CREATE INDEX IF NOT EXISTS idx_occupations_location_ci ON occupations ((LOWER(lo
 CREATE INDEX IF NOT EXISTS idx_occupations_country_state_ci ON occupations ((LOWER(country)), (LOWER(state))) WHERE state IS NOT NULL;
 CREATE INDEX IF NOT EXISTS idx_occupations_country_state_location_ci ON occupations ((LOWER(country)), (LOWER(state)), (LOWER(location))) WHERE location IS NOT NULL;
 
--- Full-text search index
 CREATE INDEX idx_occupations_title_search ON occupations USING GIN (to_tsvector('english', occ_name));
 
 -- Skills JSONB index
 CREATE INDEX idx_occupations_skills ON occupations USING GIN (skills);
 
--- Covering indexes for common queries (include frequently accessed columns)
-CREATE INDEX idx_occupations_country_covering ON occupations(country) 
-  INCLUDE (title, slug_url, avg_annual_salary, state, location);
-
-CREATE INDEX idx_occupations_country_state_covering ON occupations(country, state) 
-  INCLUDE (title, slug_url, avg_annual_salary, location) 
-  WHERE state IS NOT NULL;
-
-CREATE INDEX idx_occupations_country_state_location_covering ON occupations(country, state, location) 
-  INCLUDE (title, slug_url, avg_annual_salary) 
-  WHERE location IS NOT NULL;
+-- (Removed covering indexes; keep only if query plans require them.)
 
 -- Partial indexes for non-null geographic levels
 CREATE INDEX idx_occupations_state_not_null ON occupations(state) WHERE state IS NOT NULL;

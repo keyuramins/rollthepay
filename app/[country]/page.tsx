@@ -8,7 +8,7 @@ import { CountryCTASection } from "@/components/country/cta-section";
 import { optimizedDataAccess } from "@/lib/data/optimized-parse";
 import { getAllCountries } from "@/lib/db/queries";
 
-export const routeSegmentConfig = { revalidate: 31536000 };
+export const routeSegmentConfig = { revalidate: 86400 };
 export const dynamic = 'error';
 
 export async function generateStaticParams() {

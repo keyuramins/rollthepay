@@ -2,7 +2,16 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 export function proxy(request: NextRequest) {
-  // Temporarily pass through all requests to avoid routing interference
+  const url = request.nextUrl.clone();
+  const originalPath = url.pathname;
+  const lowerPath = originalPath.toLowerCase();
+
+  // Only redirect when the path contains uppercase characters
+  if (originalPath !== lowerPath) {
+    url.pathname = lowerPath;
+    return NextResponse.redirect(url, 308);
+  }
+
   return NextResponse.next();
 }
 

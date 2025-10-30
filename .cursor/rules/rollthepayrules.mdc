@@ -210,3 +210,29 @@ These rules are authoritative for this repository. Follow them for all new code,
 - **Build Optimizations**: TypeScript errors ignored during build, source maps disabled in production.
 - **Database Integration**: Properly configured to skip database during build phases.
 
+## Existing Indexes in DB
+List of relations
+ Schema |                   Name                    | Type  |  Owner   |      Table       
+--------+-------------------------------------------+-------+----------+------------------
+ public | idx_mv_country_stats_country              | index | postgres | mv_country_stats
+ public | idx_mv_state_stats_country_state          | index | postgres | mv_state_stats
+ public | idx_occupations_company_name              | index | postgres | occupations
+ public | idx_occupations_company_name_ci           | index | postgres | occupations
+ public | idx_occupations_country                   | index | postgres | occupations
+ public | idx_occupations_country_ci                | index | postgres | occupations
+ public | idx_occupations_country_state             | index | postgres | occupations
+ public | idx_occupations_country_state_ci          | index | postgres | occupations
+ public | idx_occupations_country_state_location    | index | postgres | occupations
+ public | idx_occupations_country_state_location_ci | index | postgres | occupations
+ public | idx_occupations_data_source               | index | postgres | occupations
+ public | idx_occupations_last_verified             | index | postgres | occupations
+ public | idx_occupations_location_ci               | index | postgres | occupations
+ public | idx_occupations_location_not_null         | index | postgres | occupations
+ public | idx_occupations_occ_name_search           | index | postgres | occupations
+ public | idx_occupations_skills                    | index | postgres | occupations
+ public | idx_occupations_slug                      | index | postgres | occupations
+ public | idx_occupations_state_ci                  | index | postgres | occupations
+ public | idx_occupations_state_not_null            | index | postgres | occupations
+ public | occupations_pkey                          | index | postgres | occupations
+ public | unique_occupation_path                    | index | postgres | occupations
+(21 rows)
