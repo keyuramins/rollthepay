@@ -46,9 +46,6 @@ export function deslugify(slug: string) {
   
   // Fallback to general conversion
   return slug
-    .replace(/-/g, ' ')//Disabling helps Germany - enabbling doesn't help Germany
-    .replace(/ue/g, 'ü')
-    .replace(/oe/g, 'ö')
-    .replace(/ae/g, 'ä')
+    .replace(/-/g, ' ')
     .replace(/\b\w/g, (c) => c.toUpperCase());
 }
