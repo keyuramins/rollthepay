@@ -59,14 +59,6 @@ export default async function Home() {
   } catch (err) {
     console.error("Error fetching homepage stats:", err);
   }
-  console.log({
-    HeroSectionWrapper,
-    StatsSectionWrapper,
-    FeaturesSectionDynamic,
-    TrustSectionDynamic,
-    MissionSectionDynamic,
-    CTASectionDynamic,
-  });
   
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/5 to-primary/10 overflow-x-hidden">

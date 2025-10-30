@@ -6,9 +6,23 @@ import type { OccupationRecord } from '@/lib/data/types';
 import type { DbOccupationRow, SalaryUpdateData } from './types';
 import { transformDbRowToOccupationRecord, transformOccupationRecordToDb } from './types';
 import type { OccupationListItem } from '@/lib/types/occupation-list';
-import { cacheQuery } from './redis';
 
-// remove local in-memory cache (Redis is the single cache layer)
+// Short-lived cache for frequently accessed data
+const queryCache = new Map<string, { data: any; timestamp: number }>();
+const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+
+// Cache helper functions - Next.js 16 compatible
+function getCached<T>(key: string): T | null {
+  const cached = queryCache.get(key);
+  if (cached) {
+    return cached.data; // Return cached value (Next.js 16 handles cache invalidation)
+  }
+  return null;
+}
+
+function setCached<T>(key: string, data: T): void {
+  queryCache.set(key, { data, timestamp: 0 }); // Simplified for Next.js 16
+}
 
 // Structured logging with levels
 enum LogLevel {
@@ -39,11 +53,6 @@ const logger = {
   info: (message: string, ...args: any[]) => log(LogLevel.INFO, message, ...args),
   debug: (message: string, ...args: any[]) => log(LogLevel.DEBUG, message, ...args)
 };
-
-// Unified TTLs (in seconds)
-const TTL = {
-  ONE_DAY: 60 * 60 * 24
-} as const;
 
 // Field validation for SQL injection prevention
 const ALLOWED_OCCUPATION_FIELDS = new Set([
@@ -160,7 +169,20 @@ function validateSalaryData(salaryData: Record<string, any>): Record<string, any
   return validated;
 }
 
-// no local interval cleanup needed
+// Clean up old cache entries periodically - Next.js 16 compatible
+setInterval(() => {
+  let cleaned = 0;
+  for (const [key, value] of queryCache.entries()) {
+    // Simplified cleanup - remove entries with timestamp 0 (Next.js 16 compatible)
+    if (value.timestamp === 0) {
+      queryCache.delete(key);
+      cleaned++;
+    }
+  }
+  if (cleaned > 0) {
+    logger.debug(`Cleaned up ${cleaned} expired cache entries`);
+  }
+}, CACHE_DURATION);
 
 // Helper wrapper to ensure pool is initialized
 function requirePool() {
@@ -180,11 +202,8 @@ export const getAllCountries = cache(async (): Promise<string[]> => {
   const poolInstance = requirePool();
 
   try {
-    const cacheKey = `queries:getAllCountries`;
-    const countries = await cacheQuery<string[]>(cacheKey, async () => {
-      const result = await poolInstance.query('SELECT DISTINCT country FROM occupations ORDER BY country');
-      return result.rows.map(row => row.country);
-    }, TTL.ONE_DAY);
+    const result = await poolInstance.query('SELECT DISTINCT country FROM occupations ORDER BY country');
+    const countries = result.rows.map(row => row.country);
     return countries;
   } catch (error) {
     logger.error('Error fetching countries:', error);
@@ -205,22 +224,27 @@ export const getHomepageStats = cache(async (): Promise<{
     };
   }
   const poolInstance = requirePool();
+  const cacheKey = 'homepage:stats';
+    const cached = getCached<{totalRecords: number; uniqueCountries: number;}>(cacheKey);
+    if (cached) {
+      return cached;
+    }
 
   try {
-    const cacheKey = 'queries:getHomepageStats';
-    const stats = await cacheQuery(cacheKey, async () => {
-      const result = await poolInstance.query(`
-        SELECT 
-          COUNT(*) as total_records,
-          COUNT(DISTINCT country) as unique_countries
-        FROM occupations
-      `);
-      const row = result.rows[0];
-      return {
-        totalRecords: parseInt(row.total_records),
-        uniqueCountries: parseInt(row.unique_countries),
-      };
-    }, TTL.ONE_DAY);
+    const result = await poolInstance.query(`
+      SELECT 
+        COUNT(*) as total_records,
+        COUNT(DISTINCT country) as unique_countries
+      FROM occupations
+    `);
+    
+    const row = result.rows[0];
+    const stats = {
+      totalRecords: parseInt(row.total_records),
+      uniqueCountries: parseInt(row.unique_countries),
+    };
+    
+    setCached(cacheKey, stats);
     return stats;
   } catch (error) {
     logger.error('Error fetching homepage stats:', error);
@@ -246,39 +270,33 @@ export const searchOccupationsServer = cache(async (
   const pool = requirePool();
 
   // Use LIKE for partial matching to support "acc" -> "accountant"
-  const normCountry = country.trim().toLowerCase();
-  const normQuery = query.trim().toLowerCase();
-  const cacheKey = `queries:searchOccupationsServer:${normCountry}:${normQuery}:${limit}`;
-  const rows = await cacheQuery<OccupationSearchResult[]>(cacheKey, async () => {
-    const result = await pool.query(
-      `
-      SELECT 
-        title,
-        occ_name,
-        slug_url AS slug,
-        state,
-        location,
-        avg_annual_salary AS avg_salary,
-        currency_code,
-        company_name
-      FROM occupations
-      WHERE LOWER(country) = LOWER($1)
-        AND LOWER(occ_name) LIKE LOWER($2)
-      ORDER BY 
-        CASE 
-          WHEN LOWER(occ_name) LIKE LOWER($3) THEN 1
-          WHEN LOWER(occ_name) LIKE LOWER($4) THEN 2
-          ELSE 3
-        END,
-        occ_name
-      LIMIT $5
-      `,
-      [country, `%${query}%`, `${query}%`, `%${query}%`, limit]
-    );
-    return result.rows as OccupationSearchResult[];
-  }, TTL.ONE_DAY);
+  const result = await pool.query(
+    `
+    SELECT 
+      title,
+      occ_name,
+      slug_url AS slug,
+      state,
+      location,
+      avg_annual_salary AS avg_salary,
+      currency_code,
+      company_name
+    FROM occupations
+    WHERE LOWER(country) = LOWER($1)
+      AND LOWER(occ_name) LIKE LOWER($2)
+    ORDER BY 
+      CASE 
+        WHEN LOWER(occ_name) LIKE LOWER($3) THEN 1
+        WHEN LOWER(occ_name) LIKE LOWER($4) THEN 2
+        ELSE 3
+      END,
+      occ_name
+    LIMIT $5
+    `,
+    [country, `%${query}%`, `${query}%`, `%${query}%`, limit]
+  );
 
-  return rows;
+  return result.rows;
 });
 
 // Get occupations for search (lightweight - only essential fields, no ORDER BY for performance) - Next.js 16 cached
@@ -295,32 +313,43 @@ export const getAllOccupationsForSearch = cache(async (country?: string, limit: 
     return [];
   }
 
-  const scoped = (country || '').trim().toLowerCase();
+  const scoped = (country || '').toLowerCase();
+  const cacheKey = scoped ? `occupations:search:${scoped}:${limit}` : `occupations:search:empty:${limit}`;
+  const cached = getCached<Array<{
+    country: string;
+    title: string;
+    slug: string;
+    state: string | null;
+    location: string | null;
+    company_name: string | null;
+  }>>(cacheKey);
+  if (cached) {
+    logger.debug('Cache hit for occupations search');
+    return cached;
+  }
 
   const poolInstance = requirePool();
 
   try {
     if (!country) return [];
 
-    const cacheKey = scoped ? `queries:getAllOccupationsForSearch:${scoped}:${limit}` : `queries:getAllOccupationsForSearch:empty:${limit}`;
-    const rows = await cacheQuery(cacheKey, async () => {
-      const result = await poolInstance.query(`
-        SELECT 
-          LOWER(country) as country,
-          title,
-          slug_url as slug,
-          state,
-          location,
-          company_name
-        FROM occupations
-        WHERE LOWER(country) = LOWER($1)
-        ORDER BY title
-        LIMIT $2
-      `, [country, limit]);
-      return result.rows;
-    }, TTL.ONE_DAY);
-    logger.debug(`Fetched ${rows.length} occupations for search (country-scoped)`);
-    return rows;
+    const result = await poolInstance.query(`
+      SELECT 
+        LOWER(country) as country,
+        title,
+        slug_url as slug,
+        state,
+        location,
+        company_name
+      FROM occupations
+      WHERE LOWER(country) = LOWER($1)
+      ORDER BY title
+      LIMIT $2
+    `, [country, limit]);
+    
+    setCached(cacheKey, result.rows);
+    logger.debug(`Fetched ${result.rows.length} occupations for search (country-scoped)`);
+    return result.rows;
   } catch (error) {
     console.error('Error fetching occupations for search:', error);
     throw error;
@@ -333,14 +362,10 @@ export async function getDataset(): Promise<OccupationRecord[]> {
 
   try {
     console.log('🔍 Executing optimized query to fetch all occupations...');
-    const cacheKey = `queries:getDataset`;
-    const rows = await cacheQuery(cacheKey, async () => {
-      const result = await poolInstance.query('SELECT * FROM occupations');
-      return result.rows;
-    });
-    console.log(`✅ Successfully fetched ${rows.length} records from PostgreSQL`);
+    const result = await poolInstance.query('SELECT * FROM occupations');
+    console.log(`✅ Successfully fetched ${result.rows.length} records from PostgreSQL`);
 
-    return rows.map(transformDbRowToOccupationRecord);
+    return result.rows.map(transformDbRowToOccupationRecord);
   } catch (error) {
     console.error('Error fetching dataset:', error);
     throw error;
@@ -380,16 +405,9 @@ export const findOccupationSalaryByPath = cache(async (params: {
   // slug is mandatory
   query += ` AND slug_url = $${paramIndex}`;
   values.push(slug);
-  const normCountry = dbCountryName.trim().toLowerCase();
-  const normState = (state ?? '').trim().toLowerCase();
-  const normLocation = (location ?? '').trim().toLowerCase();
-  const normSlug = slug;
-  const cacheKey = `queries:findOccupationSalaryByPath:${normCountry}:${normState}:${normLocation}:${normSlug}`;
-  const record = await cacheQuery<OccupationRecord | null>(cacheKey, async () => {
-    const result = await poolInstance.query(query, values);
-    return result.rows.length > 0 ? transformDbRowToOccupationRecord(result.rows[0]) : null;
-  }, TTL.ONE_DAY, { skipIf: (v) => v == null });
-  return record;
+
+  const result = await poolInstance.query(query, values);
+  return result.rows.length > 0 ? transformDbRowToOccupationRecord(result.rows[0]) : null;
 });
 
 // Get country data with statistics - Next.js 16 cached
@@ -418,82 +436,79 @@ export const getCountryData = cache(async (country: string): Promise<{
   const dbCountryName = country.replace(/-/g, ' '); // brunei-darussalam -> brunei darussalam
   
   try {
-    const cacheKey = `queries:getCountryData:${dbCountryName.trim().toLowerCase()}`;
-    const data = await cacheQuery(cacheKey, async () => {
-      const [countryResult, statesResult, occupationsResult] = await Promise.all([
-        poolInstance.query(`
-          SELECT 
-            country,
-            COUNT(*) as job_count,
-            AVG(avg_annual_salary) as avg_salary,
-            COUNT(DISTINCT state) as state_count
-          FROM occupations 
-          WHERE LOWER(country) = LOWER($1)
-          GROUP BY country
-        `, [dbCountryName]),
-        poolInstance.query(`
-          SELECT DISTINCT state 
-          FROM occupations 
-          WHERE LOWER(country) = LOWER($1) AND state IS NOT NULL
-          ORDER BY state
-        `, [dbCountryName]),
-        poolInstance.query('SELECT * FROM occupations WHERE LOWER(country) = LOWER($1) ORDER BY LOWER(title)', [dbCountryName])
-      ]);
+    const [countryResult, statesResult, occupationsResult] = await Promise.all([
+      poolInstance.query(`
+        SELECT 
+          country,
+          COUNT(*) as job_count,
+          AVG(avg_annual_salary) as avg_salary,
+          COUNT(DISTINCT state) as state_count
+        FROM occupations 
+        WHERE LOWER(country) = LOWER($1)
+        GROUP BY country
+      `, [dbCountryName]),
+      poolInstance.query(`
+        SELECT DISTINCT state 
+        FROM occupations 
+        WHERE LOWER(country) = LOWER($1) AND state IS NOT NULL
+        ORDER BY state
+      `, [dbCountryName]),
+      poolInstance.query('SELECT * FROM occupations WHERE LOWER(country) = LOWER($1) ORDER BY LOWER(title)', [dbCountryName])
+    ]);
 
-      if (countryResult.rows.length === 0) {
-        return null;
-      }
+    if (countryResult.rows.length === 0) {
+      return null;
+    }
 
-      const countryData = countryResult.rows[0];
-      const states = statesResult.rows.map(row => row.state);
-      const occupations = occupationsResult.rows.map(transformDbRowToOccupationRecord);
+    const countryData = countryResult.rows[0];
+    const states = statesResult.rows.map(row => row.state);
+    const occupations = occupationsResult.rows.map(transformDbRowToOccupationRecord);
 
-      const countryName = countryResult.rows[0].country;
-      const totalJobs = parseInt(countryData.job_count);
-      const avgSalary = parseFloat(countryData.avg_salary) || 0;
+    //const countryName = country.charAt(0).toUpperCase() + country.slice(1);
+    const countryName = countryResult.rows[0].country;
+    const totalJobs = parseInt(countryData.job_count);
+    const avgSalary = parseFloat(countryData.avg_salary) || 0;
 
-      function slugify(name: string) {
-        return name.toLowerCase().replace(/\s+/g, '-');
-      }
+    function slugify(name: string) {
+      return name.toLowerCase().replace(/\s+/g, '-');
+    }
 
-      const occupationItems = occupations.map(record => {
-        const baseTitle = record.title || record.occ_name || '';
-        const atCompany = record.company_name ? ` at ${record.company_name}` : "";
-        const place = record.location || record.state || countryName;
-        const inPlace = place ? ` in ${place}` : "";
-        
-        return {
-          id: record.slug_url,
-          title: baseTitle,
-          displayName: `${baseTitle}${atCompany}${inPlace}`,
-          slug_url: record.slug_url,
-          location: record.location || undefined,
-          state: record.state || undefined,
-          avgAnnualSalary: record.avgAnnualSalary || undefined,
-          countrySlug: slugify(countryResult.rows[0].country),
-          company_name: record.company_name || undefined,
-        };
-      });
-
-      const headerOccupations = occupations.map(rec => ({
-        country: rec.country.toLowerCase(),
-        title: rec.title || "",
-        slug: rec.slug_url,
-        state: rec.state ? rec.state : null,
-        location: rec.location ? rec.location : null,
-        company_name: rec.company_name ? rec.company_name : null,
-      }));
-
+    const occupationItems = occupations.map(record => {
+      const baseTitle = record.title || record.occ_name || '';
+      const atCompany = record.company_name ? ` at ${record.company_name}` : "";
+      const place = record.location || record.state || countryName;
+      const inPlace = place ? ` in ${place}` : "";
+      
       return {
-        countryName,
-        totalJobs,
-        avgSalary,
-        states,
-        occupationItems,
-        headerOccupations
+        id: record.slug_url,
+        title: baseTitle,
+        displayName: `${baseTitle}${atCompany}${inPlace}`,
+        slug_url: record.slug_url,
+        location: record.location || undefined,
+        state: record.state || undefined,
+        avgAnnualSalary: record.avgAnnualSalary || undefined,
+        countrySlug: slugify(countryResult.rows[0].country), //DB country normalized for URL
+        company_name: record.company_name || undefined,
       };
-    }, TTL.ONE_DAY, { skipIf: (v) => v == null });
-    return data;
+    });
+
+    const headerOccupations = occupations.map(rec => ({
+      country: rec.country.toLowerCase(),
+      title: rec.title || "",
+      slug: rec.slug_url,
+      state: rec.state ? rec.state : null,
+      location: rec.location ? rec.location : null,
+      company_name: rec.company_name ? rec.company_name : null,
+    }));
+
+    return {
+      countryName,
+      totalJobs,
+      avgSalary,
+      states,
+      occupationItems,
+      headerOccupations
+    };
   } catch (error) {
     console.error('Error getting country data:', error);
     throw error;
@@ -515,39 +530,55 @@ export const getStateData = cache(async (country: string, state: string): Promis
 } | null> => {
   const poolInstance = requirePool();
 
+  const cacheKey = `state:${country}:${state}`;
+  const cached = getCached<{
+    name: string;
+    jobs: Array<{
+      slug: string;
+      title: string | null;
+      occ_name: string | null;
+      location: string | null;
+      avgAnnualSalary: number | null;
+      avgHourlySalary: number | null;
+      company_name: string | null;
+    }>;
+  } | null>(cacheKey);
+  if (cached) {
+    return cached;
+  }
+
   try {
-    const cacheKey = `queries:getStateData:${country.trim().toLowerCase()}:${state.trim().toLowerCase()}`;
-    const stateData = await cacheQuery(cacheKey, async () => {
-      const result = await poolInstance.query(`
-        SELECT 
-          slug_url,
-          title,
-          occ_name,
-          avg_annual_salary,
-          avg_hourly_salary,
-          state,
-          location,
-          company_name
-        FROM occupations 
-        WHERE LOWER(country) = LOWER($1) AND LOWER(state) = LOWER($2)
-        ORDER BY title
-      `, [country, state]);
+    const result = await poolInstance.query(`
+      SELECT 
+        slug_url,
+        title,
+        occ_name,
+        avg_annual_salary,
+        avg_hourly_salary,
+        state,
+        location,
+        company_name
+      FROM occupations 
+      WHERE LOWER(country) = LOWER($1) AND LOWER(state) = LOWER($2)
+      ORDER BY title
+    `, [country, state]);
 
-      if (result.rows.length === 0) return null;
+    if (result.rows.length === 0) return null;
 
-      return {
-        name: result.rows[0].state ?? state,
-        jobs: result.rows.map(row => ({
-          slug: row.slug_url,
-          title: row.title,
-          occ_name: row.occ_name,
-          location: row.location,
-          avgAnnualSalary: row.avg_annual_salary,
-          avgHourlySalary: row.avg_hourly_salary,
-          company_name: row.company_name
-        }))
-      };
-    }, TTL.ONE_DAY, { skipIf: (v) => v == null });
+    const stateData = {
+      name: result.rows[0].state ?? state,
+      jobs: result.rows.map(row => ({
+        slug: row.slug_url,
+        title: row.title,
+        occ_name: row.occ_name,
+        location: row.location,
+        avgAnnualSalary: row.avg_annual_salary,
+        avgHourlySalary: row.avg_hourly_salary,
+        company_name: row.company_name
+      }))
+    };
+    
+    setCached(cacheKey, stateData);
     return stateData;
   } catch (error) {
     console.error('Error getting state data:', error);
@@ -571,40 +602,36 @@ export const getLocationData = cache(async (country: string, state: string, loca
   const poolInstance = requirePool();
 
   try {
-    const cacheKey = `queries:getLocationData:${country.trim().toLowerCase()}:${state.trim().toLowerCase()}:${location.trim().toLowerCase()}`;
-    const data = await cacheQuery(cacheKey, async () => {
-      const result = await poolInstance.query(`
-        SELECT 
-          slug_url,
-          title,
-          occ_name,
-          avg_annual_salary,
-          avg_hourly_salary,
-          location,
-          state,
-          company_name
-        FROM occupations 
-        WHERE LOWER(country) = LOWER($1) AND LOWER(state) = LOWER($2) AND LOWER(location) = LOWER($3)
-        ORDER BY title
-      `, [country, state, location]);
+    const result = await poolInstance.query(`
+      SELECT 
+        slug_url,
+        title,
+        occ_name,
+        avg_annual_salary,
+        avg_hourly_salary,
+        location,
+        state,
+        company_name
+      FROM occupations 
+      WHERE LOWER(country) = LOWER($1) AND LOWER(state) = LOWER($2) AND LOWER(location) = LOWER($3)
+      ORDER BY title
+    `, [country, state, location]);
 
-      if (result.rows.length === 0) return null;
+    if (result.rows.length === 0) return null;
 
-      return {
-        name: result.rows[0].location ?? location,
-        jobs: result.rows.map(row => ({
-          slug: row.slug_url,
-          title: row.title,
-          occ_name: row.occ_name,
-          location: row.location,
-          state: row.state,
-          avgAnnualSalary: row.avg_annual_salary,
-          avgHourlySalary: row.avg_hourly_salary,
-          company_name: row.company_name
-        }))
-      };
-    }, TTL.ONE_DAY, { skipIf: (v) => v == null });
-    return data;
+    return {
+      name: result.rows[0].location ?? location,
+      jobs: result.rows.map(row => ({
+        slug: row.slug_url,
+        title: row.title,
+        occ_name: row.occ_name,
+        location: row.location,
+        state: row.state,
+        avgAnnualSalary: row.avg_annual_salary,
+        avgHourlySalary: row.avg_hourly_salary,
+        company_name: row.company_name
+      }))
+    };
   } catch (error) {
     console.error('Error getting location data:', error);
     throw error;
@@ -615,17 +642,22 @@ export const getLocationData = cache(async (country: string, state: string, loca
 export const getAllStates = cache(async (country: string): Promise<string[]> => {
   const poolInstance = requirePool();
 
+  const cacheKey = `states:${country}`;
+  const cached = getCached<string[]>(cacheKey);
+  if (cached) {
+    return cached;
+  }
+
   try {
-    const cacheKey = `queries:getAllStates:${country.trim().toLowerCase()}`;
-    const states = await cacheQuery<string[]>(cacheKey, async () => {
-      const result = await poolInstance.query(`
-        SELECT DISTINCT state 
-        FROM occupations 
-        WHERE LOWER(country) = LOWER($1) AND state IS NOT NULL
-        ORDER BY state
-      `, [country]);
-      return result.rows.map(row => row.state);
-    }, TTL.ONE_DAY);
+    const result = await poolInstance.query(`
+      SELECT DISTINCT state 
+      FROM occupations 
+      WHERE LOWER(country) = LOWER($1) AND state IS NOT NULL
+      ORDER BY state
+    `, [country]);
+
+    const states = result.rows.map(row => row.state);
+    setCached(cacheKey, states);
     return states;
   } catch (error) {
     console.error('Error getting all states:', error);
@@ -637,17 +669,22 @@ export const getAllStates = cache(async (country: string): Promise<string[]> => 
 export const getAllLocations = cache(async (country: string, state: string): Promise<string[]> => {
   const poolInstance = requirePool();
 
+  const cacheKey = `locations:${country}:${state}`;
+  const cached = getCached<string[]>(cacheKey);
+  if (cached) {
+    return cached;
+  }
+
   try {
-    const cacheKey = `queries:getAllLocations:${country.trim().toLowerCase()}:${state.trim().toLowerCase()}`;
-    const locations = await cacheQuery<string[]>(cacheKey, async () => {
-      const result = await poolInstance.query(`
-        SELECT DISTINCT location 
-        FROM occupations 
-        WHERE LOWER(country) = LOWER($1) AND LOWER(state) = LOWER($2) AND location IS NOT NULL AND TRIM(location) <> ''
-        ORDER BY location
-      `, [country, state]);
-      return result.rows.map(row => row.location);
-    }, TTL.ONE_DAY);
+    const result = await poolInstance.query(`
+      SELECT DISTINCT location 
+      FROM occupations 
+      WHERE LOWER(country) = LOWER($1) AND LOWER(state) = LOWER($2) AND location IS NOT NULL AND TRIM(location) <> ''
+      ORDER BY location
+    `, [country, state]);
+
+    const locations = result.rows.map(row => row.location);
+    setCached(cacheKey, locations);
     return locations;
   } catch (error) {
     console.error('Error getting all locations:', error);
@@ -660,18 +697,15 @@ export async function getStatesPaginated(country: string, limit: number = 100, o
   const poolInstance = requirePool();
 
   try {
-    const cacheKey = `queries:getStatesPaginated:${country.trim().toLowerCase()}:${limit}:${offset}`;
-    const states = await cacheQuery<string[]>(cacheKey, async () => {
-      const result = await poolInstance.query(`
-        SELECT DISTINCT state 
-        FROM occupations 
-        WHERE LOWER(country) = LOWER($1) AND state IS NOT NULL
-        ORDER BY state
-        LIMIT $2 OFFSET $3
-      `, [country, limit, offset]);
-      return result.rows.map(row => row.state);
-    }, TTL.ONE_DAY);
-    return states;
+    const result = await poolInstance.query(`
+      SELECT DISTINCT state 
+      FROM occupations 
+      WHERE LOWER(country) = LOWER($1) AND state IS NOT NULL
+      ORDER BY state
+      LIMIT $2 OFFSET $3
+    `, [country, limit, offset]);
+
+    return result.rows.map(row => row.state);
   } catch (error) {
     logger.error('Error getting paginated states:', error);
     throw error;
@@ -692,23 +726,19 @@ export async function getStatesCursorPaginated(
       `WHERE LOWER(country) = LOWER($1) AND state IS NOT NULL`;
     
     const params = cursor ? [country, cursor] : [country];
+    
+    const result = await poolInstance.query(`
+      SELECT DISTINCT state 
+      FROM occupations 
+      ${whereClause}
+      ORDER BY state
+      LIMIT $${cursor ? '3' : '2'}
+    `, [...params, limit + 1]); // Get one extra to check if there's a next page
 
-    const cacheKey = `queries:getStatesCursorPaginated:${country.trim().toLowerCase()}:${limit}:${(cursor ?? '').trim()}`;
-    const payload = await cacheQuery<{ states: string[]; nextCursor?: string }>(cacheKey, async () => {
-      const result = await poolInstance.query(`
-        SELECT DISTINCT state 
-        FROM occupations 
-        ${whereClause}
-        ORDER BY state
-        LIMIT $${cursor ? '3' : '2'}
-      `, [...params, limit + 1]);
+    const states = result.rows.slice(0, limit).map(row => row.state);
+    const nextCursor = result.rows.length > limit ? states[states.length - 1] : undefined;
 
-      const states = result.rows.slice(0, limit).map(row => row.state);
-      const nextCursor = result.rows.length > limit ? states[states.length - 1] : undefined;
-      return { states, nextCursor } as { states: string[]; nextCursor?: string };
-    }, TTL.ONE_DAY);
-
-    return payload;
+    return { states, nextCursor };
   } catch (error) {
     logger.error('Error getting cursor-paginated states:', error);
     throw error;
@@ -720,18 +750,15 @@ export async function getLocationsPaginated(country: string, state: string, limi
   const poolInstance = requirePool();
 
   try {
-    const cacheKey = `queries:getLocationsPaginated:${country.trim().toLowerCase()}:${state.trim().toLowerCase()}:${limit}:${offset}`;
-    const locations = await cacheQuery<string[]>(cacheKey, async () => {
-      const result = await poolInstance.query(`
-        SELECT DISTINCT location 
-        FROM occupations 
-        WHERE LOWER(country) = LOWER($1) AND LOWER(state) = LOWER($2) AND location IS NOT NULL
-        ORDER BY location
-        LIMIT $3 OFFSET $4
-      `, [country, state, limit, offset]);
-      return result.rows.map(row => row.location);
-    }, TTL.ONE_DAY);
-    return locations;
+    const result = await poolInstance.query(`
+      SELECT DISTINCT location 
+      FROM occupations 
+      WHERE LOWER(country) = LOWER($1) AND LOWER(state) = LOWER($2) AND location IS NOT NULL
+      ORDER BY location
+      LIMIT $3 OFFSET $4
+    `, [country, state, limit, offset]);
+
+    return result.rows.map(row => row.location);
   } catch (error) {
     logger.error('Error getting paginated locations:', error);
     throw error;
@@ -753,23 +780,19 @@ export async function getLocationsCursorPaginated(
       `WHERE LOWER(country) = LOWER($1) AND LOWER(state) = LOWER($2) AND location IS NOT NULL`;
     
     const params = cursor ? [country, state, cursor] : [country, state];
+    
+    const result = await poolInstance.query(`
+      SELECT DISTINCT location 
+      FROM occupations 
+      ${whereClause}
+      ORDER BY location
+      LIMIT $${cursor ? '4' : '3'}
+    `, [...params, limit + 1]); // Get one extra to check if there's a next page
 
-    const cacheKey = `queries:getLocationsCursorPaginated:${country.trim().toLowerCase()}:${state.trim().toLowerCase()}:${limit}:${(cursor ?? '').trim()}`;
-    const payload = await cacheQuery<{ locations: string[]; nextCursor?: string }>(cacheKey, async () => {
-      const result = await poolInstance.query(`
-        SELECT DISTINCT location 
-        FROM occupations 
-        ${whereClause}
-        ORDER BY location
-        LIMIT $${cursor ? '4' : '3'}
-      `, [...params, limit + 1]);
+    const locations = result.rows.slice(0, limit).map(row => row.location);
+    const nextCursor = result.rows.length > limit ? locations[locations.length - 1] : undefined;
 
-      const locations = result.rows.slice(0, limit).map(row => row.location);
-      const nextCursor = result.rows.length > limit ? locations[locations.length - 1] : undefined;
-      return { locations, nextCursor } as { locations: string[]; nextCursor?: string };
-    }, TTL.ONE_DAY);
-
-    return payload;
+    return { locations, nextCursor };
   } catch (error) {
     logger.error('Error getting cursor-paginated locations:', error);
     throw error;
@@ -781,12 +804,8 @@ export async function getStateCount(country: string): Promise<number> {
   const poolInstance = requirePool();
 
   try {
-    const cacheKey = `queries:getStateCount:${country.trim().toLowerCase()}`;
-    const count = await cacheQuery<number>(cacheKey, async () => {
-      const result = await poolInstance.query('SELECT COUNT(DISTINCT state) as count FROM occupations WHERE LOWER(country) = LOWER($1) AND state IS NOT NULL', [country]);
-      return parseInt(result.rows[0].count);
-    }, 600);
-    return count;
+    const result = await poolInstance.query('SELECT COUNT(DISTINCT state) as count FROM occupations WHERE LOWER(country) = LOWER($1) AND state IS NOT NULL', [country]);
+    return parseInt(result.rows[0].count);
   } catch (error) {
     console.error('Error fetching state count:', error);
     throw error;
@@ -798,12 +817,8 @@ export async function getLocationCount(country: string, state: string): Promise<
   const poolInstance = requirePool();
 
   try {
-    const cacheKey = `queries:getLocationCount:${country.trim().toLowerCase()}:${state.trim().toLowerCase()}`;
-    const count = await cacheQuery<number>(cacheKey, async () => {
-      const result = await poolInstance.query('SELECT COUNT(DISTINCT location) as count FROM occupations WHERE LOWER(country) = LOWER($1) AND LOWER(state) = LOWER($2) AND location IS NOT NULL', [country, state]);
-      return parseInt(result.rows[0].count);
-    }, 600);
-    return count;
+    const result = await poolInstance.query('SELECT COUNT(DISTINCT location) as count FROM occupations WHERE LOWER(country) = LOWER($1) AND LOWER(state) = LOWER($2) AND location IS NOT NULL', [country, state]);
+    return parseInt(result.rows[0].count);
   } catch (error) {
     console.error('Error fetching location count:', error);
     throw error;
@@ -856,14 +871,9 @@ export const searchOccupations = cache(async (query: string, country?: string, l
         `;
 
     const params = hasQuery ? [query, country || null, limit] : [country || null, limit];
-    const normQuery = (query || '').trim().toLowerCase();
-    const normCountry = (country || '').trim().toLowerCase();
-    const cacheKey = `queries:searchOccupations:${hasQuery ? 'q' : 'noq'}:${normQuery}:${normCountry}:${limit}`;
-    const records = await cacheQuery<OccupationRecord[]>(cacheKey, async () => {
-      const result = await poolInstance.query(sql, params);
-      return result.rows.map(transformDbRowToOccupationRecord);
-    }, TTL.ONE_DAY);
-    return records;
+
+    const result = await poolInstance.query(sql, params);
+    return result.rows.map(transformDbRowToOccupationRecord);
   } catch (error) {
     console.error('Error searching occupations:', error);
     throw error;
@@ -1046,16 +1056,14 @@ export async function getOccupationById(id: number): Promise<OccupationRecord | 
   const poolInstance = requirePool();
 
   try {
-    const cacheKey = `queries:getOccupationById:${id}`;
-    const record = await cacheQuery<OccupationRecord | null>(cacheKey, async () => {
-      const result = await poolInstance.query(
-        'SELECT * FROM occupations WHERE id = $1',
-        [id]
-      );
-      if (result.rows.length === 0) return null;
-      return transformDbRowToOccupationRecord(result.rows[0]);
-    }, TTL.ONE_DAY, { skipIf: (v) => v == null });
-    return record;
+    const result = await poolInstance.query(
+      'SELECT * FROM occupations WHERE id = $1',
+      [id]
+    );
+    
+    if (result.rows.length === 0) return null;
+    
+    return transformDbRowToOccupationRecord(result.rows[0]);
   } catch (error) {
     console.error('Error getting occupation by ID:', error);
     throw error;
@@ -1086,29 +1094,27 @@ export async function getOccupationStats(): Promise<{
   const poolInstance = requirePool();
 
   try {
-    const cacheKey = `queries:getOccupationStats`;
-    const stats = await cacheQuery(cacheKey, async () => {
-      const result = await poolInstance.query(`
-        SELECT 
-          COUNT(*) as total_occupations,
-          COUNT(DISTINCT country) as total_countries,
-          COUNT(DISTINCT state) as total_states,
-          COUNT(DISTINCT location) as total_locations,
-          AVG(avg_annual_salary) as avg_salary,
-          MAX(updated_at) as last_updated
-        FROM occupations
-      `);
-      const row = result.rows[0];
-      return {
-        totalOccupations: parseInt(row.total_occupations),
-        totalCountries: parseInt(row.total_countries),
-        totalStates: parseInt(row.total_states),
-        totalLocations: parseInt(row.total_locations),
-        avgSalary: parseFloat(row.avg_salary) || 0,
-        lastUpdated: row.last_updated
-      };
-    }, TTL.ONE_DAY);
-    return stats;
+    const result = await poolInstance.query(`
+      SELECT 
+        COUNT(*) as total_occupations,
+        COUNT(DISTINCT country) as total_countries,
+        COUNT(DISTINCT state) as total_states,
+        COUNT(DISTINCT location) as total_locations,
+        AVG(avg_annual_salary) as avg_salary,
+        MAX(updated_at) as last_updated
+      FROM occupations
+    `);
+    
+    const row = result.rows[0];
+    
+    return {
+      totalOccupations: parseInt(row.total_occupations),
+      totalCountries: parseInt(row.total_countries),
+      totalStates: parseInt(row.total_states),
+      totalLocations: parseInt(row.total_locations),
+      avgSalary: parseFloat(row.avg_salary) || 0,
+      lastUpdated: row.last_updated
+    };
   } catch (error) {
     console.error('Error getting occupation stats:', error);
     throw error;
