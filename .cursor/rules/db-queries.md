@@ -98,13 +98,14 @@ WHERE country = 'India' AND state = 'Chandigarh' AND location = 'Chandigarh';
 
 //Change name from Allahabad to Prayagraj
 UPDATE occupations
-SET location = 'Prayagraj'
-WHERE country = 'India'
-  AND location = 'Allahabad';
+SET location = ''
+WHERE country = 'France'
+    AND state = 'Paris'
+    AND location = 'Paris';
 
 UPDATE occupations
 SET location = ''
-WHERE country = 'India' AND state = 'Chandigarh' AND location = 'Chandigarh';
+WHERE country = 'China' AND state = 'Tianjin' AND location = 'Tianjin';
 
 Change the slug_url
 UPDATE occupations
@@ -114,8 +115,17 @@ WHERE country = 'India'
 
   or
 
-  UPDATE occupations
-SET slug_url = REGEXP_REPLACE(slug_url, '-allahabad', '-prayagraj', 'gi')
-WHERE country = 'India'
-  AND slug_url ILIKE '%-allahabad%';
+UPDATE occupations
+SET slug_url = REGEXP_REPLACE(slug_url, '-mohali', '-ajitgarh', 'gi')
+WHERE country = 'India' AND slug_url ILIKE '%-mohali%';
 
+UPDATE occupations o
+SET state = 'Île-de-France'
+WHERE o.country = 'France'
+  AND o.state = 'Paris'
+  AND NOT EXISTS (
+    SELECT 1
+    FROM occupations x
+    WHERE x.country = o.country
+      AND x.state = 'Île-de-France'
+  );

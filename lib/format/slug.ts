@@ -17,6 +17,14 @@ export function slugify(name: string) {
     .replace(/ö/g, 'oe')
     .replace(/ä/g, 'ae')
     .replace(/ß/g, 'ss')
+    .replace(/é/g, 'e')
+    .replace(/è/g, 'e')
+    .replace(/à/g, 'a')
+    .replace(/ù/g, 'u')
+    .replace(/ç/g, 'c')
+    .replace(/î/g, 'i')
+    .replace(/â/g, 'a')
+    .replace(/ê/g, 'e')
     .replace(/\s+/g, '-');
 }
 
@@ -40,7 +48,8 @@ export function deslugify(slug: string) {
     'tuebingen': 'Tübingen',
     'boeblingen': 'Böblingen',
     'duesseldorf': 'Düsseldorf',
-    'muenster': 'Münster'
+    'muenster': 'Münster',
+    'ile-de-france': 'Île-de-France',
   };
   
   if (mappings[slug]) {
