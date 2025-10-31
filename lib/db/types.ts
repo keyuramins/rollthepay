@@ -124,12 +124,12 @@ export function transformDbRowToOccupationRecord(row: DbOccupationRow): Occupati
     totalHourlyHighValue: safeNumber(row.total_hourly_high_value),
     
     // Additional compensation
-    bonusRangeMin: row.bonus_range_min,
-    bonusRangeMax: row.bonus_range_max,
-    profitSharingMin: row.profit_sharing_min,
-    profitSharingMax: row.profit_sharing_max,
-    commissionMin: row.commission_min,
-    commissionMax: row.commission_max,
+    bonusRangeMin: safeNumber(row.bonus_range_min),
+    bonusRangeMax: safeNumber(row.bonus_range_max),
+    profitSharingMin: safeNumber(row.profit_sharing_min),
+    profitSharingMax: safeNumber(row.profit_sharing_max),
+    commissionMin: safeNumber(row.commission_min),
+    commissionMax: safeNumber(row.commission_max),
     
     // Gender distribution
     genderMale: row.gender_male,

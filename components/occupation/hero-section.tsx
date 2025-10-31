@@ -119,11 +119,16 @@ export function OccupationHeroSection({ record, country, locationText }: Occupat
     {
       const minRaw = record.bonusRangeMin;
       const maxRaw = record.bonusRangeMax;
-      const minBonus = typeof minRaw === 'number' ? minRaw : null;
-      const maxBonus = typeof maxRaw === 'number' ? maxRaw : null;
+//       const minBonus = typeof minRaw === 'number' ? minRaw : null;
+//       const maxBonus = typeof maxRaw === 'number' ? maxRaw : null;
+// console.log(minBonus, maxBonus);
+//       const hasMin = minBonus != null && minBonus > 0;
+//       const hasMax = maxBonus != null && maxBonus > 0;
+      const minBonus = minRaw != null ? Number(minRaw) : null;
+      const maxBonus = maxRaw != null ? Number(maxRaw) : null;
 
-      const hasMin = minBonus != null && minBonus > 0;
-      const hasMax = maxBonus != null && maxBonus > 0;
+      const hasMin = minBonus != null && Number.isFinite(minBonus) && minBonus >= 0;
+      const hasMax = maxBonus != null && Number.isFinite(maxBonus) && maxBonus >= 0;
 
       if (hasMin || hasMax) {
         let value: string;
