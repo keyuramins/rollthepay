@@ -1,62 +1,20 @@
 // lib/data/parse.ts
-import type { DatasetIndex, OccupationRecord, LightweightDatasetIndex } from "./types";
+import type { DatasetIndex, OccupationRecord } from "./types";
 import {
   getCountryData as dbGetCountryData,
   findOccupationSalaryByPath as dbfindOccupationSalaryByPath,
   getStateData as dbGetStateData,
   getLocationData as dbGetLocationData,
-  getAllCountries as dbGetAllCountries,
-  getHomepageStats as dbGetHomepageStats
+  getAllCountries as dbGetAllCountries
 } from "../db/queries";
+import { slugify } from "@/lib/format/slug";
 
 // Lightweight cache for country list only (not full dataset)
 let cachedCountries: string[] | null = null;
 let lastCountryCacheTime = 0;
 const COUNTRY_CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 hours
 
-// New lightweight function that returns proper structure
-export async function getLightweightDataset(): Promise<LightweightDatasetIndex> {
-  try {
-    // Use cached countries if available
-    let countries: string[];
-    if (cachedCountries && Date.now() - lastCountryCacheTime < COUNTRY_CACHE_DURATION) {
-      countries = cachedCountries;
-    } else {
-      countries = await dbGetAllCountries();
-      cachedCountries = countries;
-      lastCountryCacheTime = Date.now();
-    }
-
-    // Get total record count (lightweight query)
-    const stats = await dbGetHomepageStats();
-
-    const lightweightIndex: LightweightDatasetIndex = { 
-      countries,
-      totalRecords: stats.totalRecords,
-      totalCountries: stats.uniqueCountries
-    };
-    return lightweightIndex;
-  } catch (error) {
-    throw new Error(`PostgreSQL data access failed: ${error instanceof Error ? error.message : 'Unknown error'}. Please ensure PostgreSQL is accessible and contains data.`);
-  }
-}
-
-// Legacy function for backward compatibility (returns empty arrays)
-// DEPRECATED: This function returns empty arrays to prevent memory issues
-// Use getLightweightDataset() or specific query functions instead
 export async function getDataset(): Promise<DatasetIndex> {
-  const requestUrl = typeof window !== 'undefined' ? window.location.href : 'server-side';
-  const timestamp = new Date().toISOString();
-
-  // Production warning - throw error to prevent silent failures
-  if (process.env.NODE_ENV === 'production') {
-    const error = new Error(
-      'DEPRECATED: getDataset() is disabled in production. Use getLightweightDataset() or specific query functions instead. ' +
-      `Called from: ${requestUrl} at ${timestamp}`
-    );
-    throw error;
-  }
-
 
   try {
     // Use cached countries if available
@@ -123,7 +81,7 @@ export async function getStateData(country: string) {
     // Process results
     for (const { state, stateData } of stateDataResults) {
       if (stateData) {
-        const stateKey = state.toLowerCase().replace(/\s+/g, '-');
+        const stateKey = slugify(state);
         stateGroups.set(stateKey, {
           name: stateData.name,
           jobs: stateData.jobs
@@ -167,7 +125,7 @@ export async function getLocationData(country: string, state: string) {
     // Process results
     for (const { location, locationData } of locationDataResults) {
       if (locationData) {
-        const locationKey = location.toLowerCase().replace(/\s+/g, '-');
+        const locationKey = slugify(location);
         locationGroups.set(locationKey, {
           name: locationData.name,
           jobs: locationData.jobs

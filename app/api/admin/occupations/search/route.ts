@@ -2,6 +2,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { searchOccupationsServer } from "@/lib/db/queries";
 import type { OccupationSearchResult } from "@/lib/db/queries";
+import { deslugify } from "@/lib/format/slug";
 
 // Next.js 16: Route segment configuration for search API
 export const routeSegmentConfig = { revalidate: 3600 }; // 1 hour for search results
@@ -17,13 +18,13 @@ export async function GET(req: NextRequest) {
     }
 
     // Convert slug to database country name (e.g., "australia" -> "Australia", "united-states" -> "United States")
-    const dbCountryName = countrySlug.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+    const dbCountryName = deslugify(countrySlug);
 
     let occupations = await searchOccupationsServer(dbCountryName, q, 50) as OccupationSearchResult[];
 
     // Transform the data to match frontend interface
     const transformedOccupations = occupations.map(occ => ({
-      country: countrySlug.toLowerCase(),
+      country: dbCountryName,
       title: occ.title,
       slug: occ.slug,
       state: occ.state,

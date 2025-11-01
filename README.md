@@ -851,7 +851,6 @@ This section documents all database queries in the system and their case sensiti
 | Function | Purpose | Case Sensitivity | WHERE Clause | Performance Impact |
 |----------|---------|------------------|--------------|-------------------|
 | `getAllCountries()` | Get all countries list | N/A | `SELECT DISTINCT country` | ✅ Fast - uses index |
-| `getHomepageStats()` | Homepage statistics | N/A | `COUNT(*)`, `COUNT(DISTINCT country)` | ✅ Fast - uses index |
 | `getAllOccupationsForSearch()` | Search dropdown data | N/A | `SELECT * FROM occupations` | ⚠️ Slow - full table scan |
 | `findOccupationSalaryByPath()` | Find occupation by URL path | **CASE-INSENSITIVE** | `WHERE LOWER(country)=LOWER($1) AND (LOWER(state)=LOWER($2) OR state IS NULL ...) AND (LOWER(location)=LOWER($3) OR location IS NULL ...) AND slug_url=$4` | ✅ Fast - uses functional index |
 | `getCountryData()` | Country page data | **CASE-INSENSITIVE** | `WHERE LOWER(country) = LOWER($1)` | ✅ Fast - uses functional covering index |

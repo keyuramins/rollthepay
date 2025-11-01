@@ -36,6 +36,7 @@ export function deslugify(slug: string) {
     'baden-wuerttemberg': 'Baden-Württemberg',
     'nordrhein-westfalen': 'Nordrhein-Westfalen',
     'rhineland-palatinate': 'Rhineland-Palatinate',
+    'north-rhine-westphalia': 'North Rhine-Westphalia',
     'saarbruecken': 'Saarbrücken',
     'wuerzburg': 'Würzburg',
     'goettingen': 'Göttingen',
@@ -56,6 +57,7 @@ export function deslugify(slug: string) {
     'sao paulo': 'São Paulo',
     'ceara': 'Ceará',
     'dun laoghaire': 'Dún Laoghaire',
+    'ciudad-de-mexico': 'Ciudad de México',
   };
   if (mappings[slug]) {
     return mappings[slug];

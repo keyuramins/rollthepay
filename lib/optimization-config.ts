@@ -6,7 +6,7 @@
 export const OPTIMIZATION_CONFIG = {
   // Next.js ISR (Incremental Static Regeneration) settings
   NEXTJS: {
-    REVALIDATE_DATA_DRIVEN: 3600, // 1 hour for data-driven pages (homepage, country, state, location, occupation)
+    REVALIDATE_DATA_DRIVEN: 3600, // 1 hour for data-driven pages (country, state, location, occupation)
     REVALIDATE_STATIC: 31536000, // 1 year for static pages (about, privacy, terms)
     DYNAMIC_PARAMS: false, // Ensure static generation only
     FORCE_STATIC: true,
@@ -24,7 +24,6 @@ export const OPTIMIZATION_CONFIG = {
   // In-memory caching (short-lived for frequently accessed data)
   CACHE: {
     COUNTRY_LIST_TTL: 5 * 60 * 1000, // 5 minutes
-    HOMEPAGE_STATS_TTL: 5 * 60 * 1000, // 5 minutes
     SEARCH_RESULTS_TTL: 2 * 60 * 1000, // 2 minutes
     MAX_CACHE_SIZE: 100, // Maximum number of cached items
     CLEANUP_INTERVAL: 300000, // 5 minutes

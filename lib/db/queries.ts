@@ -620,46 +620,46 @@ export const getAllCountries = cache(async (): Promise<string[]> => {
   }
 });
 
-// Get homepage statistics (lightweight operation with caching) - Next.js 16 cached
-export const getHomepageStats = cache(async (): Promise<{
-  totalRecords: number;
-  uniqueCountries: number;
-}> => {
-  // Skip DB queries during build
-  if (process.env.SKIP_DB_DURING_BUILD === 'true') {
-    return {
-      totalRecords: 300000,
-      uniqueCountries: 100,
-    };
-  }
-  const poolInstance = requirePool();
-  const cacheKey = 'homepage:stats';
-    const cached = getCached<{totalRecords: number; uniqueCountries: number;}>(cacheKey);
-    if (cached) {
-      return cached;
-    }
+// // Get homepage statistics (lightweight operation with caching) - Next.js 16 cached
+// export const getHomepageStats = cache(async (): Promise<{
+//   totalRecords: number;
+//   uniqueCountries: number;
+// }> => {
+//   // Skip DB queries during build
+//   if (process.env.SKIP_DB_DURING_BUILD === 'true') {
+//     return {
+//       totalRecords: 300000,
+//       uniqueCountries: 100,
+//     };
+//   }
+//   const poolInstance = requirePool();
+//   const cacheKey = 'homepage:stats';
+//     const cached = getCached<{totalRecords: number; uniqueCountries: number;}>(cacheKey);
+//     if (cached) {
+//       return cached;
+//     }
 
-  try {
-    const result = await poolInstance.query(`
-      SELECT 
-        COUNT(*) as total_records,
-        COUNT(DISTINCT country) as unique_countries
-      FROM occupations
-    `);
+//   try {
+//     const result = await poolInstance.query(`
+//       SELECT 
+//         COUNT(*) as total_records,
+//         COUNT(DISTINCT country) as unique_countries
+//       FROM occupations
+//     `);
     
-    const row = result.rows[0];
-    const stats = {
-      totalRecords: parseInt(row.total_records),
-      uniqueCountries: parseInt(row.unique_countries),
-    };
+//     const row = result.rows[0];
+//     const stats = {
+//       totalRecords: parseInt(row.total_records),
+//       uniqueCountries: parseInt(row.unique_countries),
+//     };
     
-    setCached(cacheKey, stats);
-    return stats;
-  } catch (error) {
-    logger.error('Error fetching homepage stats:', error);
-    return { totalRecords: 302000, uniqueCountries: 102 }; // fallback
-  }
-});
+//     setCached(cacheKey, stats);
+//     return stats;
+//   } catch (error) {
+//     logger.error('Error fetching homepage stats:', error);
+//     return { totalRecords: 302000, uniqueCountries: 102 }; // fallback
+//   }
+// });
 
 export interface OccupationSearchResult {
   title: string;
@@ -790,6 +790,7 @@ export const findOccupationSalaryByPath = cache(async (params: {
 }): Promise<OccupationRecord | null> => {
   const poolInstance = requirePool();
   const { country, state, location, slug } = params;
+  //Do we need deslufity here?
   const dbCountryName = country.replace(/-/g, ' ');
   const values = [dbCountryName.toLowerCase()];
   let query = `
