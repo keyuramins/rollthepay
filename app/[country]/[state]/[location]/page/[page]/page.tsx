@@ -53,7 +53,7 @@ export async function generateMetadata({ params, searchParams }: LocationPagedPa
     alternates: { canonical },
   };
 }
-
+// Location page with pagination
 export default async function LocationPagedPage({ params, searchParams }: LocationPagedPageProps) {
   const { country, state, location, page } = await params;
   const { q, letter } = await searchParams;

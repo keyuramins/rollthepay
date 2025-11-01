@@ -1,4 +1,4 @@
-<!--Measure query plans ->
+<!--Measure query plans -->
 EXPLAIN ANALYZE
 SELECT slug_url, title, occ_name, location, state, company_name, avg_annual_salary
 FROM occupations
@@ -118,9 +118,9 @@ WHERE country = 'China' AND state = 'Chongqing' AND location = 'Chongqing';
 
 Change the slug_url
 UPDATE occupations
-SET slug_url = REGEXP_REPLACE(slug_url, '-salary-ahmadnagar', '-salary-ahilyanagar', 'gi')
-WHERE country = 'India'
-  AND slug_url ILIKE '%-salary-ahmadnagar%';
+SET slug_url = REGEXP_REPLACE(slug_url, '-salary-frankfurt-am-main', '-salary-frankfurt', 'gi')
+WHERE country = 'Germany'
+  AND slug_url ILIKE '%-salary-frankfurt-am-main%';
 
   or
 
