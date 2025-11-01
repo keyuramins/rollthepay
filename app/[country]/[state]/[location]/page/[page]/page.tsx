@@ -7,7 +7,8 @@ import { OccupationList } from "@/components/ui/occupation-list";
 import { 
   getOccupationsForLocationCursor,
   getCountryData,
-  getLocationData
+  getLocationData,
+  getAvailableLettersForLocation
 } from "@/lib/db/queries";
 import { rememberNextCursor, resolveCursorForPage } from "@/lib/db/cursor-registry";
 import { deslugify, slugify } from "@/lib/format/slug";
@@ -79,27 +80,30 @@ export default async function LocationPagedPage({ params, searchParams }: Locati
   // Fetch paginated occupations and total count
   const limit = 50;
 
-  const cursorResolution = await resolveCursorForPage(
-    {
-      country,
-      state: stateName,
-      location: locationName,
-      limit,
-      searchQuery,
-      letterFilter,
-    },
-    pageNum,
-    (pageCursor) =>
-      getOccupationsForLocationCursor({
+  const [cursorResolution, availableLetters] = await Promise.all([
+    resolveCursorForPage(
+      {
         country,
         state: stateName,
         location: locationName,
-        q: searchQuery,
-        letter: letterFilter,
         limit,
-        cursor: pageCursor,
-      })
-  );
+        searchQuery,
+        letterFilter,
+      },
+      pageNum,
+      (pageCursor) =>
+        getOccupationsForLocationCursor({
+          country,
+          state: stateName,
+          location: locationName,
+          q: searchQuery,
+          letter: letterFilter,
+          limit,
+          cursor: pageCursor,
+        })
+    ),
+    getAvailableLettersForLocation({ country, state: stateName, location: locationName, q: searchQuery }),
+  ]);
 
   if (pageNum > 1 && !cursorResolution.available) {
     notFound();
@@ -157,6 +161,7 @@ export default async function LocationPagedPage({ params, searchParams }: Locati
         letterFilter={letterFilter}
         basePath={basePath}
         hasNextPage={hasNextPage}
+        availableLetters={availableLetters}
       />
 
       <LocationCTASection 

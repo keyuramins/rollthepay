@@ -9,7 +9,8 @@ import {
   getOccupationsForStateCursor,
   getAllLocations,
   getCountryData,
-  getStateData
+  getStateData,
+  getAvailableLettersForState
 } from "@/lib/db/queries";
 import { rememberNextCursor, resolveCursorForPage } from "@/lib/db/cursor-registry";
 import { deslugify, slugify } from "@/lib/format/slug";
@@ -80,25 +81,29 @@ export default async function StatePagedPage({ params, searchParams }: StatePage
   // Fetch paginated occupations and total count
   const limit = 50;
 
-  const cursorResolution = await resolveCursorForPage(
-    {
-      country,
-      state: normalizedState,
-      limit,
-      searchQuery,
-      letterFilter,
-    },
-    pageNum,
-    (pageCursor) =>
-      getOccupationsForStateCursor({
+  const [cursorResolution, availableLetters, locations] = await Promise.all([
+    resolveCursorForPage(
+      {
         country,
         state: normalizedState,
-        q: searchQuery,
-        letter: letterFilter,
         limit,
-        cursor: pageCursor,
-      })
-  );
+        searchQuery,
+        letterFilter,
+      },
+      pageNum,
+      (pageCursor) =>
+        getOccupationsForStateCursor({
+          country,
+          state: normalizedState,
+          q: searchQuery,
+          letter: letterFilter,
+          limit,
+          cursor: pageCursor,
+        })
+    ),
+    getAvailableLettersForState({ country, state: normalizedState, q: searchQuery }),
+    getAllLocations(country, stateName),
+  ]);
 
   if (pageNum > 1 && !cursorResolution.available) {
     notFound();
@@ -123,8 +128,6 @@ export default async function StatePagedPage({ params, searchParams }: StatePage
   const basePath = `/${country}/${slugify(stateName)}`;
   
   // Get locations for this state
-  const locations = await getAllLocations(country, stateName);
-  
   // Breadcrumb navigation
   const breadcrumbs = [
     { name: "Home", href: "/" },
@@ -155,6 +158,7 @@ export default async function StatePagedPage({ params, searchParams }: StatePage
         letterFilter={letterFilter}
         basePath={basePath}
         hasNextPage={hasNextPage}
+        availableLetters={availableLetters}
       />
 
       {locations.length > 0 && (

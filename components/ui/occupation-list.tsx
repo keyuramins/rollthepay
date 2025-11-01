@@ -15,6 +15,7 @@ interface OccupationListProps {
   letterFilter?: string;
   basePath?: string;
   hasNextPage?: boolean;
+  availableLetters?: string[];
 }
 
 export function OccupationList({
@@ -32,7 +33,9 @@ export function OccupationList({
   letterFilter,
   basePath,
   hasNextPage,
+  availableLetters,
 }: OccupationListProps) {
+  const resolvedBasePath = basePath || `/${countrySlug}${currentState ? `/${currentState}` : ''}${currentLocation ? `/${currentLocation}` : ''}`;
   return (
     <section className={`py-8 ${className}`} aria-labelledby="occupation-list-heading" role="region">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -58,8 +61,9 @@ export function OccupationList({
           totalItems={totalItems}
           searchQuery={searchQuery}
           letterFilter={letterFilter}
-          basePath={basePath}
+          basePath={resolvedBasePath}
           hasNextPage={hasNextPage}
+          availableLetters={availableLetters}
         />
       </div>
     </section>

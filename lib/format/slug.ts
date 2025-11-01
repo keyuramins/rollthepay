@@ -13,6 +13,7 @@ export function decodeSlugFromURL(slug: string): string {
 export function slugify(name: string) {
   return name
     .toLowerCase()
+    .replace(/\./g, '')
     .replace(/ü/g, 'ue')
     .replace(/ö/g, 'oe')
     .replace(/ä/g, 'ae')
@@ -54,14 +55,47 @@ export function deslugify(slug: string) {
     'parana': 'Paraná',
     'sao paulo': 'São Paulo',
     'ceara': 'Ceará',
+    'dun laoghaire': 'Dún Laoghaire',
   };
-  
   if (mappings[slug]) {
     return mappings[slug];
   }
-  
-  // Fallback to general conversion
+
+  const ABBREVIATIONS: Record<string, string> = {
+    'st': 'St.',
+    'ste': 'Ste.',
+    'mt': 'Mt.',
+    'ft': 'Ft.',
+    'pt': 'Pt.',
+    'lk': 'Lk.',
+    'rdg': 'Rdg.',
+    'riv': 'Riv.',
+    'bnk': 'Bnk.',
+    'isl': 'Isl.',
+    'is': 'Is.',
+    'cpe': 'Cpe.',
+    'hrbr': 'Hrbr.',
+    'pk': 'Pk.',
+    'pln': 'Pln.',
+    'vw': 'Vw.',
+    'vly': 'Vly.',
+    'hl': 'Hl.',
+    'blf': 'Blf.',
+  };
+
   return slug
-    .replace(/-/g, ' ')
-    .replace(/\b\w/g, (c) => c.toUpperCase());
+    .split('-')
+    .map(segment => {
+      const lower = segment.toLowerCase();
+      if (ABBREVIATIONS[lower]) {
+        return ABBREVIATIONS[lower];
+      }
+      return lower.replace(/\b\w/g, c => c.toUpperCase());
+    })
+    .join(' ');
+
+  // // Fallback to general conversion
+  // return slug
+  //   .replace(/-/g, ' ')
+  //   .replace(/\b\w/g, (c) => c.toUpperCase());
 }

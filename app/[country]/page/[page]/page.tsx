@@ -8,7 +8,8 @@ import { CountryCTASection } from "@/components/country/cta-section";
 import { 
   getOccupationsForCountryCursor,
   getCountryData,
-  getAllStates
+  getAllStates,
+  getAvailableLettersForCountry
 } from "@/lib/db/queries";
 import { rememberNextCursor, resolveCursorForPage } from "@/lib/db/cursor-registry";
 
@@ -76,7 +77,7 @@ export default async function CountryPagedPage({ params, searchParams }: Country
   // Fetch paginated occupations and total count
   const limit = 50;
 
-  const [cursorResolution, states] = await Promise.all([
+  const [cursorResolution, states, availableLetters] = await Promise.all([
     resolveCursorForPage(
       {
         country,
@@ -95,6 +96,7 @@ export default async function CountryPagedPage({ params, searchParams }: Country
         })
     ),
     getAllStates(country),
+    getAvailableLettersForCountry({ country, q: searchQuery }),
   ]);
 
   if (pageNum > 1 && !cursorResolution.available) {
@@ -146,6 +148,7 @@ export default async function CountryPagedPage({ params, searchParams }: Country
         letterFilter={letterFilter}
         basePath={basePath}
         hasNextPage={hasNextPage}
+        availableLetters={availableLetters}
       />
 
       {states.length > 0 && (

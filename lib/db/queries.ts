@@ -110,6 +110,48 @@ export const getOccupationsForCountryCursor = cache(async ({
   return { items, nextCursor };
 });
 
+const LETTER_QUERY_BASE = `
+  LEFT(LOWER(COALESCE(title, occ_name, '')), 1) AS letter
+`;
+
+export const getAvailableLettersForCountry = cache(async ({
+  country,
+  q,
+}: {
+  country: string;
+  q?: string;
+}): Promise<string[]> => {
+  if (process.env.SKIP_DB_DURING_BUILD === 'true') {
+    return [];
+  }
+
+  const poolInstance = requirePool();
+  const dbCountryName = country.replace(/-/g, ' ');
+  const values: any[] = [dbCountryName.toLowerCase()];
+  let param = 2;
+  const where: string[] = [`LOWER(country) = LOWER($1)`];
+
+  if (q && q.trim()) {
+    const s = `%${q.trim().toLowerCase()}%`;
+    where.push(`(LOWER(COALESCE(title,'')) LIKE $${param} OR LOWER(COALESCE(occ_name,'')) LIKE $${param} OR LOWER(COALESCE(company_name,'')) LIKE $${param})`);
+    values.push(s); param++;
+  }
+
+  const result = await poolInstance.query(
+    `SELECT DISTINCT ${LETTER_QUERY_BASE}
+     FROM occupations
+     WHERE ${where.join(' AND ')}
+       AND COALESCE(title, occ_name, '') <> ''
+     ORDER BY letter`,
+    values
+  );
+
+  return result.rows
+    .map(row => row.letter)
+    .filter((letter: string | null) => letter && /^[a-z]$/.test(letter))
+    .map((letter: string) => letter.toLowerCase());
+});
+
 export const getOccupationsForStateCursor = cache(async ({
   country,
   state,
@@ -195,6 +237,45 @@ export const getOccupationsForStateCursor = cache(async ({
     ]);
   }
   return { items, nextCursor };
+});
+
+export const getAvailableLettersForState = cache(async ({
+  country,
+  state,
+  q,
+}: {
+  country: string;
+  state: string;
+  q?: string;
+}): Promise<string[]> => {
+  if (process.env.SKIP_DB_DURING_BUILD === 'true') {
+    return [];
+  }
+
+  const poolInstance = requirePool();
+  const values: any[] = [country.toLowerCase(), state.toLowerCase()];
+  let param = 3;
+  const where: string[] = [`LOWER(country) = LOWER($1)`, `LOWER(state) = LOWER($2)`];
+
+  if (q && q.trim()) {
+    const s = `%${q.trim().toLowerCase()}%`;
+    where.push(`(LOWER(COALESCE(title,'')) LIKE $${param} OR LOWER(COALESCE(occ_name,'')) LIKE $${param} OR LOWER(COALESCE(company_name,'')) LIKE $${param})`);
+    values.push(s); param++;
+  }
+
+  const result = await poolInstance.query(
+    `SELECT DISTINCT ${LETTER_QUERY_BASE}
+     FROM occupations
+     WHERE ${where.join(' AND ')}
+       AND COALESCE(title, occ_name, '') <> ''
+     ORDER BY letter`,
+    values
+  );
+
+  return result.rows
+    .map(row => row.letter)
+    .filter((letter: string | null) => letter && /^[a-z]$/.test(letter))
+    .map((letter: string) => letter.toLowerCase());
 });
 
 export const getOccupationsForLocationCursor = cache(async ({
@@ -288,6 +369,51 @@ export const getOccupationsForLocationCursor = cache(async ({
     ]);
   }
   return { items, nextCursor };
+});
+
+export const getAvailableLettersForLocation = cache(async ({
+  country,
+  state,
+  location,
+  q,
+}: {
+  country: string;
+  state: string;
+  location: string;
+  q?: string;
+}): Promise<string[]> => {
+  if (process.env.SKIP_DB_DURING_BUILD === 'true') {
+    return [];
+  }
+
+  const poolInstance = requirePool();
+  const values: any[] = [country.toLowerCase(), state.toLowerCase(), location.toLowerCase()];
+  let param = 4;
+  const where: string[] = [
+    `LOWER(country) = LOWER($1)`,
+    `LOWER(state) = LOWER($2)`,
+    `LOWER(location) = LOWER($3)`,
+  ];
+
+  if (q && q.trim()) {
+    const s = `%${q.trim().toLowerCase()}%`;
+    where.push(`(LOWER(COALESCE(title,'')) LIKE $${param} OR LOWER(COALESCE(occ_name,'')) LIKE $${param} OR LOWER(COALESCE(company_name,'')) LIKE $${param})`);
+    values.push(s); param++;
+  }
+
+  const result = await poolInstance.query(
+    `SELECT DISTINCT ${LETTER_QUERY_BASE}
+     FROM occupations
+     WHERE ${where.join(' AND ')}
+       AND COALESCE(title, occ_name, '') <> ''
+     ORDER BY letter`,
+    values
+  );
+
+  return result.rows
+    .map(row => row.letter)
+    .filter((letter: string | null) => letter && /^[a-z]$/.test(letter))
+    .map((letter: string) => letter.toLowerCase());
 });
 
 // Short-lived cache for frequently accessed data

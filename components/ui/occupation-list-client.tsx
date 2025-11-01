@@ -16,6 +16,7 @@ interface OccupationListClientProps {
   letterFilter?: string;
   basePath?: string;
   hasNextPage?: boolean;
+  availableLetters?: string[];
 }
 
 const PAGE_SIZE = 50;
@@ -33,17 +34,20 @@ export function OccupationListClient({
   letterFilter,
   basePath,
   hasNextPage,
+  availableLetters,
 }: OccupationListClientProps) {
+  const resolvedBasePath = basePath || `/${countrySlug}${currentState ? `/${currentState}` : ''}${currentLocation ? `/${currentLocation}` : ''}`;
   return (
     <div className="flex flex-col gap-4">
       <div className="mt-4 flex flex-col items-center gap-4 xl:flex-row xl:justify-between xl:items-center">
         <AZFilterServer 
-          basePath={basePath || `/${countrySlug}${currentState ? `/${currentState}` : ''}${currentLocation ? `/${currentLocation}` : ''}`}
+          basePath={resolvedBasePath}
           currentLetter={letterFilter}
           searchQuery={searchQuery}
+          availableLetters={availableLetters}
         />
         <SearchForm 
-          basePath={basePath || `/${countrySlug}${currentState ? `/${currentState}` : ''}${currentLocation ? `/${currentLocation}` : ''}`}
+          basePath={resolvedBasePath}
           currentQuery={searchQuery}
           letterFilter={letterFilter}
         />
@@ -65,7 +69,7 @@ export function OccupationListClient({
         <Pagination
           currentPage={currentPage}
           totalPages={totalPages}
-          basePath={basePath || `/${countrySlug}${currentState ? `/${currentState}` : ''}${currentLocation ? `/${currentLocation}` : ''}`}
+          basePath={resolvedBasePath}
           searchQuery={searchQuery}
           letterFilter={letterFilter}
           className="mt-6"

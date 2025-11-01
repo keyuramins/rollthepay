@@ -250,16 +250,59 @@ const stateDataPromises = states.map(async (state) => {
 const results = await Promise.all(stateDataPromises);
 ```
 
-#### Cursor-Based Pagination
+#### Cursor Registry (Keyset Pagination)
 ```typescript
-// High-performance pagination for large datasets
-export async function getStatesCursorPaginated(
-  country: string, 
-  limit: number = 100, 
-  cursor?: string
-): Promise<{ states: string[]; nextCursor?: string }> {
-  // Returns { states: [...], nextCursor: "next_state_name" }
+import { resolveCursorForPage, rememberNextCursor } from '@/lib/db/cursor-registry';
+
+const { cursor, available } = await resolveCursorForPage(
+  { country, state, limit, searchQuery, letterFilter },
+  pageNum,
+  (pageCursor) => getOccupationsForStateCursor({
+    country,
+    state,
+    limit,
+    cursor: pageCursor,
+    q: searchQuery,
+    letter: letterFilter,
+  })
+);
+
+if (pageNum > 1 && !available) {
+  notFound();
 }
+
+const { items, nextCursor } = await getOccupationsForStateCursor({
+  country,
+  state,
+  limit,
+  cursor,
+  q: searchQuery,
+  letter: letterFilter,
+});
+
+rememberNextCursor({ country, state, limit, searchQuery, letterFilter }, pageNum, nextCursor);
+```
+
+#### A–Z Filter Availability
+```typescript
+const availableLetters = await getAvailableLettersForState({
+  country,
+  state,
+  q: searchQuery,
+});
+
+<AZFilterServer
+  basePath={resolvedBasePath}
+  currentLetter={letterFilter}
+  searchQuery={searchQuery}
+  availableLetters={availableLetters}
+/>
+
+const hasResults = (letter: string) => {
+  if (letter === 'All') return true;
+  if (!availableLetters || availableLetters.length === 0) return true;
+  return availableSet.has(letter.toLowerCase());
+};
 ```
 
 ## 🛠️ Database Management

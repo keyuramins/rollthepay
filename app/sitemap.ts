@@ -1,6 +1,7 @@
 // app/sitemap.ts
 import type { MetadataRoute } from "next";
 import { getAllCountries, getAllStates, getAllLocations, searchOccupations } from "@/lib/db/queries";
+import { slugify } from "@/lib/format/slug";
 
 // Next.js 16: Route segment configuration for sitemap
 export const routeSegmentConfig = { revalidate: 86400 }; // 1 day for sitemap
@@ -77,7 +78,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       
       // Add state pages
       for (const state of states) {
-        const stateSlug = state.toLowerCase().replace(/\s+/g, '-');
+        const stateSlug = slugify(state);
         
         dynamicRoutes.push({
           url: `${base}/${countrySlug}/${stateSlug}`,
@@ -91,7 +92,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         
         // Add location pages
         for (const location of locations) {
-          const locationSlug = location.toLowerCase().replace(/\s+/g, '-');
+          const locationSlug = slugify(location);
           
           dynamicRoutes.push({
             url: `${base}/${countrySlug}/${stateSlug}/${locationSlug}`,
@@ -110,11 +111,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         
         // Build URL based on geographic hierarchy
         if (occupation.state) {
-          const stateSlug = occupation.state.toLowerCase().replace(/\s+/g, '-');
+          const stateSlug = slugify(occupation.state);
           occupationUrl += `/${stateSlug}`;
           
           if (occupation.location) {
-            const locationSlug = occupation.location.toLowerCase().replace(/\s+/g, '-');
+            const locationSlug = slugify(occupation.location);
             occupationUrl += `/${locationSlug}`;
           }
         }

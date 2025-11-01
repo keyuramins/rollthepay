@@ -9,7 +9,8 @@ import {
   getAllCountries,
   getCountryData,
   getOccupationsForCountryCursor,
-  getAllStates
+  getAllStates,
+  getAvailableLettersForCountry
 } from "@/lib/db/queries";
 import { rememberNextCursor } from "@/lib/db/cursor-registry";
 import { slugify } from "@/lib/format/slug";
@@ -51,9 +52,10 @@ export default async function CountryPage({ params }: CountryPageProps) {
   
   // Fetch first 50 occupations with cursor pagination (no cursor on first page)
   const limit = 50;
-  const [{ items: occupationItems, nextCursor }, states] = await Promise.all([
+  const [{ items: occupationItems, nextCursor }, states, availableLetters] = await Promise.all([
     getOccupationsForCountryCursor({ country, limit }),
     getAllStates(country),
+    getAvailableLettersForCountry({ country }),
   ]);
   const basePath = `/${country}`;
   const hasNextPage = Boolean(nextCursor);
@@ -87,6 +89,7 @@ export default async function CountryPage({ params }: CountryPageProps) {
         totalItems={occupationItems.length}
         basePath={basePath}
         hasNextPage={hasNextPage}
+        availableLetters={availableLetters}
       />
 
       {states.length > 0 && (

@@ -7,7 +7,8 @@ import { OccupationList } from "@/components/ui/occupation-list";
 import { 
   getLocationData, 
   getCountryData,
-  getOccupationsForLocationCursor
+  getOccupationsForLocationCursor,
+  getAvailableLettersForLocation
 } from "@/lib/db/queries";
 import { rememberNextCursor } from "@/lib/db/cursor-registry";
 import { deslugify, slugify } from "@/lib/format/slug";
@@ -37,13 +38,14 @@ export async function LocationPage({ country, state, location }: LocationPagePro
   // Fetch first 50 occupations with cursor pagination
   const limit = 50;
   
-  const [{ items: occupationItems, nextCursor }] = await Promise.all([
+  const [{ items: occupationItems, nextCursor }, availableLetters] = await Promise.all([
     getOccupationsForLocationCursor({
       country,
       state: stateName,
       location: locationName,
       limit,
     }),
+    getAvailableLettersForLocation({ country, state: stateName, location: locationName }),
   ]);
 
   rememberNextCursor(
@@ -87,6 +89,7 @@ export async function LocationPage({ country, state, location }: LocationPagePro
           totalItems={occupationItems.length}
           basePath={basePath}
         hasNextPage={hasNextPage}
+        availableLetters={availableLetters}
         />
 
         <LocationCTASection 
