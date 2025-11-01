@@ -25,6 +25,8 @@ export function slugify(name: string) {
     .replace(/ç/g, 'c')
     .replace(/î/g, 'i')
     .replace(/â/g, 'a')
+    .replace(/ã/g, 'a')
+    .replace(/á/g, 'a')
     .replace(/ê/g, 'e')
     .replace(/\s+/g, '-');
 }
@@ -54,9 +56,9 @@ export function deslugify(slug: string) {
     'ile-de-france': 'Île-de-France',
     'quebec': 'Québec',
     'parana': 'Paraná',
-    'sao paulo': 'São Paulo',
+    'sao-paulo': 'São Paulo',
     'ceara': 'Ceará',
-    'dun laoghaire': 'Dún Laoghaire',
+    'dun-laoghaire': 'Dún Laoghaire',
     'ciudad-de-mexico': 'Ciudad de México',
   };
   if (mappings[slug]) {
