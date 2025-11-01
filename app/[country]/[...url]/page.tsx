@@ -12,7 +12,6 @@ import { decodeSlugFromURL, slugify, deslugify } from "@/lib/format/slug";
    Route Configuration
 -------------------------------------------------- */
 export const routeSegmentConfig = { revalidate: 86400 };
-export const dynamic = 'error';
 
 interface UnifiedPageProps {
   params: Promise<{ country: string; url: string[] }>;

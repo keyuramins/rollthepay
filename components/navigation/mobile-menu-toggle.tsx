@@ -1,5 +1,5 @@
 // components/navigation/mobile-menu-toggle.tsx
-'use client';
+"use client";
 import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";

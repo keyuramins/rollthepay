@@ -6,6 +6,289 @@ import type { OccupationRecord } from '@/lib/data/types';
 import type { DbOccupationRow, SalaryUpdateData } from './types';
 import { transformDbRowToOccupationRecord, transformOccupationRecordToDb } from './types';
 import type { OccupationListItem } from '@/lib/types/occupation-list';
+import { slugify } from '@/lib/format/slug';
+// Cursor utilities for keyset pagination
+function encodeCursor(parts: any[]): string {
+  try { return Buffer.from(JSON.stringify(parts), 'utf8').toString('base64'); } catch { return ''; }
+}
+function decodeCursor<T = any[]>(cursor?: string): T | undefined {
+  if (!cursor) return undefined;
+  try { return JSON.parse(Buffer.from(cursor, 'base64').toString('utf8')) as T; } catch { return undefined; }
+}
+
+const ORDER_BY_KEYSET = `
+  LOWER(COALESCE(title, occ_name, '')),
+  LOWER(COALESCE(company_name, '')),
+  slug_url
+`;
+
+export const getOccupationsForCountryCursor = cache(async ({
+  country,
+  q,
+  letter,
+  limit = 50,
+  cursor,
+}: {
+  country: string;
+  q?: string;
+  letter?: string;
+  limit?: number;
+  cursor?: string;
+}): Promise<{ items: OccupationListItem[]; nextCursor?: string }> => {
+  if (process.env.SKIP_DB_DURING_BUILD === 'true') {
+    return { items: [], nextCursor: undefined };
+  }
+
+  const poolInstance = requirePool();
+  const dbCountryName = country.replace(/-/g, ' ');
+  const values: any[] = [dbCountryName.toLowerCase()];
+  let param = 2;
+  const where: string[] = [`LOWER(country) = LOWER($1)`];
+
+  if (q && q.trim()) {
+    const s = `%${q.trim().toLowerCase()}%`;
+    where.push(`(LOWER(COALESCE(title,'')) LIKE $${param} OR LOWER(COALESCE(occ_name,'')) LIKE $${param} OR LOWER(COALESCE(company_name,'')) LIKE $${param})`);
+    values.push(s); param++;
+  }
+  if (letter && letter.trim().length === 1) {
+    where.push(`LEFT(LOWER(COALESCE(title, occ_name, '')), 1) = $${param}`);
+    values.push(letter.trim().toLowerCase()); param++;
+  }
+
+  const decoded = decodeCursor<[string, string, string]>(cursor);
+  if (decoded) {
+    const [t, c, s] = decoded;
+    where.push(`(LOWER(COALESCE(title, occ_name, '')), LOWER(COALESCE(company_name, '')), slug_url) > ($${param}, $${param+1}, $${param+2})`);
+    values.push(t, c, s); param += 3;
+  }
+
+  const sql = `
+    SELECT slug_url as slug, title, occ_name, location, state, company_name, avg_annual_salary, country
+    FROM occupations
+    WHERE ${where.join(' AND ')}
+    ORDER BY ${ORDER_BY_KEYSET}
+    LIMIT $${param}
+  `;
+  values.push(limit + 1);
+
+  const result = await poolInstance.query(sql, values);
+  const rows = result.rows;
+  const hasNext = rows.length > limit;
+  const slice = hasNext ? rows.slice(0, limit) : rows;
+
+  const countryData = await getCountryData(country);
+  const countryName = countryData?.countryName || country;
+
+  const items: OccupationListItem[] = slice.map(row => {
+    const baseTitle = row.title || row.occ_name || '';
+    const atCompany = row.company_name ? ` at ${row.company_name}` : '';
+    const place = row.location || row.state || countryName;
+    const inPlace = place ? ` in ${place}` : '';
+    return {
+      id: row.slug,
+      title: baseTitle,
+      displayName: `${baseTitle}${atCompany}${inPlace}`,
+      slug_url: row.slug,
+      location: row.location || undefined,
+      state: row.state || undefined,
+      avgAnnualSalary: row.avg_annual_salary || undefined,
+      countrySlug: slugify(row.country || country),
+      company_name: row.company_name || undefined,
+    };
+  });
+
+  let nextCursor: string | undefined = undefined;
+  if (hasNext && slice.length > 0) {
+    const last = slice[slice.length - 1];
+    nextCursor = encodeCursor([
+      (last.title || last.occ_name || '').toLowerCase(),
+      (last.company_name || '').toLowerCase(),
+      last.slug,
+    ]);
+  }
+
+  return { items, nextCursor };
+});
+
+export const getOccupationsForStateCursor = cache(async ({
+  country,
+  state,
+  q,
+  letter,
+  limit = 50,
+  cursor,
+}: {
+  country: string;
+  state: string;
+  q?: string;
+  letter?: string;
+  limit?: number;
+  cursor?: string;
+}): Promise<{ items: OccupationListItem[]; nextCursor?: string }> => {
+  if (process.env.SKIP_DB_DURING_BUILD === 'true') {
+    return { items: [], nextCursor: undefined };
+  }
+  const poolInstance = requirePool();
+  const values: any[] = [country.toLowerCase(), state.toLowerCase()];
+  let param = 3;
+  const where: string[] = [`LOWER(country) = LOWER($1)`, `LOWER(state) = LOWER($2)`];
+
+  if (q && q.trim()) {
+    const s = `%${q.trim().toLowerCase()}%`;
+    where.push(`(LOWER(COALESCE(title,'')) LIKE $${param} OR LOWER(COALESCE(occ_name,'')) LIKE $${param} OR LOWER(COALESCE(company_name,'')) LIKE $${param})`);
+    values.push(s); param++;
+  }
+  if (letter && letter.trim().length === 1) {
+    where.push(`LEFT(LOWER(COALESCE(title, occ_name, '')), 1) = $${param}`);
+    values.push(letter.trim().toLowerCase()); param++;
+  }
+
+  const decoded = decodeCursor<[string, string, string]>(cursor);
+  if (decoded) {
+    const [t, c, s] = decoded;
+    where.push(`(LOWER(COALESCE(title, occ_name, '')), LOWER(COALESCE(company_name, '')), slug_url) > ($${param}, $${param+1}, $${param+2})`);
+    values.push(t, c, s); param += 3;
+  }
+
+  const sql = `
+    SELECT slug_url as slug, title, occ_name, location, state, company_name, avg_annual_salary, country
+    FROM occupations
+    WHERE ${where.join(' AND ')}
+    ORDER BY ${ORDER_BY_KEYSET}
+    LIMIT $${param}
+  `;
+  values.push(limit + 1);
+
+  const result = await poolInstance.query(sql, values);
+  const rows = result.rows;
+  const hasNext = rows.length > limit;
+  const slice = hasNext ? rows.slice(0, limit) : rows;
+
+  const countryData = await getCountryData(country);
+  const countryName = countryData?.countryName || country;
+
+  const items: OccupationListItem[] = slice.map(row => {
+    const baseTitle = row.title || row.occ_name || '';
+    const atCompany = row.company_name ? ` at ${row.company_name}` : '';
+    const place = row.location || state || countryName;
+    const inPlace = place ? ` in ${place}` : '';
+    return {
+      id: row.slug,
+      title: baseTitle,
+      displayName: `${baseTitle}${atCompany}${inPlace}`,
+      slug_url: row.slug,
+      location: row.location || undefined,
+      state: row.state || undefined,
+      avgAnnualSalary: row.avg_annual_salary || undefined,
+      countrySlug: country,
+      company_name: row.company_name || undefined,
+    };
+  });
+
+  let nextCursor: string | undefined = undefined;
+  if (hasNext && slice.length > 0) {
+    const last = slice[slice.length - 1];
+    nextCursor = encodeCursor([
+      (last.title || last.occ_name || '').toLowerCase(),
+      (last.company_name || '').toLowerCase(),
+      last.slug,
+    ]);
+  }
+  return { items, nextCursor };
+});
+
+export const getOccupationsForLocationCursor = cache(async ({
+  country,
+  state,
+  location,
+  q,
+  letter,
+  limit = 50,
+  cursor,
+}: {
+  country: string;
+  state: string;
+  location: string;
+  q?: string;
+  letter?: string;
+  limit?: number;
+  cursor?: string;
+}): Promise<{ items: OccupationListItem[]; nextCursor?: string }> => {
+  if (process.env.SKIP_DB_DURING_BUILD === 'true') {
+    return { items: [], nextCursor: undefined };
+  }
+  const poolInstance = requirePool();
+  const values: any[] = [country.toLowerCase(), state.toLowerCase(), location.toLowerCase()];
+  let param = 4;
+  const where: string[] = [
+    `LOWER(country) = LOWER($1)`,
+    `LOWER(state) = LOWER($2)`,
+    `LOWER(location) = LOWER($3)`
+  ];
+
+  if (q && q.trim()) {
+    const s = `%${q.trim().toLowerCase()}%`;
+    where.push(`(LOWER(COALESCE(title,'')) LIKE $${param} OR LOWER(COALESCE(occ_name,'')) LIKE $${param} OR LOWER(COALESCE(company_name,'')) LIKE $${param})`);
+    values.push(s); param++;
+  }
+  if (letter && letter.trim().length === 1) {
+    where.push(`LEFT(LOWER(COALESCE(title, occ_name, '')), 1) = $${param}`);
+    values.push(letter.trim().toLowerCase()); param++;
+  }
+
+  const decoded = decodeCursor<[string, string, string]>(cursor);
+  if (decoded) {
+    const [t, c, s] = decoded;
+    where.push(`(LOWER(COALESCE(title, occ_name, '')), LOWER(COALESCE(company_name, '')), slug_url) > ($${param}, $${param+1}, $${param+2})`);
+    values.push(t, c, s); param += 3;
+  }
+
+  const sql = `
+    SELECT slug_url as slug, title, occ_name, location, state, company_name, avg_annual_salary, country
+    FROM occupations
+    WHERE ${where.join(' AND ')}
+    ORDER BY ${ORDER_BY_KEYSET}
+    LIMIT $${param}
+  `;
+  values.push(limit + 1);
+
+  const result = await poolInstance.query(sql, values);
+  const rows = result.rows;
+  const hasNext = rows.length > limit;
+  const slice = hasNext ? rows.slice(0, limit) : rows;
+
+  const countryData = await getCountryData(country);
+  const countryName = countryData?.countryName || country;
+
+  const items: OccupationListItem[] = slice.map(row => {
+    const baseTitle = row.title || row.occ_name || '';
+    const atCompany = row.company_name ? ` at ${row.company_name}` : '';
+    const place = row.location || state || countryName;
+    const inPlace = place ? ` in ${place}` : '';
+    return {
+      id: row.slug,
+      title: baseTitle,
+      displayName: `${baseTitle}${atCompany}${inPlace}`,
+      slug_url: row.slug,
+      location: row.location || undefined,
+      state: row.state || undefined,
+      avgAnnualSalary: row.avg_annual_salary || undefined,
+      countrySlug: country,
+      company_name: row.company_name || undefined,
+    };
+  });
+
+  let nextCursor: string | undefined = undefined;
+  if (hasNext && slice.length > 0) {
+    const last = slice[slice.length - 1];
+    nextCursor = encodeCursor([
+      (last.title || last.occ_name || '').toLowerCase(),
+      (last.company_name || '').toLowerCase(),
+      last.slug,
+    ]);
+  }
+  return { items, nextCursor };
+});
 
 // Short-lived cache for frequently accessed data
 const queryCache = new Map<string, { data: any; timestamp: number }>();
@@ -436,13 +719,13 @@ export const getCountryData = cache(async (country: string): Promise<{
   const dbCountryName = country.replace(/-/g, ' '); // brunei-darussalam -> brunei darussalam
   
   try {
-    const [countryResult, statesResult, occupationsResult] = await Promise.all([
+    // Lightweight: only aggregate stats and distinct states
+    const [countryResult, statesResult] = await Promise.all([
       poolInstance.query(`
         SELECT 
           country,
           COUNT(*) as job_count,
-          AVG(avg_annual_salary) as avg_salary,
-          COUNT(DISTINCT state) as state_count
+          AVG(avg_annual_salary) as avg_salary
         FROM occupations 
         WHERE LOWER(country) = LOWER($1)
         GROUP BY country
@@ -452,8 +735,7 @@ export const getCountryData = cache(async (country: string): Promise<{
         FROM occupations 
         WHERE LOWER(country) = LOWER($1) AND state IS NOT NULL
         ORDER BY state
-      `, [dbCountryName]),
-      poolInstance.query('SELECT * FROM occupations WHERE LOWER(country) = LOWER($1) ORDER BY LOWER(title)', [dbCountryName])
+      `, [dbCountryName])
     ]);
 
     if (countryResult.rows.length === 0) {
@@ -462,44 +744,15 @@ export const getCountryData = cache(async (country: string): Promise<{
 
     const countryData = countryResult.rows[0];
     const states = statesResult.rows.map(row => row.state);
-    const occupations = occupationsResult.rows.map(transformDbRowToOccupationRecord);
 
     //const countryName = country.charAt(0).toUpperCase() + country.slice(1);
     const countryName = countryResult.rows[0].country;
     const totalJobs = parseInt(countryData.job_count);
     const avgSalary = parseFloat(countryData.avg_salary) || 0;
 
-    function slugify(name: string) {
-      return name.toLowerCase().replace(/\s+/g, '-');
-    }
-
-    const occupationItems = occupations.map(record => {
-      const baseTitle = record.title || record.occ_name || '';
-      const atCompany = record.company_name ? ` at ${record.company_name}` : "";
-      const place = record.location || record.state || countryName;
-      const inPlace = place ? ` in ${place}` : "";
-      
-      return {
-        id: record.slug_url,
-        title: baseTitle,
-        displayName: `${baseTitle}${atCompany}${inPlace}`,
-        slug_url: record.slug_url,
-        location: record.location || undefined,
-        state: record.state || undefined,
-        avgAnnualSalary: record.avgAnnualSalary || undefined,
-        countrySlug: slugify(countryResult.rows[0].country), //DB country normalized for URL
-        company_name: record.company_name || undefined,
-      };
-    });
-
-    const headerOccupations = occupations.map(rec => ({
-      country: rec.country.toLowerCase(),
-      title: rec.title || "",
-      slug: rec.slug_url,
-      state: rec.state ? rec.state : null,
-      location: rec.location ? rec.location : null,
-      company_name: rec.company_name ? rec.company_name : null,
-    }));
+    // Keep list fields empty; paginated helpers fetch items as needed
+    const occupationItems: OccupationListItem[] = [];
+    const headerOccupations: any[] = [];
 
     return {
       countryName,
@@ -824,6 +1077,510 @@ export async function getLocationCount(country: string, state: string): Promise<
     throw error;
   }
 }
+
+// Get occupations for state with pagination, search, and A–Z filter - Next.js 16 cached
+export const getOccupationsForState = cache(async ({
+  country,
+  state,
+  q,
+  letter,
+  limit = 50,
+  offset = 0,
+}: {
+  country: string;
+  state: string;
+  q?: string;
+  letter?: string;
+  limit?: number;
+  offset?: number;
+}): Promise<OccupationListItem[]> => {
+  // Skip DB queries during build
+  if (process.env.SKIP_DB_DURING_BUILD === 'true') {
+    return [];
+  }
+
+  const poolInstance = requirePool();
+
+  try {
+    const dbCountryName = country.replace(/-/g, ' ');
+    const values: any[] = [dbCountryName.toLowerCase(), state.toLowerCase()];
+    let paramIndex = 3;
+
+    let whereClauses = ['LOWER(country) = LOWER($1)', 'LOWER(state) = LOWER($2)'];
+
+    // Add search query filter
+    if (q && q.trim().length > 0) {
+      const searchTerm = `%${q.trim().toLowerCase()}%`;
+      whereClauses.push(`(
+        LOWER(COALESCE(title, '')) LIKE $${paramIndex} OR 
+        LOWER(COALESCE(occ_name, '')) LIKE $${paramIndex} OR 
+        LOWER(COALESCE(company_name, '')) LIKE $${paramIndex}
+      )`);
+      values.push(searchTerm);
+      paramIndex++;
+    }
+
+    // Add letter filter (A–Z)
+    if (letter && letter.trim().length === 1) {
+      const letterLower = letter.trim().toLowerCase();
+      whereClauses.push(`LEFT(LOWER(COALESCE(title, occ_name, '')), 1) = $${paramIndex}`);
+      values.push(letterLower);
+      paramIndex++;
+    }
+
+    const whereClause = whereClauses.join(' AND ');
+
+    // Build query with deterministic sorting
+    const query = `
+      SELECT 
+        slug_url as slug,
+        title,
+        occ_name,
+        location,
+        state,
+        company_name,
+        avg_annual_salary
+      FROM occupations 
+      WHERE ${whereClause}
+      ORDER BY 
+        LOWER(COALESCE(title, occ_name, '')),
+        LOWER(COALESCE(company_name, '')),
+        LOWER(COALESCE(location, state, country))
+      LIMIT $${paramIndex} OFFSET $${paramIndex + 1}
+    `;
+
+    values.push(limit, offset);
+
+    const result = await poolInstance.query(query, values);
+
+    // Map to OccupationListItem format
+    const countryData = await getCountryData(country);
+    const countryName = countryData?.countryName || country;
+
+    return result.rows.map((row) => {
+      const baseTitle = row.title || row.occ_name || '';
+      const atCompany = row.company_name ? ` at ${row.company_name}` : '';
+      const place = row.location || state || countryName;
+      const inPlace = place ? ` in ${place}` : '';
+
+      return {
+        id: row.slug,
+        title: baseTitle,
+        displayName: `${baseTitle}${atCompany}${inPlace}`,
+        slug_url: row.slug,
+        location: row.location || undefined,
+        state: row.state || undefined,
+        avgAnnualSalary: row.avg_annual_salary || undefined,
+        countrySlug: country,
+        company_name: row.company_name || undefined,
+      };
+    });
+  } catch (error) {
+    logger.error('Error getting occupations for state:', error);
+    throw error;
+  }
+});
+
+// Get count of occupations for state with search and A–Z filter - Next.js 16 cached
+export const getOccupationsForStateCount = cache(async ({
+  country,
+  state,
+  q,
+  letter,
+}: {
+  country: string;
+  state: string;
+  q?: string;
+  letter?: string;
+}): Promise<number> => {
+  // Skip DB queries during build
+  if (process.env.SKIP_DB_DURING_BUILD === 'true') {
+    return 0;
+  }
+
+  const poolInstance = requirePool();
+
+  try {
+    const dbCountryName = country.replace(/-/g, ' ');
+    const values: any[] = [dbCountryName.toLowerCase(), state.toLowerCase()];
+    let paramIndex = 3;
+
+    let whereClauses = ['LOWER(country) = LOWER($1)', 'LOWER(state) = LOWER($2)'];
+
+    // Add search query filter
+    if (q && q.trim().length > 0) {
+      const searchTerm = `%${q.trim().toLowerCase()}%`;
+      whereClauses.push(`(
+        LOWER(COALESCE(title, '')) LIKE $${paramIndex} OR 
+        LOWER(COALESCE(occ_name, '')) LIKE $${paramIndex} OR 
+        LOWER(COALESCE(company_name, '')) LIKE $${paramIndex}
+      )`);
+      values.push(searchTerm);
+      paramIndex++;
+    }
+
+    // Add letter filter (A–Z)
+    if (letter && letter.trim().length === 1) {
+      const letterLower = letter.trim().toLowerCase();
+      whereClauses.push(`LEFT(LOWER(COALESCE(title, occ_name, '')), 1) = $${paramIndex}`);
+      values.push(letterLower);
+      paramIndex++;
+    }
+
+    const whereClause = whereClauses.join(' AND ');
+
+    const query = `
+      SELECT COUNT(*) as count
+      FROM occupations 
+      WHERE ${whereClause}
+    `;
+
+    const result = await poolInstance.query(query, values);
+    return parseInt(result.rows[0].count) || 0;
+  } catch (error) {
+    logger.error('Error getting occupations count for state:', error);
+    throw error;
+  }
+});
+
+// Get occupations for location with pagination, search, and A–Z filter - Next.js 16 cached
+export const getOccupationsForLocation = cache(async ({
+  country,
+  state,
+  location,
+  q,
+  letter,
+  limit = 50,
+  offset = 0,
+}: {
+  country: string;
+  state: string;
+  location: string;
+  q?: string;
+  letter?: string;
+  limit?: number;
+  offset?: number;
+}): Promise<OccupationListItem[]> => {
+  // Skip DB queries during build
+  if (process.env.SKIP_DB_DURING_BUILD === 'true') {
+    return [];
+  }
+
+  const poolInstance = requirePool();
+
+  try {
+    const dbCountryName = country.replace(/-/g, ' ');
+    const values: any[] = [dbCountryName.toLowerCase(), state.toLowerCase(), location.toLowerCase()];
+    let paramIndex = 4;
+
+    let whereClauses = [
+      'LOWER(country) = LOWER($1)',
+      'LOWER(state) = LOWER($2)',
+      'LOWER(location) = LOWER($3)',
+    ];
+
+    // Add search query filter
+    if (q && q.trim().length > 0) {
+      const searchTerm = `%${q.trim().toLowerCase()}%`;
+      whereClauses.push(`(
+        LOWER(COALESCE(title, '')) LIKE $${paramIndex} OR 
+        LOWER(COALESCE(occ_name, '')) LIKE $${paramIndex} OR 
+        LOWER(COALESCE(company_name, '')) LIKE $${paramIndex}
+      )`);
+      values.push(searchTerm);
+      paramIndex++;
+    }
+
+    // Add letter filter (A–Z)
+    if (letter && letter.trim().length === 1) {
+      const letterLower = letter.trim().toLowerCase();
+      whereClauses.push(`LEFT(LOWER(COALESCE(title, occ_name, '')), 1) = $${paramIndex}`);
+      values.push(letterLower);
+      paramIndex++;
+    }
+
+    const whereClause = whereClauses.join(' AND ');
+
+    // Build query with deterministic sorting
+    const query = `
+      SELECT 
+        slug_url as slug,
+        title,
+        occ_name,
+        location,
+        state,
+        company_name,
+        avg_annual_salary
+      FROM occupations 
+      WHERE ${whereClause}
+      ORDER BY 
+        LOWER(COALESCE(title, occ_name, '')),
+        LOWER(COALESCE(company_name, '')),
+        LOWER(COALESCE(location, state, country))
+      LIMIT $${paramIndex} OFFSET $${paramIndex + 1}
+    `;
+
+    values.push(limit, offset);
+
+    const result = await poolInstance.query(query, values);
+
+    // Map to OccupationListItem format
+    const countryData = await getCountryData(country);
+    const countryName = countryData?.countryName || country;
+
+    return result.rows.map((row) => {
+      const baseTitle = row.title || row.occ_name || '';
+      const atCompany = row.company_name ? ` at ${row.company_name}` : '';
+      const place = row.location || location || state || countryName;
+      const inPlace = place ? ` in ${place}` : '';
+
+      return {
+        id: row.slug,
+        title: baseTitle,
+        displayName: `${baseTitle}${atCompany}${inPlace}`,
+        slug_url: row.slug,
+        location: row.location || undefined,
+        state: row.state || undefined,
+        avgAnnualSalary: row.avg_annual_salary || undefined,
+        countrySlug: country,
+        company_name: row.company_name || undefined,
+      };
+    });
+  } catch (error) {
+    logger.error('Error getting occupations for location:', error);
+    throw error;
+  }
+});
+
+// Get count of occupations for location with search and A–Z filter - Next.js 16 cached
+export const getOccupationsForLocationCount = cache(async ({
+  country,
+  state,
+  location,
+  q,
+  letter,
+}: {
+  country: string;
+  state: string;
+  location: string;
+  q?: string;
+  letter?: string;
+}): Promise<number> => {
+  // Skip DB queries during build
+  if (process.env.SKIP_DB_DURING_BUILD === 'true') {
+    return 0;
+  }
+
+  const poolInstance = requirePool();
+
+  try {
+    const dbCountryName = country.replace(/-/g, ' ');
+    const values: any[] = [dbCountryName.toLowerCase(), state.toLowerCase(), location.toLowerCase()];
+    let paramIndex = 4;
+
+    let whereClauses = [
+      'LOWER(country) = LOWER($1)',
+      'LOWER(state) = LOWER($2)',
+      'LOWER(location) = LOWER($3)',
+    ];
+
+    // Add search query filter
+    if (q && q.trim().length > 0) {
+      const searchTerm = `%${q.trim().toLowerCase()}%`;
+      whereClauses.push(`(
+        LOWER(COALESCE(title, '')) LIKE $${paramIndex} OR 
+        LOWER(COALESCE(occ_name, '')) LIKE $${paramIndex} OR 
+        LOWER(COALESCE(company_name, '')) LIKE $${paramIndex}
+      )`);
+      values.push(searchTerm);
+      paramIndex++;
+    }
+
+    // Add letter filter (A–Z)
+    if (letter && letter.trim().length === 1) {
+      const letterLower = letter.trim().toLowerCase();
+      whereClauses.push(`LEFT(LOWER(COALESCE(title, occ_name, '')), 1) = $${paramIndex}`);
+      values.push(letterLower);
+      paramIndex++;
+    }
+
+    const whereClause = whereClauses.join(' AND ');
+
+    const query = `
+      SELECT COUNT(*) as count
+      FROM occupations 
+      WHERE ${whereClause}
+    `;
+
+    const result = await poolInstance.query(query, values);
+    return parseInt(result.rows[0].count) || 0;
+  } catch (error) {
+    logger.error('Error getting occupations count for location:', error);
+    throw error;
+  }
+});
+
+// Get occupations for country with pagination, search, and A–Z filter - Next.js 16 cached
+export const getOccupationsForCountry = cache(async ({
+  country,
+  q,
+  letter,
+  limit = 50,
+  offset = 0,
+}: {
+  country: string;
+  q?: string;
+  letter?: string;
+  limit?: number;
+  offset?: number;
+}): Promise<OccupationListItem[]> => {
+  // Skip DB queries during build
+  if (process.env.SKIP_DB_DURING_BUILD === 'true') {
+    return [];
+  }
+
+  const poolInstance = requirePool();
+
+  try {
+    const dbCountryName = country.replace(/-/g, ' ');
+    const values: any[] = [dbCountryName.toLowerCase()];
+    let paramIndex = 2;
+
+    let whereClauses = ['LOWER(country) = LOWER($1)'];
+
+    // Add search query filter
+    if (q && q.trim().length > 0) {
+      const searchTerm = `%${q.trim().toLowerCase()}%`;
+      whereClauses.push(`(
+        LOWER(COALESCE(title, '')) LIKE $${paramIndex} OR 
+        LOWER(COALESCE(occ_name, '')) LIKE $${paramIndex} OR 
+        LOWER(COALESCE(company_name, '')) LIKE $${paramIndex}
+      )`);
+      values.push(searchTerm);
+      paramIndex++;
+    }
+
+    // Add letter filter (A–Z)
+    if (letter && letter.trim().length === 1) {
+      const letterLower = letter.trim().toLowerCase();
+      whereClauses.push(`LEFT(LOWER(COALESCE(title, occ_name, '')), 1) = $${paramIndex}`);
+      values.push(letterLower);
+      paramIndex++;
+    }
+
+    const whereClause = whereClauses.join(' AND ');
+
+    // Build query with deterministic sorting
+    const query = `
+      SELECT 
+        slug_url as slug,
+        title,
+        occ_name,
+        location,
+        state,
+        company_name,
+        avg_annual_salary,
+        country
+      FROM occupations 
+      WHERE ${whereClause}
+      ORDER BY 
+        LOWER(COALESCE(title, occ_name, '')),
+        LOWER(COALESCE(company_name, '')),
+        LOWER(COALESCE(location, state, country))
+      LIMIT $${paramIndex} OFFSET $${paramIndex + 1}
+    `;
+
+    values.push(limit, offset);
+
+    const result = await poolInstance.query(query, values);
+
+    // Get country name from database
+    const countryData = await getCountryData(country);
+    const countryName = countryData?.countryName || country;
+
+    return result.rows.map((row) => {
+      const baseTitle = row.title || row.occ_name || '';
+      const atCompany = row.company_name ? ` at ${row.company_name}` : '';
+      const place = row.location || row.state || countryName;
+      const inPlace = place ? ` in ${place}` : '';
+
+      return {
+        id: row.slug,
+        title: baseTitle,
+        displayName: `${baseTitle}${atCompany}${inPlace}`,
+        slug_url: row.slug,
+        location: row.location || undefined,
+        state: row.state || undefined,
+        avgAnnualSalary: row.avg_annual_salary || undefined,
+        countrySlug: slugify(row.country || country),
+        company_name: row.company_name || undefined,
+      };
+    });
+  } catch (error) {
+    logger.error('Error getting occupations for country:', error);
+    throw error;
+  }
+});
+
+// Get count of occupations for country with search and A–Z filter - Next.js 16 cached
+export const getOccupationsForCountryCount = cache(async ({
+  country,
+  q,
+  letter,
+}: {
+  country: string;
+  q?: string;
+  letter?: string;
+}): Promise<number> => {
+  // Skip DB queries during build
+  if (process.env.SKIP_DB_DURING_BUILD === 'true') {
+    return 0;
+  }
+
+  const poolInstance = requirePool();
+
+  try {
+    const dbCountryName = country.replace(/-/g, ' ');
+    const values: any[] = [dbCountryName.toLowerCase()];
+    let paramIndex = 2;
+
+    let whereClauses = ['LOWER(country) = LOWER($1)'];
+
+    // Add search query filter
+    if (q && q.trim().length > 0) {
+      const searchTerm = `%${q.trim().toLowerCase()}%`;
+      whereClauses.push(`(
+        LOWER(COALESCE(title, '')) LIKE $${paramIndex} OR 
+        LOWER(COALESCE(occ_name, '')) LIKE $${paramIndex} OR 
+        LOWER(COALESCE(company_name, '')) LIKE $${paramIndex}
+      )`);
+      values.push(searchTerm);
+      paramIndex++;
+    }
+
+    // Add letter filter (A–Z)
+    if (letter && letter.trim().length === 1) {
+      const letterLower = letter.trim().toLowerCase();
+      whereClauses.push(`LEFT(LOWER(COALESCE(title, occ_name, '')), 1) = $${paramIndex}`);
+      values.push(letterLower);
+      paramIndex++;
+    }
+
+    const whereClause = whereClauses.join(' AND ');
+
+    const query = `
+      SELECT COUNT(*) as count
+      FROM occupations 
+      WHERE ${whereClause}
+    `;
+
+    const result = await poolInstance.query(query, values);
+    return parseInt(result.rows[0].count) || 0;
+  } catch (error) {
+    logger.error('Error getting occupations count for country:', error);
+    throw error;
+  }
+});
 
 // Search occupations
 // export async function searchOccupations(query: string, country?: string, limit: number = 10): Promise<OccupationRecord[]> {

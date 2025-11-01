@@ -50,6 +50,10 @@ export function deslugify(slug: string) {
     'duesseldorf': 'Düsseldorf',
     'muenster': 'Münster',
     'ile-de-france': 'Île-de-France',
+    'quebec': 'Québec',
+    'parana': 'Paraná',
+    'sao paulo': 'São Paulo',
+    'ceara': 'Ceará',
   };
   
   if (mappings[slug]) {

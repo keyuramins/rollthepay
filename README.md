@@ -1425,18 +1425,12 @@ The platform supports multiple currencies with intelligent formatting:
 
 ### Development Environment
 
-#### Required Tools
-- **Node.js 18+**: JavaScript runtime
-- **PostgreSQL 17+**: Database system
-- **PgBouncer**: Connection pooling
-- **Git**: Version control
-- **VS Code**: Recommended editor
 
 #### Development Scripts
 ```bash
 # Development
 npm run dev                 # Start development server
-npm run build              # Production build
+npm run build:no-db              # Production build
 npm run start              # Production server
 npm run lint               # Code linting
 
@@ -1456,7 +1450,6 @@ npm run db:backup          # Create database backup
 - **ESLint**: JavaScript/TypeScript linting
 - **Prettier**: Code formatting (if configured)
 - **TypeScript**: Static type checking
-- **Husky**: Git hooks for quality checks
 
 #### Testing Framework
 - **Database Testing**: Comprehensive database validation
@@ -1519,7 +1512,7 @@ CREATE INDEX idx_occupations_title_search ON occupations
 ### Application Performance
 
 #### Caching Strategy
-- **In-Memory Caching**: 5-minute cache for frequent queries
+- **In-Memory Caching**: 1-day cache for frequent queries
 - **ISR Caching**: Next.js Incremental Static Regeneration
 - **CDN Caching**: Static asset caching
 - **Database Caching**: Query result caching
@@ -1535,15 +1528,15 @@ CREATE INDEX idx_occupations_title_search ON occupations
 
 ### Infrastructure Requirements
 
-#### Database Requirements
-- **PostgreSQL 17+**: High-performance database
-- **PgBouncer**: Connection pooling (recommended)
-- **SSD Storage**: Fast storage for database
-- **Memory**: 8GB+ RAM recommended
-- **CPU**: 4+ cores recommended
+#### Database
+- **PostgreSQL 17+**: High-performance database being used
+- **PgBouncer**: Connection pooling (being used)
+- **NVMe Storage**: Fast storage for database being used
+- **Memory**: 96GB+ RAM being used
+- **CPU**: 16+ cores being used
 
 #### Application Requirements
-- **Node.js 18+**: JavaScript runtime
+- **Node.js 20+**: JavaScript runtime
 - **Memory**: 2GB+ RAM for application
 - **Storage**: 10GB+ for application files
 - **Network**: High-bandwidth connection
@@ -1555,7 +1548,7 @@ CREATE INDEX idx_occupations_title_search ON occupations
 - **Load Balancers**: Multiple application instances
 - **Database Replication**: Read replicas for queries
 - **CDN**: Global content delivery
-- **Caching**: Redis/Memcached for caching
+- **Caching**: In-memory for caching
 - **Microservices**: Service decomposition
 
 #### Vertical Scaling

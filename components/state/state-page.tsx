@@ -5,9 +5,14 @@ import { StateHeroSection } from "./state-hero-section";
 import { LocationCTASection } from "@/components/location/location-cta-section";
 import { OccupationList } from "@/components/ui/occupation-list";
 import { LocationsGrid } from "./locations-grid";
-import { getAllLocations, getCountryData, getStateData } from "@/lib/db/queries";
-import { deslugify, slugify } from "@/lib/format/slug";
-import type { OccupationListItem } from "@/lib/types/occupation-list";
+import { 
+  getAllLocations, 
+  getCountryData, 
+  getStateData,
+  getOccupationsForStateCursor,
+} from "@/lib/db/queries";
+import { rememberNextCursor } from "@/lib/db/cursor-registry";
+import { slugify } from "@/lib/format/slug";
 
 interface StatePageProps {
   country: string;
@@ -30,30 +35,30 @@ export async function StatePage({ country, state }: StatePageProps) {
   const countryData = await getCountryData(country);
   const countryName = countryData?.countryName || country;
   const stateName = stateData.name;
-  const jobs = stateData.jobs;
   
   // Get locations for this state using database query
   const locations = await getAllLocations(country, stateName);
   
-  // Prepare occupation data for the list (only occupations in this state)
-  const occupationItems: OccupationListItem[] = jobs.map((job: any) => {
-    const baseTitle = job.title || job.occ_name || "";
-    const atCompany = job.company_name ? ` at ${job.company_name}` : "";
-    const place = job.location || stateName || countryName;
-    const inPlace = place ? ` in ${place}` : "";
-    
-    return {
-      id: job.slug,
-      title: baseTitle,
-      displayName: `${baseTitle}${atCompany}${inPlace}`,
-      slug_url: job.slug,
-      location: job.location || undefined,
-      state: stateName,
-      avgAnnualSalary: job.avgAnnualSalary || undefined,
-      countrySlug: country,
-      company_name: job.company_name || undefined,
-    };
-  });
+  // Fetch first 50 occupations with cursor pagination (no cursor for first page)
+  const limit = 50;
+  
+  const [{ items: occupationItems, nextCursor }] = await Promise.all([
+    getOccupationsForStateCursor({
+      country,
+      state: normalizedState,
+      limit,
+    }),
+  ]);
+
+  rememberNextCursor(
+    { country, state: normalizedState, limit },
+    1,
+    nextCursor
+  );
+
+  const hasNextPage = Boolean(nextCursor);
+  const basePath = `/${country}/${slugify(stateName)}`;
+  
   // Breadcrumb navigation
   const breadcrumbs = [
     { name: "Home", href: "/" },
@@ -78,6 +83,11 @@ export async function StatePage({ country, state }: StatePageProps) {
           states={[stateName]}
           currentState={slugify(stateName)}
           countrySlug={country}
+          currentPage={1}
+          totalPages={hasNextPage ? 2 : 1}
+          totalItems={occupationItems.length}
+          basePath={basePath}
+          hasNextPage={hasNextPage}
         />
 
         {locations.length > 0 && (

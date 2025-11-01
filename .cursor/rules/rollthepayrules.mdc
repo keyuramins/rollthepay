@@ -56,7 +56,6 @@ These rules are authoritative for this repository. Follow them for all new code,
   - `app/[country]/[state]/[location]/[slug]/page.tsx` for country+state+location records.
   - `app/[country]/[state]/page.tsx` for state overview pages.
   - `app/[country]/[state]/[location]/page.tsx` for location overview pages.
-- **Static params**: Implement `generateStaticParams` to enumerate all pages from database at build time. Use `export const dynamic = 'error'` to enforce static paths only (replaces deprecated `dynamicParams = false`).
 - **Canonical**: Provide canonical URLs in metadata. No querystring variants.
 
 ## ISR, Caching & Build
@@ -142,7 +141,7 @@ These rules are authoritative for this repository. Follow them for all new code,
 
 ## Implementation Checklist (per new route/page)
 1. Define route in `app/[country]/[state?]/[location?]/[slug]/page.tsx` as a Server Component.
-2. Set `export const routeSegmentConfig = { revalidate: 31536000 }` and `export const dynamic = 'error'`.
+2. Set `export const routeSegmentConfig = { revalidate: 31536000 }`
 3. Implement `generateStaticParams` to enumerate rows from relevant database queries.
 4. Use `cache()` wrapper for database query functions to prevent duplicate requests.
 5. Build metadata via async `generateMetadata` with typed `Metadata` import from the chosen row.
@@ -160,7 +159,6 @@ These rules are authoritative for this repository. Follow them for all new code,
 - No duplicate titles or headings (avoid `title` redundancy).
 - No transforming or re-slugifying `slug_url`.
 - No manual file-system cache management (handled automatically by Next.js 16).
-- No deprecated `dynamicParams = false` (use `dynamic = 'error'` instead).
 
 ## Notes from README
 - Mission: provide accurate salary data by country/state; simple UX; transparent labor market info.
@@ -202,7 +200,7 @@ These rules are authoritative for this repository. Follow them for all new code,
 
 ## Current Next.js 16 Configuration
 - **React Compiler**: Enabled in `next.config.ts` with `reactCompiler: true`.
-- **Cache Components**: Enabled with `cacheComponents: true` for optimal performance.
+- **Cache Components**: Disabled with `cacheComponents: false`.
 - **Turbopack**: Configured for SVG handling with `@svgr/webpack`.
 - **Package Optimization**: Enabled for `@/components` and `@/lib` imports.
 - **Image Optimization**: Configured with WebP/AVIF formats and 1-year cache TTL.
@@ -211,11 +209,14 @@ These rules are authoritative for this repository. Follow them for all new code,
 - **Database Integration**: Properly configured to skip database during build phases.
 
 ## Existing Indexes in DB
-List of relations
+                                  List of relations
  Schema |                   Name                    | Type  |  Owner   |      Table       
 --------+-------------------------------------------+-------+----------+------------------
  public | idx_mv_country_stats_country              | index | postgres | mv_country_stats
  public | idx_mv_state_stats_country_state          | index | postgres | mv_state_stats
+ public | idx_occ_occname_lower                     | index | postgres | occupations
+ public | idx_occ_sort_title_company                | index | postgres | occupations
+ public | idx_occ_title_lower                       | index | postgres | occupations
  public | idx_occupations_company_name              | index | postgres | occupations
  public | idx_occupations_company_name_ci           | index | postgres | occupations
  public | idx_occupations_country                   | index | postgres | occupations
@@ -235,4 +236,4 @@ List of relations
  public | idx_occupations_state_not_null            | index | postgres | occupations
  public | occupations_pkey                          | index | postgres | occupations
  public | unique_occupation_path                    | index | postgres | occupations
-(21 rows)
+(24 rows)

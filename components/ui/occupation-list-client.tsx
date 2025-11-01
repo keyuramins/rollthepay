@@ -1,95 +1,75 @@
-"use client";
-
-import { useState, useMemo, useEffect } from "react";
 import { OccupationListItems } from "./occupation-list-items";
 import { Pagination } from "./pagination";
-import { SearchWithinOccupationList } from "./search-within-occupation-list";
-import { AZFilter } from "../occupation/az-filter";
-import type { OccupationListItem, OccupationListClientProps } from "@/lib/types/occupation-list";
+import { SearchForm } from "./search-form";
+import { AZFilterServer } from "./az-filter-server";
+import type { OccupationListItem } from "@/lib/types/occupation-list";
 
-/* 🔍 Search bar isolated so it can render inside server layout */
-export function OccupationListSearchBar({
-  onQueryChange,
-}: {
-  onQueryChange?: (q: string) => void;
-}) {
-  const [query, setQuery] = useState("");
-
-  return (
-    <SearchWithinOccupationList
-      setSearchQuery={(q) => {
-        setQuery(q);
-        onQueryChange?.(q);
-      }}
-    />
-  );
+interface OccupationListClientProps {
+  items: OccupationListItem[];
+  countrySlug: string;
+  currentState?: string;
+  currentLocation?: string;
+  currentPage?: number;
+  totalPages?: number;
+  totalItems?: number;
+  searchQuery?: string;
+  letterFilter?: string;
+  basePath?: string;
+  hasNextPage?: boolean;
 }
 
-/* ⚙️ Main client component for filtering + pagination */
+const PAGE_SIZE = 50;
+
+/* ⚙️ Presentational client component - no filtering/pagination logic */
 export function OccupationListClient({
   items,
   countrySlug,
   currentState,
   currentLocation,
+  currentPage = 1,
+  totalPages = 1,
+  totalItems = items.length,
+  searchQuery,
+  letterFilter,
+  basePath,
+  hasNextPage,
 }: OccupationListClientProps) {
-  // Use precomputed displayName from producers - no redundant computation needed
-  const preparedItems = useMemo(
-    () =>
-      items.map((item: OccupationListItem) => ({
-        ...item,
-        id: item.slug_url, // Ensure id is set for consistency
-      })),
-    [items]
-  );
-    // () =>
-    //   items.map((item: any) => ({
-    //     ...item,
-    //     id: item.slug_url,
-    //     displayName: `${item?.title} Salary ${item?.company_name ? item?.company_name : ''} ${(item?.location || item?.state || item?.country) ? " in " +  item?.location || item?.state || item?.country : '' }`
-    //   })),
-    // [items]
-
-  const [filteredItems, setFilteredItems] = useState(preparedItems);
-  useEffect(() => {
-    setFilteredItems(preparedItems);
-  }, [preparedItems]);
-  const [query, setQuery] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
-  const PAGE_SIZE = 50;
-
-  const visibleItems = useMemo(() => {
-    return filteredItems.filter((item: OccupationListItem) =>
-      item.displayName.toLowerCase().includes(query.toLowerCase())
-    );
-  }, [filteredItems, query]);
-
-  const startIndex = (currentPage - 1) * PAGE_SIZE;
-  const paginatedItems = visibleItems.slice(startIndex, startIndex + PAGE_SIZE);
-
   return (
     <div className="flex flex-col gap-4">
       <div className="mt-4 flex flex-col items-center gap-4 xl:flex-row xl:justify-between xl:items-center">
-      <AZFilter items={preparedItems} onFilteredItemsChange={setFilteredItems} />
-      <SearchWithinOccupationList setSearchQuery={setQuery} />
+        <AZFilterServer 
+          basePath={basePath || `/${countrySlug}${currentState ? `/${currentState}` : ''}${currentLocation ? `/${currentLocation}` : ''}`}
+          currentLetter={letterFilter}
+          searchQuery={searchQuery}
+        />
+        <SearchForm 
+          basePath={basePath || `/${countrySlug}${currentState ? `/${currentState}` : ''}${currentLocation ? `/${currentLocation}` : ''}`}
+          currentQuery={searchQuery}
+          letterFilter={letterFilter}
+        />
       </div>
+      
       {/* List + Pagination */}
       <OccupationListItems
-        paginatedItems={paginatedItems}
-        totalItems={visibleItems.length}
+        paginatedItems={items}
+        totalItems={totalItems}
         PAGE_SIZE={PAGE_SIZE}
         currentPage={currentPage}
-        totalPages={Math.ceil(visibleItems.length / PAGE_SIZE)}
+        totalPages={totalPages}
         countrySlug={countrySlug}
         currentState={currentState}
         currentLocation={currentLocation}
       />
 
-      {visibleItems.length > PAGE_SIZE && (
+      {(typeof hasNextPage === 'boolean' || totalPages > 1) && (
         <Pagination
           currentPage={currentPage}
-          totalPages={Math.ceil(visibleItems.length / PAGE_SIZE)}
-          onPageChange={setCurrentPage}
+          totalPages={totalPages}
+          basePath={basePath || `/${countrySlug}${currentState ? `/${currentState}` : ''}${currentLocation ? `/${currentLocation}` : ''}`}
+          searchQuery={searchQuery}
+          letterFilter={letterFilter}
           className="mt-6"
+          hasNextPage={hasNextPage}
         />
       )}
     </div>

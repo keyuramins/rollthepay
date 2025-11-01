@@ -4,9 +4,13 @@ import { Breadcrumbs } from "@/components/occupation/breadcrumbs";
 import { LocationHeroSection } from "@/components/location/location-hero-section";
 import { LocationCTASection } from "@/components/location/location-cta-section";
 import { OccupationList } from "@/components/ui/occupation-list";
-import { getLocationData, getCountryData } from "@/lib/db/queries";
+import { 
+  getLocationData, 
+  getCountryData,
+  getOccupationsForLocationCursor
+} from "@/lib/db/queries";
+import { rememberNextCursor } from "@/lib/db/cursor-registry";
 import { deslugify, slugify } from "@/lib/format/slug";
-import type { OccupationListItem } from "@/lib/types/occupation-list";
 
 interface LocationPageProps {
   country: string;
@@ -19,7 +23,7 @@ export async function LocationPage({ country, state, location }: LocationPagePro
   const stateName = deslugify(state);
   const locationName = deslugify(location);
   
-  // Get jobs for this specific location using database query
+  // Get jobs for this specific location using database query (verify location exists)
   const locationData = await getLocationData(country, stateName, locationName);
   
   if (!locationData || locationData.jobs.length === 0) {
@@ -30,25 +34,26 @@ export async function LocationPage({ country, state, location }: LocationPagePro
   const countryData = await getCountryData(country);
   const countryName = countryData?.countryName || country;
   
-  // Prepare occupation data for the list
-  const occupationItems: OccupationListItem[] = locationData.jobs.map(job => {
-    const baseTitle = job.title || job.occ_name || "";
-    const atCompany = job.company_name ? ` at ${job.company_name}` : "";
-    const place = job.location || locationName || stateName || countryName;
-    const inPlace = place ? ` in ${place}` : "";
-    
-    return {
-      id: job.slug,
-      title: baseTitle,
-      displayName: `${baseTitle}${atCompany}${inPlace}`,
-      slug_url: job.slug,
-      location: job.location || undefined,
+  // Fetch first 50 occupations with cursor pagination
+  const limit = 50;
+  
+  const [{ items: occupationItems, nextCursor }] = await Promise.all([
+    getOccupationsForLocationCursor({
+      country,
       state: stateName,
-      avgAnnualSalary: job.avgAnnualSalary || undefined,
-      countrySlug: country,
-      company_name: job.company_name || undefined,
-    };
-  });
+      location: locationName,
+      limit,
+    }),
+  ]);
+
+  rememberNextCursor(
+    { country, state: stateName, location: locationName, limit },
+    1,
+    nextCursor
+  );
+
+  const hasNextPage = Boolean(nextCursor);
+  const basePath = `/${country}/${slugify(stateName)}/${slugify(locationName)}`;
   
   // Breadcrumb navigation
   const breadcrumbs = [
@@ -74,9 +79,14 @@ export async function LocationPage({ country, state, location }: LocationPagePro
           title="Explore Salaries by Occupation"
           description={`Browse salary information organized by job categories and specializations in ${locationName}, ${stateName}.`}
           states={[stateName]}
-          currentState={stateName.toLowerCase().replace(/\s+/g, '-')}
-          currentLocation={locationName.toLowerCase().replace(/\s+/g, '-')}
+          currentState={slugify(stateName)}
+          currentLocation={slugify(locationName)}
           countrySlug={country}
+          currentPage={1}
+        totalPages={hasNextPage ? 2 : 1}
+          totalItems={occupationItems.length}
+          basePath={basePath}
+        hasNextPage={hasNextPage}
         />
 
         <LocationCTASection 

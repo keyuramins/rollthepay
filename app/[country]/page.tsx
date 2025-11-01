@@ -5,16 +5,22 @@ import { CountryHeroSection } from "@/components/country/hero-section";
 import { OccupationList } from "@/components/ui/occupation-list";
 import { StatesGrid } from "@/components/country/states-grid";
 import { CountryCTASection } from "@/components/country/cta-section";
-import { optimizedDataAccess } from "@/lib/data/optimized-parse";
-import { getAllCountries } from "@/lib/db/queries";
+import { 
+  getAllCountries,
+  getCountryData,
+  getOccupationsForCountryCursor,
+  getAllStates
+} from "@/lib/db/queries";
+import { rememberNextCursor } from "@/lib/db/cursor-registry";
+import { slugify } from "@/lib/format/slug";
 
-export const routeSegmentConfig = { revalidate: 86400 };
-export const dynamic = 'error';
+export const routeSegmentConfig = { revalidate: 31536000 };
+export const fetchCache = 'force-cache';
 
 export async function generateStaticParams() {
   const countries = await getAllCountries();
   return countries.map((country) => ({
-    country: country.toLowerCase().replace(/\s+/g, '-'),
+    country: slugify(country),
   }));
 }
 
@@ -24,9 +30,8 @@ interface CountryPageProps {
 
 export async function generateMetadata({ params }: CountryPageProps): Promise<Metadata> {
   const { country } = await params;
-  const countryName = country?.split("-")
-  .map((w: string) => (w ? w[0].toUpperCase() + w.slice(1) : ""))
-    .join(" ");
+  const countryData = await getCountryData(country);
+  const countryName = countryData?.countryName || country;
   return {
     title: `${countryName} Salary Information`,
     description: `Explore salary records for jobs in ${countryName}.`,
@@ -36,39 +41,60 @@ export async function generateMetadata({ params }: CountryPageProps): Promise<Me
 
 export default async function CountryPage({ params }: CountryPageProps) {
   const { country } = await params;
-  const countryData = await optimizedDataAccess.getCountryData(country);
-  const countryDisplayName = country?.split("-")
-      .map((w: string) => (w ? w[0].toUpperCase() + w.slice(1) : ""))
-        .join(" ");
-  if (!countryData) notFound();
+  const countryData = await getCountryData(country);
+  
+  if (!countryData) {
+    notFound();
+  }
+  
+  const countryName = countryData.countryName;
+  
+  // Fetch first 50 occupations with cursor pagination (no cursor on first page)
+  const limit = 50;
+  const [{ items: occupationItems, nextCursor }, states] = await Promise.all([
+    getOccupationsForCountryCursor({ country, limit }),
+    getAllStates(country),
+  ]);
+  const basePath = `/${country}`;
+  const hasNextPage = Boolean(nextCursor);
+
+  rememberNextCursor(
+    { country, limit },
+    1,
+    nextCursor
+  );
 
   return (
     <main>
-    <Breadcrumbs
+      <Breadcrumbs
         breadcrumbs={[
           { name: "Home", href: "/" },
-          { name: countryDisplayName, href: "#", current: true },
+          { name: countryName, href: "#", current: true },
         ]}
       />
       <CountryHeroSection
-        countryName={countryDisplayName}
+        countryName={countryName}
         totalJobs={countryData.totalJobs}
       />
 
       <OccupationList
-        items={countryData.occupationItems}
+        items={occupationItems}
         title="Explore Salaries by Occupation"
         description="Browse salary information organized by respective categories and specializations."
-        states={countryData.states}
         countrySlug={country}
+        currentPage={1}
+        totalPages={hasNextPage ? 2 : 1}
+        totalItems={occupationItems.length}
+        basePath={basePath}
+        hasNextPage={hasNextPage}
       />
 
-      {countryData.states.length > 0 && (
+      {states.length > 0 && (
         <StatesGrid
-          states={countryData.states}
+          states={states}
           countrySlug={country}
           title="Explore Salaries by State/Region"
-          description={`Find salary data specific to different regions within ${countryData.countryName}.`}
+          description={`Find salary data specific to different regions within ${countryName}.`}
         />
       )}
       <CountryCTASection />

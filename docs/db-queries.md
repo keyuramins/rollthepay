@@ -1,3 +1,12 @@
+<!--Measure query plans ->
+EXPLAIN ANALYZE
+SELECT slug_url, title, occ_name, location, state, company_name, avg_annual_salary
+FROM occupations
+WHERE LOWER(country) = LOWER('cyprus')
+  AND (LOWER(COALESCE(title,'')) LIKE 'p%' OR LOWER(COALESCE(occ_name,'')) LIKE 'p%')
+ORDER BY LOWER(COALESCE(title, occ_name, '')), LOWER(COALESCE(company_name, ''))
+LIMIT 50 OFFSET 0;
+
 DELETE FROM occupations
 WHERE country = 'India' AND state = 'Madhya Pradesh' AND location = 'Delhi';
 
@@ -104,8 +113,8 @@ WHERE country = 'France'
     AND location = 'Paris';
 
 UPDATE occupations
-SET location = ''
-WHERE country = 'China' AND state = 'Tianjin' AND location = 'Tianjin';
+SET state = ''
+WHERE country = 'China' AND state = 'Chongqing' AND location = 'Chongqing';
 
 Change the slug_url
 UPDATE occupations
