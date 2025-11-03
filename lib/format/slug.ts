@@ -14,6 +14,7 @@ export function slugify(name: string) {
   return name
     .toLowerCase()
     .replace(/\./g, '')
+    .replace(/'/g, '')
     .replace(/ü/g, 'ue')
     .replace(/ö/g, 'oe')
     .replace(/ä/g, 'ae')
@@ -61,6 +62,8 @@ export function deslugify(slug: string) {
     'ceara': 'Ceará',
     'dun-laoghaire': 'Dún Laoghaire',
     'ciudad-de-mexico': 'Ciudad de México',
+    'st-johns': 'St. John\'s',//St. John's
+    'fort-st-john': 'Fort St. John',
   };
   if (mappings[slug]) {
     return mappings[slug];
