@@ -6,7 +6,7 @@ import type { OccupationRecord } from '@/lib/data/types';
 import type { DbOccupationRow, SalaryUpdateData } from './types';
 import { transformDbRowToOccupationRecord, transformOccupationRecordToDb } from './types';
 import type { OccupationListItem } from '@/lib/types/occupation-list';
-import { slugify } from '@/lib/format/slug';
+import { countrySlugToDb, slugify } from '@/lib/format/slug';
 // Cursor utilities for keyset pagination
 function encodeCursor(parts: any[]): string {
   try { return Buffer.from(JSON.stringify(parts), 'utf8').toString('base64'); } catch { return ''; }
@@ -21,6 +21,7 @@ const ORDER_BY_KEYSET = `
   LOWER(COALESCE(company_name, '')),
   slug_url
 `;
+
 
 export const getOccupationsForCountryCursor = cache(async ({
   country,
@@ -40,8 +41,8 @@ export const getOccupationsForCountryCursor = cache(async ({
   }
 
   const poolInstance = requirePool();
-  const dbCountryName = country.replace(/-/g, ' ');
-  const values: any[] = [dbCountryName.toLowerCase()];
+  const dbCountryName = countrySlugToDb(country);
+  const values: any[] = [dbCountryName];
   let param = 2;
   const where: string[] = [`LOWER(country) = LOWER($1)`];
 
@@ -126,8 +127,8 @@ export const getAvailableLettersForCountry = cache(async ({
   }
 
   const poolInstance = requirePool();
-  const dbCountryName = country.replace(/-/g, ' ');
-  const values: any[] = [dbCountryName.toLowerCase()];
+  const dbCountryName = countrySlugToDb(country);
+  const values: any[] = [dbCountryName];
   let param = 2;
   const where: string[] = [`LOWER(country) = LOWER($1)`];
 
@@ -171,7 +172,8 @@ export const getOccupationsForStateCursor = cache(async ({
     return { items: [], nextCursor: undefined };
   }
   const poolInstance = requirePool();
-  const values: any[] = [country.toLowerCase(), state.toLowerCase()];
+  const normalizedCountry = countrySlugToDb(country);
+  const values: any[] = [normalizedCountry, state.toLowerCase()];
   let param = 3;
   const where: string[] = [`LOWER(country) = LOWER($1)`, `LOWER(state) = LOWER($2)`];
 
@@ -253,7 +255,8 @@ export const getAvailableLettersForState = cache(async ({
   }
 
   const poolInstance = requirePool();
-  const values: any[] = [country.toLowerCase(), state.toLowerCase()];
+  const normalizedCountry = countrySlugToDb(country);
+  const values: any[] = [normalizedCountry, state.toLowerCase()];
   let param = 3;
   const where: string[] = [`LOWER(country) = LOWER($1)`, `LOWER(state) = LOWER($2)`];
 
@@ -299,7 +302,8 @@ export const getOccupationsForLocationCursor = cache(async ({
     return { items: [], nextCursor: undefined };
   }
   const poolInstance = requirePool();
-  const values: any[] = [country.toLowerCase(), state.toLowerCase(), location.toLowerCase()];
+  const normalizedCountry = countrySlugToDb(country);
+  const values: any[] = [normalizedCountry, state.toLowerCase(), location.toLowerCase()];
   let param = 4;
   const where: string[] = [
     `LOWER(country) = LOWER($1)`,
@@ -387,7 +391,8 @@ export const getAvailableLettersForLocation = cache(async ({
   }
 
   const poolInstance = requirePool();
-  const values: any[] = [country.toLowerCase(), state.toLowerCase(), location.toLowerCase()];
+  const normalizedCountry = countrySlugToDb(country);
+  const values: any[] = [normalizedCountry, state.toLowerCase(), location.toLowerCase()];
   let param = 4;
   const where: string[] = [
     `LOWER(country) = LOWER($1)`,
@@ -677,6 +682,7 @@ export const searchOccupationsServer = cache(async (
   limit: number = 50
 ): Promise<OccupationSearchResult[]> => {
   const pool = requirePool();
+  const normalizedCountry = countrySlugToDb(country);
 
   // Use LIKE for partial matching to support "acc" -> "accountant"
   const result = await pool.query(
@@ -702,7 +708,7 @@ export const searchOccupationsServer = cache(async (
       occ_name
     LIMIT $5
     `,
-    [country, `%${query}%`, `${query}%`, `%${query}%`, limit]
+    [normalizedCountry, `%${query}%`, `${query}%`, `%${query}%`, limit]
   );
 
   return result.rows;
@@ -741,6 +747,7 @@ export const getAllOccupationsForSearch = cache(async (country?: string, limit: 
 
   try {
     if (!country) return [];
+    const normalizedCountry = countrySlugToDb(country);
 
     const result = await poolInstance.query(`
       SELECT 
@@ -754,7 +761,7 @@ export const getAllOccupationsForSearch = cache(async (country?: string, limit: 
       WHERE LOWER(country) = LOWER($1)
       ORDER BY title
       LIMIT $2
-    `, [country, limit]);
+    `, [normalizedCountry, limit]);
     
     setCached(cacheKey, result.rows);
     logger.debug(`Fetched ${result.rows.length} occupations for search (country-scoped)`);
@@ -790,9 +797,8 @@ export const findOccupationSalaryByPath = cache(async (params: {
 }): Promise<OccupationRecord | null> => {
   const poolInstance = requirePool();
   const { country, state, location, slug } = params;
-  //Do we need deslufity here?
-  const dbCountryName = country.replace(/-/g, ' ');
-  const values = [dbCountryName.toLowerCase()];
+  const dbCountryName = countrySlugToDb(country);
+  const values = [dbCountryName];
   let query = `
     SELECT *
     FROM occupations
@@ -843,7 +849,7 @@ export const getCountryData = cache(async (country: string): Promise<{
 
   const poolInstance = requirePool();
   // Convert slug to DB country format
-  const dbCountryName = country.replace(/-/g, ' '); // brunei-darussalam -> brunei darussalam
+  const dbCountryName = countrySlugToDb(country); // brunei-darussalam -> brunei darussalam
   
   try {
     // Lightweight: only aggregate stats and distinct states
@@ -909,7 +915,7 @@ export const getStateData = cache(async (country: string, state: string): Promis
   }>;
 } | null> => {
   const poolInstance = requirePool();
-
+  
   const cacheKey = `state:${country}:${state}`;
   const cached = getCached<{
     name: string;
@@ -928,6 +934,7 @@ export const getStateData = cache(async (country: string, state: string): Promis
   }
 
   try {
+    const normalizedCountry = countrySlugToDb(country);
     const result = await poolInstance.query(`
       SELECT 
         slug_url,
@@ -941,7 +948,7 @@ export const getStateData = cache(async (country: string, state: string): Promis
       FROM occupations 
       WHERE LOWER(country) = LOWER($1) AND LOWER(state) = LOWER($2)
       ORDER BY title
-    `, [country, state]);
+    `, [normalizedCountry, state]);
 
     if (result.rows.length === 0) return null;
 
@@ -982,6 +989,7 @@ export const getLocationData = cache(async (country: string, state: string, loca
   const poolInstance = requirePool();
 
   try {
+    const normalizedCountry = countrySlugToDb(country);
     const result = await poolInstance.query(`
       SELECT 
         slug_url,
@@ -995,7 +1003,7 @@ export const getLocationData = cache(async (country: string, state: string, loca
       FROM occupations 
       WHERE LOWER(country) = LOWER($1) AND LOWER(state) = LOWER($2) AND LOWER(location) = LOWER($3)
       ORDER BY title
-    `, [country, state, location]);
+    `, [normalizedCountry, state, location]);
 
     if (result.rows.length === 0) return null;
 
@@ -1029,12 +1037,13 @@ export const getAllStates = cache(async (country: string): Promise<string[]> => 
   }
 
   try {
+    const normalizedCountry = countrySlugToDb(country);
     const result = await poolInstance.query(`
       SELECT DISTINCT state 
       FROM occupations 
       WHERE LOWER(country) = LOWER($1) AND state IS NOT NULL
       ORDER BY state
-    `, [country]);
+    `, [normalizedCountry]);
 
     const states = result.rows.map(row => row.state);
     setCached(cacheKey, states);
@@ -1056,12 +1065,13 @@ export const getAllLocations = cache(async (country: string, state: string): Pro
   }
 
   try {
+    const normalizedCountry = countrySlugToDb(country);
     const result = await poolInstance.query(`
       SELECT DISTINCT location 
       FROM occupations 
       WHERE LOWER(country) = LOWER($1) AND LOWER(state) = LOWER($2) AND location IS NOT NULL AND TRIM(location) <> ''
       ORDER BY location
-    `, [country, state]);
+    `, [normalizedCountry, state]);
 
     const locations = result.rows.map(row => row.location);
     setCached(cacheKey, locations);
@@ -1077,13 +1087,14 @@ export async function getStatesPaginated(country: string, limit: number = 100, o
   const poolInstance = requirePool();
 
   try {
+    const normalizedCountry = countrySlugToDb(country);
     const result = await poolInstance.query(`
       SELECT DISTINCT state 
       FROM occupations 
       WHERE LOWER(country) = LOWER($1) AND state IS NOT NULL
       ORDER BY state
       LIMIT $2 OFFSET $3
-    `, [country, limit, offset]);
+    `, [normalizedCountry, limit, offset]);
 
     return result.rows.map(row => row.state);
   } catch (error) {
@@ -1101,11 +1112,12 @@ export async function getStatesCursorPaginated(
   const poolInstance = requirePool();
 
   try {
+    const normalizedCountry = countrySlugToDb(country);
     const whereClause = cursor ? 
       `WHERE LOWER(country) = LOWER($1) AND state IS NOT NULL AND state > $2` :
       `WHERE LOWER(country) = LOWER($1) AND state IS NOT NULL`;
     
-    const params = cursor ? [country, cursor] : [country];
+    const params = cursor ? [normalizedCountry, cursor] : [normalizedCountry];
     
     const result = await poolInstance.query(`
       SELECT DISTINCT state 
@@ -1130,13 +1142,14 @@ export async function getLocationsPaginated(country: string, state: string, limi
   const poolInstance = requirePool();
 
   try {
+    const normalizedCountry = countrySlugToDb(country);
     const result = await poolInstance.query(`
       SELECT DISTINCT location 
       FROM occupations 
       WHERE LOWER(country) = LOWER($1) AND LOWER(state) = LOWER($2) AND location IS NOT NULL
       ORDER BY location
       LIMIT $3 OFFSET $4
-    `, [country, state, limit, offset]);
+    `, [normalizedCountry, state, limit, offset]);
 
     return result.rows.map(row => row.location);
   } catch (error) {
@@ -1155,11 +1168,12 @@ export async function getLocationsCursorPaginated(
   const poolInstance = requirePool();
 
   try {
+    const normalizedCountry = countrySlugToDb(country);
     const whereClause = cursor ? 
       `WHERE LOWER(country) = LOWER($1) AND LOWER(state) = LOWER($2) AND location IS NOT NULL AND location > $3` :
       `WHERE LOWER(country) = LOWER($1) AND LOWER(state) = LOWER($2) AND location IS NOT NULL`;
     
-    const params = cursor ? [country, state, cursor] : [country, state];
+    const params = cursor ? [normalizedCountry, state, cursor] : [normalizedCountry, state];
     
     const result = await poolInstance.query(`
       SELECT DISTINCT location 
@@ -1184,7 +1198,8 @@ export async function getStateCount(country: string): Promise<number> {
   const poolInstance = requirePool();
 
   try {
-    const result = await poolInstance.query('SELECT COUNT(DISTINCT state) as count FROM occupations WHERE LOWER(country) = LOWER($1) AND state IS NOT NULL', [country]);
+    const normalizedCountry = countrySlugToDb(country);
+    const result = await poolInstance.query('SELECT COUNT(DISTINCT state) as count FROM occupations WHERE LOWER(country) = LOWER($1) AND state IS NOT NULL', [normalizedCountry]);
     return parseInt(result.rows[0].count);
   } catch (error) {
     console.error('Error fetching state count:', error);
@@ -1197,7 +1212,8 @@ export async function getLocationCount(country: string, state: string): Promise<
   const poolInstance = requirePool();
 
   try {
-    const result = await poolInstance.query('SELECT COUNT(DISTINCT location) as count FROM occupations WHERE LOWER(country) = LOWER($1) AND LOWER(state) = LOWER($2) AND location IS NOT NULL', [country, state]);
+    const normalizedCountry = countrySlugToDb(country);
+    const result = await poolInstance.query('SELECT COUNT(DISTINCT location) as count FROM occupations WHERE LOWER(country) = LOWER($1) AND LOWER(state) = LOWER($2) AND location IS NOT NULL', [normalizedCountry, state]);
     return parseInt(result.rows[0].count);
   } catch (error) {
     console.error('Error fetching location count:', error);
@@ -1229,8 +1245,8 @@ export const getOccupationsForState = cache(async ({
   const poolInstance = requirePool();
 
   try {
-    const dbCountryName = country.replace(/-/g, ' ');
-    const values: any[] = [dbCountryName.toLowerCase(), state.toLowerCase()];
+    const dbCountryName = countrySlugToDb(country);
+    const values: any[] = [dbCountryName, state.toLowerCase()];
     let paramIndex = 3;
 
     let whereClauses = ['LOWER(country) = LOWER($1)', 'LOWER(state) = LOWER($2)'];
@@ -1328,8 +1344,8 @@ export const getOccupationsForStateCount = cache(async ({
   const poolInstance = requirePool();
 
   try {
-    const dbCountryName = country.replace(/-/g, ' ');
-    const values: any[] = [dbCountryName.toLowerCase(), state.toLowerCase()];
+    const dbCountryName = countrySlugToDb(country);
+    const values: any[] = [dbCountryName, state.toLowerCase()];
     let paramIndex = 3;
 
     let whereClauses = ['LOWER(country) = LOWER($1)', 'LOWER(state) = LOWER($2)'];
@@ -1396,8 +1412,8 @@ export const getOccupationsForLocation = cache(async ({
   const poolInstance = requirePool();
 
   try {
-    const dbCountryName = country.replace(/-/g, ' ');
-    const values: any[] = [dbCountryName.toLowerCase(), state.toLowerCase(), location.toLowerCase()];
+    const dbCountryName = countrySlugToDb(country);
+    const values: any[] = [dbCountryName, state.toLowerCase(), location.toLowerCase()];
     let paramIndex = 4;
 
     let whereClauses = [
@@ -1501,8 +1517,8 @@ export const getOccupationsForLocationCount = cache(async ({
   const poolInstance = requirePool();
 
   try {
-    const dbCountryName = country.replace(/-/g, ' ');
-    const values: any[] = [dbCountryName.toLowerCase(), state.toLowerCase(), location.toLowerCase()];
+    const dbCountryName = countrySlugToDb(country);
+    const values: any[] = [dbCountryName, state.toLowerCase(), location.toLowerCase()];
     let paramIndex = 4;
 
     let whereClauses = [
@@ -1569,8 +1585,8 @@ export const getOccupationsForCountry = cache(async ({
   const poolInstance = requirePool();
 
   try {
-    const dbCountryName = country.replace(/-/g, ' ');
-    const values: any[] = [dbCountryName.toLowerCase()];
+    const dbCountryName = countrySlugToDb(country);
+    const values: any[] = [dbCountryName];
     let paramIndex = 2;
 
     let whereClauses = ['LOWER(country) = LOWER($1)'];
@@ -1667,8 +1683,8 @@ export const getOccupationsForCountryCount = cache(async ({
   const poolInstance = requirePool();
 
   try {
-    const dbCountryName = country.replace(/-/g, ' ');
-    const values: any[] = [dbCountryName.toLowerCase()];
+    const dbCountryName = countrySlugToDb(country);
+    const values: any[] = [dbCountryName];
     let paramIndex = 2;
 
     let whereClauses = ['LOWER(country) = LOWER($1)'];
@@ -1735,6 +1751,7 @@ export const getOccupationsForCountryCount = cache(async ({
 export const searchOccupations = cache(async (query: string, country?: string, limit: number = 10): Promise<OccupationRecord[]> => {
   const poolInstance = requirePool();
   const hasQuery = query && query.trim().length > 0;
+  const normalizedCountry = country ? countrySlugToDb(country) : null;
 
   try {
     const sql = hasQuery
@@ -1754,7 +1771,7 @@ export const searchOccupations = cache(async (query: string, country?: string, l
           LIMIT $2
         `;
 
-    const params = hasQuery ? [query, country || null, limit] : [country || null, limit];
+    const params = hasQuery ? [query, normalizedCountry, limit] : [normalizedCountry, limit];
 
     const result = await poolInstance.query(sql, params);
     return result.rows.map(transformDbRowToOccupationRecord);

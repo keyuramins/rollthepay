@@ -22,6 +22,7 @@ export function slugify(name: string) {
     .replace(/è/g, 'e')
     .replace(/à/g, 'a')
     .replace(/ù/g, 'u')
+    .replace(/ú/g, 'u')
     .replace(/ç/g, 'c')
     .replace(/î/g, 'i')
     .replace(/â/g, 'a')
@@ -102,4 +103,9 @@ export function deslugify(slug: string) {
   // return slug
   //   .replace(/-/g, ' ')
   //   .replace(/\b\w/g, (c) => c.toUpperCase());
+}
+
+// Helper to convert a slugged country string back to the database format
+export function countrySlugToDb(value: string): string {
+  return value.replace(/-/g, ' ').toLowerCase();
 }
