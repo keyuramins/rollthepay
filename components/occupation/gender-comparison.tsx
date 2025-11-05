@@ -1,4 +1,3 @@
-// Remove "use client" and recharts imports
 // components/occupation/gender-comparison.tsx
 
 import { Card, CardContent, CardHeader } from "@/components/ui/card";

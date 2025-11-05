@@ -82,7 +82,6 @@ export async function StatePage({ country, state }: StatePageProps) {
           items={occupationItems}
           title="Explore Salaries by Occupation"
           description={`Browse salary information organized by respective categories and specializations in ${stateName}.`}
-          states={[stateName]}
           currentState={slugify(stateName)}
           countrySlug={country}
           currentPage={1}
@@ -90,7 +89,7 @@ export async function StatePage({ country, state }: StatePageProps) {
           totalItems={occupationItems.length}
           basePath={basePath}
           hasNextPage={hasNextPage}
-        availableLetters={availableLetters}
+          availableLetters={availableLetters}
         />
 
         {locations.length > 0 && (

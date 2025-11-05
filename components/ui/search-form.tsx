@@ -51,7 +51,7 @@ export function SearchForm({ basePath, currentQuery = "", letterFilter }: Search
         onChange={(e) => setQuery(e.target.value)}
         onKeyDown={handleKeyDown}
         placeholder="Search occupations by name..."
-        className="w-full mx-auto my-4 xl:my-0 xl:mt-4 lg:w-80 rounded-lg border border-input px-3 py-2 text-sm shadow-sm focus:border-green-100 focus:ring-primary bg-white h-[36px] lg:h-[40px]"
+        className="w-full mx-auto my-4 xl:my-0 xl:mt-4 xl:w-55 rounded-lg border border-input px-3 py-2 text-sm shadow-sm focus:border-green-100 focus:ring-primary bg-white h-[36px] xl:h-[40px]"
       />
     </form>
   );

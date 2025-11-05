@@ -1,7 +1,11 @@
 // app/not-found.tsx
 import Link from 'next/link';
+import { Suspense } from 'react';
+
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+
+import { TailoredNotFound } from './not-found/tailored-not-found';
 
 export const metadata = {
   title: 'Page Not Found - RollThePay',
@@ -12,49 +16,40 @@ export const metadata = {
 export default function NotFound() {
   return (
     <div className="min-h-screen bg-primary flex items-center justify-center px-4">
-      <Card className="max-w-2xl w-full p-8 text-center shadow-xl">
-        <div className="mb-8">
+      <Card className="max-w-3xl w-full p-8 shadow-xl space-y-6 text-center">
+        <div className="space-y-3">
           <h1>404</h1>
-          <h2>
-            Page Not Found
-          </h2>
+          <h2>Page Not Found</h2>
           <p>
-            Sorry, we couldn't find the page you're looking for. The page might have been moved, deleted, or you entered the wrong URL.
+            Sorry, we couldn&apos;t find the page you&apos;re looking for. The page might have been moved, deleted, or you entered the wrong URL.
           </p>
         </div>
 
-        <div className="space-y-4">
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button asChild variant="default" size="lg">
-              <Link href="/">
-                Go Home
-              </Link>
-            </Button>
-            <Button asChild variant="default" size="lg">
-              <Link href="/about">
-                About Us
-              </Link>
-            </Button>
-          </div>
-          
-          <div className="mt-8 pt-6 border-t border-gray-200">
-            <p className="text-sm text-gray-500 mb-4">
-              Looking for salary data? Try these popular destinations:
-            </p>
-            <div className="flex flex-wrap gap-2 justify-center">
-              <Button asChild variant="secondary" size="sm">
-                <Link href="/australia">Australia</Link>
-              </Button>
-              <Button asChild variant="secondary" size="sm">
-                <Link href="/india">India</Link>
-              </Button>
-              <Button asChild variant="secondary" size="sm">
-                <Link href="/switzerland">Switzerland</Link>
-              </Button>
-            </div>
-          </div>
+        <Suspense fallback={<SuggestionsFallback />}> 
+          <TailoredNotFound />
+        </Suspense>
+        <div className="space-y-3">
+          <Button asChild variant="secondary" size="lg">
+            <Link href="/">Home</Link>
+          </Button>
         </div>
       </Card>
+    </div>
+  );
+}
+
+function SuggestionsFallback() {
+  return (
+    <div className="space-y-6 text-center">
+      <p className="text-sm text-gray-500">Preparing suggestions…</p>
+      <div className="flex justify-center gap-3">
+        <Button asChild variant="default" size="sm">
+          <Link href="/">Go Home</Link>
+        </Button>
+        <Button asChild variant="secondary" size="sm">
+          <Link href="/about">About Us</Link>
+        </Button>
+      </div>
     </div>
   );
 }
