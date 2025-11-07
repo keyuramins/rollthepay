@@ -83,10 +83,10 @@ export async function PATCH(
 
     // Validate that at least one salary field is provided
     const validSalaryFields = [
-      'avg_annual_salary', 'low_salary', 'high_salary', 'avg_hourly_salary',
-      'hourly_low_value', 'hourly_high_value', 'weekly_salary', 'fortnightly_salary',
-      'monthly_salary', 'total_pay_min', 'total_pay_max', 'total_hourly_low_value',
-      'total_hourly_high_value', 'bonus_range_min', 'bonus_range_max',
+      'avg_annual_salary', 'avg_hourly_salary',
+      'hourly_low_value', 'hourly_high_value', 'fortnightly_salary',
+      'monthly_salary', 'total_pay_min', 'total_pay_max',
+      'bonus_range_min', 'bonus_range_max',
       'profit_sharing_min', 'profit_sharing_max', 'commission_min', 'commission_max',
       'entry_level', 'early_career', 'mid_career', 'experienced', 'late_career',
       'one_yr', 'one_four_yrs', 'five_nine_yrs', 'ten_nineteen_yrs', 'twenty_yrs_plus',

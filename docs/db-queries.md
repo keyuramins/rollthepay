@@ -138,3 +138,51 @@ WHERE o.country = 'France'
     WHERE x.country = o.country
       AND x.state = 'Île-de-France'
   );
+
+  column_name     
+--------------------
+ avg_annual_salary
+ avg_hourly_salary
+ bonus_range_max
+ bonus_range_min
+ commission_max
+ commission_min
+ company_name
+ contribution_count
+ country
+ created_at
+ data_source
+ early_career
+ entry_level
+ experienced
+ five_nine_yrs
+ fortnightly_salary
+ gender_female
+ gender_male
+ hourly_high_value
+ hourly_low_value
+ id
+ last_verified_at
+ late_career
+ location
+ mid_career
+ monthly_salary
+ occ_name
+ one_four_yrs
+ one_yr
+ percentile_10
+ percentile_25
+ percentile_50
+ percentile_75
+ percentile_90
+ profit_sharing_max
+ profit_sharing_min
+ skills
+ slug_url
+ state
+ ten_nineteen_yrs
+ title
+ total_pay_max
+ total_pay_min
+ twenty_yrs_plus
+ updated_at

@@ -90,8 +90,8 @@ function getNextYear(): string {
 // Calculate realistic salary increase percentage based on industry trends and market conditions
 function calculateSalaryIncrease(record: OccupationRecord, country: string): number {
   const avgSalary = record.avgAnnualSalary || 0;
-  const lowSalary = record.lowSalary || 0;
-  const highSalary = record.highSalary || 0;
+  const lowSalary = record.totalPayMin || 0;
+  const highSalary = record.totalPayMax || 0;
   
   if (avgSalary === 0) return 0;
   
@@ -211,8 +211,8 @@ function compareToInflation(salaryIncrease: number, country: string): string {
 // Calculate demand strength based on salary data, industry trends, and market indicators
 function calculateDemandStrength(record: OccupationRecord, location?: string, country?: string): 'strong' | 'moderate' | 'weak' {
   const avgSalary = record.avgAnnualSalary || 0;
-  const highSalary = record.highSalary || 0;
-  const lowSalary = record.lowSalary || 0;
+  const highSalary = record.totalPayMax || 0;
+  const lowSalary = record.totalPayMin || 0;
   
   if (avgSalary === 0) return 'moderate';
   
@@ -279,7 +279,7 @@ function calculateDemandStrength(record: OccupationRecord, location?: string, co
 // Assess compensation competitiveness
 function assessCompensationCompetitiveness(record: OccupationRecord, country: string): 'highly competitive' | 'competitive' | 'moderate' {
   const avgSalary = record.avgAnnualSalary || 0;
-  const highSalary = record.highSalary || 0;
+  const highSalary = record.totalPayMax || 0;
   
   if (avgSalary === 0) return 'moderate';
   
@@ -294,8 +294,8 @@ function assessCompensationCompetitiveness(record: OccupationRecord, country: st
 // Calculate percentile rank
 function calculatePercentileRank(record: OccupationRecord, country: string): number {
   const avgSalary = record.avgAnnualSalary || 0;
-  const lowSalary = record.lowSalary || 0;
-  const highSalary = record.highSalary || 0;
+  const lowSalary = record.totalPayMin || 0;
+  const highSalary = record.totalPayMax || 0;
   
   if (avgSalary === 0 || lowSalary === 0 || highSalary === 0) return 50;
   

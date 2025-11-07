@@ -29,8 +29,7 @@ export async function GET(req: NextRequest) {
       slug: occ.slug,
       state: occ.state,
       location: occ.location,
-      averageSalary: occ.avg_salary,
-      currencyCode: occ.currency_code
+      averageSalary: occ.avg_salary
     }));
 
     return NextResponse.json({ occupations: transformedOccupations });

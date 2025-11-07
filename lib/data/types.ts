@@ -17,15 +17,12 @@ export interface RawCsvRow {
   profitSharingMax?: string;
   commissionMin?: string;
   commissionMax?: string;
-  lowSalary?: string;
-  highSalary?: string;
   occ_name?: string;
   totalPayMin?: string;
   totalPayMax?: string;
   avgHourlySalary?: string;
   hourlyLowValue?: string;
   hourlyHighValue?: string;
-  WeeklySalary?: string;
   fortnightlySalary?: string;
   monthlySalary?: string;
   genderMale?: string;
@@ -60,8 +57,6 @@ export interface RawCsvRow {
   fiveNineYrs?: string;
   tenNineteenYrs?: string;
   twentyYrsPlus?: string;
-  totalHourlyLowValue?: string;
-  totalHourlyHighValue?: string;
   "10P"?: string;
   "25P"?: string;
   "50P"?: string;
@@ -79,8 +74,6 @@ export interface OccupationRecord {
   location: string | null; // city/locality when present
   state: string | null; // optional state; lowercased in route segment
 
-  currencyCode: string | null; // e.g., AUD, INR (derived from country when absent)
-
   avgAnnualSalary: MaybeNumber;
   bonusRangeMin: MaybeNumber;
   bonusRangeMax: MaybeNumber;
@@ -88,14 +81,11 @@ export interface OccupationRecord {
   profitSharingMax: MaybeNumber;
   commissionMin: MaybeNumber;
   commissionMax: MaybeNumber;
-  lowSalary: MaybeNumber;
-  highSalary: MaybeNumber;
   totalPayMin: MaybeNumber;
   totalPayMax: MaybeNumber;
   avgHourlySalary: MaybeNumber;
   hourlyLowValue: MaybeNumber;
   hourlyHighValue: MaybeNumber;
-  weeklySalary: MaybeNumber;
   fortnightlySalary: MaybeNumber;
   monthlySalary: MaybeNumber;
 
@@ -138,10 +128,6 @@ export interface OccupationRecord {
   fiveNineYrs?: number | null;
   tenNineteenYrs?: number | null;
   twentyYrsPlus?: number | null;
-
-  // Total hourly values
-  totalHourlyLowValue?: number | null;
-  totalHourlyHighValue?: number | null;
 
   // Salary percentiles
   "10P"?: number | null;

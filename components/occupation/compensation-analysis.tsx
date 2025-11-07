@@ -101,45 +101,6 @@ export function CompensationAnalysis({ record, country, location }: Compensation
     return null;
   }
 
-  const computeGrowthMetrics = (minVal: number, avgVal: number, maxVal: number) => {
-    const min = Math.max(Number(minVal) || 0, 0);
-    const avg = Math.max(Number(avgVal) || 0, 0);
-    const max = Math.max(Number(maxVal) || 0, 0);
-
-    const effectiveRange = max > min ? (max - min) : max;
-
-    const minToAvgGrowth = min > 0
-      ? ((avg - min) / Math.max(min, 1)) * 100
-      : (max > 0 ? (avg / max) * 100 : 0);
-
-    const avgToMaxGrowth = avg > 0
-      ? ((max - avg) / Math.max(avg, 1)) * 100
-      : (max > 0 ? 100 : 0);
-
-    const medianPosition = effectiveRange > 0
-      ? ((avg - min) / effectiveRange) * 100
-      : (max > 0 ? (avg / max) * 100 : 0);
-
-    const growthFactor = min > 0
-      ? (max / min)
-      : (avg > 0 ? (max / avg) : (max > 0 ? 1 : 0));
-
-    const totalRange = min > 0 && max > min ? (max - min) : max;
-
-    const clamp = (n: number) => Math.max(0, Math.min(isFinite(n) ? n : 0, 1000000));
-
-    return {
-      min,
-      avg,
-      max,
-      totalRange: Math.max(0, totalRange),
-      minToAvgGrowth: clamp(minToAvgGrowth),
-      avgToMaxGrowth: clamp(avgToMaxGrowth),
-      medianPosition: clamp(medianPosition),
-      growthFactor: Math.max(0, isFinite(growthFactor) ? growthFactor : 0),
-    };
-  };
-
   const isValidMinMax = (min: unknown, max: unknown): boolean => {
     if (min == null || max == null) return false;
     const minStr = typeof min === 'string' ? min : String(min);

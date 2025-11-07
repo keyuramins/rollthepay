@@ -10,22 +10,16 @@ export interface DbOccupationRow {
   country: string;
   state: string | null;
   location: string | null;
-  currency_code: string | null;
   company_name: string | null;
   // Salary fields
   avg_annual_salary: number | null;
-  low_salary: number | null;
-  high_salary: number | null;
   avg_hourly_salary: number | null;
   hourly_low_value: number | null;
   hourly_high_value: number | null;
-  weekly_salary: number | null;
   fortnightly_salary: number | null;
   monthly_salary: number | null;
   total_pay_min: number | null;
   total_pay_max: number | null;
-  total_hourly_low_value: number | null;
-  total_hourly_high_value: number | null;
   
   // Additional compensation
   bonus_range_min: number | null;
@@ -106,22 +100,16 @@ export function transformDbRowToOccupationRecord(row: DbOccupationRow): Occupati
     country: row.country,
     location: row.location,
     state: row.state,
-    currencyCode: row.currency_code,
     company_name: row.company_name || null,
     // Salary fields (safe number conversion)
     avgAnnualSalary: safeNumber(row.avg_annual_salary),
-    lowSalary: safeNumber(row.low_salary),
-    highSalary: safeNumber(row.high_salary),
     avgHourlySalary: safeNumber(row.avg_hourly_salary),
     hourlyLowValue: safeNumber(row.hourly_low_value),
     hourlyHighValue: safeNumber(row.hourly_high_value),
-    weeklySalary: safeNumber(row.weekly_salary),
     fortnightlySalary: safeNumber(row.fortnightly_salary),
     monthlySalary: safeNumber(row.monthly_salary),
     totalPayMin: safeNumber(row.total_pay_min),
     totalPayMax: safeNumber(row.total_pay_max),
-    totalHourlyLowValue: safeNumber(row.total_hourly_low_value),
-    totalHourlyHighValue: safeNumber(row.total_hourly_high_value),
     
     // Additional compensation
     bonusRangeMin: safeNumber(row.bonus_range_min),
@@ -204,22 +192,16 @@ export function transformOccupationRecordToDb(record: Partial<OccupationRecord>)
     country: record.country,
     state: record.state,
     location: record.location,
-    currency_code: record.currencyCode,
     company_name: record.company_name,
     // Salary fields
     avg_annual_salary: record.avgAnnualSalary,
-    low_salary: record.lowSalary,
-    high_salary: record.highSalary,
     avg_hourly_salary: record.avgHourlySalary,
     hourly_low_value: record.hourlyLowValue,
     hourly_high_value: record.hourlyHighValue,
-    weekly_salary: record.weeklySalary,
     fortnightly_salary: record.fortnightlySalary,
     monthly_salary: record.monthlySalary,
     total_pay_min: record.totalPayMin,
     total_pay_max: record.totalPayMax,
-    total_hourly_low_value: record.totalHourlyLowValue,
-    total_hourly_high_value: record.totalHourlyHighValue,
     
     // Additional compensation
     bonus_range_min: record.bonusRangeMin,
@@ -265,18 +247,13 @@ export function transformOccupationRecordToDb(record: Partial<OccupationRecord>)
 // Type for salary update data (user contributions)
 export interface SalaryUpdateData {
   avg_annual_salary?: number;
-  low_salary?: number;
-  high_salary?: number;
   avg_hourly_salary?: number;
   hourly_low_value?: number;
   hourly_high_value?: number;
-  weekly_salary?: number;
   fortnightly_salary?: number;
   monthly_salary?: number;
   total_pay_min?: number;
   total_pay_max?: number;
-  total_hourly_low_value?: number;
-  total_hourly_high_value?: number;
   bonus_range_min?: number;
   bonus_range_max?: number;
   profit_sharing_min?: number;

@@ -470,10 +470,10 @@ const logger = {
 
 // Field validation for SQL injection prevention
 const ALLOWED_OCCUPATION_FIELDS = new Set([
-  'title', 'occ_name', 'country', 'state', 'location', 'currency_code',
-  'avg_annual_salary', 'low_salary', 'high_salary', 'avg_hourly_salary', 'hourly_low_value', 'hourly_high_value',
-  'weekly_salary', 'fortnightly_salary', 'monthly_salary', 'total_pay_min', 'total_pay_max',
-  'total_hourly_low_value', 'total_hourly_high_value', 'bonus_range_min', 'bonus_range_max',
+  'title', 'occ_name', 'country', 'state', 'location',
+  'avg_annual_salary', 'avg_hourly_salary', 'hourly_low_value', 'hourly_high_value',
+  'fortnightly_salary', 'monthly_salary', 'total_pay_min', 'total_pay_max',
+  'bonus_range_min', 'bonus_range_max',
   'profit_sharing_min', 'profit_sharing_max', 'commission_min', 'commission_max',
   'gender_male', 'gender_female', 'entry_level', 'early_career', 'mid_career', 'experienced', 'late_career',
   'one_yr', 'one_four_yrs', 'five_nine_yrs', 'ten_nineteen_yrs', 'twenty_yrs_plus',
@@ -482,9 +482,9 @@ const ALLOWED_OCCUPATION_FIELDS = new Set([
 
 // Numeric field validation with type and range checks
 const NUMERIC_FIELDS = new Set([
-  'avg_annual_salary', 'low_salary', 'high_salary', 'avg_hourly_salary', 'hourly_low_value', 'hourly_high_value',
-  'weekly_salary', 'fortnightly_salary', 'monthly_salary', 'total_pay_min', 'total_pay_max',
-  'total_hourly_low_value', 'total_hourly_high_value', 'bonus_range_min', 'bonus_range_max',
+  'avg_annual_salary', 'avg_hourly_salary', 'hourly_low_value', 'hourly_high_value',
+  'fortnightly_salary', 'monthly_salary', 'total_pay_min', 'total_pay_max',
+  'bonus_range_min', 'bonus_range_max',
   'profit_sharing_min', 'profit_sharing_max', 'commission_min', 'commission_max',
   'gender_male', 'gender_female', 'entry_level', 'early_career', 'mid_career', 'experienced', 'late_career',
   'one_yr', 'one_four_yrs', 'five_nine_yrs', 'ten_nineteen_yrs', 'twenty_yrs_plus',
@@ -494,8 +494,6 @@ const NUMERIC_FIELDS = new Set([
 const SALARY_RANGES = {
   // Annual salaries: $0 - $100M (reasonable upper bound)
   'avg_annual_salary': { min: 0, max: 100000000 },
-  'low_salary': { min: 0, max: 100000000 },
-  'high_salary': { min: 0, max: 100000000 },
   'entry_level': { min: 0, max: 100000000 },
   'early_career': { min: 0, max: 100000000 },
   'mid_career': { min: 0, max: 100000000 },
@@ -516,15 +514,12 @@ const SALARY_RANGES = {
   'avg_hourly_salary': { min: 0, max: 10000 },
   'hourly_low_value': { min: 0, max: 10000 },
   'hourly_high_value': { min: 0, max: 10000 },
-  'total_hourly_low_value': { min: 0, max: 10000 },
-  'total_hourly_high_value': { min: 0, max: 10000 },
   
   // Gender percentages: 0-100
   'gender_male': { min: 0, max: 100 },
   'gender_female': { min: 0, max: 100 },
   
   // Other salary fields: $0 - $100M
-  'weekly_salary': { min: 0, max: 100000000 },
   'fortnightly_salary': { min: 0, max: 100000000 },
   'monthly_salary': { min: 0, max: 100000000 },
   'total_pay_min': { min: 0, max: 100000000 },
@@ -673,7 +668,6 @@ export interface OccupationSearchResult {
   state: string | null;
   location: string | null;
   avg_salary: number | null;
-  currency_code: string | null;
 }
 
 export const searchOccupationsServer = cache(async (
@@ -694,7 +688,6 @@ export const searchOccupationsServer = cache(async (
       state,
       location,
       avg_annual_salary AS avg_salary,
-      currency_code,
       company_name
     FROM occupations
     WHERE LOWER(country) = LOWER($1)

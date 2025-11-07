@@ -9,30 +9,23 @@ CREATE TABLE occupations (
   title TEXT NOT NULL,
   occ_name TEXT,
   company_name TEXT,
-  popularity_score INTEGER DEFAULT 0,
 
   
   -- Geographic hierarchy
   country VARCHAR(100) NOT NULL,
   state VARCHAR(100),
   location VARCHAR(100),
-  currency_code VARCHAR(10),
   
   -- PRIMARY SALARY FIELDS (ALL USER-EDITABLE)
   -- These will be updated by website users in the future
   avg_annual_salary NUMERIC(12,2),
-  low_salary NUMERIC(12,2),
-  high_salary NUMERIC(12,2),
   avg_hourly_salary NUMERIC(12,2),
   hourly_low_value NUMERIC(12,2),
   hourly_high_value NUMERIC(12,2),
-  weekly_salary NUMERIC(12,2),
   fortnightly_salary NUMERIC(12,2),
   monthly_salary NUMERIC(12,2),
   total_pay_min NUMERIC(12,2),
   total_pay_max NUMERIC(12,2),
-  total_hourly_low_value NUMERIC(12,2),
-  total_hourly_high_value NUMERIC(12,2),
   
   -- ADDITIONAL COMPENSATION (USER-EDITABLE)
   bonus_range_min NUMERIC(12,2),
@@ -113,7 +106,6 @@ CREATE INDEX idx_occupations_last_verified ON occupations(last_verified_at) WHER
 
 -- Indexes for salary-based queries
 CREATE INDEX idx_occupations_avg_salary ON occupations(avg_annual_salary) WHERE avg_annual_salary IS NOT NULL;
-CREATE INDEX idx_occupations_salary_range ON occupations(low_salary, high_salary) WHERE low_salary IS NOT NULL AND high_salary IS NOT NULL;
 
 -- Composite index for path-based lookups (most common query pattern)
 CREATE UNIQUE INDEX idx_occupations_path_lookup ON occupations(country, state, location, slug_url);
@@ -155,8 +147,6 @@ BEGIN
   
   -- If salary fields changed, increment contribution_count
   IF (NEW.avg_annual_salary IS DISTINCT FROM OLD.avg_annual_salary) OR
-     (NEW.low_salary IS DISTINCT FROM OLD.low_salary) OR
-     (NEW.high_salary IS DISTINCT FROM OLD.high_salary) OR
      (NEW.avg_hourly_salary IS DISTINCT FROM OLD.avg_hourly_salary) THEN
     NEW.contribution_count = COALESCE(OLD.contribution_count, 0) + 1;
   END IF;

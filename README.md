@@ -84,8 +84,6 @@ RollThePay uses PostgreSQL 17 as the primary data source with enterprise-grade p
 ```sql
 -- Core salary fields (all user-editable)
 avg_annual_salary NUMERIC(12,2),
-low_salary NUMERIC(12,2),
-high_salary NUMERIC(12,2),
 avg_hourly_salary NUMERIC(12,2),
 
 -- Experience-based salaries
@@ -389,7 +387,7 @@ The validation script checks:
 #### Field Whitelist Validation
 ```typescript
 const ALLOWED_OCCUPATION_FIELDS = new Set([
-  'title', 'avg_annual_salary', 'low_salary', 'high_salary',
+  'title', 'avg_annual_salary',
   'avg_hourly_salary', 'entry_level', 'early_career',
   // ... all valid fields
 ]);
@@ -483,8 +481,6 @@ Body: {
   "state": "Queensland",
   "location": "Brisbane",
   "avg_annual_salary": 95000,
-  "low_salary": 75000,
-  "high_salary": 115000
 }
 ```
 
@@ -500,8 +496,6 @@ PATCH /api/admin/occupations/[id]
 Body: {
   "salaryData": {
     "avg_annual_salary": 95000,
-    "low_salary": 75000,
-    "high_salary": 115000,
     "avg_hourly_salary": 45.67
   }
 }
@@ -758,7 +752,7 @@ RollThePay now supports user contributions for salary data updates through a sec
 
 #### 💰 Editable Salary Fields
 Users can update the following salary fields:
-- **Primary Salaries**: `avg_annual_salary`, `low_salary`, `high_salary`, `avg_hourly_salary`
+- **Primary Salaries**: `avg_annual_salary`, `avg_hourly_salary`
 - **Experience Levels**: `entry_level`, `early_career`, `mid_career`, `experienced`, `late_career`
 - **Years of Experience**: `one_yr`, `one_four_yrs`, `five_nine_yrs`, `ten_nineteen_yrs`, `twenty_yrs_plus`
 - **Salary Percentiles**: `percentile_10`, `percentile_25`, `percentile_50`, `percentile_75`, `percentile_90`
@@ -1300,8 +1294,6 @@ npm run db:validate
     "state": "Queensland",
     "location": "Brisbane",
     "avg_annual_salary": 95000,
-    "low_salary": 75000,
-    "high_salary": 115000,
     "avg_hourly_salary": 45.67,
     "entry_level": 65000,
     "early_career": 75000,

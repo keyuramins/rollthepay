@@ -108,23 +108,23 @@ export function extractSlug(record: OccupationRecord): string | null {
 export function extractSalaryInfo(record: OccupationRecord): {
   avgAnnualSalary: number | null;
   avgHourlySalary: number | null;
-  lowSalary: number | null;
-  highSalary: number | null;
+  totalPayMin: number | null;
+  totalPayMax: number | null;
 } {
   if (!record || typeof record !== 'object') {
     return {
       avgAnnualSalary: null,
       avgHourlySalary: null,
-      lowSalary: null,
-      highSalary: null,
+      totalPayMin: null,
+      totalPayMax: null,
     };
   }
   
   return {
     avgAnnualSalary: typeof record.avgAnnualSalary === 'number' ? record.avgAnnualSalary : null,
     avgHourlySalary: typeof record.avgHourlySalary === 'number' ? record.avgHourlySalary : null,
-    lowSalary: typeof record.lowSalary === 'number' ? record.lowSalary : null,
-    highSalary: typeof record.highSalary === 'number' ? record.highSalary : null,
+    totalPayMin: typeof record.totalPayMin === 'number' ? record.totalPayMin : null,
+    totalPayMax: typeof record.totalPayMax === 'number' ? record.totalPayMax : null,
   };
 }
 
@@ -229,8 +229,8 @@ export function extractRecordSummary(record: OccupationRecord): {
   const salaryInfo = extractSalaryInfo(record);
   const hasSalaryData = salaryInfo.avgAnnualSalary !== null || 
                        salaryInfo.avgHourlySalary !== null ||
-                       salaryInfo.lowSalary !== null ||
-                       salaryInfo.highSalary !== null;
+                       salaryInfo.totalPayMin !== null ||
+                       salaryInfo.totalPayMax !== null;
   
   return {
     title: extractTitle(record),

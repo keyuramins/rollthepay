@@ -75,22 +75,16 @@ function transformCsvRowToDb(row: RawCsvRow): any {
     country,
     state: safeString(row.state),
     location: safeString(row.location),
-    currency_code: safeString(row.currency),
 
     // Salary fields
     avg_annual_salary: coerceNumber(row.avgAnnualSalary),
-    low_salary: coerceNumber(row.lowSalary),
-    high_salary: coerceNumber(row.highSalary),
     avg_hourly_salary: coerceNumber(row.avgHourlySalary),
     hourly_low_value: coerceNumber(row.hourlyLowValue),
     hourly_high_value: coerceNumber(row.hourlyHighValue),
-    weekly_salary: coerceNumber(row.WeeklySalary),
     fortnightly_salary: coerceNumber(row.fortnightlySalary),
     monthly_salary: coerceNumber(row.monthlySalary),
     total_pay_min: coerceNumber(row.totalPayMin),
     total_pay_max: coerceNumber(row.totalPayMax),
-    total_hourly_low_value: coerceNumber(row.totalHourlyLowValue),
-    total_hourly_high_value: coerceNumber(row.totalHourlyHighValue),
 
     // Additional compensation
     bonus_range_min: coerceNumber(row.bonusRangeMin),

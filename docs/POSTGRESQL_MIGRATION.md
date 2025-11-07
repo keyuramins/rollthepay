@@ -215,8 +215,6 @@ Expected output:
 💰 Checking salary data quality...
 ✅ Salary data quality:
   - Records with avg_annual_salary: 24,987/26,429
-  - Records with low_salary: 24,987/26,429
-  - Records with high_salary: 24,987/26,429
   - Average salary: 75,432
   - Salary range: 25,000 - 250,000
 📊 Checking materialized view data...
@@ -261,7 +259,7 @@ curl -X GET "http://localhost:3000/api/admin/occupations" \
 curl -X PATCH "http://localhost:3000/api/admin/occupations/1" \
   -H "x-api-key: your_admin_api_key" \
   -H "Content-Type: application/json" \
-  -d '{"avg_annual_salary": 95000, "low_salary": 75000, "high_salary": 115000}'
+  -d '{"avg_annual_salary": 95000}'
 ```
 
 ## Phase 4: Post-Migration Cleanup
