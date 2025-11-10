@@ -19,7 +19,7 @@ export type Continent = {
         { name: "Mauritius", slug: "mauritius", code: "MU", continent: "africa", currencySymbol: "₨" },
         { name: "Morocco", slug: "morocco", code: "MA", continent: "africa", currencySymbol: "د.م." },
         { name: "Mozambique", slug: "mozambique", code: "MZ", continent: "africa", currencySymbol: "MT" },
-        //{ name: "Namibia", slug: "namibia", code: "NA", continent: "africa", currencySymbol: "$" },
+        { name: "Namibia", slug: "namibia", code: "NA", continent: "africa", currencySymbol: "$" },
         { name: "Nigeria", slug: "nigeria", code: "NG", continent: "africa", currencySymbol: "₦" },
         { name: "South Africa", slug: "south-africa", code: "ZA", continent: "africa", currencySymbol: "R" },
         { name: "Swaziland", slug: "swaziland", code: "SZ", continent: "africa", currencySymbol: "E" },

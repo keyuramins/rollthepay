@@ -485,3 +485,17 @@ curl -H "x-api-key: your-secret-key" \
 
 For issues or questions, please refer to the main project README or contact the development team.
 
+keyur@Keyurs-iMac rollthepay % source .env
+keyur@Keyurs-iMac rollthepay % psql $DATABASE_URL -c "\COPY occupations(slug_url, title, occ_name, country, state, location, avg_annual_salary, avg_hourly_salary, hourly_low_value, hourly_high_value, fortnightly_salary, monthly_salary, total_pay_min, total_pay_max, bonus_range_min, bonus_range_max, profit_sharing_min, profit_sharing_max, commission_min, commission_max, gender_male, gender_female, entry_level, early_career, mid_career, experienced, late_career, one_yr, one_four_yrs, five_nine_yrs, ten_nineteen_yrs, twenty_yrs_plus, percentile_10, percentile_25, percentile_50, percentile_75, percentile_90, skills, data_source, contribution_count, last_verified_at, created_at, updated_at, company_name) FROM '/Users/keyur/Downloads/namibia.csv' WITH CSV HEADER"
+COPY 211
+keyur@Keyurs-iMac rollthepay % psql $DATABASE_URL -c "REFRESH MATERIALIZED VIEW mv_country_stats;"
+REFRESH MATERIALIZED VIEW
+keyur@Keyurs-iMac rollthepay % psql $DATABASE_URL -c "REFRESH MATERIALIZED VIEW mv_state_stats;"
+REFRESH MATERIALIZED VIEW
+keyur@Keyurs-iMac rollthepay % psql $DATABASE_URL -c "SELECT COUNT(*), country FROM occupations WHERE country = 'Namibia' GROUP BY country;"
+ count | country 
+-------+---------
+   211 | Namibia
+(1 row)
+
+keyur@Keyurs-iMac rollthepay % 
