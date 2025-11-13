@@ -92,12 +92,14 @@ export function InsightsSection({ record, country, location }: InsightsSectionPr
                     <div className="metric-label text-xs sm:text-sm">Position in salary range</div>
                 </div>
                 <div className="salary-metric salary-metric--secondary">
-                    <div className="metric-value text-sm sm:text-base">+{data.entryLevelComparison}%</div>
+                    <div className="metric-value text-sm sm:text-base">
+                        {data.salaryRangeSpreadData.hasData ? `±${data.salaryRangeSpread}%` : 'N/A'}
+                    </div>
                     <div className="metric-label text-xs sm:text-sm">
-                        Above entry-level salary
-                        {!data.entryLevelComparisonData.hasData && (
+                        Salary range spread
+                        {!data.salaryRangeSpreadData.hasData && (
                             <span className="text-xs text-muted-foreground block">
-                                ({data.entryLevelComparisonData.fallbackReason})
+                                (Insufficient data)
                             </span>
                         )}
                     </div>

@@ -110,9 +110,6 @@ CREATE INDEX idx_occupations_avg_salary ON occupations(avg_annual_salary) WHERE 
 -- Composite index for path-based lookups (most common query pattern)
 CREATE UNIQUE INDEX idx_occupations_path_lookup ON occupations(country, state, location, slug_url);
 
--- Index for experience level queries
-CREATE INDEX idx_occupations_experience_levels ON occupations(entry_level, early_career, mid_career, experienced, late_career) 
-  WHERE entry_level IS NOT NULL OR early_career IS NOT NULL OR mid_career IS NOT NULL OR experienced IS NOT NULL OR late_career IS NOT NULL;
 
 -- Materialized views for aggregations (refresh after user updates)
 CREATE MATERIALIZED VIEW mv_country_stats AS

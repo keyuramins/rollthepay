@@ -15,8 +15,8 @@ export interface InsightsData {
   compensationCompetitiveness: 'highly competitive' | 'competitive' | 'moderate';
   percentileRank: number;
   percentileRankOrdinal: string; // e.g., "59th", "41st", "23rd"
-  entryLevelComparison: number;
-  entryLevelComparisonData: { value: number; hasData: boolean; fallbackReason?: string };
+  salaryRangeSpread: number;
+  salaryRangeSpreadData: { value: number; hasData: boolean };
   costOfLivingFactor: number;
   costOfLivingFactorData: { value: number; location: string; description: string; category: 'very high' | 'high' | 'moderate' | 'low' | 'very low' };
   projectedIncreaseRange: string;
@@ -304,32 +304,18 @@ function calculatePercentileRank(record: OccupationRecord, country: string): num
   return Math.round(Math.max(10, Math.min(90, percentile)));
 }
 
-// Calculate entry level comparison with better fallback handling
-function calculateEntryLevelComparison(record: OccupationRecord): { value: number; hasData: boolean; fallbackReason?: string } {
+// Calculate salary range spread
+function calculateSalaryRangeSpread(record: OccupationRecord): { value: number; hasData: boolean } {
   const avgSalary = record.avgAnnualSalary || 0;
-  const entryLevel = record.entryLevel || 0;
+  const lowSalary = record.totalPayMin || 0;
+  const highSalary = record.totalPayMax || 0;
   
-  if (avgSalary === 0) {
-    return { value: 0, hasData: false, fallbackReason: 'No average salary data' };
+  if (avgSalary === 0 || lowSalary === 0 || highSalary === 0) {
+    return { value: 0, hasData: false };
   }
   
-  if (entryLevel === 0) {
-    // Estimate entry level as 70-80% of average salary for most roles
-    const estimatedEntryLevel = avgSalary * 0.75;
-    const estimatedComparison = Math.round(((avgSalary - estimatedEntryLevel) / estimatedEntryLevel) * 100);
-    return { value: estimatedComparison, hasData: false, fallbackReason: 'Estimated from average salary' };
-  }
-  
-  // Validate that entry level is reasonable (should be less than average)
-  if (entryLevel >= avgSalary) {
-    // If entry level is higher than average, something's wrong with the data
-    const estimatedEntryLevel = avgSalary * 0.75;
-    const estimatedComparison = Math.round(((avgSalary - estimatedEntryLevel) / estimatedEntryLevel) * 100);
-    return { value: estimatedComparison, hasData: false, fallbackReason: 'Data validation failed' };
-  }
-  
-  const comparison = Math.round(((avgSalary - entryLevel) / entryLevel) * 100);
-  return { value: comparison, hasData: true };
+  const spread = ((highSalary - lowSalary) / avgSalary) * 100;
+  return { value: Math.round(spread), hasData: true };
 }
 
 // Calculate country-based cost of living factor using all countries from continents.ts
@@ -582,8 +568,8 @@ export function calculateInsights(record: OccupationRecord, country: string, loc
   const demandStrength = calculateDemandStrength(record, location, country);
   const compensationCompetitiveness = assessCompensationCompetitiveness(record, country);
   const percentileRank = calculatePercentileRank(record, country);
-  const entryLevelComparisonData = calculateEntryLevelComparison(record);
-  const entryLevelComparison = entryLevelComparisonData.value;
+  const salaryRangeSpreadData = calculateSalaryRangeSpread(record);
+  const salaryRangeSpread = salaryRangeSpreadData.value;
   const costOfLivingFactorData = calculateCostOfLivingFactor(record, location, country);
   const costOfLivingFactor = costOfLivingFactorData.value;
   const projectedIncreaseRange = calculateProjectedIncrease(record, country);
@@ -606,8 +592,8 @@ export function calculateInsights(record: OccupationRecord, country: string, loc
     compensationCompetitiveness,
     percentileRank,
     percentileRankOrdinal: getOrdinalSuffix(percentileRank),
-    entryLevelComparison,
-    entryLevelComparisonData,
+    salaryRangeSpread,
+    salaryRangeSpreadData,
     costOfLivingFactor,
     costOfLivingFactorData,
     projectedIncreaseRange,
@@ -615,7 +601,7 @@ export function calculateInsights(record: OccupationRecord, country: string, loc
     nextYear,
     marketTrendConfidence: calculateConfidenceLevel(salaryIncreasePercent, 'market'),
     positioningConfidence: calculateConfidenceLevel(percentileRank, 'positioning'),
-    growthForecastConfidence: calculateConfidenceLevel(entryLevelComparison, 'growth')
+    growthForecastConfidence: calculateConfidenceLevel(salaryRangeSpread, 'growth')
   };
 }
 
