@@ -305,6 +305,7 @@ export function ExperienceLevelSalariesChart({ record, country }: ExperienceLeve
       {/* Years of Experience Cards */}
       {experienceLevelsData.yearsExperience.length > 0 && (() => {
         const maxValue = Math.max(...experienceLevelsData.yearsExperience.map((y) => Number(y.value) || 0));
+        const avgSalary = Number(record.avgAnnualSalary) || 0;
         const getIcon = (index: number) => {
           if (index === 0) return <Calendar className="w-5 h-5" />;
           if (index === 1) return <Users className="w-5 h-5" />;
@@ -319,9 +320,9 @@ export function ExperienceLevelSalariesChart({ record, country }: ExperienceLeve
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
               {experienceLevelsData.yearsExperience.map((item, index) => {
                 const value = Number(item.value) || 0;
-                const prev = index > 0 ? Number(experienceLevelsData.yearsExperience[index - 1].value) || 0 : value;
-                const delta = value - prev;
-                const percent = prev > 0 ? (delta / prev) * 100 : 0;
+                // Compare to average annual salary instead of previous level
+                const delta = avgSalary > 0 ? value - avgSalary : 0;
+                const percent = avgSalary > 0 ? (delta / avgSalary) * 100 : 0;
                 const widthPct = maxValue > 0 ? Math.round((value / maxValue) * 100) : 0;
                 const isBaseline = index === 0;
 
@@ -335,7 +336,7 @@ export function ExperienceLevelSalariesChart({ record, country }: ExperienceLeve
                         <div>
                           <p className="metric-label flex items-center gap-2 whitespace-nowrap w-full overflow-hidden">
                             {item.name}
-                            {!isBaseline && (
+                            {avgSalary > 0 && (
                               <Badge className="truncate flex-1 min-w-0 bg-secondary/30 text-black font-semibold rounded-md px-1 py-0.5 ml-auto shrink-0">
                                 {percent > 0 ? `+${percent.toFixed(0)}%` : `${percent.toFixed(0)}%`}
                               </Badge>
@@ -348,10 +349,10 @@ export function ExperienceLevelSalariesChart({ record, country }: ExperienceLeve
                       </div>
                     </div>
                     <div className="experience-level-insight__growth">
-                      {isBaseline ? (
-                        <span>Entry Level</span>
+                      {avgSalary > 0 ? (
+                        <span>{delta > 0 ? '↑' : delta < 0 ? '↓' : ''} {delta !== 0 ? formatCurrency(Math.abs(delta), country) : 'Average'}</span>
                       ) : (
-                        <span>↑ {formatCurrency(Math.abs(delta), country)}</span>
+                        <span>{isBaseline ? 'Entry Level' : '-'}</span>
                       )}
                     </div>
                     <div className="experience-level-insight__growth-label">
@@ -361,6 +362,11 @@ export function ExperienceLevelSalariesChart({ record, country }: ExperienceLeve
                 );
               })}
             </div>
+            {avgSalary > 0 && (
+              <p className="text-sm text-muted-foreground text-center mt-4">
+                Percentages and differences are calculated compared to the average annual salary ({formatCurrency(avgSalary, country)})
+              </p>
+            )}
             </CardContent>
           </Card>
         );

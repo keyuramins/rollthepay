@@ -43,19 +43,22 @@ export function TopSkillsMarketDemand({ record }: TopSkillsMarketDemandProps) {
 
   // Enhanced skills data with market demand analysis
   const enhancedSkills = skills.map((skill, index) => {
-    // Derive market share from proficiency percentage
-    const marketShare = Math.min(skill.percentage * 1.2, 30); // Cap at 30%
+    // Use actual proficiency percentage (0-100 range)
+    // Ensure percentage is valid and capped at 100 for display
+    const proficiency = Math.min(Math.max(skill.percentage || 0, 0), 100);
 
-    // Derive salary impact based on skill importance
-    const salaryImpact = Math.min(skill.percentage * 0.6, 20); // Cap at 20%
+    // Derive salary impact based on actual proficiency percentage
+    // Cap at 100% for display purposes
+    const salaryImpact = Math.min(proficiency, 100);
 
-    // Determine demand level based on market share
+    // Determine demand level based on actual proficiency (0-100 range)
+    // High: >= 50%, Medium: >= 25%, Low: < 25%
     let demandLevel = 'Low Demand';
     let demandColor = 'blue';
-    if (marketShare >= 20) {
+    if (proficiency >= 50) {
       demandLevel = 'High Demand';
       demandColor = 'green';
-    } else if (marketShare >= 10) {
+    } else if (proficiency >= 25) {
       demandLevel = 'Medium Demand';
       demandColor = 'orange';
     }
@@ -110,7 +113,8 @@ export function TopSkillsMarketDemand({ record }: TopSkillsMarketDemandProps) {
 
     return {
       ...skill,
-      marketShare: Math.round(marketShare),
+      marketShare: Math.round(proficiency), // Keep marketShare name for compatibility, but use actual proficiency
+      proficiency: Math.round(proficiency), // Add proficiency property for clarity
       salaryImpact: Math.round(salaryImpact),
       demandLevel,
       demandColor,
@@ -171,7 +175,7 @@ export function TopSkillsMarketDemand({ record }: TopSkillsMarketDemandProps) {
                   <div className="top-skills-market-demand__skill-progress mt-2 h-2 sm:h-2.5 bg-muted rounded-full">
                     <div
                       className="top-skills-market-demand__skill-progress-bar h-full rounded-full bg-primary"
-                      style={{ width: `${(skill.marketShare / 30) * 100}%` }}
+                      style={{ width: `${Math.min(skill.proficiency || skill.marketShare || 0, 100)}%` }}
                     ></div>
                   </div>
                 </div>
@@ -179,10 +183,10 @@ export function TopSkillsMarketDemand({ record }: TopSkillsMarketDemandProps) {
                 <div className="top-skills-market-demand__skill-metrics mt-3 sm:mt-0 sm:self-center sm:ml-auto text-right flex-shrink-0">
                   <div className="top-skills-market-demand__skill-metrics-content">
                     <div className="metric-value text-sm sm:text-base">
-                      {skill.marketShare}%
+                      {skill.proficiency || skill.marketShare || 0}%
                     </div>
                     <div className="metric-label text-xs sm:text-sm">
-                      Market Share
+                      Proficiency
                     </div>
                   </div>
                 </div>
