@@ -475,7 +475,7 @@ const ALLOWED_OCCUPATION_FIELDS = new Set([
   'fortnightly_salary', 'monthly_salary', 'total_pay_min', 'total_pay_max',
   'bonus_range_min', 'bonus_range_max',
   'profit_sharing_min', 'profit_sharing_max', 'commission_min', 'commission_max',
-  'gender_male', 'gender_female', 'entry_level', 'early_career', 'mid_career', 'experienced', 'late_career',
+  'gender_male', 'gender_female',
   'one_yr', 'one_four_yrs', 'five_nine_yrs', 'ten_nineteen_yrs', 'twenty_yrs_plus',
   'percentile_10', 'percentile_25', 'percentile_50', 'percentile_75', 'percentile_90', 'skills'
 ]);
@@ -486,7 +486,7 @@ const NUMERIC_FIELDS = new Set([
   'fortnightly_salary', 'monthly_salary', 'total_pay_min', 'total_pay_max',
   'bonus_range_min', 'bonus_range_max',
   'profit_sharing_min', 'profit_sharing_max', 'commission_min', 'commission_max',
-  'gender_male', 'gender_female', 'entry_level', 'early_career', 'mid_career', 'experienced', 'late_career',
+  'gender_male', 'gender_female',
   'one_yr', 'one_four_yrs', 'five_nine_yrs', 'ten_nineteen_yrs', 'twenty_yrs_plus',
   'percentile_10', 'percentile_25', 'percentile_50', 'percentile_75', 'percentile_90'
 ]);
@@ -494,11 +494,6 @@ const NUMERIC_FIELDS = new Set([
 const SALARY_RANGES = {
   // Annual salaries: $0 - $100M (reasonable upper bound)
   'avg_annual_salary': { min: 0, max: 100000000 },
-  'entry_level': { min: 0, max: 100000000 },
-  'early_career': { min: 0, max: 100000000 },
-  'mid_career': { min: 0, max: 100000000 },
-  'experienced': { min: 0, max: 100000000 },
-  'late_career': { min: 0, max: 100000000 },
   'one_yr': { min: 0, max: 100000000 },
   'one_four_yrs': { min: 0, max: 100000000 },
   'five_nine_yrs': { min: 0, max: 100000000 },

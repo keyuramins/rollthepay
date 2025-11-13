@@ -88,7 +88,6 @@ export async function PATCH(
       'monthly_salary', 'total_pay_min', 'total_pay_max',
       'bonus_range_min', 'bonus_range_max',
       'profit_sharing_min', 'profit_sharing_max', 'commission_min', 'commission_max',
-      'entry_level', 'early_career', 'mid_career', 'experienced', 'late_career',
       'one_yr', 'one_four_yrs', 'five_nine_yrs', 'ten_nineteen_yrs', 'twenty_yrs_plus',
       'percentile_10', 'percentile_25', 'percentile_50', 'percentile_75', 'percentile_90'
     ];

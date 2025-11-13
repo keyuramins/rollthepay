@@ -27,11 +27,6 @@ export interface RawCsvRow {
   monthlySalary?: string;
   genderMale?: string;
   genderFemale?: string;
-  entryLevel?: string;
-  earlyCareer?: string;
-  midCareer?: string;
-  experienced?: string;
-  lateCareer?: string;
   skillsNameOne?: string;
   skillsNamePercOne?: string;
   skillsNameTwo?: string;
@@ -88,13 +83,6 @@ export interface OccupationRecord {
   hourlyHighValue: MaybeNumber;
   fortnightlySalary: MaybeNumber;
   monthlySalary: MaybeNumber;
-
-  // Experience buckets (when present in CSV)
-  entryLevel?: number | null;
-  earlyCareer?: number | null;
-  midCareer?: number | null;
-  experienced?: number | null;
-  lateCareer?: number | null;
 
   // Gender distribution
   genderMale?: number | null;

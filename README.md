@@ -86,13 +86,6 @@ RollThePay uses PostgreSQL 17 as the primary data source with enterprise-grade p
 avg_annual_salary NUMERIC(12,2),
 avg_hourly_salary NUMERIC(12,2),
 
--- Experience-based salaries
-entry_level NUMERIC(12,2),
-early_career NUMERIC(12,2),
-mid_career NUMERIC(12,2),
-experienced NUMERIC(12,2),
-late_career NUMERIC(12,2),
-
 -- Skills as flexible JSONB
 skills JSONB DEFAULT '[]'::jsonb,
 
@@ -388,7 +381,7 @@ The validation script checks:
 ```typescript
 const ALLOWED_OCCUPATION_FIELDS = new Set([
   'title', 'avg_annual_salary',
-  'avg_hourly_salary', 'entry_level', 'early_career',
+  'avg_hourly_salary',
   // ... all valid fields
 ]);
 
@@ -753,7 +746,6 @@ RollThePay now supports user contributions for salary data updates through a sec
 #### 💰 Editable Salary Fields
 Users can update the following salary fields:
 - **Primary Salaries**: `avg_annual_salary`, `avg_hourly_salary`
-- **Experience Levels**: `entry_level`, `early_career`, `mid_career`, `experienced`, `late_career`
 - **Years of Experience**: `one_yr`, `one_four_yrs`, `five_nine_yrs`, `ten_nineteen_yrs`, `twenty_yrs_plus`
 - **Salary Percentiles**: `percentile_10`, `percentile_25`, `percentile_50`, `percentile_75`, `percentile_90`
 - **Additional Compensation**: `bonus_range_min/max`, `profit_sharing_min/max`, `commission_min/max`
@@ -1295,11 +1287,6 @@ npm run db:validate
     "location": "Brisbane",
     "avg_annual_salary": 95000,
     "avg_hourly_salary": 45.67,
-    "entry_level": 65000,
-    "early_career": 75000,
-    "mid_career": 95000,
-    "experienced": 115000,
-    "late_career": 135000,
     "skills": ["JavaScript", "React", "Node.js"],
     "data_source": "admin_import",
     "contribution_count": 0,

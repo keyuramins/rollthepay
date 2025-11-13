@@ -152,9 +152,6 @@ WHERE o.country = 'France'
  country
  created_at
  data_source
- early_career
- entry_level
- experienced
  five_nine_yrs
  fortnightly_salary
  gender_female
@@ -163,9 +160,7 @@ WHERE o.country = 'France'
  hourly_low_value
  id
  last_verified_at
- late_career
  location
- mid_career
  monthly_salary
  occ_name
  one_four_yrs

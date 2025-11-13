@@ -39,13 +39,6 @@ CREATE TABLE occupations (
   gender_male NUMERIC(5,2),
   gender_female NUMERIC(5,2),
   
-  -- Experience level salaries (EDITABLE)
-  entry_level NUMERIC(12,2),
-  early_career NUMERIC(12,2),
-  mid_career NUMERIC(12,2),
-  experienced NUMERIC(12,2),
-  late_career NUMERIC(12,2),
-  
   -- Years of experience salaries (EDITABLE)
   one_yr NUMERIC(12,2),
   one_four_yrs NUMERIC(12,2),

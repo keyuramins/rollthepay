@@ -98,13 +98,6 @@ function transformCsvRowToDb(row: RawCsvRow): any {
     gender_male: coerceNumber(row.genderMale),
     gender_female: coerceNumber(row.genderFemale),
 
-    // Experience level salaries
-    entry_level: coerceNumber(row.entryLevel),
-    early_career: coerceNumber(row.earlyCareer),
-    mid_career: coerceNumber(row.midCareer),
-    experienced: coerceNumber(row.experienced),
-    late_career: coerceNumber(row.lateCareer),
-
     // Years of experience salaries
     one_yr: coerceNumber(row.oneYr),
     one_four_yrs: coerceNumber(row.oneFourYrs),

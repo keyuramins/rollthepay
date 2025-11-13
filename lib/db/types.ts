@@ -33,13 +33,6 @@ export interface DbOccupationRow {
   gender_male: number | null;
   gender_female: number | null;
   
-  // Experience level salaries
-  entry_level: number | null;
-  early_career: number | null;
-  mid_career: number | null;
-  experienced: number | null;
-  late_career: number | null;
-  
   // Years of experience salaries
   one_yr: number | null;
   one_four_yrs: number | null;
@@ -122,13 +115,6 @@ export function transformDbRowToOccupationRecord(row: DbOccupationRow): Occupati
     // Gender distribution
     genderMale: row.gender_male,
     genderFemale: row.gender_female,
-    
-    // Experience level salaries
-    entryLevel: row.entry_level,
-    earlyCareer: row.early_career,
-    midCareer: row.mid_career,
-    experienced: row.experienced,
-    lateCareer: row.late_career,
     
     // Years of experience salaries
     oneYr: row.one_yr,
@@ -215,13 +201,6 @@ export function transformOccupationRecordToDb(record: Partial<OccupationRecord>)
     gender_male: record.genderMale,
     gender_female: record.genderFemale,
     
-    // Experience level salaries
-    entry_level: record.entryLevel,
-    early_career: record.earlyCareer,
-    mid_career: record.midCareer,
-    experienced: record.experienced,
-    late_career: record.lateCareer,
-    
     // Years of experience salaries
     one_yr: record.oneYr,
     one_four_yrs: record.oneFourYrs,
@@ -260,11 +239,6 @@ export interface SalaryUpdateData {
   profit_sharing_max?: number;
   commission_min?: number;
   commission_max?: number;
-  entry_level?: number;
-  early_career?: number;
-  mid_career?: number;
-  experienced?: number;
-  late_career?: number;
   one_yr?: number;
   one_four_yrs?: number;
   five_nine_yrs?: number;
