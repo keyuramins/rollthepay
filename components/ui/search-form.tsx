@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 interface SearchFormProps {
   basePath: string;
@@ -12,6 +12,11 @@ interface SearchFormProps {
 export function SearchForm({ basePath, currentQuery = "", letterFilter }: SearchFormProps) {
   const router = useRouter();
   const [query, setQuery] = useState(currentQuery);
+
+  // Sync internal state with prop when URL changes (e.g., navigation, clearing search)
+  useEffect(() => {
+    setQuery(currentQuery);
+  }, [currentQuery]);
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
