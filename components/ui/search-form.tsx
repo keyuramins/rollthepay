@@ -35,9 +35,9 @@ export function SearchForm({ basePath, currentQuery = "", letterFilter }: Search
     
     router.push(url);
     
-    // Only refresh when clearing search to prevent stale results
-    // When searching, Next.js will naturally fetch with new params
-    if (query.trim() === "") {
+    // Refresh when clearing search OR when both search and letter filter are active
+    // This ensures React cache() properly invalidates when filters change
+    if (query.trim() === "" || (query.trim() && letterFilter)) {
       router.refresh();
     }
   };
