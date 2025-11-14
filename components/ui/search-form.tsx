@@ -31,7 +31,15 @@ export function SearchForm({ basePath, currentQuery = "", letterFilter }: Search
     // Reset to page 1 when searching -> hit paginated route
     const queryString = params.toString();
     const path = query.trim() === "" && !letterFilter ? basePath : `${basePath}/page/1`;
-    router.push(queryString ? `${path}?${queryString}` : path);
+    const url = queryString ? `${path}?${queryString}` : path;
+    
+    router.push(url);
+    
+    // Only refresh when clearing search to prevent stale results
+    // When searching, Next.js will naturally fetch with new params
+    if (query.trim() === "") {
+      router.refresh();
+    }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -44,7 +52,10 @@ export function SearchForm({ basePath, currentQuery = "", letterFilter }: Search
       }
       const queryString = params.toString();
       const path = letterFilter ? `${basePath}/page/1` : basePath;
-      router.push(queryString ? `${path}?${queryString}` : path);
+      const url = queryString ? `${path}?${queryString}` : path;
+      
+      router.push(url);
+      router.refresh(); // Always refresh when clearing via Escape to prevent stale results
     }
   };
 
