@@ -13,7 +13,7 @@ interface OccupationHeroSectionProps {
 
 export function OccupationHeroSection({ record, country, locationText }: OccupationHeroSectionProps) {
   const baseTitle =
-          record.title || record.occ_name || '';
+          record.title || '';
         const atCompany = record.company_name ? ` at ${record.company_name}` : "";
         const place =
           record.location ||
@@ -25,7 +25,7 @@ export function OccupationHeroSection({ record, country, locationText }: Occupat
                 .join(" ")
             : "");
         const inPlace = place ? ` in ${place}` : "";
-  const occupationName = `${baseTitle}${atCompany}${inPlace}`;
+  const occupationName = `${baseTitle} Salary${atCompany}${inPlace}`;
   
   // Get detailed job category information
   const jobCategoryInfo = getJobCategoryInfo(occupationName);
