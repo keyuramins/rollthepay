@@ -23,6 +23,12 @@ export function formatCurrencyWithMillion(
 
   const countryLower = country.toLowerCase();
   
+  // Special handling for India - use lakh/crore formatting instead of M notation
+  // formatCurrency already handles lakhs (>= 100,000) and crores (>= 10,000,000) correctly
+  if (countryLower === 'india') {
+    return formatCurrency(amount, country, record, isHourly);
+  }
+  
   // For amounts exceeding 6 digits (1,000,000+), use M denotation
   if (amount >= 1000000) {
     const symbol = getCurrencySymbol(countryLower);
