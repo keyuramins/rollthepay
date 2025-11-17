@@ -8,13 +8,14 @@ import { ExperienceLevelSalariesChart } from "./experience-level-salaries-chart"
 import { TopSkillsMarketDemand } from "./top-skills-market-demand";
 import { GenderComparison } from "./gender-comparison";
 import { OccupationCTASection } from "./cta-section";
-import { searchOccupations } from "@/lib/db/queries";
+import { searchOccupations, logNotFoundRequest } from "@/lib/db/queries";
 import { RelatedOpportunitiesSmart } from "./related-opportunities-smart";
 import { getCurrencyCode } from "@/lib/format/currency";
 import { slugify } from "@/lib/format/slug";
 import type { OccupationRecord } from "@/lib/data/types";
 import { getJobCategoryInfo } from "./job-category-detector";
 import { locationStateCountryString } from "@/lib/utils/locationStateCountryString";
+import { headers } from 'next/headers';
 
 interface OccupationPageProps {
   country: string;
@@ -116,6 +117,32 @@ export async function OccupationPage({ country, state, location, slug }: Occupat
   const record = await findOccupationSalaryByPath({ country, state, location, slug });
   
   if (!record) {
+    // Log the 404 request (fire-and-forget, non-blocking)
+    const headersList = await headers();
+    const ipAddress = headersList.get('x-forwarded-for') || 
+                      headersList.get('x-real-ip') || 
+                      null;
+    const userAgent = headersList.get('user-agent') || null;
+    const referer = headersList.get('referer') || null;
+    
+    // Build the URL
+    const url = `/${country}${state ? `/${slugify(state)}` : ''}${location ? `/${slugify(location)}` : ''}/${slug}`;
+    
+    // Log asynchronously (don't await - non-blocking)
+    logNotFoundRequest({
+      url,
+      ipAddress,
+      userAgent,
+      referer,
+      country,
+      state: state || null,
+      location: location || null,
+      slug,
+    }).catch(err => {
+      // Silently handle errors - don't break the 404 response
+      console.error('Failed to log 404:', err);
+    });
+    
     notFound();
   }
   

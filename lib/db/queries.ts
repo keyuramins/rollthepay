@@ -2009,3 +2009,38 @@ export async function getOccupationStats(): Promise<{
     throw error;
   }
 }
+
+// Log 404 requests to database
+export async function logNotFoundRequest(data: {
+  url: string;
+  ipAddress?: string | null;
+  userAgent?: string | null;
+  referer?: string | null;
+  country?: string | null;
+  state?: string | null;
+  location?: string | null;
+  slug?: string | null;
+}): Promise<void> {
+  const poolInstance = requirePool();
+
+  try {
+    await poolInstance.query(
+      `INSERT INTO not_found_logs (url, ip_address, user_agent, referer, country, state, location, slug)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
+      [
+        data.url,
+        data.ipAddress || null,
+        data.userAgent || null,
+        data.referer || null,
+        data.country || null,
+        data.state || null,
+        data.location || null,
+        data.slug || null,
+      ]
+    );
+  } catch (error) {
+    // Don't throw - logging failures shouldn't break the app
+    // Just log to console as fallback
+    console.error('Error logging 404 request:', error);
+  }
+}
