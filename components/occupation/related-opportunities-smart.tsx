@@ -141,7 +141,33 @@ function LocationOpportunityCard({ location, type, salary, currentSalary, countr
 export function RelatedOpportunitiesSmart({ record, allRecords }: RelatedOpportunitiesEnhancedProps) {
   // Find intelligent related occupations
   const normalizeCountry = (c: string) => c?.toLowerCase().trim();
+  const normalizeString = (s: string | null | undefined) => s?.toLowerCase().trim() || '';
   const currentCountry = normalizeCountry(record.country);
+  
+  /**
+   * Calculate geographic match level between current record and candidate record
+   * Returns: 3 = same location, 2 = same state, 1 = same country, 0 = different country
+   */
+  const getGeographicMatchLevel = (current: OccupationRecord, candidate: OccupationRecord): number => {
+    const currentLoc = normalizeString(current.location);
+    const currentState = normalizeString(current.state);
+    const candidateLoc = normalizeString(candidate.location);
+    const candidateState = normalizeString(candidate.state);
+    
+    // Same location (both have location and they match)
+    if (currentLoc && candidateLoc && currentLoc === candidateLoc) {
+      return 3;
+    }
+    
+    // Same state (both have state and they match, but location doesn't match or is missing)
+    if (currentState && candidateState && currentState === candidateState) {
+      return 2;
+    }
+    
+    // Same country only (already filtered, but return 1 for consistency)
+    return 1;
+  };
+  
   const findIntelligentRelatedOccupations = (): OccupationRecord[] => {
     const currentTitle = record.occ_name?.toLowerCase().trim() || '';
     const currentIndustry = getJobCategory(record.occ_name || '');
@@ -187,6 +213,15 @@ export function RelatedOpportunitiesSmart({ record, allRecords }: RelatedOpportu
         return false;
       })
       .sort((a, b) => {
+        // First, compare geographic match levels (higher is better)
+        const geoLevelA = getGeographicMatchLevel(record, a);
+        const geoLevelB = getGeographicMatchLevel(record, b);
+        
+        if (geoLevelA !== geoLevelB) {
+          return geoLevelB - geoLevelA; // Higher geographic match level first
+        }
+        
+        // If geographic levels are equal, sort by title similarity
         const similarityA = calculateTitleSimilarity(currentTitle, a.occ_name?.toLowerCase().trim() || '');
         const similarityB = calculateTitleSimilarity(currentTitle, b.occ_name?.toLowerCase().trim() || '');
         return similarityB - similarityA;
