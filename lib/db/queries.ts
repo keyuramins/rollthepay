@@ -1940,6 +1940,87 @@ export async function deleteOccupation(id: number): Promise<boolean> {
 //   }
 // }
 // Bulk insert occupations (optimized production version)
+// export async function bulkInsertOccupations(records: Partial<OccupationRecord>[]): Promise<number> {
+//   if (records.length === 0) return 0;
+
+//   const poolInstance = requirePool();
+//   const client = await poolInstance.connect();
+
+//   try {
+//     await client.query("BEGIN");
+
+//     const columns = Object.keys(transformOccupationRecordToDb(records[0]));
+
+//     const columnList = columns.join(", ");
+//     const placeholderRow = columns.map((_, index) => `$${index + 1}`).join(", ");
+
+//     const conflictClause = `
+//       ON CONFLICT (country, state, location, slug_url)
+//       DO UPDATE SET
+//         title = EXCLUDED.title,
+//         occ_name = EXCLUDED.occ_name,
+//         location = EXCLUDED.location,
+//         state = EXCLUDED.state,
+//         avg_annual_salary = EXCLUDED.avg_annual_salary,
+//         avg_hourly_salary = EXCLUDED.avg_hourly_salary,
+//         hourly_low_value = EXCLUDED.hourly_low_value,
+//         hourly_high_value = EXCLUDED.hourly_high_value,
+//         fortnightly_salary = EXCLUDED.fortnightly_salary,
+//         monthly_salary = EXCLUDED.monthly_salary,
+//         total_pay_min = EXCLUDED.total_pay_min,
+//         total_pay_max = EXCLUDED.total_pay_max,
+//         bonus_range_min = EXCLUDED.bonus_range_min,
+//         bonus_range_max = EXCLUDED.bonus_range_max,
+//         profit_sharing_min = EXCLUDED.profit_sharing_min,
+//         profit_sharing_max = EXCLUDED.profit_sharing_max,
+//         commission_min = EXCLUDED.commission_min,
+//         commission_max = EXCLUDED.commission_max,
+//         gender_male = EXCLUDED.gender_male,
+//         gender_female = EXCLUDED.gender_female,
+//         one_yr = EXCLUDED.one_yr,
+//         one_four_yrs = EXCLUDED.one_four_yrs,
+//         five_nine_yrs = EXCLUDED.five_nine_yrs,
+//         ten_nineteen_yrs = EXCLUDED.ten_nineteen_yrs,
+//         twenty_yrs_plus = EXCLUDED.twenty_yrs_plus,
+//         percentile_10 = EXCLUDED.percentile_10,
+//         percentile_25 = EXCLUDED.percentile_25,
+//         percentile_50 = EXCLUDED.percentile_50,
+//         percentile_75 = EXCLUDED.percentile_75,
+//         percentile_90 = EXCLUDED.percentile_90,
+//         skills = EXCLUDED.skills,
+//         updated_at = NOW()
+//     `;
+
+//     const BATCH_SIZE = 1000;
+//     let totalInserted = 0;
+
+//     for (let i = 0; i < records.length; i += BATCH_SIZE) {
+//       const batch = records.slice(i, i + BATCH_SIZE);
+
+//       for (const record of batch) {
+//         const dbData = transformOccupationRecordToDb(record);
+//         const values = Object.values(dbData);
+
+//         await client.query(
+//           `INSERT INTO occupations (${columnList})
+//              VALUES (${placeholderRow})
+//              ${conflictClause}`,
+//           values
+//         );
+
+//         totalInserted++;
+//       }
+//     }
+
+//     await client.query("COMMIT");
+//     return totalInserted;
+//   } catch (error) {
+//     await client.query("ROLLBACK");
+//     throw error;
+//   } finally {
+//     client.release();
+//   }
+// }
 export async function bulkInsertOccupations(records: Partial<OccupationRecord>[]): Promise<number> {
   if (records.length === 0) return 0;
 
@@ -1948,72 +2029,68 @@ export async function bulkInsertOccupations(records: Partial<OccupationRecord>[]
 
   try {
     await client.query("BEGIN");
-
-    const columns = Object.keys(transformOccupationRecordToDb(records[0]));
-
-    const columnList = columns.join(", ");
-    const placeholderRow = columns.map((_, index) => `$${index + 1}`).join(", ");
-
-    const conflictClause = `
-      ON CONFLICT (country, state, location, slug_url)
-      DO UPDATE SET
-        title = EXCLUDED.title,
-        occ_name = EXCLUDED.occ_name,
-        location = EXCLUDED.location,
-        state = EXCLUDED.state,
-        avg_annual_salary = EXCLUDED.avg_annual_salary,
-        avg_hourly_salary = EXCLUDED.avg_hourly_salary,
-        hourly_low_value = EXCLUDED.hourly_low_value,
-        hourly_high_value = EXCLUDED.hourly_high_value,
-        fortnightly_salary = EXCLUDED.fortnightly_salary,
-        monthly_salary = EXCLUDED.monthly_salary,
-        total_pay_min = EXCLUDED.total_pay_min,
-        total_pay_max = EXCLUDED.total_pay_max,
-        bonus_range_min = EXCLUDED.bonus_range_min,
-        bonus_range_max = EXCLUDED.bonus_range_max,
-        profit_sharing_min = EXCLUDED.profit_sharing_min,
-        profit_sharing_max = EXCLUDED.profit_sharing_max,
-        commission_min = EXCLUDED.commission_min,
-        commission_max = EXCLUDED.commission_max,
-        gender_male = EXCLUDED.gender_male,
-        gender_female = EXCLUDED.gender_female,
-        one_yr = EXCLUDED.one_yr,
-        one_four_yrs = EXCLUDED.one_four_yrs,
-        five_nine_yrs = EXCLUDED.five_nine_yrs,
-        ten_nineteen_yrs = EXCLUDED.ten_nineteen_yrs,
-        twenty_yrs_plus = EXCLUDED.twenty_yrs_plus,
-        percentile_10 = EXCLUDED.percentile_10,
-        percentile_25 = EXCLUDED.percentile_25,
-        percentile_50 = EXCLUDED.percentile_50,
-        percentile_75 = EXCLUDED.percentile_75,
-        percentile_90 = EXCLUDED.percentile_90,
-        skills = EXCLUDED.skills,
-        updated_at = NOW()
-    `;
-
-    const BATCH_SIZE = 1000;
     let totalInserted = 0;
 
-    for (let i = 0; i < records.length; i += BATCH_SIZE) {
-      const batch = records.slice(i, i + BATCH_SIZE);
+    for (const record of records) {
+      const dbData = transformOccupationRecordToDb(record);
 
-      for (const record of batch) {
-        const dbData = transformOccupationRecordToDb(record);
-        const values = Object.values(dbData);
+      const fields = Object.keys(dbData);
+      const values = Object.values(dbData);
+      const placeholders = fields.map((_, i) => `$${i + 1}`).join(", ");
+      const columnList = fields.join(", ");
 
-        await client.query(
-          `INSERT INTO occupations (${columnList})
-             VALUES (${placeholderRow})
-             ${conflictClause}`,
-          values
-        );
+      await client.query(
+        `INSERT INTO occupations (${columnList})
+         VALUES (${placeholders})
+         ON CONFLICT (
+            country,
+            COALESCE(state, ''),
+            COALESCE(location, ''),
+            slug_url
+         )
+         DO UPDATE SET
+            title = EXCLUDED.title,
+            occ_name = EXCLUDED.occ_name,
+            company_name = EXCLUDED.company_name,
+            state = EXCLUDED.state,
+            location = EXCLUDED.location,
+            avg_annual_salary = EXCLUDED.avg_annual_salary,
+            avg_hourly_salary = EXCLUDED.avg_hourly_salary,
+            hourly_low_value = EXCLUDED.hourly_low_value,
+            hourly_high_value = EXCLUDED.hourly_high_value,
+            fortnightly_salary = EXCLUDED.fortnightly_salary,
+            monthly_salary = EXCLUDED.monthly_salary,
+            total_pay_min = EXCLUDED.total_pay_min,
+            total_pay_max = EXCLUDED.total_pay_max,
+            bonus_range_min = EXCLUDED.bonus_range_min,
+            bonus_range_max = EXCLUDED.bonus_range_max,
+            profit_sharing_min = EXCLUDED.profit_sharing_min,
+            profit_sharing_max = EXCLUDED.profit_sharing_max,
+            commission_min = EXCLUDED.commission_min,
+            commission_max = EXCLUDED.commission_max,
+            gender_male = EXCLUDED.gender_male,
+            gender_female = EXCLUDED.gender_female,
+            one_yr = EXCLUDED.one_yr,
+            one_four_yrs = EXCLUDED.one_four_yrs,
+            five_nine_yrs = EXCLUDED.five_nine_yrs,
+            ten_nineteen_yrs = EXCLUDED.ten_nineteen_yrs,
+            twenty_yrs_plus = EXCLUDED.twenty_yrs_plus,
+            percentile_10 = EXCLUDED.percentile_10,
+            percentile_25 = EXCLUDED.percentile_25,
+            percentile_50 = EXCLUDED.percentile_50,
+            percentile_75 = EXCLUDED.percentile_75,
+            percentile_90 = EXCLUDED.percentile_90,
+            skills = EXCLUDED.skills,
+            updated_at = NOW()`,
+        values
+      );
 
-        totalInserted++;
-      }
+      totalInserted++;
     }
 
     await client.query("COMMIT");
     return totalInserted;
+
   } catch (error) {
     await client.query("ROLLBACK");
     throw error;
@@ -2021,6 +2098,8 @@ export async function bulkInsertOccupations(records: Partial<OccupationRecord>[]
     client.release();
   }
 }
+
+
 
 
 // Get occupation by ID

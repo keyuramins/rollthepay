@@ -11,7 +11,8 @@
     "db:refresh-views": "tsx -e \"import { pool } from './lib/db/client'; pool.query('REFRESH MATERIALIZED VIEW CONCURRENTLY mv_country_stats; REFRESH MATERIALIZED VIEW CONCURRENTLY mv_state_stats;').then(() => { console.log('✅ Materialized views refreshed'); pool.end(); });\"",
     "db:reindex": "tsx -e \"import { pool } from './lib/db/client'; pool.query('REINDEX TABLE occupations; VACUUM ANALYZE occupations;').then(() => { console.log('✅ Table reindexed and analyzed'); pool.end(); });\"",
     "db:backup": "tsx -e \"import { exec } from 'child_process'; const timestamp = new Date().toISOString().replace(/[:.]/g, '-'); exec(`pg_dump $POSTGRES_URL > backup_${timestamp}.sql`, (err, stdout, stderr) => { if (err) { console.error('Backup failed:', err); process.exit(1); } console.log('✅ Backup completed'); });\"",
-    "db:test-connection": "tsx -e \"import { testConnection } from './lib/db/client'; testConnection().then(result => { console.log(result.success ? '✅ Connection successful' : '❌ Connection failed'); console.log(JSON.stringify(result, null, 2)); process.exit(result.success ? 0 : 1); });\""
+    "db:test-connection": "tsx -e \"import { testConnection } from './lib/db/client'; testConnection().then(result => { console.log(result.success ? '✅ Connection successful' : '❌ Connection failed'); console.log(JSON.stringify(result, null, 2)); process.exit(result.success ? 0 : 1); });\"",
+    "db:import-csv": "tsx scripts/bulk-insert-csv.ts"
   },
   "dependencies": {
     "@radix-ui/react-tooltip": "^1.2.8",
@@ -36,6 +37,7 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "babel-plugin-react-compiler": "^1.0.0",
+    "baseline-browser-mapping": "^2.8.32",
     "tailwindcss": "^4",
     "terser-webpack-plugin": "^5.3.14",
     "tsx": "^4.20.6",
