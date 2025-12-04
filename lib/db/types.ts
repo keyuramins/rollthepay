@@ -160,16 +160,35 @@ export function transformDbRowToOccupationRecord(row: DbOccupationRow): Occupati
 // Transform OccupationRecord to database row (for inserts/updates)
 export function transformOccupationRecordToDb(record: Partial<OccupationRecord>): Partial<DbOccupationRow> {
   // Transform expanded skills format to JSONB
-  const skills: Array<{ name: string; percentage: number }> = [];
+  // const skills: Array<{ name: string; percentage: number }> = [];
   
-  for (let i = 1; i <= 10; i++) {
-    const name = record[`skillsName${numToWord(i)}` as keyof OccupationRecord] as string | null;
-    const percentage = record[`skillsNamePerc${numToWord(i)}` as keyof OccupationRecord] as number | null;
+  // for (let i = 1; i <= 10; i++) {
+  //   const name = record[`skillsName${numToWord(i)}` as keyof OccupationRecord] as string | null;
+  //   const percentage = record[`skillsNamePerc${numToWord(i)}` as keyof OccupationRecord] as number | null;
     
-    if (name && percentage !== null) {
-      skills.push({ name, percentage });
+  //   if (name && percentage !== null) {
+  //     skills.push({ name, percentage });
+  //   }
+  // }
+  let skills: Array<{ name: string; percentage: number }> | null = null;
+
+  // If CSV transform passed { skills: [...] }
+  if (Array.isArray((record as any).skills)) {
+    skills = (record as any).skills;
+  } else {
+    // Fallback for expanded legacy format
+    const arr: Array<{ name: string; percentage: number }> = [];
+    for (let i = 1; i <= 10; i++) {
+      const name = record[`skillsName${numToWord(i)}` as keyof OccupationRecord] as string | null;
+      const percentage = record[`skillsNamePerc${numToWord(i)}` as keyof OccupationRecord] as number | null;
+
+      if (name && percentage !== null) {
+        arr.push({ name, percentage });
+      }
     }
+    skills = arr.length > 0 ? arr : null;
   }
+
   
   return {
     slug_url: record.slug_url,
@@ -216,7 +235,7 @@ export function transformOccupationRecordToDb(record: Partial<OccupationRecord>)
     percentile_90: record["90P"],
     
     // Skills as JSONB
-    skills: skills.length > 0 ? skills : null,
+    skills: skills && skills.length > 0 ? skills : [],
     
     // Metadata
     data_source: 'admin_import', // Default for new records

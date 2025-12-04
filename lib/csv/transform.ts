@@ -77,19 +77,31 @@ export function transformCsvRowToDb(row: RawCsvRow): any {
     '90P': coerceNumber((row as any).percentile_90),
 
     // Skills JSONB → array of {name, percentage}
-    skills: (() => {
-      const skillsStr = safeString((row as any).skills);
-      if (!skillsStr) return null;
-
-      try {
-        const arr = JSON.parse(skillsStr) as Array<{ name?: string; percentage?: any }>;
-        return arr.slice(0, 10).map(s => ({
-          name: safeString(s?.name ?? null),
-          percentage: coerceNumber(s?.percentage ?? null)
-        }));
-      } catch {
-        return null;
+    // Skills JSONB → array of {name, percentage}
+skills: (() => {
+    const skillsStr = safeString((row as any).skills);
+    if (!skillsStr) return null;
+  
+    let parsed: any;
+  
+    try {
+      // First parse
+      parsed = JSON.parse(skillsStr);
+  
+      // If CSV contained double-encoded JSON → parse again
+      if (typeof parsed === "string") {
+        parsed = JSON.parse(parsed);
       }
-    })(),
+    } catch {
+      return null;
+    }
+  
+    if (!Array.isArray(parsed)) return null;
+  
+    return parsed.slice(0, 10).map(s => ({
+      name: safeString(s?.name),
+      percentage: coerceNumber(s?.percentage)
+    }));
+  })(),      
   };
 }

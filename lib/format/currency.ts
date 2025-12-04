@@ -31,6 +31,7 @@ const createCountryConfig = () => {
       case 'mozambique': currencyCode = 'MZN'; locale = 'pt-MZ'; break;
       case 'namibia': currencyCode = 'NAD'; locale = 'en-NA'; break;
       case 'nigeria': currencyCode = 'NGN'; locale = 'en-NG'; break;
+      case 'rwanda': currencyCode = 'RWF'; locale = 'en-RW'; break;
       case 'swaziland': currencyCode = 'SZL'; locale = 'en-SZ'; break;
       case 'tunisia': currencyCode = 'TND'; locale = 'ar-TN'; break;
       case 'tanzania': currencyCode = 'TZS'; locale = 'en-TZ'; break;

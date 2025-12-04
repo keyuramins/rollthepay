@@ -2021,7 +2021,9 @@ export async function deleteOccupation(id: number): Promise<boolean> {
 //     client.release();
 //   }
 // }
-export async function bulkInsertOccupations(records: Partial<OccupationRecord>[]): Promise<{ inserted: number; skipped: number }> {
+export async function bulkInsertOccupations(
+  records: Partial<OccupationRecord>[]
+): Promise<{ inserted: number; skipped: number }> {
   if (records.length === 0) return { inserted: 0, skipped: 0 };
 
   const poolInstance = requirePool();
@@ -2036,7 +2038,18 @@ export async function bulkInsertOccupations(records: Partial<OccupationRecord>[]
       const dbData = transformOccupationRecordToDb(record);
 
       const fields = Object.keys(dbData);
-      const values = Object.values(dbData);
+      let values = Object.values(dbData);
+
+      // -----------------------------------------
+      // FIX: Convert arrays / objects → valid JSON strings
+      // -----------------------------------------
+      values = values.map(v => {
+        if (Array.isArray(v) || (v && typeof v === "object")) {
+          return JSON.stringify(v); // required for JSONB
+        }
+        return v;
+      });
+
       const placeholders = fields.map((_, i) => `$${i + 1}`).join(", ");
       const columnList = fields.join(", ");
 
@@ -2044,16 +2057,15 @@ export async function bulkInsertOccupations(records: Partial<OccupationRecord>[]
         `INSERT INTO occupations (${columnList})
          VALUES (${placeholders})
          ON CONFLICT (
-            country,
-            COALESCE(state, ''),
-            COALESCE(location, ''),
-            slug_url
+           country,
+           COALESCE(state, ''),
+           COALESCE(location, ''),
+           slug_url
          )
          DO NOTHING`,
         values
       );
 
-      // Count inserted vs skipped
       if (result.rowCount && result.rowCount > 0) {
         totalInserted++;
       } else {
@@ -2071,6 +2083,7 @@ export async function bulkInsertOccupations(records: Partial<OccupationRecord>[]
     client.release();
   }
 }
+
 
 
 

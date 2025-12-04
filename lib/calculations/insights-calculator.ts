@@ -142,7 +142,9 @@ function calculateSalaryIncrease(record: OccupationRecord, country: string): num
     'france': 0.9,       // Moderate growth
     'japan': 0.8,        // Aging population, slower growth
     'brazil': 1.2,       // Emerging market
-    'south africa': 1.1  // Emerging market
+    'south africa': 1.1, // Emerging market
+    'rwanda': 1.1,       // Emerging market, growing economy
+    'saint lucia': 1.0   // Moderate growth, tourism-dependent
   };
   
   const countryMultiplier = countryMultipliers[country.toLowerCase()] || 1.0;
@@ -176,7 +178,9 @@ function compareToInflation(salaryIncrease: number, country: string): string {
     'france': { current: 2.3, projected: 2.0 },
     'japan': { current: 1.8, projected: 1.5 },
     'brazil': { current: 4.2, projected: 3.8 },
-    'south africa': { current: 5.1, projected: 4.5 }
+    'south africa': { current: 5.1, projected: 4.5 },
+    'rwanda': { current: 5.0, projected: 4.5 },
+    'saint lucia': { current: 3.5, projected: 3.0 }
   };
   
   const inflation = inflationData[country.toLowerCase()] || { current: 3.0, projected: 2.5 };
@@ -342,6 +346,7 @@ function calculateCostOfLivingFactor(record: OccupationRecord, location?: string
     'mozambique': 0.30,       // 70% below global average
     'namibia': 0.50,          // 50% below global average
     'nigeria': 0.35,          // 65% below global average
+    'rwanda': 0.35,           // 65% below global average
     'swaziland': 0.40,        // 60% below global average
     'tunisia': 0.40,          // 60% below global average
     'tanzania': 0.30,         // 70% below global average
@@ -435,6 +440,7 @@ function calculateCostOfLivingFactor(record: OccupationRecord, location?: string
     'guatemala': 0.40,        // 60% below global average
     'dominican-republic': 0.50, // 50% below global average
     'puerto-rico': 0.80,      // 20% below global average
+    'saint-lucia': 0.80,      // 20% below global average
     'canada': 1.10,           // 10% above global average
     'mexico': 0.50,           // 50% below global average
     'bahamas': 1.00,          // At global average
@@ -522,7 +528,9 @@ function calculateProjectedIncrease(record: OccupationRecord, country: string): 
     'france': 0.9,        // Moderate growth
     'japan': 0.85,        // Aging population
     'brazil': 1.1,        // Emerging market
-    'south africa': 1.05  // Emerging market
+    'south africa': 1.05, // Emerging market
+    'rwanda': 1.05,       // Emerging market growth
+    'saint lucia': 1.0    // Stable, moderate growth
   };
   
   const countryFactor = countryFactors[country.toLowerCase()] || 1.0;
