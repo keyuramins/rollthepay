@@ -4,6 +4,7 @@ import { parse } from 'csv-parse/sync';
 import { bulkInsertOccupations } from '@/lib/db/queries';
 import type { RawCsvRow } from '@/lib/data/types';
 import { Pool } from 'pg';
+import { transformCsvRowToDb } from '@/lib/csv/transform';
 
 // Middleware for API key authentication
 function authenticate(request: NextRequest): boolean {
@@ -16,109 +17,6 @@ function authenticate(request: NextRequest): boolean {
   }
   
   return apiKey === expectedKey;
-}
-
-// Helper function to convert number to word (for skills column mapping)
-function numToWord(num: number): string {
-  const words = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine', 'Ten'];
-  return words[num] || '';
-}
-
-// Helper function to check if value is invalid
-function isInvalidToken(value: unknown): boolean {
-  if (value == null) return true;
-  const v = String(value).trim();
-  return v.length === 0 || v.toUpperCase() === "#REF!";
-}
-
-// Helper function to coerce number
-function coerceNumber(value: unknown): number | null {
-  if (isInvalidToken(value)) return null;
-  // Remove commas and currency symbols, keep digits, sign and decimal point
-  const normalized = String(value).replace(/[^0-9+\-.]/g, "");
-  if (normalized.length === 0) return null;
-  const n = Number(normalized);
-  return Number.isFinite(n) ? n : null;
-}
-
-// Helper function to safe string
-function safeString(value: unknown): string | null {
-  if (isInvalidToken(value)) return null;
-  return String(value).trim();
-}
-
-// Transform CSV row to database format
-function transformCsvRowToDb(row: RawCsvRow): any {
-  const title = safeString(row.title);
-  const slug = safeString(row.slug_url);
-  const country = safeString(row.country);
-  
-  if (!title || !slug || !country) {
-    return null; // Skip invalid rows
-  }
-
-  // Transform skills columns to JSONB array
-  const skills: Array<{ name: string; percentage: number }> = [];
-  for (let i = 1; i <= 10; i++) {
-    const name = safeString(row[`skillsName${numToWord(i)}` as keyof RawCsvRow]);
-    const percentage = coerceNumber(row[`skillsNamePerc${numToWord(i)}` as keyof RawCsvRow]);
-    
-    if (name && percentage !== null) {
-      skills.push({ name, percentage });
-    }
-  }
-
-  return {
-    slug_url: slug,
-    title,
-    occ_name: safeString(row.occ_name),
-    country,
-    state: safeString(row.state),
-    location: safeString(row.location),
-
-    // Salary fields
-    avg_annual_salary: coerceNumber(row.avgAnnualSalary),
-    avg_hourly_salary: coerceNumber(row.avgHourlySalary),
-    hourly_low_value: coerceNumber(row.hourlyLowValue),
-    hourly_high_value: coerceNumber(row.hourlyHighValue),
-    fortnightly_salary: coerceNumber(row.fortnightlySalary),
-    monthly_salary: coerceNumber(row.monthlySalary),
-    total_pay_min: coerceNumber(row.totalPayMin),
-    total_pay_max: coerceNumber(row.totalPayMax),
-
-    // Additional compensation
-    bonus_range_min: coerceNumber(row.bonusRangeMin),
-    bonus_range_max: coerceNumber(row.bonusRangeMax),
-    profit_sharing_min: coerceNumber(row.profitSharingMin),
-    profit_sharing_max: coerceNumber(row.profitSharingMax),
-    commission_min: coerceNumber(row.commissionMin),
-    commission_max: coerceNumber(row.commissionMax),
-
-    // Gender distribution
-    gender_male: coerceNumber(row.genderMale),
-    gender_female: coerceNumber(row.genderFemale),
-
-    // Years of experience salaries
-    one_yr: coerceNumber(row.oneYr),
-    one_four_yrs: coerceNumber(row.oneFourYrs),
-    five_nine_yrs: coerceNumber(row.fiveNineYrs),
-    ten_nineteen_yrs: coerceNumber(row.tenNineteenYrs),
-    twenty_yrs_plus: coerceNumber(row.twentyYrsPlus),
-
-    // Salary percentiles
-    percentile_10: coerceNumber(row["10P"]),
-    percentile_25: coerceNumber(row["25P"]),
-    percentile_50: coerceNumber(row["50P"]),
-    percentile_75: coerceNumber(row["75P"]),
-    percentile_90: coerceNumber(row["90P"]),
-
-    // Skills as JSONB
-    skills: skills.length > 0 ? JSON.stringify(skills) : null,
-
-    // Metadata
-    data_source: 'admin_import',
-    contribution_count: 0,
-  };
 }
 
 // POST /api/admin/import-csv - Import CSV data
