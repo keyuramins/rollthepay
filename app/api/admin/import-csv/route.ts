@@ -198,10 +198,10 @@ export async function POST(request: NextRequest) {
     // Bulk insert records
     console.log('💾 Starting bulk insert...');
     const startTime = Date.now();
-    const insertedCount = await bulkInsertOccupations(validRecords);
+    const result = await bulkInsertOccupations(validRecords);
     const duration = Date.now() - startTime;
 
-    console.log(`✅ Inserted ${insertedCount} records in ${duration}ms`);
+    console.log(`✅ Inserted ${result.inserted} records, skipped ${result.skipped} existing records in ${duration}ms`);
 
     // Refresh materialized views
     console.log('🔄 Refreshing materialized views...');
@@ -217,8 +217,9 @@ export async function POST(request: NextRequest) {
         fileSize: file.size,
         totalRows: rows.length,
         validRecords: validRecords.length,
-        insertedRecords: insertedCount,
-        skippedRecords: skippedCount,
+        insertedRecords: result.inserted,
+        skippedExisting: result.skipped,
+        skippedInvalid: skippedCount,
         duration: `${duration}ms`,
         errors: errors.slice(0, 20) // Show first 20 errors
       }

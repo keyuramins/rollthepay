@@ -168,10 +168,10 @@ async function bulkInsertFromCSV(csvFilePath: string) {
 
   const startDb = Date.now();
   console.log('💾 Inserting/updating records via bulkInsertOccupations...');
-  const insertedCount = await bulkInsertOccupations(validRecords as Partial<OccupationRecord>[]);
+  const result = await bulkInsertOccupations(validRecords as Partial<OccupationRecord>[]);
 
   const durationDb = Date.now() - startDb;
-  console.log(`✅ Inserted/updated ${insertedCount} records in ${durationDb}ms`);
+  console.log(`✅ Inserted ${result.inserted} records, skipped ${result.skipped} existing records in ${durationDb}ms`);
 
   console.log('🔄 Refreshing materialized views...');
   await pool.query('REFRESH MATERIALIZED VIEW mv_country_stats');
@@ -181,8 +181,9 @@ async function bulkInsertFromCSV(csvFilePath: string) {
   return {
     totalRows: rows.length,
     validRecords: validRecords.length,
-    insertedCount,
-    skippedCount,
+    insertedCount: result.inserted,
+    skippedCount: skippedCount + result.skipped, // validation skipped + database skipped
+    databaseSkipped: result.skipped, // records that already existed
   };
 }
 
@@ -201,11 +202,12 @@ bulkInsertFromCSV(csvFilePath)
   .then((summary) => {
     const duration = Date.now() - start;
     console.log('\n📊 Summary:');
-    console.log(`   Total rows in CSV: ${summary?.totalRows ?? 0}`);
-    console.log(`   Valid records:      ${summary?.validRecords ?? 0}`);
-    console.log(`   Inserted/updated:   ${summary?.insertedCount ?? 0}`);
-    console.log(`   Skipped:            ${summary?.skippedCount ?? 0}`);
-    console.log(`   Duration:           ${duration}ms`);
+    console.log(`   Total rows in CSV:     ${summary?.totalRows ?? 0}`);
+    console.log(`   Valid records:        ${summary?.validRecords ?? 0}`);
+    console.log(`   Inserted (new):       ${summary?.insertedCount ?? 0}`);
+    console.log(`   Skipped (existing):   ${summary?.databaseSkipped ?? 0}`);
+    console.log(`   Skipped (invalid):    ${(summary?.skippedCount ?? 0) - (summary?.databaseSkipped ?? 0)}`);
+    console.log(`   Duration:              ${duration}ms`);
     console.log('\n✅ Bulk insert completed');
     process.exit(0);
   })

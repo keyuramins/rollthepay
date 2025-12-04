@@ -138,6 +138,7 @@ const createCountryConfig = () => {
       case 'mexico': currencyCode = 'MXN'; locale = 'es-MX'; break;
       case 'bahamas': currencyCode = 'BSD'; locale = 'en-BS'; break;
       case 'guyana': currencyCode = 'GYD'; locale = 'en-GY'; break;
+      case 'saint-lucia': currencyCode = 'XCD'; locale = 'en-LC'; break;
       case 'trinidad-and-tobago': currencyCode = 'TTD'; locale = 'en-TT'; break;
       
       // Oceania

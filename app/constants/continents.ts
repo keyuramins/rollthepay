@@ -132,6 +132,7 @@ export type Continent = {
         { name: "Jamaica", slug: "jamaica", code: "JM", continent: "north_america", currencySymbol: "J$" },
         { name: "Mexico", slug: "mexico", code: "MX", continent: "north_america", currencySymbol: "$" },
         { name: "Puerto Rico", slug: "puerto-rico", code: "PR", continent: "north_america", currencySymbol: "$" },
+        { name: "Saint Lucia", slug: "saint-lucia", code: "LC", continent: "north_america", currencySymbol: "$" },
         { name: "Trinidad and Tobago", slug: "trinidad-and-tobago", code: "TT", continent: "north_america", currencySymbol: "TT$" }
       ]
     },

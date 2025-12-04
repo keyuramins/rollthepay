@@ -2021,8 +2021,8 @@ export async function deleteOccupation(id: number): Promise<boolean> {
 //     client.release();
 //   }
 // }
-export async function bulkInsertOccupations(records: Partial<OccupationRecord>[]): Promise<number> {
-  if (records.length === 0) return 0;
+export async function bulkInsertOccupations(records: Partial<OccupationRecord>[]): Promise<{ inserted: number; skipped: number }> {
+  if (records.length === 0) return { inserted: 0, skipped: 0 };
 
   const poolInstance = requirePool();
   const client = await poolInstance.connect();
@@ -2030,6 +2030,7 @@ export async function bulkInsertOccupations(records: Partial<OccupationRecord>[]
   try {
     await client.query("BEGIN");
     let totalInserted = 0;
+    let totalSkipped = 0;
 
     for (const record of records) {
       const dbData = transformOccupationRecordToDb(record);
@@ -2039,7 +2040,7 @@ export async function bulkInsertOccupations(records: Partial<OccupationRecord>[]
       const placeholders = fields.map((_, i) => `$${i + 1}`).join(", ");
       const columnList = fields.join(", ");
 
-      await client.query(
+      const result = await client.query(
         `INSERT INTO occupations (${columnList})
          VALUES (${placeholders})
          ON CONFLICT (
@@ -2048,48 +2049,20 @@ export async function bulkInsertOccupations(records: Partial<OccupationRecord>[]
             COALESCE(location, ''),
             slug_url
          )
-         DO UPDATE SET
-            title = EXCLUDED.title,
-            occ_name = EXCLUDED.occ_name,
-            company_name = EXCLUDED.company_name,
-            state = EXCLUDED.state,
-            location = EXCLUDED.location,
-            avg_annual_salary = EXCLUDED.avg_annual_salary,
-            avg_hourly_salary = EXCLUDED.avg_hourly_salary,
-            hourly_low_value = EXCLUDED.hourly_low_value,
-            hourly_high_value = EXCLUDED.hourly_high_value,
-            fortnightly_salary = EXCLUDED.fortnightly_salary,
-            monthly_salary = EXCLUDED.monthly_salary,
-            total_pay_min = EXCLUDED.total_pay_min,
-            total_pay_max = EXCLUDED.total_pay_max,
-            bonus_range_min = EXCLUDED.bonus_range_min,
-            bonus_range_max = EXCLUDED.bonus_range_max,
-            profit_sharing_min = EXCLUDED.profit_sharing_min,
-            profit_sharing_max = EXCLUDED.profit_sharing_max,
-            commission_min = EXCLUDED.commission_min,
-            commission_max = EXCLUDED.commission_max,
-            gender_male = EXCLUDED.gender_male,
-            gender_female = EXCLUDED.gender_female,
-            one_yr = EXCLUDED.one_yr,
-            one_four_yrs = EXCLUDED.one_four_yrs,
-            five_nine_yrs = EXCLUDED.five_nine_yrs,
-            ten_nineteen_yrs = EXCLUDED.ten_nineteen_yrs,
-            twenty_yrs_plus = EXCLUDED.twenty_yrs_plus,
-            percentile_10 = EXCLUDED.percentile_10,
-            percentile_25 = EXCLUDED.percentile_25,
-            percentile_50 = EXCLUDED.percentile_50,
-            percentile_75 = EXCLUDED.percentile_75,
-            percentile_90 = EXCLUDED.percentile_90,
-            skills = EXCLUDED.skills,
-            updated_at = NOW()`,
+         DO NOTHING`,
         values
       );
 
-      totalInserted++;
+      // Count inserted vs skipped
+      if (result.rowCount && result.rowCount > 0) {
+        totalInserted++;
+      } else {
+        totalSkipped++;
+      }
     }
 
     await client.query("COMMIT");
-    return totalInserted;
+    return { inserted: totalInserted, skipped: totalSkipped };
 
   } catch (error) {
     await client.query("ROLLBACK");
