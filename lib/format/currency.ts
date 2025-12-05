@@ -24,8 +24,10 @@ const createCountryConfig = () => {
       case 'angola': currencyCode = 'AOA'; locale = 'pt-AO'; break;
       case 'botswana': currencyCode = 'BWP'; locale = 'en-BW'; break;
       case 'cameroon': currencyCode = 'XAF'; locale = 'fr-CM'; break;
+      case 'ethiopia': currencyCode = 'ETB'; locale = 'am-ET'; break;
       case 'ghana': currencyCode = 'GHS'; locale = 'en-GH'; break;
       case 'kenya': currencyCode = 'KES'; locale = 'en-KE'; break;
+      case 'lesotho': currencyCode = 'LSL'; locale = 'en-LS'; break;
       case 'mauritius': currencyCode = 'MUR'; locale = 'en-MU'; break;
       case 'morocco': currencyCode = 'MAD'; locale = 'ar-MA'; break;
       case 'mozambique': currencyCode = 'MZN'; locale = 'pt-MZ'; break;
@@ -91,6 +93,7 @@ const createCountryConfig = () => {
       case 'gibraltar': currencyCode = 'GBP'; locale = 'en-GI'; break;
       case 'greece': currencyCode = 'EUR'; locale = 'el-GR'; break;
       case 'hungary': currencyCode = 'HUF'; locale = 'hu-HU'; break;
+      case 'iceland': currencyCode = 'ISK'; locale = 'is-IS'; break;
       case 'italy': currencyCode = 'EUR'; locale = 'it-IT'; break;
       case 'latvia': currencyCode = 'EUR'; locale = 'lv-LV'; break;
       case 'lithuania': currencyCode = 'EUR'; locale = 'lt-LT'; break;
@@ -133,6 +136,7 @@ const createCountryConfig = () => {
       case 'costa-rica': currencyCode = 'CRC'; locale = 'es-CR'; break;
       case 'jamaica': currencyCode = 'JMD'; locale = 'en-JM'; break;
       case 'guatemala': currencyCode = 'GTQ'; locale = 'es-GT'; break;
+      case 'honduras': currencyCode = 'HNL'; locale = 'es-HN'; break;
       case 'dominican-republic': currencyCode = 'DOP'; locale = 'es-DO'; break;
       case 'puerto-rico': currencyCode = 'USD'; locale = 'en-PR'; break;
       case 'canada': currencyCode = 'CAD'; locale = 'en-CA'; break;
@@ -152,6 +156,7 @@ const createCountryConfig = () => {
       // South America
       case 'brazil': currencyCode = 'BRL'; locale = 'pt-BR'; break;
       case 'argentina': currencyCode = 'ARS'; locale = 'es-AR'; break;
+      case 'bolivia': currencyCode = 'BOB'; locale = 'es-BO'; break;
       case 'chile': currencyCode = 'CLP'; locale = 'es-CL'; break;
       case 'colombia': currencyCode = 'COP'; locale = 'es-CO'; break;
       case 'peru': currencyCode = 'PEN'; locale = 'es-PE'; break;

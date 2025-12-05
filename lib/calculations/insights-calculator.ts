@@ -144,7 +144,12 @@ function calculateSalaryIncrease(record: OccupationRecord, country: string): num
     'brazil': 1.2,       // Emerging market
     'south africa': 1.1, // Emerging market
     'rwanda': 1.1,       // Emerging market, growing economy
-    'saint lucia': 1.0   // Moderate growth, tourism-dependent
+    'saint lucia': 1.0,  // Moderate growth, tourism-dependent
+    'ethiopia': 1.15,   // High growth emerging market
+    'lesotho': 1.0,     // Moderate growth, small economy
+    'iceland': 0.95,    // Mature economy, small population
+    'honduras': 1.05,   // Emerging market, moderate growth
+    'bolivia': 1.1      // Emerging market, resource-based
   };
   
   const countryMultiplier = countryMultipliers[country.toLowerCase()] || 1.0;
@@ -180,7 +185,12 @@ function compareToInflation(salaryIncrease: number, country: string): string {
     'brazil': { current: 4.2, projected: 3.8 },
     'south africa': { current: 5.1, projected: 4.5 },
     'rwanda': { current: 5.0, projected: 4.5 },
-    'saint lucia': { current: 3.5, projected: 3.0 }
+    'saint lucia': { current: 3.5, projected: 3.0 },
+    'ethiopia': { current: 5.2, projected: 4.8 },
+    'lesotho': { current: 4.8, projected: 4.3 },
+    'iceland': { current: 2.5, projected: 2.0 },
+    'honduras': { current: 4.0, projected: 3.5 },
+    'bolivia': { current: 3.8, projected: 3.3 }
   };
   
   const inflation = inflationData[country.toLowerCase()] || { current: 3.0, projected: 2.5 };
@@ -339,8 +349,10 @@ function calculateCostOfLivingFactor(record: OccupationRecord, location?: string
     'algeria': 0.40,          // 60% below global average
     'botswana': 0.50,         // 50% below global average
     'cameroon': 0.35,         // 65% below global average
+    'ethiopia': 0.30,         // 70% below global average
     'ghana': 0.40,            // 60% below global average
     'kenya': 0.35,            // 65% below global average
+    'lesotho': 0.40,          // 60% below global average
     'mauritius': 0.60,        // 40% below global average
     'morocco': 0.40,          // 60% below global average
     'mozambique': 0.30,       // 70% below global average
@@ -395,6 +407,7 @@ function calculateCostOfLivingFactor(record: OccupationRecord, location?: string
     'gibraltar': 1.10,        // 10% above global average
     'greece': 0.90,           // 10% below global average
     'hungary': 0.60,          // 40% below global average
+    'iceland': 1.35,          // 35% above global average
     'italy': 1.10,            // 10% above global average
     'latvia': 0.70,           // 30% below global average
     'lithuania': 0.70,        // 30% below global average
@@ -438,6 +451,7 @@ function calculateCostOfLivingFactor(record: OccupationRecord, location?: string
     'costa-rica': 0.50,       // 50% below global average
     'jamaica': 0.60,          // 40% below global average
     'guatemala': 0.40,        // 60% below global average
+    'honduras': 0.45,         // 55% below global average
     'dominican-republic': 0.50, // 50% below global average
     'puerto-rico': 0.80,      // 20% below global average
     'saint-lucia': 0.80,      // 20% below global average
@@ -458,6 +472,7 @@ function calculateCostOfLivingFactor(record: OccupationRecord, location?: string
     // South America
     'brazil': 0.50,           // 50% below global average
     'argentina': 0.40,        // 60% below global average
+    'bolivia': 0.40,          // 60% below global average
     'chile': 0.70,            // 30% below global average
     'colombia': 0.40,         // 60% below global average
     'peru': 0.40,             // 60% below global average
@@ -530,7 +545,12 @@ function calculateProjectedIncrease(record: OccupationRecord, country: string): 
     'brazil': 1.1,        // Emerging market
     'south africa': 1.05, // Emerging market
     'rwanda': 1.05,       // Emerging market growth
-    'saint lucia': 1.0    // Stable, moderate growth
+    'saint lucia': 1.0,   // Stable, moderate growth
+    'ethiopia': 1.1,     // High growth emerging market
+    'lesotho': 1.0,      // Stable, moderate growth
+    'iceland': 0.95,     // Mature economy
+    'honduras': 1.02,    // Emerging market, moderate growth
+    'bolivia': 1.05      // Emerging market, resource-based
   };
   
   const countryFactor = countryFactors[country.toLowerCase()] || 1.0;
