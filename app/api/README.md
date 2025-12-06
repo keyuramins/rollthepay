@@ -79,6 +79,11 @@ console.log(result);
 - **Maximum Size**: 50MB
 - **Encoding**: UTF-8 recommended
 
+### **⚠️ IMPORTANT: CSV Header Format**
+**All CSV column headers must use snake_case format** (e.g., `avg_annual_salary`, not `avgAnnualSalary`).
+
+The CSV parser reads headers as-is from your file, so ensure your CSV headers match the snake_case format shown below.
+
 ### **Required Columns:**
 - `title` - Job title (e.g., "Software Engineer")
 - `slug_url` - URL-safe slug (lowercase, hyphenated, e.g., "software-engineer")
@@ -94,61 +99,57 @@ console.log(result);
 - `company_name` - Company name
 
 #### **Salary Data:**
-- `avgAnnualSalary` - Average annual salary
-- `avgHourlySalary` - Average hourly rate
-- `hourlyLowValue` - Minimum hourly rate
-- `hourlyHighValue` - Maximum hourly rate
-- `fortnightlySalary` - Fortnightly salary
-- `monthlySalary` - Monthly salary
-- `totalPayMin` - Minimum total compensation
-- `totalPayMax` - Maximum total compensation
+- `avg_annual_salary` - Average annual salary
+- `avg_hourly_salary` - Average hourly rate
+- `hourly_low_value` - Minimum hourly rate
+- `hourly_high_value` - Maximum hourly rate
+- `fortnightly_salary` - Fortnightly salary
+- `monthly_salary` - Monthly salary
+- `total_pay_min` - Minimum total compensation
+- `total_pay_max` - Maximum total compensation
 
 #### **Additional Compensation:**
-- `bonusRangeMin` - Minimum bonus
-- `bonusRangeMax` - Maximum bonus
-- `profitSharingMin` - Minimum profit sharing
-- `profitSharingMax` - Maximum profit sharing
-- `commissionMin` - Minimum commission
-- `commissionMax` - Maximum commission
+- `bonus_range_min` - Minimum bonus
+- `bonus_range_max` - Maximum bonus
+- `profit_sharing_min` - Minimum profit sharing
+- `profit_sharing_max` - Maximum profit sharing
+- `commission_min` - Minimum commission
+- `commission_max` - Maximum commission
 
 #### **Years of Experience:**
-- `oneYr` - 1 year experience salary
-- `oneFourYrs` - 1-4 years experience salary
-- `fiveNineYrs` - 5-9 years experience salary
-- `tenNineteenYrs` - 10-19 years experience salary
-- `twentyYrsPlus` - 20+ years experience salary
+- `one_yr` - 1 year experience salary
+- `one_four_yrs` - 1-4 years experience salary
+- `five_nine_yrs` - 5-9 years experience salary
+- `ten_nineteen_yrs` - 10-19 years experience salary
+- `twenty_yrs_plus` - 20+ years experience salary
 
 #### **Gender Distribution:**
-- `genderMale` - Male percentage (0-100)
-- `genderFemale` - Female percentage (0-100)
+- `gender_male` - Male percentage (0-100)
+- `gender_female` - Female percentage (0-100)
 
 #### **Salary Percentiles:**
-- `10P` - 10th percentile salary
-- `25P` - 25th percentile salary
-- `50P` - 50th percentile (median) salary
-- `75P` - 75th percentile salary
-- `90P` - 90th percentile salary
+- `percentile_10` - 10th percentile salary
+- `percentile_25` - 25th percentile salary
+- `percentile_50` - 50th percentile (median) salary
+- `percentile_75` - 75th percentile salary
+- `percentile_90` - 90th percentile salary
 
-#### **Skills** (up to 10 skills):
-- `skillsNameOne`, `skillsNamePercOne` - First skill name and percentage
-- `skillsNameTwo`, `skillsNamePercTwo` - Second skill name and percentage
-- `skillsNameThree`, `skillsNamePercThree` - Third skill name and percentage
-- `skillsNameFour`, `skillsNamePercFour` - Fourth skill name and percentage
-- `skillsNameFive`, `skillsNamePercFive` - Fifth skill name and percentage
-- `skillsNameSix`, `skillsNamePercSix` - Sixth skill name and percentage
-- `skillsNameSeven`, `skillsNamePercSeven` - Seventh skill name and percentage
-- `skillsNameEight`, `skillsNamePercEight` - Eighth skill name and percentage
-- `skillsNameNine`, `skillsNamePercNine` - Ninth skill name and percentage
-- `skillsNameTen`, `skillsNamePercTen` - Tenth skill name and percentage
+#### **Skills** (JSON array format, up to 10 skills):
+- `skills` - JSON string array of skill objects: `[{"name": "Python", "percentage": 85}, {"name": "JavaScript", "percentage": 75}]`
+  - Supports double-encoded JSON (will be parsed automatically)
+  - Only skills with both `name` and `percentage` (non-null) will be imported
+  - Maximum 10 skills per record
 
 ### **Example CSV:**
 
 ```csv
-title,slug_url,country,state,location,avgAnnualSalary,currency,skillsNameOne,skillsNamePercOne,skillsNameTwo,skillsNamePercTwo
-Software Engineer,software-engineer,Australia,New South Wales,Sydney,120000,90000,150000,AUD,Python,85,JavaScript,75
-Data Analyst,data-analyst,Australia,Victoria,Melbourne,95000,70000,120000,AUD,SQL,90,Python,80
-Product Manager,product-manager,India,Maharashtra,Mumbai,2500000,1800000,3500000,INR,Product Management,95,Agile,85
+title,slug_url,country,state,location,avg_annual_salary,skills
+Software Engineer,software-engineer,Australia,New South Wales,Sydney,120000,"[{""name"": ""Python"", ""percentage"": 85}, {""name"": ""JavaScript"", ""percentage"": 75}]"
+Data Analyst,data-analyst,Australia,Victoria,Melbourne,95000,"[{""name"": ""SQL"", ""percentage"": 90}, {""name"": ""Python"", ""percentage"": 80}]"
+Product Manager,product-manager,India,Maharashtra,Mumbai,2500000,"[{""name"": ""Product Management"", ""percentage"": 95}, {""name"": ""Agile"", ""percentage"": 85}]"
 ```
+
+**Note**: Skills column uses JSON array format. Ensure proper CSV escaping for quotes within the JSON string.
 
 ---
 
@@ -166,9 +167,10 @@ Product Manager,product-manager,India,Maharashtra,Mumbai,2500000,1800000,3500000
    - Invalid tokens like `#REF!` are filtered out
    - Missing or invalid required fields cause row to be skipped
 5. **Bulk Insert**: 
-   - Inserts in batches of 1000 records
-   - Uses `ON CONFLICT` to update existing records (upsert)
-   - Conflict resolution on: `(country, state, location, slug_url)`
+   - Inserts records one-by-one within a transaction
+   - Uses `ON CONFLICT` to skip existing records (no update, just skip)
+   - Conflict resolution matches unique index: `(country, COALESCE(state, ''), COALESCE(location, ''), slug_url)`
+   - Handles NULL values in state/location fields correctly
    - Wrapped in PostgreSQL transaction (ROLLBACK on error)
 6. **Materialized Views Refresh**: 
    - Refreshes `mv_country_stats`
@@ -279,11 +281,11 @@ curl -H "x-api-key: your-secret-key" \
 
 ## 💡 Key Features
 
-### **1. Upsert Logic**
-If a record exists (same `country`, `state`, `location`, `slug_url`), it updates the existing record instead of failing:
-- Updates `title`
-- Updates `avg_annual_salary`
-- Updates `updated_at` timestamp
+### **1. Duplicate Handling**
+If a record exists (same `country`, `state`, `location`, `slug_url`), it is skipped (no update):
+- Uses `ON CONFLICT ... DO NOTHING` to prevent duplicate key errors
+- Handles NULL values in state/location fields using COALESCE
+- Returns count of inserted vs skipped records in response
 
 ### **2. Batch Processing**
 Handles large files efficiently with 1000-record batches to prevent memory issues.

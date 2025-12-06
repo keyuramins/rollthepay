@@ -2058,8 +2058,8 @@ export async function bulkInsertOccupations(
          VALUES (${placeholders})
          ON CONFLICT (
            country,
-           COALESCE(state, ''),
-           COALESCE(location, ''),
+           COALESCE(state, ''::character varying),
+           COALESCE(location, ''::character varying),
            slug_url
          )
          DO NOTHING`,

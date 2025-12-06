@@ -1,6 +1,34 @@
 // lib/csv/transform.ts
 import type { RawCsvRow } from '@/lib/data/types';
 
+/**
+ * CSV Transformation Utilities
+ * 
+ * IMPORTANT: CSV headers must use snake_case format (e.g., avg_annual_salary, not avgAnnualSalary)
+ * 
+ * Required CSV columns:
+ * - title (required)
+ * - slug_url (required)
+ * - country (required)
+ * 
+ * Optional CSV columns (all snake_case):
+ * - occ_name, company_name, state, location
+ * - avg_annual_salary, avg_hourly_salary, hourly_low_value, hourly_high_value
+ * - fortnightly_salary, monthly_salary, total_pay_min, total_pay_max
+ * - bonus_range_min, bonus_range_max, profit_sharing_min, profit_sharing_max
+ * - commission_min, commission_max
+ * - gender_male, gender_female
+ * - one_yr, one_four_yrs, five_nine_yrs, ten_nineteen_yrs, twenty_yrs_plus
+ * - percentile_10, percentile_25, percentile_50, percentile_75, percentile_90
+ * - skills (JSON string array: [{"name": "Python", "percentage": 85}])
+ * 
+ * Skills format:
+ * - Must be a JSON string array
+ * - Supports double-encoded JSON (will be parsed automatically)
+ * - Only skills with both name and percentage (non-null) are imported
+ * - Maximum 10 skills per record
+ */
+
 // Helpers shared between CLI CSV import and admin API CSV import
 
 export function isInvalidToken(value: unknown): boolean {
@@ -98,10 +126,12 @@ skills: (() => {
   
     if (!Array.isArray(parsed)) return null;
   
-    return parsed.slice(0, 10).map(s => ({
-      name: safeString(s?.name),
-      percentage: coerceNumber(s?.percentage)
-    }));
+    return parsed.slice(0, 10)
+      .map(s => ({
+        name: safeString(s?.name),
+        percentage: coerceNumber(s?.percentage)
+      }))
+      .filter(s => s.name !== null && s.percentage !== null);
   })(),      
   };
 }
