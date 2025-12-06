@@ -96,9 +96,12 @@ export default async function RootLayout({
             Skip to main content
           </a>
           <Header />
+          {/* rtp-under-header */}
           <AdSenseAd 
             id="rtp-under-header"
             adSlot="3972064826"
+            format="auto"
+            fullWidthResponsive={true}
             className="my-4 sm:my-6 min-h-[100px] sm:min-h-[250px]"
             aria-label="Advertisement below header"
           />

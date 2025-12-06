@@ -196,8 +196,11 @@ export function TopSkillsMarketDemand({ record }: TopSkillsMarketDemandProps) {
           </div>
         </CardContent>
       </Card>
+      {/* rtp-below-skills */}
       <AdSenseAd 
         adSlot="1361556810" 
+        format="auto"
+        fullWidthResponsive={true}
         className="my-8 sm:my-12 min-h-[100px] sm:min-h-[250px]"
         aria-label="Advertisement"
       />

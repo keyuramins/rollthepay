@@ -14,6 +14,14 @@ interface AdSenseAdProps {
    */
   format?: "auto" | "rectangle" | "horizontal" | "vertical" | "autorelaxed" | "fluid";
   /**
+   * Ad layout (for in-article ads)
+   */
+  layout?: "in-article";
+  /**
+   * Whether to use full-width responsive
+   */
+  fullWidthResponsive?: boolean;
+  /**
    * Additional CSS classes
    */
   className?: string;
@@ -25,6 +33,10 @@ interface AdSenseAdProps {
    * Optional ID for the ad container
    */
   id?: string;
+  /**
+   * Additional inline styles
+   */
+  style?: React.CSSProperties;
 }
 
 declare global {
@@ -36,9 +48,12 @@ declare global {
 export function AdSenseAd({ 
   adSlot, 
   format = "auto",
+  layout,
+  fullWidthResponsive = true,
   className,
   "aria-label": ariaLabel = "Advertisement",
-  id
+  id,
+  style
 }: AdSenseAdProps) {
   const adRef = useRef<HTMLModElement>(null);
   const hasInitialized = useRef(false);
@@ -123,11 +138,13 @@ export function AdSenseAd({
           display: "block",
           width: "100%",
           maxWidth: "100%",
+          ...style
         }}
         data-ad-client="ca-pub-4388164731251182"
         data-ad-slot={adSlot}
         data-ad-format={format}
-        data-full-width-responsive="true"
+        {...(fullWidthResponsive && { "data-full-width-responsive": "true" })}
+        {...(layout && { "data-ad-layout": layout })}
       ></ins>
     </div>
   );

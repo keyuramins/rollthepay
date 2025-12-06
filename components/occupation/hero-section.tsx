@@ -254,11 +254,14 @@ export function OccupationHeroSection({ record, country, locationText }: Occupat
           </div>
         </div>
       </div>
+      {/* rtp-below-hero */}
       <AdSenseAd 
-            adSlot="6512250643" 
-            className="my-8 sm:my-12 min-h-[100px] sm:min-h-[250px]"
-            aria-label="Advertisement"
-          />
+        adSlot="6512250643" 
+        format="autorelaxed"
+        fullWidthResponsive={false}
+        className="my-8 sm:my-12 min-h-[100px] sm:min-h-[250px]"
+        aria-label="Advertisement"
+      />
     </section>
   );
 }

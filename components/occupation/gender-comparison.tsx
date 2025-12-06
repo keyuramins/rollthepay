@@ -115,8 +115,11 @@ export function GenderComparison({ record }: GenderComparisonProps) {
           </div>
         </CardContent>
       </Card>
+      {/* rtp-below-gender */}
       <AdSenseAd 
         adSlot="5624057847" 
+        format="auto"
+        fullWidthResponsive={true}
         className="my-8 sm:my-12 min-h-[100px] sm:min-h-[250px]"
         aria-label="Advertisement"
       />

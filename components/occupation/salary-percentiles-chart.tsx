@@ -97,6 +97,8 @@ export function SalaryPercentilesChart({ record, country }: SalaryPercentilesCha
       </Card>
       <AdSenseAd 
         adSlot="2866210176" 
+        format="autorelaxed"
+        fullWidthResponsive={false}
         className="my-8 sm:my-12 min-h-[100px] sm:min-h-[250px]"
         aria-label="Advertisement"
       />

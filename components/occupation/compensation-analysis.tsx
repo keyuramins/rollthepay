@@ -789,8 +789,11 @@ export function CompensationAnalysis({ record, country, location }: Compensation
         );
       })()}
 
+      {/* rtp-under-compensationanalysis */}
       <AdSenseAd 
         adSlot="6997026875" 
+        format="auto"
+        fullWidthResponsive={true}
         className="my-8 sm:my-12 min-h-[100px] sm:min-h-[250px]"
         aria-label="Advertisement"
       />

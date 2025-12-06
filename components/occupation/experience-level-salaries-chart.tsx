@@ -126,6 +126,10 @@ export function ExperienceLevelSalariesChart({ record, country }: ExperienceLeve
           </Card>
           <AdSenseAd 
             adSlot="5300801825" 
+            format="fluid"
+            layout="in-article"
+            fullWidthResponsive={false}
+            style={{ textAlign: "center" }}
             className="my-8 sm:my-12 min-h-[100px] sm:min-h-[250px]"
             aria-label="Advertisement"
           />
