@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useCallback } from "react";
 import { cn } from "@/lib/utils/cn";
 
 interface AdSenseAdProps {
@@ -43,37 +43,68 @@ export function AdSenseAd({
   const adRef = useRef<HTMLModElement>(null);
   const hasInitialized = useRef(false);
 
-  useEffect(() => {
-    // Wait for AdSense script to load
+  const initializeAd = useCallback(() => {
+    // Prevent double initialization
     if (hasInitialized.current) return;
     
-    const initializeAd = () => {
-      if (typeof window !== "undefined" && window.adsbygoogle && adRef.current) {
-        try {
-          window.adsbygoogle.push({});
-          hasInitialized.current = true;
-        } catch (err) {
-          console.error("AdSense initialization error:", err);
-        }
+    try {
+      // Ensure window exists
+      if (typeof window === "undefined") return;
+      
+      // Ensure the element exists
+      if (!adRef.current) return;
+      
+      // Initialize adsbygoogle array if it doesn't exist
+      if (!window.adsbygoogle) {
+        window.adsbygoogle = [];
       }
+      
+      // Push empty object to initialize the ad
+      window.adsbygoogle.push({});
+      hasInitialized.current = true;
+    } catch (err) {
+      console.error("AdSense initialization error:", err);
+    }
+  }, []);
+
+  useEffect(() => {
+    // Wait for both the script and the element to be ready
+    const tryInitialize = () => {
+      if (window.adsbygoogle && adRef.current && !hasInitialized.current) {
+        initializeAd();
+        return true;
+      }
+      return false;
     };
 
-    // Check if script is already loaded
-    if (window.adsbygoogle) {
-      initializeAd();
-    } else {
-      // Wait for script to load
+    // Try immediately if both are ready
+    if (tryInitialize()) return;
+
+    // If script is not loaded, wait for it
+    if (!window.adsbygoogle) {
+      let retries = 0;
+      const maxRetries = 100; // 10 seconds max
+      
       const checkInterval = setInterval(() => {
-        if (window.adsbygoogle) {
+        retries++;
+        if (tryInitialize() || retries >= maxRetries) {
           clearInterval(checkInterval);
-          initializeAd();
+          if (retries >= maxRetries && !hasInitialized.current) {
+            console.warn("AdSense script failed to load within timeout");
+          }
         }
       }, 100);
 
-      // Cleanup after 10 seconds
-      setTimeout(() => clearInterval(checkInterval), 10000);
+      return () => clearInterval(checkInterval);
     }
-  }, []);
+
+    // If element is not ready, wait a bit and try again
+    const elementTimer = setTimeout(() => {
+      tryInitialize();
+    }, 100);
+
+    return () => clearTimeout(elementTimer);
+  }, [initializeAd, adSlot]);
 
   return (
     <div 
