@@ -258,8 +258,8 @@ export function OccupationHeroSection({ record, country, locationText }: Occupat
       <AdSenseAd 
         adSlot="6512250643" 
         format="autorelaxed"
-        fullWidthResponsive={false}
-        className="my-8 sm:my-12 min-h-[100px] sm:min-h-[250px]"
+        style={{ textAlign: "center", display: "block" }}
+        className="my-8 sm:my-12"
         aria-label="Advertisement"
       />
     </section>

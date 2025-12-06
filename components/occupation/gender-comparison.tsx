@@ -120,7 +120,7 @@ export function GenderComparison({ record }: GenderComparisonProps) {
         adSlot="5624057847" 
         format="auto"
         fullWidthResponsive={true}
-        className="my-8 sm:my-12 min-h-[100px] sm:min-h-[250px]"
+        className="my-8 sm:my-12"
         aria-label="Advertisement"
       />
     </section>

@@ -102,7 +102,8 @@ export default async function RootLayout({
             adSlot="3972064826"
             format="auto"
             fullWidthResponsive={true}
-            className="my-4 sm:my-6 min-h-[100px] sm:min-h-[250px]"
+            className="my-4 sm:my-6"
+            style={{ textAlign: "center", display: "block" }}
             aria-label="Advertisement below header"
           />
           {children}

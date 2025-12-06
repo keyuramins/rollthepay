@@ -201,7 +201,7 @@ export function TopSkillsMarketDemand({ record }: TopSkillsMarketDemandProps) {
         adSlot="1361556810" 
         format="auto"
         fullWidthResponsive={true}
-        className="my-8 sm:my-12 min-h-[100px] sm:min-h-[250px]"
+        className="my-8 sm:my-12"
         aria-label="Advertisement"
       />
     </section>
