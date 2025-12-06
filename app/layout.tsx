@@ -5,7 +5,6 @@ import Script from "next/script";
 import { Header } from "@/components/navigation/header";
 import { Footer } from "@/components/navigation/footer";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { AdSenseAd } from "@/components/ui/adsense-ad";
 
 const robotoCondensed = Roboto_Condensed({
   weight: ["400","500", "600", "700", "800"],
@@ -96,16 +95,6 @@ export default async function RootLayout({
             Skip to main content
           </a>
           <Header />
-          {/* rtp-under-header */}
-          <AdSenseAd 
-            id="rtp-under-header"
-            adSlot="3972064826"
-            format="auto"
-            fullWidthResponsive={true}
-            className="my-4 sm:my-6"
-            style={{ textAlign: "center", display: "block" }}
-            aria-label="Advertisement below header"
-          />
           {children}
           <Footer />
         </TooltipProvider>
