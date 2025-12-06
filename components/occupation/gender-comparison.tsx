@@ -3,6 +3,7 @@
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import MaleIcon from '../../app/assets/male.svg';
 import FemaleIcon from '../../app/assets/female.svg';
+import { AdSenseAd } from "@/components/ui/adsense-ad";
 
 interface GenderComparisonProps {
   record: any;
@@ -114,6 +115,11 @@ export function GenderComparison({ record }: GenderComparisonProps) {
           </div>
         </CardContent>
       </Card>
+      <AdSenseAd 
+        adSlot="5624057847" 
+        className="my-8 sm:my-12 min-h-[100px] sm:min-h-[250px]"
+        aria-label="Advertisement"
+      />
     </section>
   );
 }

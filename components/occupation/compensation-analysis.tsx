@@ -7,6 +7,7 @@ import type { OccupationRecord } from "@/lib/data/types";
 import { InsightsSection } from "./ai-insights-section";
 import { locationStateCountryString } from "@/lib/utils/locationStateCountryString";
 import { calculateBonusCompensation, type BonusCompensationData } from "@/lib/calculations/insights-calculator";
+import { AdSenseAd } from "@/components/ui/adsense-ad";
 import {
   DollarSign,
   Target,
@@ -788,6 +789,11 @@ export function CompensationAnalysis({ record, country, location }: Compensation
         );
       })()}
 
+      <AdSenseAd 
+        adSlot="6997026875" 
+        className="my-8 sm:my-12 min-h-[100px] sm:min-h-[250px]"
+        aria-label="Advertisement"
+      />
   </section>
   );
 }

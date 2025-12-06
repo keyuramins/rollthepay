@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { PercentilesChart } from "./percentiles-chart";
 import { formatCurrency } from "@/lib/format/currency";
 import type { OccupationRecord } from "@/lib/data/types";
+import { AdSenseAd } from "@/components/ui/adsense-ad";
 
 interface SalaryPercentilesChartProps {
   record: OccupationRecord;
@@ -94,6 +95,11 @@ export function SalaryPercentilesChart({ record, country }: SalaryPercentilesCha
           </div>
         </CardContent>
       </Card>
+      <AdSenseAd 
+        adSlot="2866210176" 
+        className="my-8 sm:my-12 min-h-[100px] sm:min-h-[250px]"
+        aria-label="Advertisement"
+      />
     </section>
   );
 }

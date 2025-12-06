@@ -3,6 +3,7 @@ import { formatCurrency } from "@/lib/format/currency";
 import type { OccupationRecord } from "@/lib/data/types";
 import { Calendar, Users, TrendingUp, DollarSign } from "lucide-react";
 import { Badge } from "../ui/badge";
+import { AdSenseAd } from "@/components/ui/adsense-ad";
 
 interface ExperienceLevelSalariesChartProps {
   record: OccupationRecord;
@@ -123,6 +124,11 @@ export function ExperienceLevelSalariesChart({ record, country }: ExperienceLeve
             )}
             </CardContent>
           </Card>
+          <AdSenseAd 
+            adSlot="5300801825" 
+            className="my-8 sm:my-12 min-h-[100px] sm:min-h-[250px]"
+            aria-label="Advertisement"
+          />
         </section>
       );
   }
