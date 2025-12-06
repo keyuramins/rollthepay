@@ -16,6 +16,7 @@ import type { OccupationRecord } from "@/lib/data/types";
 import { getJobCategoryInfo } from "./job-category-detector";
 import { locationStateCountryString } from "@/lib/utils/locationStateCountryString";
 import { headers } from 'next/headers';
+import { AdSenseAd } from "@/components/ui/adsense-ad";
 
 interface OccupationPageProps {
   country: string;
@@ -179,10 +180,35 @@ export async function OccupationPage({ country, state, location, slug }: Occupat
           <OccupationHeroSection record={record} country={country} locationText={locationText} />
           <Breadcrumbs breadcrumbs={breadcrumbs} />  
           <CompensationAnalysis record={record} country={country} location={location} />
+          <AdSenseAd 
+            adSlot="6997026875" 
+            className="my-8 sm:my-12 min-h-[100px] sm:min-h-[250px]"
+            aria-label="Advertisement"
+          />
           <GenderComparison record={record} />
+          <AdSenseAd 
+            adSlot="5624057847" 
+            className="my-8 sm:my-12 min-h-[100px] sm:min-h-[250px]"
+            aria-label="Advertisement"
+          />
           <SalaryPercentilesChart record={record} country={country} />
+          <AdSenseAd 
+            adSlot="2866210176" 
+            className="my-8 sm:my-12 min-h-[100px] sm:min-h-[250px]"
+            aria-label="Advertisement"
+          />
           <ExperienceLevelSalariesChart record={record} country={country} />
+          <AdSenseAd 
+            adSlot="5300801825" 
+            className="my-8 sm:my-12 min-h-[100px] sm:min-h-[250px]"
+            aria-label="Advertisement"
+          />
           <TopSkillsMarketDemand record={record} />
+          <AdSenseAd 
+            adSlot="1361556810" 
+            className="my-8 sm:my-12 min-h-[100px] sm:min-h-[250px]"
+            aria-label="Advertisement"
+          />
           <RelatedOpportunitiesSmart record={record} allRecords={await searchOccupations('', record.country, 5000)} />
           <OccupationCTASection countryName={countryName} locationText={locationText} record={record} />
         </article>

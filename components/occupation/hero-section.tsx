@@ -4,6 +4,7 @@ import { formatCurrencyWithMillion } from "@/lib/format/million-currency";
 import type { OccupationRecord } from "@/lib/data/types";
 import { getJobCategoryInfo } from "./job-category-detector";
 import { ShareOccupation } from "@/components/share/ShareOccupation";
+import { AdSenseAd } from "../ui/adsense-ad";
 
 interface OccupationHeroSectionProps {
   record: OccupationRecord;
@@ -253,6 +254,11 @@ export function OccupationHeroSection({ record, country, locationText }: Occupat
           </div>
         </div>
       </div>
+      <AdSenseAd 
+            adSlot="6512250643" 
+            className="my-8 sm:my-12 min-h-[100px] sm:min-h-[250px]"
+            aria-label="Advertisement"
+          />
     </section>
   );
 }
